@@ -197,11 +197,12 @@
         }
         .table-section .table-title { font-size: 14px; color: #fff; margin-bottom: 12px; padding-left: 10px; border-left: 3px solid #409eff; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .data-table th { background: rgba(64, 158, 255, 0.2); color: #fff; padding: 10px 6px; text-align: center; font-weight: 500; border-bottom: 1px solid rgba(64, 158, 255, 0.3); }
-        .data-table td { padding: 8px 6px; text-align: center; color: #dcdfe6; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .data-table th { background: rgba(64, 158, 255, 0.2); color: #fff; padding: 8px 5px; text-align: center; font-weight: 500; border-bottom: 1px solid rgba(64, 158, 255, 0.3); font-size: 11px; white-space: nowrap; }
+        .data-table td { padding: 6px 4px; text-align: center; color: #dcdfe6; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px; white-space: nowrap; }
         .data-table tr:hover td { background: rgba(64, 158, 255, 0.1); }
         .data-table .profit-positive { color: #67c23a; }
         .data-table .profit-negative { color: #f56c6c; }
+        .data-table .rate-cell { color: #909399; font-size: 10px; }
         
         @media (max-width: 1200px) {
             .kpi-section { grid-template-columns: repeat(2, 1fr); }
@@ -325,12 +326,19 @@
                             <th>退款率</th>
                             <th>销售额</th>
                             <th>产品成本</th>
+                            <th>成本率</th>
                             <th>仓储成本</th>
+                            <th>仓储率</th>
                             <th>千川消耗</th>
+                            <th>千川率</th>
                             <th>佣金</th>
+                            <th>佣金率</th>
                             <th>人工成本</th>
+                            <th>人工率</th>
                             <th>运营成本</th>
+                            <th>运营率</th>
                             <th>总成本</th>
+                            <th>总成本率</th>
                             <th>毛利润</th>
                             <th>利润率</th>
                         </tr>
@@ -566,10 +574,27 @@
 
             document.getElementById('tableBody').innerHTML = rows.map(function(row) {
                 var d = row.data;
+                var s = d.销售额 > 0 ? d.销售额 : 1;
                 var rr = d.GMV > 0 ? (d.退款 / d.GMV * 100) : 0;
                 var pc = d.毛利润 >= 0 ? 'profit-positive' : 'profit-negative';
                 var prc = d.利润率 >= 0 ? 'profit-positive' : 'profit-negative';
-                return '<tr><td>' + row.time + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.退款) + '</td><td>' + formatPercent(rr) + '</td><td>' + formatMoney(d.销售额) + '</td><td>' + formatMoney(d.产品成本) + '</td><td>' + formatMoney(d.仓储成本) + '</td><td>' + formatMoney(d.千川消耗) + '</td><td>' + formatMoney(d.佣金) + '</td><td>' + formatMoney(d.人工成本) + '</td><td>' + formatMoney(d.运营成本) + '</td><td>' + formatMoney(d.总成本) + '</td><td class="' + pc + '">' + formatMoney(d.毛利润) + '</td><td class="' + prc + '">' + formatPercent(d.利润率) + '</td></tr>';
+                var rc = 'rate-cell';
+                return '<tr>'
+                    + '<td>' + row.time + '</td>'
+                    + '<td>' + formatMoney(d.GMV) + '</td>'
+                    + '<td>' + formatMoney(d.退款) + '</td>'
+                    + '<td>' + formatPercent(rr) + '</td>'
+                    + '<td>' + formatMoney(d.销售额) + '</td>'
+                    + '<td>' + formatMoney(d.产品成本) + '</td><td class="' + rc + '">' + formatPercent(d.产品成本 / s * 100) + '</td>'
+                    + '<td>' + formatMoney(d.仓储成本) + '</td><td class="' + rc + '">' + formatPercent(d.仓储成本 / s * 100) + '</td>'
+                    + '<td>' + formatMoney(d.千川消耗) + '</td><td class="' + rc + '">' + formatPercent(d.千川消耗 / s * 100) + '</td>'
+                    + '<td>' + formatMoney(d.佣金) + '</td><td class="' + rc + '">' + formatPercent(d.佣金 / s * 100) + '</td>'
+                    + '<td>' + formatMoney(d.人工成本) + '</td><td class="' + rc + '">' + formatPercent(d.人工成本 / s * 100) + '</td>'
+                    + '<td>' + formatMoney(d.运营成本) + '</td><td class="' + rc + '">' + formatPercent(d.运营成本 / s * 100) + '</td>'
+                    + '<td>' + formatMoney(d.总成本) + '</td><td class="' + rc + '">' + formatPercent(d.总成本 / s * 100) + '</td>'
+                    + '<td class="' + pc + '">' + formatMoney(d.毛利润) + '</td>'
+                    + '<td class="' + prc + '">' + formatPercent(d.利润率) + '</td>'
+                    + '</tr>';
             }).join('');
 
             if (rows.length > 1) {
@@ -585,7 +610,24 @@
                 var rr2 = total.GMV > 0 ? (total.退款 / total.GMV * 100) : 0;
                 var pc2 = total.毛利润 >= 0 ? 'profit-positive' : 'profit-negative';
                 var prc2 = pr >= 0 ? 'profit-positive' : 'profit-negative';
-                document.getElementById('tableBody').innerHTML += '<tr style="background:rgba(64,158,255,0.15);font-weight:bold;"><td>合计</td><td>' + formatMoney(total.GMV) + '</td><td>' + formatMoney(total.退款) + '</td><td>' + formatPercent(rr2) + '</td><td>' + formatMoney(total.销售额) + '</td><td>' + formatMoney(total.产品成本) + '</td><td>' + formatMoney(total.仓储成本) + '</td><td>' + formatMoney(total.千川消耗) + '</td><td>' + formatMoney(total.佣金) + '</td><td>' + formatMoney(total.人工成本) + '</td><td>' + formatMoney(total.运营成本) + '</td><td>' + formatMoney(total.总成本) + '</td><td class="' + pc2 + '">' + formatMoney(total.毛利润) + '</td><td class="' + prc2 + '">' + formatPercent(pr) + '</td></tr>';
+                var ts = total.销售额 > 0 ? total.销售额 : 1;
+                var trc = 'rate-cell';
+                document.getElementById('tableBody').innerHTML += '<tr style="background:rgba(64,158,255,0.15);font-weight:bold;">'
+                    + '<td>合计</td>'
+                    + '<td>' + formatMoney(total.GMV) + '</td>'
+                    + '<td>' + formatMoney(total.退款) + '</td>'
+                    + '<td>' + formatPercent(rr2) + '</td>'
+                    + '<td>' + formatMoney(total.销售额) + '</td>'
+                    + '<td>' + formatMoney(total.产品成本) + '</td><td class="' + trc + '">' + formatPercent(total.产品成本 / ts * 100) + '</td>'
+                    + '<td>' + formatMoney(total.仓储成本) + '</td><td class="' + trc + '">' + formatPercent(total.仓储成本 / ts * 100) + '</td>'
+                    + '<td>' + formatMoney(total.千川消耗) + '</td><td class="' + trc + '">' + formatPercent(total.千川消耗 / ts * 100) + '</td>'
+                    + '<td>' + formatMoney(total.佣金) + '</td><td class="' + trc + '">' + formatPercent(total.佣金 / ts * 100) + '</td>'
+                    + '<td>' + formatMoney(total.人工成本) + '</td><td class="' + trc + '">' + formatPercent(total.人工成本 / ts * 100) + '</td>'
+                    + '<td>' + formatMoney(total.运营成本) + '</td><td class="' + trc + '">' + formatPercent(total.运营成本 / ts * 100) + '</td>'
+                    + '<td>' + formatMoney(total.总成本) + '</td><td class="' + trc + '">' + formatPercent(total.总成本 / ts * 100) + '</td>'
+                    + '<td class="' + pc2 + '">' + formatMoney(total.毛利润) + '</td>'
+                    + '<td class="' + prc2 + '">' + formatPercent(pr) + '</td>'
+                    + '</tr>';
             }
         }
 
