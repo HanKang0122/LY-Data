@@ -583,22 +583,22 @@
                 months.forEach(function(month) {
                     var m = businessData.monthly_summary.find(function(item) { return item['月份'] === month; });
                     if (m) {
-                        // 将英文字段名转换为中文，与按日查看保持一致
+                        // monthly_summary 已使用中文字段名，直接使用
                         rows.push({ 
                             time: month, 
                             data: { 
                                 GMV: m.GMV, 
-                                退款: m.refund, 
-                                销售额: m.sales, 
-                                产品成本: m.productCost, 
-                                仓储成本: m.storageCost, 
-                                千川消耗: m.qianchuan, 
-                                佣金: m.commission, 
-                                人工成本: m.labor, 
-                                运营成本: m.operating, 
-                                总成本: m.totalCost, 
-                                毛利润: m.profit, 
-                                利润率: m.利润率 
+                                退款: m['退款'], 
+                                销售额: m['销售额'], 
+                                产品成本: m['产品成本'], 
+                                仓储成本: m['仓储成本'], 
+                                千川消耗: m['千川消耗'], 
+                                佣金: m['佣金'], 
+                                人工成本: m['人工成本'], 
+                                运营成本: m['运营成本'], 
+                                总成本: m['总成本'], 
+                                毛利润: m['毛利润'], 
+                                利润率: m['利润率'] 
                             } 
                         });
                     }
@@ -678,8 +678,8 @@
         }
 
         // ---------- 图表 ----------
-        function initTrendChart() {
-            trendChart = echarts.init(document.getElementById('trendChart'));
+        function updateTrendChart() {
+            if (!trendChart) trendChart = echarts.init(document.getElementById('trendChart'));
             var start = new Date(state.startDate), end = new Date(state.endDate);
             var dates = [], gmvData = [], salesData = [], profitData = [];
             Object.keys(businessData.daily_data).forEach(function(month) {
@@ -707,8 +707,8 @@
             });
         }
 
-        function initShopCompareChart() {
-            shopCompareChart = echarts.init(document.getElementById('shopCompareChart'));
+        function updateShopCompareChart() {
+            if (!shopCompareChart) shopCompareChart = echarts.init(document.getElementById('shopCompareChart'));
             var shopMonthly = {};
             Object.keys(businessData.daily_data).forEach(function(month) {
                 shopMonthly[month] = {};
@@ -735,8 +735,8 @@
             });
         }
 
-        function initCostPieChart() {
-            costPieChart = echarts.init(document.getElementById('costPieChart'));
+        function updateCostPieChart() {
+            if (!costPieChart) costPieChart = echarts.init(document.getElementById('costPieChart'));
             var data = aggregateData(state.startDate, state.endDate);
             costPieChart.setOption({
                 tooltip: { trigger:'item', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter:'{b}: {c} ({d}%)' },
@@ -754,8 +754,8 @@
             });
         }
 
-        function initProfitTrendChart() {
-            profitTrendChart = echarts.init(document.getElementById('profitTrendChart'));
+        function updateProfitTrendChart() {
+            if (!profitTrendChart) profitTrendChart = echarts.init(document.getElementById('profitTrendChart'));
             var months = businessData.monthly_summary.map(function(m){return m['月份'];});
             var profitRates = businessData.monthly_summary.map(function(m){return m.利润率;});
             profitTrendChart.setOption({
@@ -796,14 +796,18 @@
                 document.querySelectorAll('.quick-btn').forEach(function(b){b.classList.remove('active');});
                 this.classList.add('active');
                 var range = this.dataset.range;
-                if (range === 'all') { state.startDate = '2026-01-01'; state.endDate = '2026-04-30'; }
-                else if (range === 'today') { state.startDate = '2026-04-30'; state.endDate = '2026-04-30'; }
+                var maxDate = state.endDate || '2026-05-27';
+                if (range === 'all') { 
+                    state.startDate = businessData.daily_data ? Object.keys(businessData.daily_data).sort()[0] + '-01' : '2026-01-01'; 
+                    state.endDate = maxDate; 
+                }
+                else if (range === 'today') { state.startDate = maxDate; state.endDate = maxDate; }
                 else if (range === 'week') {
-                    var s = new Date('2026-04-30'); s.setDate(s.getDate()-6);
-                    state.startDate = s.toISOString().split('T')[0]; state.endDate = '2026-04-30';
+                    var s = new Date(maxDate); s.setDate(s.getDate()-6);
+                    state.startDate = s.toISOString().split('T')[0]; state.endDate = maxDate;
                 } else if (range === 'month30') {
-                    var s2 = new Date('2026-04-30'); s2.setDate(s2.getDate()-29);
-                    state.startDate = s2.toISOString().split('T')[0]; state.endDate = '2026-04-30';
+                    var s2 = new Date(maxDate); s2.setDate(s2.getDate()-29);
+                    state.startDate = s2.toISOString().split('T')[0]; state.endDate = maxDate;
                 }
                 document.getElementById('startDate').value = state.startDate;
                 document.getElementById('endDate').value = state.endDate;
@@ -819,14 +823,14 @@
             state.endDate = document.getElementById('endDate').value;
             state.compareMode = document.getElementById('compareMode').value;
             renderKPI(); renderShopCards(); renderTable();
-            initTrendChart(); initCostPieChart();
+            updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
 
         // ---------- 初始化 ----------
         function initAll() {
             updateTime();
             renderKPI(); renderShopCards(); renderTable();
-            initTrendChart(); initShopCompareChart(); initCostPieChart(); initProfitTrendChart();
+            updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
 
         window.addEventListener('resize', function() {
