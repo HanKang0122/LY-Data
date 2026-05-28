@@ -731,35 +731,72 @@
 
         function updateShopCompareChart() {
             if (!shopCompareChart) shopCompareChart = echarts.init(document.getElementById('shopCompareChart'));
-            var shopMonthly = {};
-            Object.keys(businessData.daily_data).forEach(function(month) {
-                shopMonthly[month] = {};
-                Object.values(businessData.daily_data[month]).forEach(function(dayData) {
-                    dayData.shops.forEach(function(shop) {
-                        if (!shopMonthly[month][shop.name]) shopMonthly[month][shop.name] = 0;
-                        shopMonthly[month][shop.name] += shop.sales;
+            var shopNames, xData, seriesData;
+            // 按月查看且选了特定月份时，显示当月每日数据
+            if (state.granularity === 'month' && state.month !== 'all') {
+                var monthData = businessData.daily_data[state.month] || {};
+                var dates = Object.keys(monthData).sort();
+                var shopDaily = {};
+                dates.forEach(function(dateStr) {
+                    monthData[dateStr].shops.forEach(function(shop) {
+                        if (!shopDaily[shop.name]) shopDaily[shop.name] = [];
+                        shopDaily[shop.name].push(shop.sales);
                     });
                 });
-            });
-            var months = businessData.meta.periods || [];
-            var firstMonth = months[0] || '2026-01';
-            var shopNames = Object.keys(shopMonthly[firstMonth] || {});
-            var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                shopNames = Object.keys(shopDaily);
+                xData = dates;
+                var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                seriesData = shopNames.map(function(name, idx) {
+                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: shopDaily[name], itemStyle:{color:colors[idx%colors.length]} };
+                });
+            } else {
+                // 显示各月累计数据
+                var shopMonthly = {};
+                Object.keys(businessData.daily_data).forEach(function(month) {
+                    shopMonthly[month] = {};
+                    Object.values(businessData.daily_data[month]).forEach(function(dayData) {
+                        dayData.shops.forEach(function(shop) {
+                            if (!shopMonthly[month][shop.name]) shopMonthly[month][shop.name] = 0;
+                            shopMonthly[month][shop.name] += shop.sales;
+                        });
+                    });
+                });
+                var months = businessData.meta.periods || [];
+                var firstMonth = months[0] || '2026-01';
+                shopNames = Object.keys(shopMonthly[firstMonth] || {});
+                xData = months;
+                var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                seriesData = shopNames.map(function(name, idx) {
+                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: months.map(function(m){return shopMonthly[m][name]||0;}), itemStyle:{color:colors[idx%colors.length]} };
+                });
+            }
             shopCompareChart.setOption({
                 tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'} },
                 legend: { data: shopNames.map(function(n){return n.replace('抖音-','').replace('快手-','').replace('微信-','');}), textStyle:{color:'#909399'}, top:0 },
                 grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-                xAxis: { type:'category', data:months, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399'} },
+                xAxis: { type:'category', data:xData, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:45,fontSize:10} },
                 yAxis: { type:'value', axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:function(v){return (v/10000).toFixed(0)+'万';}}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
-                series: shopNames.map(function(name, idx) {
-                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: months.map(function(m){return shopMonthly[m][name]||0;}), itemStyle:{color:colors[idx%colors.length]} };
-                })
+                series: seriesData
             });
         }
 
         function updateCostPieChart() {
             if (!costPieChart) costPieChart = echarts.init(document.getElementById('costPieChart'));
-            var data = aggregateData(state.startDate, state.endDate);
+            var data;
+            // 按月查看且选了特定月份时，使用 monthly_summary 确保数据一致
+            if (state.granularity === 'month' && state.month !== 'all') {
+                var m = businessData.monthly_summary.find(function(item) { return item['月份'] === state.month; });
+                if (m) {
+                    data = {
+                        产品成本: m['产品成本'], 仓储成本: m['仓储成本'], 千川消耗: m['千川消耗'],
+                        佣金: m['佣金'], 人工成本: m['人工成本'], 运营成本: m['运营成本']
+                    };
+                } else {
+                    data = aggregateData(state.startDate, state.endDate);
+                }
+            } else {
+                data = aggregateData(state.startDate, state.endDate);
+            }
             costPieChart.setOption({
                 tooltip: { trigger:'item', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter:'{b}: {c} ({d}%)' },
                 legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#909399',fontSize:11} },
@@ -778,12 +815,28 @@
 
         function updateProfitTrendChart() {
             if (!profitTrendChart) profitTrendChart = echarts.init(document.getElementById('profitTrendChart'));
-            var months = businessData.monthly_summary.map(function(m){return m['月份'];});
-            var profitRates = businessData.monthly_summary.map(function(m){return m.利润率;});
+            var xData, profitRates, chartTitle;
+            // 按月查看且选了特定月份时，显示当月每日利润率
+            if (state.granularity === 'month' && state.month !== 'all') {
+                var monthData = businessData.daily_data[state.month] || {};
+                var dates = Object.keys(monthData).sort();
+                xData = dates;
+                profitRates = dates.map(function(dateStr) {
+                    var total = monthData[dateStr].total;
+                    return total.sales > 0 ? (total.profit / total.sales * 100) : 0;
+                });
+                chartTitle = state.month + ' 每日利润率';
+            } else {
+                // 显示各月利润率趋势
+                xData = businessData.monthly_summary.map(function(m){return m['月份'];});
+                profitRates = businessData.monthly_summary.map(function(m){return m.利润率;});
+                chartTitle = '月度利润率趋势';
+            }
             profitTrendChart.setOption({
+                title: { text: chartTitle, left: 'center', textStyle: { color: '#fff', fontSize: 12 } },
                 tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter:'{b}: {c}%' },
                 grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-                xAxis: { type:'category', data:months, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399'} },
+                xAxis: { type:'category', data:xData, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:45,fontSize:10} },
                 yAxis: { type:'value', axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:'{value}%'}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
                 series: [{ type:'line', smooth:true, data:profitRates, itemStyle:{color:'#67c23a'}, lineStyle:{width:3},
                     areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(103,194,58,0.3)'},{offset:1,color:'rgba(103,194,58,0.05)'}]) },
