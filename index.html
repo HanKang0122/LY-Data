@@ -756,6 +756,30 @@
                 seriesData = shopNames.map(function(name, idx) {
                     return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: shopDaily[name], itemStyle:{color:colors[idx%colors.length]} };
                 });
+            } else if (state.granularity === 'day') {
+                // 按日查看时，显示日期范围内的每日数据
+                var start = new Date(state.startDate), end = new Date(state.endDate);
+                var allDates = [];
+                var shopDaily = {};
+                Object.keys(businessData.daily_data).forEach(function(month) {
+                    Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+                        var date = new Date(dateStr);
+                        if (date >= start && date <= end) {
+                            allDates.push(dateStr);
+                            businessData.daily_data[month][dateStr].shops.forEach(function(shop) {
+                                if (!shopDaily[shop.name]) shopDaily[shop.name] = [];
+                                shopDaily[shop.name].push(shop.sales);
+                            });
+                        }
+                    });
+                });
+                allDates.sort();
+                shopNames = Object.keys(shopDaily);
+                xData = allDates;
+                var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                seriesData = shopNames.map(function(name, idx) {
+                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: shopDaily[name], itemStyle:{color:colors[idx%colors.length]} };
+                });
             } else {
                 // 显示各月累计数据
                 var shopMonthly = {};
@@ -796,8 +820,8 @@
 
         function updateCostPieChart() {
             if (!costPieChart) costPieChart = echarts.init(document.getElementById('costPieChart'));
-            var data;
-            // 按月查看且选了特定月份时，使用 monthly_summary 确保数据一致
+            var data, salesAmount;
+            // 获取成本数据和销售额
             if (state.granularity === 'month' && state.month !== 'all') {
                 var m = businessData.monthly_summary.find(function(item) { return item['月份'] === state.month; });
                 if (m) {
@@ -805,16 +829,32 @@
                         产品成本: m['产品成本'], 仓储成本: m['仓储成本'], 千川消耗: m['千川消耗'],
                         佣金: m['佣金'], 人工成本: m['人工成本'], 运营成本: m['运营成本']
                     };
+                    salesAmount = m['销售额'];
                 } else {
                     data = aggregateData(state.startDate, state.endDate);
+                    salesAmount = data.销售额;
                 }
             } else {
                 data = aggregateData(state.startDate, state.endDate);
+                salesAmount = data.销售额;
             }
+            // 计算成本率（占销售额的百分比）
+            var costRates = {};
+            var costNames = ['产品成本', '仓储成本', '千川消耗', '佣金', '人工成本', '运营成本'];
+            costNames.forEach(function(name) {
+                costRates[name] = salesAmount > 0 ? (data[name] / salesAmount * 100) : 0;
+            });
             costPieChart.setOption({
-                tooltip: { trigger:'item', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter:'{b}: {c} ({d}%)' },
-                legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#909399',fontSize:11} },
-                series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#1a2a4a',borderWidth:2}, label:{show:false}, emphasis:{label:{show:true,fontSize:12,fontWeight:'bold',color:'#fff'}},
+                tooltip: { trigger:'item', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) {
+                    var val = params.value >= 10000 ? (params.value/10000).toFixed(2) + '万' : params.value.toFixed(2);
+                    return params.name + ': ' + val + ' (' + costRates[params.name].toFixed(2) + '%)';
+                }},
+                legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#909399',fontSize:11}, formatter: function(name) {
+                    return name + ' ' + costRates[name].toFixed(2) + '%';
+                }},
+                series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#1a2a4a',borderWidth:2}, label:{show:false}, emphasis:{label:{show:true,fontSize:12,fontWeight:'bold',color:'#fff',formatter: function(params) {
+                    return params.name + '\n' + costRates[params.name].toFixed(2) + '%';
+                }}},
                     data: [
                         { value:Math.round(data.产品成本), name:'产品成本', itemStyle:{color:'#409eff'} },
                         { value:Math.round(data.仓储成本), name:'仓储成本', itemStyle:{color:'#67c23a'} },
@@ -840,6 +880,27 @@
                     return total.sales > 0 ? (total.profit / total.sales * 100) : 0;
                 });
                 chartTitle = state.month + ' 每日利润率';
+            } else if (state.granularity === 'day') {
+                // 按日查看时，显示日期范围内的每日利润率
+                var start = new Date(state.startDate), end = new Date(state.endDate);
+                var allDates = [];
+                var allRates = [];
+                Object.keys(businessData.daily_data).forEach(function(month) {
+                    Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+                        var date = new Date(dateStr);
+                        if (date >= start && date <= end) {
+                            allDates.push(dateStr);
+                            var total = businessData.daily_data[month][dateStr].total;
+                            allRates.push(total.sales > 0 ? (total.profit / total.sales * 100) : 0);
+                        }
+                    });
+                });
+                // 按日期排序
+                var combined = allDates.map(function(d, i) { return { date: d, rate: allRates[i] }; });
+                combined.sort(function(a, b) { return a.date.localeCompare(b.date); });
+                xData = combined.map(function(item) { return item.date; });
+                profitRates = combined.map(function(item) { return item.rate; });
+                chartTitle = '每日利润率趋势';
             } else {
                 // 显示各月利润率趋势
                 xData = businessData.monthly_summary.map(function(m){return m['月份'];});
@@ -909,19 +970,24 @@
 
         function applyFilters() {
             state.granularity = document.getElementById('timeGranularity').value;
-            state.month = document.getElementById('monthSelect').value;
             state.startDate = document.getElementById('startDate').value;
             state.endDate = document.getElementById('endDate').value;
             state.compareMode = document.getElementById('compareMode').value;
-            // 按月查看且选了特定月份时，同步日期范围
-            if (state.granularity === 'month' && state.month !== 'all') {
-                var parts = state.month.split('-');
-                var y = parseInt(parts[0]), m = parseInt(parts[1]);
-                var lastDay = new Date(y, m, 0).getDate();
-                state.startDate = state.month + '-01';
-                state.endDate = state.month + '-' + String(lastDay).padStart(2, '0');
-                document.getElementById('startDate').value = state.startDate;
-                document.getElementById('endDate').value = state.endDate;
+            // 按月查看时，读取月份选择器的值并同步日期范围
+            if (state.granularity === 'month') {
+                state.month = document.getElementById('monthSelect').value;
+                if (state.month !== 'all') {
+                    var parts = state.month.split('-');
+                    var y = parseInt(parts[0]), m = parseInt(parts[1]);
+                    var lastDay = new Date(y, m, 0).getDate();
+                    state.startDate = state.month + '-01';
+                    state.endDate = state.month + '-' + String(lastDay).padStart(2, '0');
+                    document.getElementById('startDate').value = state.startDate;
+                    document.getElementById('endDate').value = state.endDate;
+                }
+            } else {
+                // 按日查看时，忽略月份选择器，只使用日期范围
+                state.month = 'all';
             }
             renderKPI(); renderShopCards(); renderTable();
             updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
