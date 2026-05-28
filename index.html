@@ -716,7 +716,14 @@
                 });
             });
             trendChart.setOption({
-                tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,35,60,0.9)', borderColor: '#409eff', textStyle: {color:'#fff'} },
+                tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,35,60,0.9)', borderColor: '#409eff', textStyle: {color:'#fff'}, formatter: function(params) {
+                    var result = params[0].axisValue + '<br/>';
+                    params.forEach(function(item) {
+                        var val = item.value >= 10000 ? (item.value/10000).toFixed(2) + '万' : item.value.toFixed(2);
+                        result += item.marker + ' ' + item.seriesName + ': ' + val + '<br/>';
+                    });
+                    return result;
+                }},
                 legend: { data: ['GMV','销售额','毛利润'], textStyle: {color:'#909399'}, top: 0 },
                 grid: { left:'3%', right:'4%', bottom:'3%', containLabel: true },
                 xAxis: { type:'category', data:dates, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:45,fontSize:10} },
@@ -771,7 +778,14 @@
                 });
             }
             shopCompareChart.setOption({
-                tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'} },
+                tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) {
+                    var result = params[0].axisValue + '<br/>';
+                    params.forEach(function(item) {
+                        var val = item.value >= 10000 ? (item.value/10000).toFixed(2) + '万' : item.value.toFixed(2);
+                        result += item.marker + ' ' + item.seriesName + ': ' + val + '<br/>';
+                    });
+                    return result;
+                }},
                 legend: { data: shopNames.map(function(n){return n.replace('抖音-','').replace('快手-','').replace('微信-','');}), textStyle:{color:'#909399'}, top:0 },
                 grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
                 xAxis: { type:'category', data:xData, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:45,fontSize:10} },
