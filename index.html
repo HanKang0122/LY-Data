@@ -513,8 +513,23 @@
         }
 
         // ---------- 渲染函数 ----------
+        function getSelectedMonthData() {
+            // 根据当前选择的月份，返回对应的月度汇总数据
+            if (state.granularity === 'month' && state.month !== 'all') {
+                var m = businessData.monthly_summary.find(function(item) { return item['月份'] === state.month; });
+                if (m) return {
+                    GMV: m.GMV, 退款: m['退款'], 销售额: m['销售额'],
+                    产品成本: m['产品成本'], 仓储成本: m['仓储成本'], 千川消耗: m['千川消耗'],
+                    佣金: m['佣金'], 人工成本: m['人工成本'], 运营成本: m['运营成本'],
+                    总成本: m['总成本'], 毛利润: m['毛利润']
+                };
+            }
+            // 按日查看或全部月份时，从 daily_data 聚合
+            return aggregateData(state.startDate, state.endDate);
+        }
+
         function renderKPI() {
-            var currentData = aggregateData(state.startDate, state.endDate);
+            var currentData = getSelectedMonthData();
             var comparePeriod = getComparePeriod();
             var compareData = comparePeriod ? aggregateData(comparePeriod.start, comparePeriod.end) : null;
             var profitRate = currentData.销售额 > 0 ? (currentData.毛利润 / currentData.销售额 * 100) : 0;
@@ -550,7 +565,14 @@
             var platformLabels = { douyin: '抖音', kuaishou: '快手', weixin: '微信' };
             var shopData = {};
             var start = new Date(state.startDate), end = new Date(state.endDate);
+            // 按月查看时，限制日期范围到所选月份
+            if (state.granularity === 'month' && state.month !== 'all') {
+                start = new Date(state.month + '-01');
+                var lastDay = new Date(parseInt(state.month.split('-')[0]), parseInt(state.month.split('-')[1]), 0).getDate();
+                end = new Date(state.month + '-' + String(lastDay).padStart(2, '0'));
+            }
             Object.keys(businessData.daily_data).forEach(function(month) {
+                if (state.granularity === 'month' && state.month !== 'all' && month !== state.month) return;
                 Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
                     var date = new Date(dateStr);
                     if (date >= start && date <= end) {
@@ -819,9 +841,21 @@
         document.getElementById('applyBtn').addEventListener('click', applyFilters);
 
         function applyFilters() {
+            state.granularity = document.getElementById('timeGranularity').value;
+            state.month = document.getElementById('monthSelect').value;
             state.startDate = document.getElementById('startDate').value;
             state.endDate = document.getElementById('endDate').value;
             state.compareMode = document.getElementById('compareMode').value;
+            // 按月查看且选了特定月份时，同步日期范围
+            if (state.granularity === 'month' && state.month !== 'all') {
+                var parts = state.month.split('-');
+                var y = parseInt(parts[0]), m = parseInt(parts[1]);
+                var lastDay = new Date(y, m, 0).getDate();
+                state.startDate = state.month + '-01';
+                state.endDate = state.month + '-' + String(lastDay).padStart(2, '0');
+                document.getElementById('startDate').value = state.startDate;
+                document.getElementById('endDate').value = state.endDate;
+            }
             renderKPI(); renderShopCards(); renderTable();
             updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
