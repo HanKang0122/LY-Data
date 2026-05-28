@@ -582,7 +582,26 @@
                 var months = state.month === 'all' ? (businessData.meta.periods || []) : [state.month];
                 months.forEach(function(month) {
                     var m = businessData.monthly_summary.find(function(item) { return item['月份'] === month; });
-                    if (m) rows.push({ time: month, data: m });
+                    if (m) {
+                        // 将英文字段名转换为中文，与按日查看保持一致
+                        rows.push({ 
+                            time: month, 
+                            data: { 
+                                GMV: m.GMV, 
+                                退款: m.refund, 
+                                销售额: m.sales, 
+                                产品成本: m.productCost, 
+                                仓储成本: m.storageCost, 
+                                千川消耗: m.qianchuan, 
+                                佣金: m.commission, 
+                                人工成本: m.labor, 
+                                运营成本: m.operating, 
+                                总成本: m.totalCost, 
+                                毛利润: m.profit, 
+                                利润率: m.利润率 
+                            } 
+                        });
+                    }
                 });
             } else {
                 var start = new Date(state.startDate), end = new Date(state.endDate);
