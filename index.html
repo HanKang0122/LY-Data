@@ -787,6 +787,8 @@
                 document.getElementById('startDate').value = state.startDate;
                 document.getElementById('endDate').value = state.endDate;
             }
+            // 月份改变后重新渲染
+            applyFilters();
         });
 
         document.querySelectorAll('.quick-btn').forEach(function(btn) {
