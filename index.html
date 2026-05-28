@@ -366,6 +366,34 @@
             compareMode: 'none'
         };
 
+        // 动态计算日期范围
+        function updateDateRangeFromData() {
+            if (!businessData || !businessData.daily_data) return;
+            
+            var allDates = [];
+            Object.keys(businessData.daily_data).forEach(function(month) {
+                Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+                    allDates.push(dateStr);
+                });
+            });
+            
+            if (allDates.length === 0) return;
+            
+            allDates.sort();
+            var minDate = allDates[0];
+            var maxDate = allDates[allDates.length - 1];
+            
+            // 更新状态
+            state.startDate = minDate;
+            state.endDate = maxDate;
+            
+            // 更新输入框
+            document.getElementById('startDate').value = minDate;
+            document.getElementById('endDate').value = maxDate;
+            
+            console.log('日期范围已自动更新:', minDate, '至', maxDate);
+        }
+
         // ---------- 数据加载 ----------
         async function loadData() {
             const overlay = document.getElementById('loadingOverlay');
@@ -392,6 +420,9 @@
 
                 // 动态生成月份选项
                 populateMonthSelect();
+                
+                // 动态更新日期范围
+                updateDateRangeFromData();
 
                 // 隐藏加载遮罩
                 setTimeout(() => {
