@@ -303,26 +303,6 @@
         
         <!-- 完成率模块 -->
         <div class="kpi-section" id="completionSection" style="margin-top: 0;">
-            <div class="kpi-card" style="--card-color:#409eff;">
-                <div class="label">月度销售额完成率</div>
-                <div class="value-row">
-                    <div class="value" id="monthCompletionRate">0.00</div>
-                    <div class="unit">%</div>
-                </div>
-                <div class="rate-row">
-                    <span class="rate-label">当月目标：</span>
-                    <span class="rate-value" id="monthTarget">0</span>
-                    <span class="rate-label">元</span>
-                </div>
-                <div class="rate-row">
-                    <span class="rate-label">已完成：</span>
-                    <span class="rate-value positive" id="monthAchieved">0</span>
-                    <span class="rate-label">元</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="monthProgressFill" style="width:0%"></div>
-                </div>
-            </div>
             <div class="kpi-card" style="--card-color:#e6a23c;">
                 <div class="label">年度销售额完成率（保底）</div>
                 <div class="value-row">
@@ -361,6 +341,46 @@
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="annualProgressFillChallenge" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="kpi-card" style="--card-color:#f56c6c;">
+                <div class="label">年度毛利润完成率（保底）</div>
+                <div class="value-row">
+                    <div class="value" id="annualProfitRateBase">0.00</div>
+                    <div class="unit">%</div>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">保底目标：</span>
+                    <span class="rate-value">60万</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">已完成：</span>
+                    <span class="rate-value" id="annualProfitAchievedBase">0</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="annualProfitFillBase" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="kpi-card" style="--card-color:#b37feb;">
+                <div class="label">年度毛利润完成率（挑战）</div>
+                <div class="value-row">
+                    <div class="value" id="annualProfitRateChallenge">0.00</div>
+                    <div class="unit">%</div>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">挑战目标：</span>
+                    <span class="rate-value">100万</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">已完成：</span>
+                    <span class="rate-value" id="annualProfitAchievedChallenge">0</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="annualProfitFillChallenge" style="width:0%"></div>
                 </div>
             </div>
         </div>
@@ -615,9 +635,26 @@
             var refundRate = currentData.GMV > 0 ? (currentData.退款 / currentData.GMV * 100) : 0;
             var costRate = currentData.销售额 > 0 ? (currentData.总成本 / currentData.销售额 * 100) : 0;
 
+            // 计算月度完成率
+            var currentMonth = '';
+            if (state.granularity === 'month' && state.month !== 'all') {
+                currentMonth = state.month;
+            } else {
+                var latestMonth = null, latestDate = null;
+                Object.keys(businessData.daily_data).forEach(function(month) {
+                    Object.keys(businessData.daily_data[month]).forEach(function(date) {
+                        if (!latestDate || date > latestDate) { latestDate = date; latestMonth = month; }
+                    });
+                });
+                currentMonth = latestMonth || '2026-05';
+            }
+            var monthTarget = MONTHLY_TARGETS[currentMonth] || 0;
+            var monthRate = monthTarget > 0 ? (currentData.销售额 / monthTarget * 100) : 0;
+
             var kpiItems = [
                 { label: 'GMV（商品交易总额）', value: currentData.GMV, rate: null, color: '#409eff', compareField: 'GMV' },
-                { label: '销售额', value: currentData.销售额, rate: refundRate, rateLabel: '退款率', color: '#67c23a', compareField: '销售额' },
+                { label: '销售额', value: currentData.销售额, rate: refundRate, rateLabel: '退款率', color: '#67c23a', compareField: '销售额',
+                  extraHtml: monthTarget > 0 ? '<div class="rate-row"><span class="rate-label">月度完成率：</span><span class="rate-value ' + (monthRate >= 100 ? 'positive' : (monthRate >= 0 ? '' : 'negative')) + '">' + monthRate.toFixed(2) + '%</span><span class="rate-label">（目标' + (monthTarget/10000).toFixed(0) + '万）</span></div><div class="progress-bar"><div class="progress-fill" style="width:' + Math.min(monthRate, 100) + '%"></div></div>' : '' },
                 { label: '毛利润', value: currentData.毛利润, rate: profitRate, rateLabel: '利润率', color: currentData.毛利润 >= 0 ? '#67c23a' : '#f56c6c', compareField: '毛利润' },
                 { label: '总成本', value: currentData.总成本, rate: costRate, rateLabel: '成本率', color: '#e6a23c', compareField: '总成本' }
             ];
@@ -627,10 +664,11 @@
                 var rateHtml = item.rate !== null
                     ? '<div class="rate-row"><span class="rate-label">' + item.rateLabel + '：</span><span class="rate-value ' + (item.rate >= 0 ? 'positive' : 'negative') + '">' + formatPercent(item.rate) + '</span></div>'
                     : '';
+                var extraHtml = item.extraHtml || '';
                 var compareHtml = changeInfo
                     ? '<div class="compare-row show"><div class="compare-item"><span class="compare-label">' + comparePeriod.label + '</span><span class="compare-value ' + changeInfo.direction + '">' + changeInfo.text + '</span></div><div class="compare-item"><span class="compare-label">上期值</span><span class="compare-value">' + formatMoney(compareData[item.compareField]) + '</span></div></div>'
                     : '';
-                return '<div class="kpi-card" style="--card-color:' + item.color + '"><div class="label">' + item.label + '</div><div class="value-row"><div class="value">' + formatMoney(item.value) + '</div><div class="unit">元</div></div>' + rateHtml + compareHtml + '</div>';
+                return '<div class="kpi-card" style="--card-color:' + item.color + '"><div class="label">' + item.label + '</div><div class="value-row"><div class="value">' + formatMoney(item.value) + '</div><div class="unit">元</div></div>' + rateHtml + extraHtml + compareHtml + '</div>';
             }).join('');
 
             var indicator = document.getElementById('compareIndicator');
@@ -662,68 +700,39 @@
         };
         
         function renderCompletionRates() {
-            // 计算年度累计销售额
-            var annualSales = 0;
+            // 计算年度累计销售额和毛利润
+            var annualSales = 0, annualProfit = 0;
             businessData.monthly_summary.forEach(function(m) {
                 annualSales += m['销售额'];
+                annualProfit += m['毛利润'];
             });
             
-            // 计算年度完成率
+            // 年度毛利润目标
+            var ANNUAL_PROFIT_BASE = 600000;       // 保底 60万
+            var ANNUAL_PROFIT_CHALLENGE = 1000000; // 挑战 100万
+            
+            // 更新年度销售额完成率
             var annualRateBase = (annualSales / ANNUAL_TARGET_BASE * 100);
             var annualRateChallenge = (annualSales / ANNUAL_TARGET_CHALLENGE * 100);
-            
-            // 更新年度完成率显示
             document.getElementById('annualCompletionRateBase').textContent = annualRateBase.toFixed(2);
             document.getElementById('annualCompletionRateChallenge').textContent = annualRateChallenge.toFixed(2);
             document.getElementById('annualAchievedBase').textContent = (annualSales / 10000).toFixed(2) + '万';
             document.getElementById('annualAchievedChallenge').textContent = (annualSales / 10000).toFixed(2) + '万';
+            document.getElementById('annualProgressFillBase').style.width = Math.min(annualRateBase, 100) + '%';
+            document.getElementById('annualProgressFillChallenge').style.width = Math.min(annualRateChallenge, 100) + '%';
             
-            // 更新进度条
-            var baseProgress = Math.min(annualRateBase, 100);
-            var challengeProgress = Math.min(annualRateChallenge, 100);
-            document.getElementById('annualProgressFillBase').style.width = baseProgress + '%';
-            document.getElementById('annualProgressFillChallenge').style.width = challengeProgress + '%';
-            
-            // 计算当月销售额和完成率
-            var currentMonth = '';
-            if (state.granularity === 'month' && state.month !== 'all') {
-                currentMonth = state.month;
-            } else {
-                // 找到数据中最新月份
-                var latestMonth = null;
-                var latestDate = null;
-                Object.keys(businessData.daily_data).forEach(function(month) {
-                    Object.keys(businessData.daily_data[month]).forEach(function(date) {
-                        if (!latestDate || date > latestDate) {
-                            latestDate = date;
-                            latestMonth = month;
-                        }
-                    });
-                });
-                currentMonth = latestMonth || '2026-05';
-            }
-            
-            // 获取当月销售额
-            var monthSales = 0;
-            var monthTarget = MONTHLY_TARGETS[currentMonth] || 0;
-            var monthData = businessData.daily_data[currentMonth];
-            if (monthData) {
-                Object.values(monthData).forEach(function(day) {
-                    monthSales += day.total.sales;
-                });
-            }
-            
-            // 计算当月完成率
-            var monthRate = monthTarget > 0 ? (monthSales / monthTarget * 100) : 0;
-            
-            // 更新当月完成率显示
-            document.getElementById('monthCompletionRate').textContent = monthRate.toFixed(2);
-            document.getElementById('monthTarget').textContent = (monthTarget / 10000).toFixed(2) + '万';
-            document.getElementById('monthAchieved').textContent = (monthSales / 10000).toFixed(2) + '万';
-            
-            // 更新当月进度条
-            var monthProgress = Math.min(monthRate, 100);
-            document.getElementById('monthProgressFill').style.width = monthProgress + '%';
+            // 更新年度毛利润完成率
+            var profitRateBase = (annualProfit / ANNUAL_PROFIT_BASE * 100);
+            var profitRateChallenge = (annualProfit / ANNUAL_PROFIT_CHALLENGE * 100);
+            var profitColor = function(v) { return v >= 0 ? 'positive' : 'negative'; };
+            document.getElementById('annualProfitRateBase').textContent = profitRateBase.toFixed(2);
+            document.getElementById('annualProfitRateChallenge').textContent = profitRateChallenge.toFixed(2);
+            document.getElementById('annualProfitAchievedBase').textContent = (annualProfit / 10000).toFixed(2) + '万';
+            document.getElementById('annualProfitAchievedBase').className = 'rate-value ' + profitColor(annualProfit);
+            document.getElementById('annualProfitAchievedChallenge').textContent = (annualProfit / 10000).toFixed(2) + '万';
+            document.getElementById('annualProfitAchievedChallenge').className = 'rate-value ' + profitColor(annualProfit);
+            document.getElementById('annualProfitFillBase').style.width = Math.min(profitRateBase, 100) + '%';
+            document.getElementById('annualProfitFillChallenge').style.width = Math.min(profitRateChallenge, 100) + '%';
         }
 
         function renderShopCards() {
