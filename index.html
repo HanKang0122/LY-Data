@@ -635,21 +635,12 @@
             var refundRate = currentData.GMV > 0 ? (currentData.退款 / currentData.GMV * 100) : 0;
             var costRate = currentData.销售额 > 0 ? (currentData.总成本 / currentData.销售额 * 100) : 0;
 
-            // 计算月度完成率
-            var currentMonth = '';
+            // 计算月度完成率（仅按月查看且选了特定月份时显示）
+            var monthRate = 0, monthTarget = 0;
             if (state.granularity === 'month' && state.month !== 'all') {
-                currentMonth = state.month;
-            } else {
-                var latestMonth = null, latestDate = null;
-                Object.keys(businessData.daily_data).forEach(function(month) {
-                    Object.keys(businessData.daily_data[month]).forEach(function(date) {
-                        if (!latestDate || date > latestDate) { latestDate = date; latestMonth = month; }
-                    });
-                });
-                currentMonth = latestMonth || '2026-05';
+                monthTarget = MONTHLY_TARGETS[state.month] || 0;
+                monthRate = monthTarget > 0 ? (currentData.销售额 / monthTarget * 100) : 0;
             }
-            var monthTarget = MONTHLY_TARGETS[currentMonth] || 0;
-            var monthRate = monthTarget > 0 ? (currentData.销售额 / monthTarget * 100) : 0;
 
             var kpiItems = [
                 { label: 'GMV（商品交易总额）', value: currentData.GMV, rate: null, color: '#409eff', compareField: 'GMV' },
