@@ -157,6 +157,21 @@
         .kpi-card .compare-value.up { color: #67c23a; }
         .kpi-card .compare-value.down { color: #f56c6c; }
         
+        /* 进度条 */
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #409eff, #67c23a);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
         /* 图表 */
         .charts-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .chart-card {
@@ -285,6 +300,70 @@
         </div>
         
         <div class="kpi-section" id="kpiSection"></div>
+        
+        <!-- 完成率模块 -->
+        <div class="kpi-section" id="completionSection" style="margin-top: 0;">
+            <div class="kpi-card" style="--card-color:#409eff;">
+                <div class="label">月度销售额完成率</div>
+                <div class="value-row">
+                    <div class="value" id="monthCompletionRate">0.00</div>
+                    <div class="unit">%</div>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">当月目标：</span>
+                    <span class="rate-value" id="monthTarget">0</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">已完成：</span>
+                    <span class="rate-value positive" id="monthAchieved">0</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="monthProgressFill" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="kpi-card" style="--card-color:#e6a23c;">
+                <div class="label">年度销售额完成率（保底）</div>
+                <div class="value-row">
+                    <div class="value" id="annualCompletionRateBase">0.00</div>
+                    <div class="unit">%</div>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">保底目标：</span>
+                    <span class="rate-value">3,000万</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">已完成：</span>
+                    <span class="rate-value positive" id="annualAchievedBase">0</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="annualProgressFillBase" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="kpi-card" style="--card-color:#67c23a;">
+                <div class="label">年度销售额完成率（挑战）</div>
+                <div class="value-row">
+                    <div class="value" id="annualCompletionRateChallenge">0.00</div>
+                    <div class="unit">%</div>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">挑战目标：</span>
+                    <span class="rate-value">5,000万</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-label">已完成：</span>
+                    <span class="rate-value positive" id="annualAchievedChallenge">0</span>
+                    <span class="rate-label">元</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="annualProgressFillChallenge" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
         
         <div class="charts-section">
             <div class="chart-card">
@@ -559,6 +638,92 @@
                 indicator.classList.add('show');
                 document.getElementById('compareType').textContent = comparePeriod.label + '：' + comparePeriod.start + ' ~ ' + comparePeriod.end;
             } else { indicator.classList.remove('show'); }
+        }
+
+        // ---------- 完成率模块 ----------
+        // 年度目标配置
+        var ANNUAL_TARGET_BASE = 30000000;      // 保底目标 3000万
+        var ANNUAL_TARGET_CHALLENGE = 50000000; // 挑战目标 5000万
+        
+        // 月度目标配置（单位：元）
+        var MONTHLY_TARGETS = {
+            '2026-01': 2000000,   // 200万
+            '2026-02': 2000000,   // 200万
+            '2026-03': 2000000,   // 200万
+            '2026-04': 4000000,   // 400万
+            '2026-05': 4500000,   // 450万
+            '2026-06': 8400000,   // 840万
+            '2026-07': 0,         // 待更新
+            '2026-08': 0,
+            '2026-09': 0,
+            '2026-10': 0,
+            '2026-11': 0,
+            '2026-12': 0
+        };
+        
+        function renderCompletionRates() {
+            // 计算年度累计销售额
+            var annualSales = 0;
+            businessData.monthly_summary.forEach(function(m) {
+                annualSales += m['销售额'];
+            });
+            
+            // 计算年度完成率
+            var annualRateBase = (annualSales / ANNUAL_TARGET_BASE * 100);
+            var annualRateChallenge = (annualSales / ANNUAL_TARGET_CHALLENGE * 100);
+            
+            // 更新年度完成率显示
+            document.getElementById('annualCompletionRateBase').textContent = annualRateBase.toFixed(2);
+            document.getElementById('annualCompletionRateChallenge').textContent = annualRateChallenge.toFixed(2);
+            document.getElementById('annualAchievedBase').textContent = (annualSales / 10000).toFixed(2) + '万';
+            document.getElementById('annualAchievedChallenge').textContent = (annualSales / 10000).toFixed(2) + '万';
+            
+            // 更新进度条
+            var baseProgress = Math.min(annualRateBase, 100);
+            var challengeProgress = Math.min(annualRateChallenge, 100);
+            document.getElementById('annualProgressFillBase').style.width = baseProgress + '%';
+            document.getElementById('annualProgressFillChallenge').style.width = challengeProgress + '%';
+            
+            // 计算当月销售额和完成率
+            var currentMonth = '';
+            if (state.granularity === 'month' && state.month !== 'all') {
+                currentMonth = state.month;
+            } else {
+                // 找到数据中最新月份
+                var latestMonth = null;
+                var latestDate = null;
+                Object.keys(businessData.daily_data).forEach(function(month) {
+                    Object.keys(businessData.daily_data[month]).forEach(function(date) {
+                        if (!latestDate || date > latestDate) {
+                            latestDate = date;
+                            latestMonth = month;
+                        }
+                    });
+                });
+                currentMonth = latestMonth || '2026-05';
+            }
+            
+            // 获取当月销售额
+            var monthSales = 0;
+            var monthTarget = MONTHLY_TARGETS[currentMonth] || 0;
+            var monthData = businessData.daily_data[currentMonth];
+            if (monthData) {
+                Object.values(monthData).forEach(function(day) {
+                    monthSales += day.total.sales;
+                });
+            }
+            
+            // 计算当月完成率
+            var monthRate = monthTarget > 0 ? (monthSales / monthTarget * 100) : 0;
+            
+            // 更新当月完成率显示
+            document.getElementById('monthCompletionRate').textContent = monthRate.toFixed(2);
+            document.getElementById('monthTarget').textContent = (monthTarget / 10000).toFixed(2) + '万';
+            document.getElementById('monthAchieved').textContent = (monthSales / 10000).toFixed(2) + '万';
+            
+            // 更新当月进度条
+            var monthProgress = Math.min(monthRate, 100);
+            document.getElementById('monthProgressFill').style.width = monthProgress + '%';
         }
 
         function renderShopCards() {
@@ -989,14 +1154,14 @@
                 // 按日查看时，忽略月份选择器，只使用日期范围
                 state.month = 'all';
             }
-            renderKPI(); renderShopCards(); renderTable();
+            renderKPI(); renderShopCards(); renderTable(); renderCompletionRates();
             updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
 
         // ---------- 初始化 ----------
         function initAll() {
             updateTime();
-            renderKPI(); renderShopCards(); renderTable();
+            renderKPI(); renderShopCards(); renderTable(); renderCompletionRates();
             updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
 
