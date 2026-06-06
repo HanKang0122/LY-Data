@@ -473,34 +473,70 @@
         <div class="tab-content" id="tabProduct">
             <div id="productLoading" style="text-align:center;padding:40px;color:#909399;">正在加载商品数据...</div>
             <div id="productContent" style="display:none;">
-                <div class="product-filter-bar">
-                    <input type="text" class="product-search" id="productSearch" placeholder="搜索商品名称..." oninput="searchProduct(this.value)">
-                    <select class="control-select" id="productShopFilter" onchange="filterProductShop(this.value)">
-                        <option value="all">全部店铺</option>
-                        <option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特</option>
-                        <option value="抖音-小轻担食品旗舰店">抖音-小轻担</option>
-                        <option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特</option>
-                    </select>
+                <!-- 商品分析筛选栏 -->
+                <div class="control-panel" style="margin-bottom:16px;">
+                    <div class="control-group">
+                        <span class="control-label">分析维度：</span>
+                        <select class="control-select" id="productDimension" onchange="switchProductDimension(this.value)">
+                            <option value="product">商品明细</option>
+                            <option value="shop">店铺维度</option>
+                            <option value="name">商品名称维度</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <span class="control-label">店铺筛选：</span>
+                        <select class="control-select" id="productShopFilter" onchange="filterProductShop(this.value)">
+                            <option value="all">全部店铺</option>
+                            <option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特</option>
+                            <option value="抖音-小轻担食品旗舰店">抖音-小轻担</option>
+                            <option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <span class="control-label">搜索：</span>
+                        <input type="text" class="control-input" id="productSearch" placeholder="搜索商品..." style="width:180px;" oninput="searchProduct(this.value)">
+                    </div>
+                    <div class="control-group">
+                        <span class="control-label">排序：</span>
+                        <select class="control-select" id="productSortSelect" onchange="sortProductList(this.value)">
+                            <option value="sales">销售额</option>
+                            <option value="profit">毛利润</option>
+                            <option value="profitRate">利润率</option>
+                            <option value="GMV">GMV</option>
+                            <option value="qianchuan">千川消耗</option>
+                        </select>
+                    </div>
                     <span style="color:#909399;font-size:13px;" id="productCount"></span>
                 </div>
+                
+                <!-- 商品分析KPI -->
+                <div class="kpi-section" id="productKPISection"></div>
+                
+                <!-- 商品分析图表 -->
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <div class="chart-title" id="productChartTitle1">销售额TOP10</div>
+                        <div class="chart-container" id="productBarChart"></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title" id="productChartTitle2">利润率分布</div>
+                        <div class="chart-container" id="productScatterChart"></div>
+                    </div>
+                </div>
+                
+                <!-- 商品数据表格 -->
                 <div class="table-section">
-                    <div class="table-title">商品销售排行（点击商品查看详情）</div>
-                    <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
-                        <table class="product-list-table">
-                            <thead><tr>
-                                <th onclick="sortProductList('name')">商品名称</th>
-                                <th onclick="sortProductList('shop')">店铺</th>
-                                <th onclick="sortProductList('sales')">销售额</th>
-                                <th onclick="sortProductList('profit')">毛利润</th>
-                                <th onclick="sortProductList('profitRate')">利润率</th>
-                                <th onclick="sortProductList('totalCost')">总成本</th>
-                                <th onclick="sortProductList('qianchuan')">千川消耗</th>
-                            </tr></thead>
-                            <tbody id="productListBody"></tbody>
+                    <div class="table-title" id="productTableTitle">商品明细数据</div>
+                    <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+                        <table class="data-table" id="productDataTable">
+                            <thead id="productTableHead"></thead>
+                            <tbody id="productTableBody"></tbody>
                         </table>
                     </div>
                 </div>
-                <div class="product-detail-panel" id="productDetailPanel" style="display:none;">
+                
+                <!-- 商品下钻详情 -->
+                <div class="product-detail-panel" id="productDetailPanel" style="display:none;margin-top:16px;">
                     <div class="product-detail-title" id="productDetailTitle"></div>
                     <div class="kpi-section" id="productDetailKPI" style="margin-bottom:16px;"></div>
                     <div class="charts-section">
@@ -1384,6 +1420,8 @@
             profitTrendChart && profitTrendChart.resize();
             if (productTrendChart) productTrendChart.resize();
             if (productCostChart) productCostChart.resize();
+            if (productBarChart) productBarChart.resize();
+            if (productScatterChart) productScatterChart.resize();
         });
 
         // 页面加载时自动获取数据
