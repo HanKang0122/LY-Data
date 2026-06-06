@@ -282,6 +282,8 @@
             <button class="tab-btn" id="tabBtnProduct" onclick="switchTab('product')">商品分析</button>
         </div>
 
+        <!-- 经营总览 -->
+        <div class="tab-content active" id="tabOverview">
         <!-- 控制面板 -->
         <div class="control-panel" id="overviewContent">
             <div class="control-group">
@@ -468,6 +470,7 @@
                 </table>
             </div>
         </div>
+        </div>
 
         <!-- 商品分析 -->
         <div class="tab-content" id="tabProduct">
@@ -490,6 +493,7 @@
                             <option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特</option>
                             <option value="抖音-小轻担食品旗舰店">抖音-小轻担</option>
                             <option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特</option>
+                            <option value="微信-鲨鱼菲特甄选零食店">微信-鲨鱼菲特</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -579,13 +583,8 @@
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
             document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
             document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-            if (tab === 'overview') {
-                document.getElementById('overviewContent').style.display = '';
-            } else {
-                document.getElementById('overviewContent').style.display = 'none';
-            }
             if (tab === 'product' && productData) {
-                renderProductList();
+                renderProductAnalysis();
             }
         }
         
