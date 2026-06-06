@@ -241,19 +241,8 @@
         .tab-btn:hover:not(.active) { color:#fff; background:rgba(64,158,255,0.1); }
         .tab-content { display:none; }
         .tab-content.active { display:block; }
-        .product-filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
-        .product-search { flex:1; min-width:200px; max-width:300px; background:rgba(20,35,60,0.8); border:1px solid rgba(64,158,255,0.3); border-radius:6px; padding:8px 12px; color:#fff; font-size:13px; }
-        .product-list-table { width:100%; border-collapse:collapse; font-size:13px; }
-        .product-list-table th { background:rgba(64,158,255,0.15); padding:10px 8px; text-align:left; color:#409eff; font-weight:500; border-bottom:1px solid rgba(64,158,255,0.3); cursor:pointer; user-select:none; }
-        .product-list-table th:hover { background:rgba(64,158,255,0.25); }
-        .product-list-table td { padding:10px 8px; border-bottom:1px solid rgba(255,255,255,0.05); color:#c0c4cc; }
-        .product-list-table tr:hover td { background:rgba(64,158,255,0.08); }
-        .product-list-table tr.selected td { background:rgba(64,158,255,0.2)!important; }
-        .product-name-cell { color:#fff; font-weight:500; }
-        .profit-positive { color:#67c23a; }
-        .profit-negative { color:#f56c6c; }
-        .product-detail-panel { background:linear-gradient(145deg,rgba(30,50,80,0.7),rgba(20,35,60,0.8)); border-radius:12px; padding:18px; border:1px solid rgba(64,158,255,0.2); margin-top:16px; }
-        .product-detail-title { font-size:16px; font-weight:bold; color:#fff; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(64,158,255,0.2); }
+        .profit-positive { color: #67c23a; }
+        .profit-negative { color: #f56c6c; }
     </style>
 </head>
 <body>
@@ -476,77 +465,91 @@
         <div class="tab-content" id="tabProduct">
             <div id="productLoading" style="text-align:center;padding:40px;color:#909399;">正在加载商品数据...</div>
             <div id="productContent" style="display:none;">
-                <!-- 商品分析筛选栏 -->
+                <!-- 筛选栏 -->
                 <div class="control-panel" style="margin-bottom:16px;">
                     <div class="control-group">
-                        <span class="control-label">分析维度：</span>
-                        <select class="control-select" id="productDimension" onchange="switchProductDimension(this.value)">
-                            <option value="product">商品明细</option>
-                            <option value="shop">店铺维度</option>
-                            <option value="name">商品名称维度</option>
+                        <span class="control-label">时间粒度：</span>
+                        <select class="control-select" id="pTimeGranularity">
+                            <option value="month">按月查看</option>
+                            <option value="day">按日查看</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <span class="control-label">月份：</span>
+                        <select class="control-select" id="pMonthSelect">
+                            <option value="all">全部月份</option>
                         </select>
                     </div>
                     <div class="control-group">
                         <span class="control-label">店铺筛选：</span>
-                        <select class="control-select" id="productShopFilter" onchange="filterProductShop(this.value)">
+                        <select class="control-select" id="pShopFilter">
                             <option value="all">全部店铺</option>
-                            <option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特</option>
-                            <option value="抖音-小轻担食品旗舰店">抖音-小轻担</option>
-                            <option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特</option>
-                            <option value="微信-鲨鱼菲特甄选零食店">微信-鲨鱼菲特</option>
                         </select>
                     </div>
                     <div class="control-group">
+                        <span class="control-label">分析维度：</span>
+                        <select class="control-select" id="pDimension" onchange="onDimensionChange()">
+                            <option value="name">商品名称</option>
+                            <option value="product">商品ID</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="position:relative;">
                         <span class="control-label">搜索：</span>
-                        <input type="text" class="control-input" id="productSearch" placeholder="搜索商品..." style="width:180px;" oninput="searchProduct(this.value)">
+                        <input type="text" class="control-input" id="pSearchInput" placeholder="输入或选择..." style="width:200px;" autocomplete="off" onfocus="showSearchDropdown()" oninput="onSearchInput(this.value)">
+                        <div id="pSearchDropdown" style="display:none;position:absolute;top:100%;left:80px;width:200px;max-height:200px;overflow-y:auto;background:rgba(20,35,60,0.95);border:1px solid rgba(64,158,255,0.3);border-radius:4px;z-index:100;"></div>
                     </div>
-                    <div class="control-group">
-                        <span class="control-label">排序：</span>
-                        <select class="control-select" id="productSortSelect" onchange="sortProductList(this.value)">
-                            <option value="sales">销售额</option>
-                            <option value="profit">毛利润</option>
-                            <option value="profitRate">利润率</option>
-                            <option value="GMV">GMV</option>
-                            <option value="qianchuan">千川消耗</option>
-                        </select>
-                    </div>
-                    <span style="color:#909399;font-size:13px;" id="productCount"></span>
+                    <button class="quick-btn" onclick="applyProductFilters()" style="margin-left:8px;">应用筛选</button>
                 </div>
                 
-                <!-- 商品分析KPI -->
-                <div class="kpi-section" id="productKPISection"></div>
+                <!-- KPI卡片 -->
+                <div class="kpi-section" id="pKPISection"></div>
                 
-                <!-- 商品分析图表 -->
+                <!-- TOP10列表 -->
                 <div class="charts-section">
                     <div class="chart-card">
-                        <div class="chart-title" id="productChartTitle1">销售额TOP10</div>
-                        <div class="chart-container" id="productBarChart"></div>
+                        <div class="chart-title">销售额TOP10</div>
+                        <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+                            <table class="data-table" id="pSalesTopTable">
+                                <thead id="pSalesTopHead"></thead>
+                                <tbody id="pSalesTopBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="chart-card">
-                        <div class="chart-title" id="productChartTitle2">利润率分布</div>
-                        <div class="chart-container" id="productScatterChart"></div>
+                        <div class="chart-title">利润率TOP10</div>
+                        <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+                            <table class="data-table" id="pProfitTopTable">
+                                <thead id="pProfitTopHead"></thead>
+                                <tbody id="pProfitTopBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- 商品数据表格 -->
+                <!-- 明细表格 -->
                 <div class="table-section">
-                    <div class="table-title" id="productTableTitle">商品明细数据</div>
+                    <div class="table-title">商品明细数据（点击商品查看趋势）</div>
                     <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
-                        <table class="data-table" id="productDataTable">
-                            <thead id="productTableHead"></thead>
-                            <tbody id="productTableBody"></tbody>
+                        <table class="data-table" id="pDetailTable">
+                            <thead id="pDetailHead"></thead>
+                            <tbody id="pDetailBody"></tbody>
                         </table>
                     </div>
                 </div>
-                
-                <!-- 商品下钻详情 -->
-                <div class="product-detail-panel" id="productDetailPanel" style="display:none;margin-top:16px;">
-                    <div class="product-detail-title" id="productDetailTitle"></div>
-                    <div class="kpi-section" id="productDetailKPI" style="margin-bottom:16px;"></div>
-                    <div class="charts-section">
-                        <div class="chart-card"><div class="chart-title">销售额/毛利润趋势</div><div class="chart-container" id="productTrendChart"></div></div>
-                        <div class="chart-card"><div class="chart-title">成本构成分析</div><div class="chart-container" id="productCostChart"></div></div>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- 商品趋势弹窗 -->
+        <div id="productModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;" onclick="if(event.target===this)closeProductModal()">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:1000px;max-height:85vh;background:linear-gradient(145deg,rgba(30,50,80,0.98),rgba(20,35,60,0.98));border-radius:12px;border:1px solid rgba(64,158,255,0.3);overflow-y:auto;padding:24px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div id="productModalTitle" style="font-size:18px;font-weight:bold;color:#fff;"></div>
+                    <button onclick="closeProductModal()" style="background:none;border:none;color:#909399;font-size:20px;cursor:pointer;">✕</button>
+                </div>
+                <div class="kpi-section" id="productModalKPI" style="margin-bottom:16px;"></div>
+                <div class="charts-section">
+                    <div class="chart-card"><div class="chart-title">销售额/毛利润趋势</div><div class="chart-container" id="productModalTrend" style="height:300px;"></div></div>
+                    <div class="chart-card"><div class="chart-title">成本构成分析</div><div class="chart-container" id="productModalCost" style="height:300px;"></div></div>
                 </div>
             </div>
         </div>
@@ -555,16 +558,8 @@
     <script>
         // ==================== 商品分析模块 ====================
         var productData = null;
-        var selectedProductId = null;
-        var productDimension = 'product';
-        var productSortField = 'sales';
-        var productSortDesc = true;
-        var productFilterShop = 'all';
-        var productSearchText = '';
-        var productTrendChart = null;
-        var productCostChart = null;
-        var productBarChart = null;
-        var productScatterChart = null;
+        var pState = { granularity: 'month', month: 'all', shop: 'all', dimension: 'name', search: '' };
+        var modalTrendChart = null, modalCostChart = null;
         
         function loadProductData() {
             return fetch('product_data.json?v=' + new Date().getTime())
@@ -573,7 +568,8 @@
                     productData = data;
                     document.getElementById('productLoading').style.display = 'none';
                     document.getElementById('productContent').style.display = 'block';
-                    renderProductAnalysis();
+                    initProductFilters();
+                    applyProductFilters();
                     return data;
                 })
                 .catch(function(e) {
@@ -587,196 +583,253 @@
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
             document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
             document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-            if (tab === 'product' && productData) {
-                renderProductAnalysis();
+        }
+        
+        function initProductFilters() {
+            if (!productData) return;
+            // 填充月份
+            var monthSel = document.getElementById('pMonthSelect');
+            monthSel.innerHTML = '<option value="all">全部月份</option>';
+            monthSel.innerHTML += '<option value="' + productData.meta.month + '">' + productData.meta.month + '</option>';
+            // 填充店铺
+            var shopSel = document.getElementById('pShopFilter');
+            shopSel.innerHTML = '<option value="all">全部店铺</option>';
+            productData.meta.shops.forEach(function(s) {
+                shopSel.innerHTML += '<option value="' + s + '">' + s + '</option>';
+            });
+        }
+        
+        function onDimensionChange() {
+            pState.dimension = document.getElementById('pDimension').value;
+            document.getElementById('pSearchInput').value = '';
+            pState.search = '';
+        }
+        
+        function showSearchDropdown() {
+            if (!productData) return;
+            var dropdown = document.getElementById('pSearchDropdown');
+            var items = [];
+            if (pState.dimension === 'name') {
+                items = productData.byName.map(function(n) { return n.name; });
+            } else {
+                items = productData.products.map(function(p) { return p.id; });
+            }
+            dropdown.innerHTML = items.map(function(item) {
+                return '<div style="padding:6px 10px;color:#c0c4cc;cursor:pointer;font-size:12px;" onmousedown="selectSearchItem(\'' + item.replace(/'/g, "\\'") + '\')">' + item + '</div>';
+            }).join('');
+            dropdown.style.display = 'block';
+        }
+        
+        function onSearchInput(val) {
+            pState.search = val;
+            if (!productData) return;
+            var dropdown = document.getElementById('pSearchDropdown');
+            var items = [];
+            if (pState.dimension === 'name') {
+                items = productData.byName.map(function(n) { return n.name; }).filter(function(n) { return n.indexOf(val) >= 0; });
+            } else {
+                items = productData.products.map(function(p) { return p.id; }).filter(function(id) { return id.indexOf(val) >= 0; });
+            }
+            if (items.length > 0 && val.length > 0) {
+                dropdown.innerHTML = items.slice(0, 20).map(function(item) {
+                    return '<div style="padding:6px 10px;color:#c0c4cc;cursor:pointer;font-size:12px;" onmousedown="selectSearchItem(\'' + item.replace(/'/g, "\\'") + '\')">' + item + '</div>';
+                }).join('');
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
             }
         }
         
-        function switchProductDimension(dim) {
-            productDimension = dim;
-            selectedProductId = null;
-            document.getElementById('productDetailPanel').style.display = 'none';
-            renderProductAnalysis();
+        function selectSearchItem(val) {
+            document.getElementById('pSearchInput').value = val;
+            pState.search = val;
+            document.getElementById('pSearchDropdown').style.display = 'none';
         }
         
-        function getProductList() {
+        // 点击其他地方关闭下拉
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#pSearchInput') && !e.target.closest('#pSearchDropdown')) {
+                document.getElementById('pSearchDropdown').style.display = 'none';
+            }
+        });
+        
+        function applyProductFilters() {
+            pState.granularity = document.getElementById('pTimeGranularity').value;
+            pState.month = document.getElementById('pMonthSelect').value;
+            pState.shop = document.getElementById('pShopFilter').value;
+            pState.dimension = document.getElementById('pDimension').value;
+            pState.search = document.getElementById('pSearchInput').value;
+            document.getElementById('pSearchDropdown').style.display = 'none';
+            renderProductAll();
+        }
+        
+        function getFilteredData() {
             if (!productData) return [];
-            var source;
-            if (productDimension === 'shop') source = productData.byShop;
-            else if (productDimension === 'name') source = productData.byName;
-            else source = productData.products;
-            
-            var list = source.filter(function(p) {
-                if (productFilterShop !== 'all') {
-                    if (productDimension === 'shop') return p.shop === productFilterShop;
-                    if (productDimension === 'name') return p.shops && p.shops.indexOf(productFilterShop) >= 0;
-                    return p.shop === productFilterShop;
+            var source = pState.dimension === 'name' ? productData.byName : productData.products;
+            return source.filter(function(item) {
+                if (pState.shop !== 'all') {
+                    if (pState.dimension === 'name') return item.shops && item.shops.indexOf(pState.shop) >= 0;
+                    return item.shop === pState.shop;
                 }
-                if (productSearchText) {
-                    var name = p.name || p.shop || '';
-                    return name.indexOf(productSearchText) >= 0;
+                if (pState.search) {
+                    var key = pState.dimension === 'name' ? item.name : item.id;
+                    return key && key.indexOf(pState.search) >= 0;
                 }
                 return true;
             });
-            list.sort(function(a, b) {
-                var av = a.monthly ? (a.monthly[productSortField] || 0) : 0;
-                var bv = b.monthly ? (b.monthly[productSortField] || 0) : 0;
-                return productSortDesc ? bv - av : av - bv;
-            });
-            return list;
         }
         
-        function renderProductAnalysis() {
-            var list = getProductList();
+        function renderProductAll() {
+            var list = getFilteredData();
             renderProductKPI(list);
-            renderProductBarChart(list);
-            renderProductScatterChart(list);
-            renderProductTable(list);
-            document.getElementById('productCount').textContent = '共 ' + list.length + ' 条';
+            renderSalesTop10(list);
+            renderProfitTop10(list);
+            renderDetailTable(list);
         }
         
         function renderProductKPI(list) {
-            var totalSales = 0, totalProfit = 0, totalCost = 0, totalGMV = 0;
-            list.forEach(function(p) {
-                var m = p.monthly || {};
-                totalSales += m.sales || 0;
-                totalProfit += m.profit || 0;
-                totalCost += m.totalCost || 0;
-                totalGMV += m.GMV || 0;
-            });
-            var profitRate = totalSales > 0 ? (totalProfit / totalSales * 100) : 0;
-            document.getElementById('productKPISection').innerHTML =
-                '<div class="kpi-card" style="--card-color:#409eff;"><div class="label">GMV</div><div class="value-row"><div class="value">' + formatMoney(totalGMV) + '</div><div class="unit">元</div></div></div>' +
-                '<div class="kpi-card" style="--card-color:#67c23a;"><div class="label">销售额</div><div class="value-row"><div class="value">' + formatMoney(totalSales) + '</div><div class="unit">元</div></div></div>' +
-                '<div class="kpi-card" style="--card-color:#e6a23c;"><div class="label">毛利润</div><div class="value-row"><div class="value">' + formatMoney(totalProfit) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">利润率：</span><span class="rate-value ' + (profitRate>=0?'positive':'negative') + '">' + profitRate.toFixed(2) + '%</span></div></div>' +
-                '<div class="kpi-card" style="--card-color:#f56c6c;"><div class="label">总成本</div><div class="value-row"><div class="value">' + formatMoney(totalCost) + '</div><div class="unit">元</div></div></div>';
+            var ts = {GMV:0,refund:0,sales:0,totalCost:0,profit:0};
+            list.forEach(function(item) { var m = item.monthly||{}; ts.GMV+=m.GMV||0; ts.refund+=m.refund||0; ts.sales+=m.sales||0; ts.totalCost+=m.totalCost||0; ts.profit+=m.profit||0; });
+            var refundRate = ts.GMV > 0 ? (ts.refund/ts.GMV*100) : 0;
+            var profitRate = ts.sales > 0 ? (ts.profit/ts.sales*100) : 0;
+            var costRate = ts.sales > 0 ? (ts.totalCost/ts.sales*100) : 0;
+            document.getElementById('pKPISection').innerHTML =
+                '<div class="kpi-card" style="--card-color:#409eff;"><div class="label">GMV（商品交易总额）</div><div class="value-row"><div class="value">' + formatMoney(ts.GMV) + '</div><div class="unit">元</div></div></div>' +
+                '<div class="kpi-card" style="--card-color:#67c23a;"><div class="label">销售额</div><div class="value-row"><div class="value">' + formatMoney(ts.sales) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">退款率：</span><span class="rate-value ' + (refundRate>=0?'positive':'negative') + '">' + refundRate.toFixed(2) + '%</span></div></div>' +
+                '<div class="kpi-card" style="--card-color:#e6a23c;"><div class="label">毛利润</div><div class="value-row"><div class="value">' + formatMoney(ts.profit) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">利润率：</span><span class="rate-value ' + (profitRate>=0?'positive':'negative') + '">' + profitRate.toFixed(2) + '%</span></div></div>' +
+                '<div class="kpi-card" style="--card-color:#f56c6c;"><div class="label">总成本</div><div class="value-row"><div class="value">' + formatMoney(ts.totalCost) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">成本率：</span><span class="rate-value ' + (costRate>=0?'positive':'negative') + '">' + costRate.toFixed(2) + '%</span></div></div>';
         }
         
-        function renderProductBarChart(list) {
-            if (!productBarChart) productBarChart = echarts.init(document.getElementById('productBarChart'));
-            var top10 = list.slice(0, 10);
-            var names = top10.map(function(p) { return (p.name || p.shop || '').substring(0, 12); });
-            var salesData = top10.map(function(p) { return (p.monthly || {}).sales || 0; });
-            var profitData = top10.map(function(p) { return (p.monthly || {}).profit || 0; });
-            productBarChart.setOption({
-                tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) {
-                    var r = params[0].axisValue + '<br/>';
-                    params.forEach(function(item) { var v = item.value>=10000?(item.value/10000).toFixed(2)+'万':item.value.toFixed(2); r += item.marker+' '+item.seriesName+': '+v+'<br/>'; });
-                    return r;
-                }},
-                legend: { data:['销售额','毛利润'], textStyle:{color:'#909399'}, top:0 },
-                grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-                xAxis: { type:'category', data:names, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:30,fontSize:10} },
-                yAxis: { type:'value', axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:function(v){return (v/10000).toFixed(0)+'万';}}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
-                series: [
-                    { name:'销售额', type:'bar', data:salesData, itemStyle:{color:'#409eff'}, barWidth:'30%' },
-                    { name:'毛利润', type:'bar', data:profitData, itemStyle:{color:'#67c23a'}, barWidth:'30%' }
-                ]
-            });
+        function renderSalesTop10(list) {
+            var sorted = list.slice().sort(function(a,b) { return (b.monthly||{}).sales - (a.monthly||{}).sales; });
+            var top10 = sorted.slice(0, 10);
+            var isName = pState.dimension === 'name';
+            document.getElementById('pSalesTopHead').innerHTML = '<tr><th style="width:30px;">#</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th>') + (isName ? '' : '<th>商品名称</th>') + '<th>店铺</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>总成本</th></tr>';
+            document.getElementById('pSalesTopBody').innerHTML = top10.map(function(item, idx) {
+                var m = item.monthly || {};
+                var pc = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                var shopName = isName ? (item.shops||[]).join(', ') : item.shop;
+                return '<tr><td>' + (idx+1) + '</td>' + (isName ? '<td>' + item.name + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + shopName + '</td><td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td>' + formatMoney(m.totalCost) + '</td></tr>';
+            }).join('');
         }
         
-        function renderProductScatterChart(list) {
-            if (!productScatterChart) productScatterChart = echarts.init(document.getElementById('productScatterChart'));
-            var data = list.map(function(p) {
-                var m = p.monthly || {};
-                return [m.sales || 0, m.profitRate || 0, (p.name || p.shop || '').substring(0, 10)];
-            });
-            productScatterChart.setOption({
-                tooltip: { backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) {
-                    return params.data[2] + '<br/>销售额: ' + (params.data[0]>=10000?(params.data[0]/10000).toFixed(2)+'万':params.data[0].toFixed(2)) + '<br/>利润率: ' + params.data[1].toFixed(2) + '%';
-                }},
-                grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-                xAxis: { type:'value', name:'销售额', nameTextStyle:{color:'#909399'}, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:function(v){return (v/10000).toFixed(0)+'万';}}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
-                yAxis: { type:'value', name:'利润率%', nameTextStyle:{color:'#909399'}, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:'{value}%'}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
-                series: [{ type:'scatter', data:data, symbolSize:function(d){return Math.max(8, Math.min(30, Math.sqrt(d[0])/50));}, itemStyle:{color:function(params){return params.data[1]>=0?'#67c23a':'#f56c6c';}} }]
-            });
+        function renderProfitTop10(list) {
+            var sorted = list.slice().sort(function(a,b) { return (b.monthly||{}).profitRate - (a.monthly||{}).profitRate; });
+            var top10 = sorted.slice(0, 10);
+            var isName = pState.dimension === 'name';
+            document.getElementById('pProfitTopHead').innerHTML = '<tr><th style="width:30px;">#</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th>') + (isName ? '' : '<th>商品名称</th>') + '<th>店铺</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>总成本</th></tr>';
+            document.getElementById('pProfitTopBody').innerHTML = top10.map(function(item, idx) {
+                var m = item.monthly || {};
+                var pc = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                var shopName = isName ? (item.shops||[]).join(', ') : item.shop;
+                return '<tr><td>' + (idx+1) + '</td>' + (isName ? '<td>' + item.name + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + shopName + '</td><td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td>' + formatMoney(m.totalCost) + '</td></tr>';
+            }).join('');
         }
         
-        function renderProductTable(list) {
-            var thead = document.getElementById('productTableHead');
-            var tbody = document.getElementById('productTableBody');
+        function renderDetailTable(list) {
+            var isName = pState.dimension === 'name';
+            var isDay = pState.granularity === 'day';
             
-            if (productDimension === 'shop') {
-                document.getElementById('productTableTitle').textContent = '店铺维度数据';
-                thead.innerHTML = '<tr><th>店铺</th><th>商品数</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>利润率</th><th>总成本</th><th>千川消耗</th></tr>';
-                tbody.innerHTML = list.map(function(p) {
-                    var m = p.monthly;
-                    var profitClass = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                    return '<tr onclick="selectShopForProduct(\'' + p.shop + '\')" style="cursor:pointer;">' +
-                        '<td>' + p.shop + '</td><td>' + p.productCount + '</td>' +
-                        '<td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td>' +
-                        '<td class="' + profitClass + '">' + formatMoney(m.profit) + '</td>' +
-                        '<td class="' + profitClass + '">' + (m.profitRate||0).toFixed(2) + '%</td>' +
-                        '<td>' + formatMoney(m.totalCost) + '</td><td>' + formatMoney(m.qianchuan) + '</td></tr>';
-                }).join('');
-            } else if (productDimension === 'name') {
-                document.getElementById('productTableTitle').textContent = '商品名称维度数据';
-                thead.innerHTML = '<tr><th>商品名称</th><th>ID数</th><th>店铺</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>利润率</th><th>总成本</th><th>千川消耗</th></tr>';
-                tbody.innerHTML = list.map(function(p) {
-                    var m = p.monthly;
-                    var profitClass = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                    var safeName = p.name.replace(/'/g, "\\'");
-                    return '<tr onclick="selectNameForProduct(\'' + safeName + '\')" style="cursor:pointer;">' +
-                        '<td>' + p.name + '</td><td>' + p.idCount + '</td><td>' + (p.shops||[]).join(', ') + '</td>' +
-                        '<td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td>' +
-                        '<td class="' + profitClass + '">' + formatMoney(m.profit) + '</td>' +
-                        '<td class="' + profitClass + '">' + (m.profitRate||0).toFixed(2) + '%</td>' +
-                        '<td>' + formatMoney(m.totalCost) + '</td><td>' + formatMoney(m.qianchuan) + '</td></tr>';
-                }).join('');
+            if (isDay) {
+                // 按日查看：展开每个商品的每日数据
+                document.getElementById('pDetailHead').innerHTML = '<tr><th>时间</th><th>店铺</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th><th>商品名称</th>') + '<th>GMV</th><th>退款</th><th>退款率</th><th>销售额</th><th>产品成本</th><th>成本率</th><th>仓储成本</th><th>仓储率</th><th>千川消耗</th><th>千川率</th><th>佣金</th><th>佣金率</th><th>人工成本</th><th>人工率</th><th>运营成本</th><th>运营率</th><th>总成本</th><th>总成本率</th><th>毛利润</th><th>毛利率</th></tr>';
+                var rows = [];
+                // 只对商品ID维度展开每日数据（商品名称维度需要聚合）
+                var source = isName ? productData.byName : productData.products;
+                var filtered = source.filter(function(item) {
+                    if (pState.shop !== 'all') {
+                        if (isName) return item.shops && item.shops.indexOf(pState.shop) >= 0;
+                        return item.shop === pState.shop;
+                    }
+                    if (pState.search) {
+                        var key = isName ? item.name : item.id;
+                        return key && key.indexOf(pState.search) >= 0;
+                    }
+                    return true;
+                });
+                filtered.forEach(function(item) {
+                    if (isName) {
+                        // 商品名称维度：聚合所有ID的每日数据
+                        var dailyMap = {};
+                        var relatedProducts = productData.products.filter(function(p) { return p.name === item.name; });
+                        relatedProducts.forEach(function(p) {
+                            Object.keys(p.daily).forEach(function(date) {
+                                if (!dailyMap[date]) dailyMap[date] = {GMV:0,refund:0,sales:0,productCost:0,storageCost:0,qianchuan:0,commission:0,labor:0,operating:0,totalCost:0,profit:0};
+                                var d = p.daily[date];
+                                for (var k in dailyMap[date]) dailyMap[date][k] += d[k] || 0;
+                            });
+                        });
+                        Object.keys(dailyMap).sort().forEach(function(date) {
+                            var d = dailyMap[date];
+                            var rr = d.GMV > 0 ? (d.refund/d.GMV*100) : 0;
+                            var pcr = d.sales > 0 ? (d.productCost/d.sales*100) : 0;
+                            var sr = d.sales > 0 ? (d.storageCost/d.sales*100) : 0;
+                            var qr = d.sales > 0 ? (d.qianchuan/d.sales*100) : 0;
+                            var cr = d.sales > 0 ? (d.commission/d.sales*100) : 0;
+                            var lr = d.sales > 0 ? (d.labor/d.sales*100) : 0;
+                            var or2 = d.sales > 0 ? (d.operating/d.sales*100) : 0;
+                            var tcr = d.sales > 0 ? (d.totalCost/d.sales*100) : 0;
+                            var pr = d.sales > 0 ? (d.profit/d.sales*100) : 0;
+                            var pc = d.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                            rows.push('<tr onclick="openProductModalByName(\'' + item.name.replace(/'/g, "\\'") + '\')" style="cursor:pointer;"><td>' + date + '</td><td>' + (item.shops||[]).join(', ') + '</td><td>' + item.name + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.refund) + '</td><td>' + rr.toFixed(2) + '%</td><td>' + formatMoney(d.sales) + '</td><td>' + formatMoney(d.productCost) + '</td><td>' + pcr.toFixed(2) + '%</td><td>' + formatMoney(d.storageCost) + '</td><td>' + sr.toFixed(2) + '%</td><td>' + formatMoney(d.qianchuan) + '</td><td>' + qr.toFixed(2) + '%</td><td>' + formatMoney(d.commission) + '</td><td>' + cr.toFixed(2) + '%</td><td>' + formatMoney(d.labor) + '</td><td>' + lr.toFixed(2) + '%</td><td>' + formatMoney(d.operating) + '</td><td>' + or2.toFixed(2) + '%</td><td>' + formatMoney(d.totalCost) + '</td><td>' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(d.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>');
+                        });
+                    } else {
+                        Object.keys(item.daily).sort().forEach(function(date) {
+                            var d = item.daily[date];
+                            var rr = d.GMV > 0 ? (d.refund/d.GMV*100) : 0;
+                            var pcr = d.sales > 0 ? (d.productCost/d.sales*100) : 0;
+                            var sr = d.sales > 0 ? (d.storageCost/d.sales*100) : 0;
+                            var qr = d.sales > 0 ? (d.qianchuan/d.sales*100) : 0;
+                            var cr = d.sales > 0 ? (d.commission/d.sales*100) : 0;
+                            var lr = d.sales > 0 ? (d.labor/d.sales*100) : 0;
+                            var or2 = d.sales > 0 ? (d.operating/d.sales*100) : 0;
+                            var tcr = d.sales > 0 ? (d.totalCost/d.sales*100) : 0;
+                            var pr = d.sales > 0 ? (d.profit/d.sales*100) : 0;
+                            var pc = d.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                            rows.push('<tr onclick="openProductModal(\'' + item.id + '\')" style="cursor:pointer;"><td>' + date + '</td><td>' + item.shop + '</td><td>' + item.id + '</td><td>' + item.name + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.refund) + '</td><td>' + rr.toFixed(2) + '%</td><td>' + formatMoney(d.sales) + '</td><td>' + formatMoney(d.productCost) + '</td><td>' + pcr.toFixed(2) + '%</td><td>' + formatMoney(d.storageCost) + '</td><td>' + sr.toFixed(2) + '%</td><td>' + formatMoney(d.qianchuan) + '</td><td>' + qr.toFixed(2) + '%</td><td>' + formatMoney(d.commission) + '</td><td>' + cr.toFixed(2) + '%</td><td>' + formatMoney(d.labor) + '</td><td>' + lr.toFixed(2) + '%</td><td>' + formatMoney(d.operating) + '</td><td>' + or2.toFixed(2) + '%</td><td>' + formatMoney(d.totalCost) + '</td><td>' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(d.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>');
+                        });
+                    }
+                });
+                document.getElementById('pDetailBody').innerHTML = rows.join('');
             } else {
-                document.getElementById('productTableTitle').textContent = '商品明细数据（点击商品查看趋势）';
-                thead.innerHTML = '<tr><th>商品名称</th><th>商品ID</th><th>店铺</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>利润率</th><th>总成本</th><th>千川消耗</th></tr>';
-                tbody.innerHTML = list.map(function(p) {
-                    var m = p.monthly;
-                    var profitClass = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                    return '<tr onclick="selectProduct(\'' + p.id + '\')" style="cursor:pointer;">' +
-                        '<td>' + p.name + '</td><td>' + p.id + '</td><td>' + p.shop.replace('抖音-','').replace('快手-','').replace('微信-','') + '</td>' +
-                        '<td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td>' +
-                        '<td class="' + profitClass + '">' + formatMoney(m.profit) + '</td>' +
-                        '<td class="' + profitClass + '">' + (m.profitRate||0).toFixed(2) + '%</td>' +
-                        '<td>' + formatMoney(m.totalCost) + '</td><td>' + formatMoney(m.qianchuan) + '</td></tr>';
+                // 按月查看：显示汇总数据
+                document.getElementById('pDetailHead').innerHTML = '<tr><th>时间</th><th>店铺</th>' + (isName ? '<th>商品名称</th><th>ID数</th>' : '<th>商品ID</th><th>商品名称</th>') + '<th>GMV</th><th>退款</th><th>退款率</th><th>销售额</th><th>产品成本</th><th>成本率</th><th>仓储成本</th><th>仓储率</th><th>千川消耗</th><th>千川率</th><th>佣金</th><th>佣金率</th><th>人工成本</th><th>人工率</th><th>运营成本</th><th>运营率</th><th>总成本</th><th>总成本率</th><th>毛利润</th><th>毛利率</th></tr>';
+                document.getElementById('pDetailBody').innerHTML = list.map(function(item) {
+                    var m = item.monthly || {};
+                    var rr = m.GMV > 0 ? (m.refund/m.GMV*100) : 0;
+                    var pcr = m.sales > 0 ? (m.productCost/m.sales*100) : 0;
+                    var sr = m.sales > 0 ? (m.storageCost/m.sales*100) : 0;
+                    var qr = m.sales > 0 ? (m.qianchuan/m.sales*100) : 0;
+                    var cr = m.sales > 0 ? (m.commission/m.sales*100) : 0;
+                    var lr = m.sales > 0 ? (m.labor/m.sales*100) : 0;
+                    var or2 = m.sales > 0 ? (m.operating/m.sales*100) : 0;
+                    var tcr = m.sales > 0 ? (m.totalCost/m.sales*100) : 0;
+                    var pr = m.sales > 0 ? (m.profit/m.sales*100) : 0;
+                    var pc = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                    var shopName = isName ? (item.shops||[]).join(', ') : item.shop;
+                    var onclick = isName ? 'openProductModalByName(\'' + item.name.replace(/'/g, "\\'") + '\')' : 'openProductModal(\'' + item.id + '\')';
+                    return '<tr onclick="' + onclick + '" style="cursor:pointer;"><td>' + (productData.meta.month||'') + '</td><td>' + shopName + '</td>' + (isName ? '<td>' + item.name + '</td><td>' + (item.idCount||1) + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.refund) + '</td><td>' + rr.toFixed(2) + '%</td><td>' + formatMoney(m.sales) + '</td><td>' + formatMoney(m.productCost) + '</td><td>' + pcr.toFixed(2) + '%</td><td>' + formatMoney(m.storageCost) + '</td><td>' + sr.toFixed(2) + '%</td><td>' + formatMoney(m.qianchuan) + '</td><td>' + qr.toFixed(2) + '%</td><td>' + formatMoney(m.commission) + '</td><td>' + cr.toFixed(2) + '%</td><td>' + formatMoney(m.labor) + '</td><td>' + lr.toFixed(2) + '%</td><td>' + formatMoney(m.operating) + '</td><td>' + or2.toFixed(2) + '%</td><td>' + formatMoney(m.totalCost) + '</td><td>' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>';
                 }).join('');
             }
         }
         
-        function selectProduct(pid) {
-            selectedProductId = pid;
+        function openProductModal(pid) {
             var p = productData.products.find(function(x) { return x.id === pid; });
             if (!p) return;
-            document.getElementById('productDetailPanel').style.display = 'block';
-            document.getElementById('productDetailTitle').textContent = p.name + '（' + p.shop.replace('抖音-','').replace('快手-','').replace('微信-','') + '）ID:' + p.id;
+            document.getElementById('productModal').style.display = 'block';
+            document.getElementById('productModalTitle').textContent = p.name + '（' + p.shop + '）ID: ' + p.id;
             var m = p.monthly;
-            document.getElementById('productDetailKPI').innerHTML =
+            var pr = m.sales > 0 ? (m.profit/m.sales*100) : 0;
+            document.getElementById('productModalKPI').innerHTML =
                 '<div class="kpi-card" style="--card-color:#409eff;"><div class="label">销售额</div><div class="value-row"><div class="value">' + formatMoney(m.sales) + '</div><div class="unit">元</div></div></div>' +
-                '<div class="kpi-card" style="--card-color:#67c23a;"><div class="label">毛利润</div><div class="value-row"><div class="value">' + formatMoney(m.profit) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">利润率：</span><span class="rate-value ' + (m.profitRate>=0?'positive':'negative') + '">' + m.profitRate.toFixed(2) + '%</span></div></div>' +
-                '<div class="kpi-card" style="--card-color:#e6a23c;"><div class="label">总成本</div><div class="value-row"><div class="value">' + formatMoney(m.totalCost) + '</div><div class="unit">元</div></div></div>' +
-                '<div class="kpi-card" style="--card-color:#f56c6c;"><div class="label">千川消耗</div><div class="value-row"><div class="value">' + formatMoney(m.qianchuan) + '</div><div class="unit">元</div></div></div>';
-            renderProductDetailCharts(p);
-        }
-        
-        function selectShopForProduct(shop) {
-            document.getElementById('productShopFilter').value = shop;
-            productFilterShop = shop;
-            renderProductAnalysis();
-        }
-        
-        function selectNameForProduct(name) {
-            document.getElementById('productSearch').value = name;
-            productSearchText = name;
-            renderProductAnalysis();
-        }
-        
-        function renderProductDetailCharts(p) {
-            if (!productTrendChart) productTrendChart = echarts.init(document.getElementById('productTrendChart'));
+                '<div class="kpi-card" style="--card-color:#67c23a;"><div class="label">毛利润</div><div class="value-row"><div class="value">' + formatMoney(m.profit) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">利润率：</span><span class="rate-value ' + (pr>=0?'positive':'negative') + '">' + pr.toFixed(2) + '%</span></div></div>' +
+                '<div class="kpi-card" style="--card-color:#e6a23c;"><div class="label">总成本</div><div class="value-row"><div class="value">' + formatMoney(m.totalCost) + '</div><div class="unit">元</div></div></div>';
+            if (!modalTrendChart) modalTrendChart = echarts.init(document.getElementById('productModalTrend'));
             var dates = Object.keys(p.daily).sort();
-            productTrendChart.setOption({
-                tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) {
-                    var r = params[0].axisValue + '<br/>';
-                    params.forEach(function(item) { var v = item.value>=10000?(item.value/10000).toFixed(2)+'万':item.value.toFixed(2); r += item.marker+' '+item.seriesName+': '+v+'<br/>'; });
-                    return r;
-                }},
+            modalTrendChart.setOption({
+                tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) { var r=params[0].axisValue+'<br/>'; params.forEach(function(item){var v=item.value>=10000?(item.value/10000).toFixed(2)+'万':item.value.toFixed(2);r+=item.marker+' '+item.seriesName+': '+v+'<br/>';}); return r; }},
                 legend: { data:['销售额','毛利润'], textStyle:{color:'#909399'}, top:0 },
-                grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+                grid: { left:'3%',right:'4%',bottom:'3%',containLabel:true },
                 xAxis: { type:'category', data:dates, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:45,fontSize:10} },
                 yAxis: { type:'value', axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:function(v){return (v/10000).toFixed(0)+'万';}}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
                 series: [
@@ -784,9 +837,8 @@
                     { name:'毛利润', type:'line', smooth:true, data:dates.map(function(d){return p.daily[d].profit;}), itemStyle:{color:'#67c23a'}, areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(103,194,58,0.3)'},{offset:1,color:'rgba(103,194,58,0.05)'}])} }
                 ]
             });
-            if (!productCostChart) productCostChart = echarts.init(document.getElementById('productCostChart'));
-            var m = p.monthly;
-            productCostChart.setOption({
+            if (!modalCostChart) modalCostChart = echarts.init(document.getElementById('productModalCost'));
+            modalCostChart.setOption({
                 tooltip: { trigger:'item', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter:'{b}: {c} ({d}%)' },
                 legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#909399',fontSize:11} },
                 series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#1a2a4a',borderWidth:2}, label:{show:false},
@@ -802,12 +854,14 @@
             });
         }
         
-        function sortProductList(field) {
-            if (productSortField === field) { productSortDesc = !productSortDesc; } else { productSortField = field; productSortDesc = true; }
-            renderProductAnalysis();
+        function openProductModalByName(name) {
+            var p = productData.products.find(function(x) { return x.name === name; });
+            if (p) openProductModal(p.id);
         }
-        function filterProductShop(shop) { productFilterShop = shop; renderProductAnalysis(); }
-        function searchProduct(text) { productSearchText = text; renderProductAnalysis(); }
+        
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
 
         // ============================================================
         // 数据加载配置
@@ -1534,10 +1588,8 @@
             shopCompareChart && shopCompareChart.resize();
             costPieChart && costPieChart.resize();
             profitTrendChart && profitTrendChart.resize();
-            if (productTrendChart) productTrendChart.resize();
-            if (productCostChart) productCostChart.resize();
-            if (productBarChart) productBarChart.resize();
-            if (productScatterChart) productScatterChart.resize();
+            if (modalTrendChart) modalTrendChart.resize();
+            if (modalCostChart) modalCostChart.resize();
         });
 
         // 页面加载时自动获取数据
