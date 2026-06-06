@@ -118,73 +118,6 @@
             transition: all 0.3s ease;
         }
         .quick-btn:hover, .quick-btn.active { background: rgba(64, 158, 255, 0.4); color: #fff; }
-        /* Tab切换 */
-        .tab-nav {
-            display: flex; gap: 4px; margin-bottom: 20px;
-            background: rgba(20, 35, 60, 0.6); border-radius: 8px; padding: 4px;
-            border: 1px solid rgba(64, 158, 255, 0.2);
-        }
-        .tab-btn {
-            flex: 1; padding: 10px 24px; border: none; border-radius: 6px;
-            background: transparent; color: #909399; font-size: 14px;
-            cursor: pointer; transition: all 0.3s ease; font-weight: 500;
-        }
-        .tab-btn.active {
-            background: linear-gradient(135deg, #409eff, #66b1ff);
-            color: #fff; box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-        }
-        .tab-btn:hover:not(.active) { color: #fff; background: rgba(64, 158, 255, 0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* 商品分析样式 */
-        .product-filter-bar {
-            display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
-            margin-bottom: 16px;
-        }
-        .product-search {
-            flex: 1; min-width: 200px; max-width: 300px;
-            background: rgba(20, 35, 60, 0.8);
-            border: 1px solid rgba(64, 158, 255, 0.3);
-            border-radius: 6px; padding: 8px 12px;
-            color: #fff; font-size: 13px;
-        }
-        .product-list-table {
-            width: 100%; border-collapse: collapse; font-size: 13px;
-        }
-        .product-list-table th {
-            background: rgba(64, 158, 255, 0.15);
-            padding: 10px 8px; text-align: left;
-            color: #409eff; font-weight: 500;
-            border-bottom: 1px solid rgba(64, 158, 255, 0.3);
-            cursor: pointer; user-select: none;
-        }
-        .product-list-table th:hover { background: rgba(64, 158, 255, 0.25); }
-        .product-list-table td {
-            padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #c0c4cc;
-        }
-        .product-list-table tr:hover td { background: rgba(64, 158, 255, 0.08); }
-        .product-list-table .selected td { background: rgba(64, 158, 255, 0.2) !important; }
-        .product-name-cell { color: #fff; font-weight: 500; }
-        .profit-positive { color: #67c23a; }
-        .profit-negative { color: #f56c6c; }
-        .sort-icon { font-size: 10px; margin-left: 4px; opacity: 0.5; }
-        .sort-icon.active { opacity: 1; }
-        
-        /* 商品详情面板 */
-        .product-detail-panel {
-            background: linear-gradient(145deg, rgba(30, 50, 80, 0.7), rgba(20, 35, 60, 0.8));
-            border-radius: 12px; padding: 18px;
-            border: 1px solid rgba(64, 158, 255, 0.2);
-            margin-top: 16px;
-        }
-        .product-detail-title {
-            font-size: 16px; font-weight: bold; color: #fff;
-            margin-bottom: 12px; padding-bottom: 8px;
-            border-bottom: 1px solid rgba(64, 158, 255, 0.2);
-        }
-
         .compare-indicator {
             background: rgba(245, 108, 108, 0.2);
             border: 1px solid rgba(245, 108, 108, 0.4);
@@ -301,6 +234,26 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: rgba(64, 158, 255, 0.5); border-radius: 3px; }
+        /* Tab切换 */
+        .tab-nav { display:flex; gap:4px; margin-bottom:20px; background:rgba(20,35,60,0.6); border-radius:8px; padding:4px; border:1px solid rgba(64,158,255,0.2); }
+        .tab-btn { flex:1; padding:10px 24px; border:none; border-radius:6px; background:transparent; color:#909399; font-size:14px; cursor:pointer; transition:all 0.3s ease; font-weight:500; }
+        .tab-btn.active { background:linear-gradient(135deg,#409eff,#66b1ff); color:#fff; box-shadow:0 4px 12px rgba(64,158,255,0.3); }
+        .tab-btn:hover:not(.active) { color:#fff; background:rgba(64,158,255,0.1); }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+        .product-filter-bar { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+        .product-search { flex:1; min-width:200px; max-width:300px; background:rgba(20,35,60,0.8); border:1px solid rgba(64,158,255,0.3); border-radius:6px; padding:8px 12px; color:#fff; font-size:13px; }
+        .product-list-table { width:100%; border-collapse:collapse; font-size:13px; }
+        .product-list-table th { background:rgba(64,158,255,0.15); padding:10px 8px; text-align:left; color:#409eff; font-weight:500; border-bottom:1px solid rgba(64,158,255,0.3); cursor:pointer; user-select:none; }
+        .product-list-table th:hover { background:rgba(64,158,255,0.25); }
+        .product-list-table td { padding:10px 8px; border-bottom:1px solid rgba(255,255,255,0.05); color:#c0c4cc; }
+        .product-list-table tr:hover td { background:rgba(64,158,255,0.08); }
+        .product-list-table tr.selected td { background:rgba(64,158,255,0.2)!important; }
+        .product-name-cell { color:#fff; font-weight:500; }
+        .profit-positive { color:#67c23a; }
+        .profit-negative { color:#f56c6c; }
+        .product-detail-panel { background:linear-gradient(145deg,rgba(30,50,80,0.7),rgba(20,35,60,0.8)); border-radius:12px; padding:18px; border:1px solid rgba(64,158,255,0.2); margin-top:16px; }
+        .product-detail-title { font-size:16px; font-weight:bold; color:#fff; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(64,158,255,0.2); }
     </style>
 </head>
 <body>
@@ -323,8 +276,14 @@
             </div>
         </div>
         
+        <!-- Tab切换 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tabBtnOverview" onclick="switchTab('overview')">经营总览</button>
+            <button class="tab-btn" id="tabBtnProduct" onclick="switchTab('product')">商品分析</button>
+        </div>
+
         <!-- 控制面板 -->
-        <div class="control-panel">
+        <div class="control-panel" id="overviewContent">
             <div class="control-group">
                 <span class="control-label">时间粒度：</span>
                 <select class="control-select" id="timeGranularity">
@@ -448,16 +407,6 @@
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="annualProfitFillChallenge" style="width:0%"></div>
-
-        <!-- Tab切换 -->
-        <div class="tab-nav">
-            <button class="tab-btn active" id="tabBtnOverview" onclick="switchTab('overview')">经营总览</button>
-            <button class="tab-btn" id="tabBtnProduct" onclick="switchTab('product')">商品分析</button>
-        </div>
-        
-        <!-- 经营总览 -->
-        <div class="tab-content active" id="tabOverview">
-
                 </div>
             </div>
         </div>
@@ -519,18 +468,11 @@
                 </table>
             </div>
         </div>
-    </div>
 
-    
-    </div>
-
-        </div>
-        
         <!-- 商品分析 -->
         <div class="tab-content" id="tabProduct">
             <div id="productLoading" style="text-align:center;padding:40px;color:#909399;">正在加载商品数据...</div>
             <div id="productContent" style="display:none;">
-                <!-- 商品筛选栏 -->
                 <div class="product-filter-bar">
                     <input type="text" class="product-search" id="productSearch" placeholder="搜索商品名称..." oninput="searchProduct(this.value)">
                     <select class="control-select" id="productShopFilter" onchange="filterProductShop(this.value)">
@@ -541,48 +483,180 @@
                     </select>
                     <span style="color:#909399;font-size:13px;" id="productCount"></span>
                 </div>
-                
-                <!-- 商品列表 -->
                 <div class="table-section">
                     <div class="table-title">商品销售排行（点击商品查看详情）</div>
                     <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
                         <table class="product-list-table">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortProductList('name')">商品名称<span class="sort-icon" id="sortName">▼</span></th>
-                                    <th onclick="sortProductList('shop')">店铺<span class="sort-icon" id="sortShop">▼</span></th>
-                                    <th onclick="sortProductList('sales')">销售额<span class="sort-icon" id="sortSales">▼</span></th>
-                                    <th onclick="sortProductList('profit')">毛利润<span class="sort-icon" id="sortProfit">▼</span></th>
-                                    <th onclick="sortProductList('profitRate')">利润率<span class="sort-icon" id="sortProfitRate">▼</span></th>
-                                    <th onclick="sortProductList('totalCost')">总成本<span class="sort-icon" id="sortTotalCost">▼</span></th>
-                                    <th onclick="sortProductList('qianchuan')">千川消耗<span class="sort-icon" id="sortQianchuan">▼</span></th>
-                                </tr>
-                            </thead>
+                            <thead><tr>
+                                <th onclick="sortProductList('name')">商品名称</th>
+                                <th onclick="sortProductList('shop')">店铺</th>
+                                <th onclick="sortProductList('sales')">销售额</th>
+                                <th onclick="sortProductList('profit')">毛利润</th>
+                                <th onclick="sortProductList('profitRate')">利润率</th>
+                                <th onclick="sortProductList('totalCost')">总成本</th>
+                                <th onclick="sortProductList('qianchuan')">千川消耗</th>
+                            </tr></thead>
                             <tbody id="productListBody"></tbody>
                         </table>
                     </div>
                 </div>
-                
-                <!-- 商品详情 -->
                 <div class="product-detail-panel" id="productDetailPanel" style="display:none;">
                     <div class="product-detail-title" id="productDetailTitle"></div>
                     <div class="kpi-section" id="productDetailKPI" style="margin-bottom:16px;"></div>
                     <div class="charts-section">
-                        <div class="chart-card">
-                            <div class="chart-title">销售额/毛利润趋势</div>
-                            <div class="chart-container" id="productTrendChart"></div>
-                        </div>
-                        <div class="chart-card">
-                            <div class="chart-title">成本构成分析</div>
-                            <div class="chart-container" id="productCostChart"></div>
-                        </div>
+                        <div class="chart-card"><div class="chart-title">销售额/毛利润趋势</div><div class="chart-container" id="productTrendChart"></div></div>
+                        <div class="chart-card"><div class="chart-title">成本构成分析</div><div class="chart-container" id="productCostChart"></div></div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-<script>
+
+    <script>
+        // ==================== 商品分析模块 ====================
+        var productData = null;
+        var selectedProductId = null;
+        var productSortField = 'sales';
+        var productSortDesc = true;
+        var productFilterShop = 'all';
+        var productSearchText = '';
+        var productTrendChart = null;
+        var productCostChart = null;
+        
+        function loadProductData() {
+            return fetch('product_data.json?v=' + new Date().getTime())
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    productData = data;
+                    document.getElementById('productLoading').style.display = 'none';
+                    document.getElementById('productContent').style.display = 'block';
+                    return data;
+                })
+                .catch(function(e) {
+                    console.error('商品数据加载失败:', e);
+                    document.getElementById('productLoading').innerHTML = '<span style="color:#f56c6c">商品数据加载失败</span>';
+                });
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            if (tab === 'overview') {
+                document.getElementById('overviewContent').style.display = '';
+            } else {
+                document.getElementById('overviewContent').style.display = 'none';
+            }
+            if (tab === 'product' && productData) {
+                renderProductList();
+            }
+        }
+        
+        function getFilteredProducts() {
+            if (!productData) return [];
+            var list = productData.products.filter(function(p) {
+                if (productFilterShop !== 'all' && p.shop !== productFilterShop) return false;
+                if (productSearchText && p.name.indexOf(productSearchText) < 0) return false;
+                return true;
+            });
+            list.sort(function(a, b) {
+                var av = a.monthly[productSortField] || 0;
+                var bv = b.monthly[productSortField] || 0;
+                return productSortDesc ? bv - av : av - bv;
+            });
+            return list;
+        }
+        
+        function renderProductList() {
+            var list = getFilteredProducts();
+            var tbody = document.getElementById('productListBody');
+            var html = '';
+            list.forEach(function(p) {
+                var m = p.monthly;
+                var isSelected = selectedProductId === p.id;
+                var profitClass = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                html += '<tr class="' + (isSelected ? 'selected' : '') + '" onclick="selectProduct(\'' + p.id + '\')">' +
+                    '<td class="product-name-cell">' + p.name + '</td>' +
+                    '<td>' + p.shop.replace('抖音-','').replace('快手-','') + '</td>' +
+                    '<td>' + formatMoney(m.sales) + '</td>' +
+                    '<td class="' + profitClass + '">' + formatMoney(m.profit) + '</td>' +
+                    '<td class="' + profitClass + '">' + m.profitRate.toFixed(2) + '%</td>' +
+                    '<td>' + formatMoney(m.totalCost) + '</td>' +
+                    '<td>' + formatMoney(m.qianchuan) + '</td>' +
+                    '</tr>';
+            });
+            tbody.innerHTML = html;
+            document.getElementById('productCount').textContent = '共 ' + list.length + ' 个商品';
+        }
+        
+        function selectProduct(pid) {
+            selectedProductId = pid;
+            renderProductList();
+            renderProductDetail();
+            renderProductCharts();
+        }
+        
+        function renderProductDetail() {
+            if (!selectedProductId || !productData) return;
+            var p = productData.products.find(function(x) { return x.id === selectedProductId; });
+            if (!p) return;
+            document.getElementById('productDetailPanel').style.display = 'block';
+            document.getElementById('productDetailTitle').textContent = p.name + '（' + p.shop.replace('抖音-','').replace('快手-','') + '）';
+            var m = p.monthly;
+            document.getElementById('productDetailKPI').innerHTML =
+                '<div class="kpi-card" style="--card-color:#409eff;"><div class="label">销售额</div><div class="value-row"><div class="value">' + formatMoney(m.sales) + '</div><div class="unit">元</div></div></div>' +
+                '<div class="kpi-card" style="--card-color:#67c23a;"><div class="label">毛利润</div><div class="value-row"><div class="value">' + formatMoney(m.profit) + '</div><div class="unit">元</div></div><div class="rate-row"><span class="rate-label">利润率：</span><span class="rate-value ' + (m.profitRate>=0?'positive':'negative') + '">' + m.profitRate.toFixed(2) + '%</span></div></div>' +
+                '<div class="kpi-card" style="--card-color:#e6a23c;"><div class="label">总成本</div><div class="value-row"><div class="value">' + formatMoney(m.totalCost) + '</div><div class="unit">元</div></div></div>' +
+                '<div class="kpi-card" style="--card-color:#f56c6c;"><div class="label">千川消耗</div><div class="value-row"><div class="value">' + formatMoney(m.qianchuan) + '</div><div class="unit">元</div></div></div>';
+        }
+        
+        function renderProductCharts() {
+            if (!selectedProductId || !productData) return;
+            var p = productData.products.find(function(x) { return x.id === selectedProductId; });
+            if (!p) return;
+            if (!productTrendChart) productTrendChart = echarts.init(document.getElementById('productTrendChart'));
+            var dates = Object.keys(p.daily).sort();
+            productTrendChart.setOption({
+                tooltip: { trigger:'axis', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter: function(params) {
+                    var r = params[0].axisValue + '<br/>';
+                    params.forEach(function(item) { var v = item.value>=10000?(item.value/10000).toFixed(2)+'万':item.value.toFixed(2); r += item.marker+' '+item.seriesName+': '+v+'<br/>'; });
+                    return r;
+                }},
+                legend: { data:['销售额','毛利润'], textStyle:{color:'#909399'}, top:0 },
+                grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+                xAxis: { type:'category', data:dates, axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',rotate:45,fontSize:10} },
+                yAxis: { type:'value', axisLine:{lineStyle:{color:'#409eff'}}, axisLabel:{color:'#909399',formatter:function(v){return (v/10000).toFixed(0)+'万';}}, splitLine:{lineStyle:{color:'rgba(64,158,255,0.1)'}} },
+                series: [
+                    { name:'销售额', type:'line', smooth:true, data:dates.map(function(d){return p.daily[d].sales;}), itemStyle:{color:'#409eff'}, areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(64,158,255,0.3)'},{offset:1,color:'rgba(64,158,255,0.05)'}])} },
+                    { name:'毛利润', type:'line', smooth:true, data:dates.map(function(d){return p.daily[d].profit;}), itemStyle:{color:'#67c23a'}, areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(103,194,58,0.3)'},{offset:1,color:'rgba(103,194,58,0.05)'}])} }
+                ]
+            });
+            if (!productCostChart) productCostChart = echarts.init(document.getElementById('productCostChart'));
+            var m = p.monthly;
+            productCostChart.setOption({
+                tooltip: { trigger:'item', backgroundColor:'rgba(20,35,60,0.9)', borderColor:'#409eff', textStyle:{color:'#fff'}, formatter:'{b}: {c} ({d}%)' },
+                legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#909399',fontSize:11} },
+                series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#1a2a4a',borderWidth:2}, label:{show:false},
+                    data: [
+                        { value:Math.round(m.productCost), name:'产品成本', itemStyle:{color:'#409eff'} },
+                        { value:Math.round(m.storageCost), name:'仓储成本', itemStyle:{color:'#67c23a'} },
+                        { value:Math.round(m.qianchuan), name:'千川消耗', itemStyle:{color:'#e6a23c'} },
+                        { value:Math.round(m.commission), name:'佣金', itemStyle:{color:'#f56c6c'} },
+                        { value:Math.round(m.labor), name:'人工成本', itemStyle:{color:'#909399'} },
+                        { value:Math.round(m.operating), name:'运营成本', itemStyle:{color:'#b37feb'} }
+                    ]
+                }]
+            });
+        }
+        
+        function sortProductList(field) {
+            if (productSortField === field) { productSortDesc = !productSortDesc; } else { productSortField = field; productSortDesc = true; }
+            renderProductList();
+        }
+        function filterProductShop(shop) { productFilterShop = shop; renderProductList(); }
+        function searchProduct(text) { productSearchText = text; renderProductList(); }
+
         // ============================================================
         // 数据加载配置
         // 如果 data.json 和 index.html 在同一目录，直接用相对路径即可
@@ -665,11 +739,7 @@
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     document.getElementById('mainContent').style.display = 'block';
-                    loadProductData().then(function() {
-                        document.getElementById('productLoading').style.display = 'none';
-                        document.getElementById('productContent').style.display = 'block';
-                        initAll();
-                    });
+                    loadProductData().then(function() { initAll(); });
                 }, 300);
 
             } catch (err) {
@@ -1312,6 +1382,8 @@
             shopCompareChart && shopCompareChart.resize();
             costPieChart && costPieChart.resize();
             profitTrendChart && profitTrendChart.resize();
+            if (productTrendChart) productTrendChart.resize();
+            if (productCostChart) productCostChart.resize();
         });
 
         // 页面加载时自动获取数据
