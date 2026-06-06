@@ -118,6 +118,73 @@
             transition: all 0.3s ease;
         }
         .quick-btn:hover, .quick-btn.active { background: rgba(64, 158, 255, 0.4); color: #fff; }
+        /* Tab切换 */
+        .tab-nav {
+            display: flex; gap: 4px; margin-bottom: 20px;
+            background: rgba(20, 35, 60, 0.6); border-radius: 8px; padding: 4px;
+            border: 1px solid rgba(64, 158, 255, 0.2);
+        }
+        .tab-btn {
+            flex: 1; padding: 10px 24px; border: none; border-radius: 6px;
+            background: transparent; color: #909399; font-size: 14px;
+            cursor: pointer; transition: all 0.3s ease; font-weight: 500;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #409eff, #66b1ff);
+            color: #fff; box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+        }
+        .tab-btn:hover:not(.active) { color: #fff; background: rgba(64, 158, 255, 0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* 商品分析样式 */
+        .product-filter-bar {
+            display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+            margin-bottom: 16px;
+        }
+        .product-search {
+            flex: 1; min-width: 200px; max-width: 300px;
+            background: rgba(20, 35, 60, 0.8);
+            border: 1px solid rgba(64, 158, 255, 0.3);
+            border-radius: 6px; padding: 8px 12px;
+            color: #fff; font-size: 13px;
+        }
+        .product-list-table {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        .product-list-table th {
+            background: rgba(64, 158, 255, 0.15);
+            padding: 10px 8px; text-align: left;
+            color: #409eff; font-weight: 500;
+            border-bottom: 1px solid rgba(64, 158, 255, 0.3);
+            cursor: pointer; user-select: none;
+        }
+        .product-list-table th:hover { background: rgba(64, 158, 255, 0.25); }
+        .product-list-table td {
+            padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #c0c4cc;
+        }
+        .product-list-table tr:hover td { background: rgba(64, 158, 255, 0.08); }
+        .product-list-table .selected td { background: rgba(64, 158, 255, 0.2) !important; }
+        .product-name-cell { color: #fff; font-weight: 500; }
+        .profit-positive { color: #67c23a; }
+        .profit-negative { color: #f56c6c; }
+        .sort-icon { font-size: 10px; margin-left: 4px; opacity: 0.5; }
+        .sort-icon.active { opacity: 1; }
+        
+        /* 商品详情面板 */
+        .product-detail-panel {
+            background: linear-gradient(145deg, rgba(30, 50, 80, 0.7), rgba(20, 35, 60, 0.8));
+            border-radius: 12px; padding: 18px;
+            border: 1px solid rgba(64, 158, 255, 0.2);
+            margin-top: 16px;
+        }
+        .product-detail-title {
+            font-size: 16px; font-weight: bold; color: #fff;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1px solid rgba(64, 158, 255, 0.2);
+        }
+
         .compare-indicator {
             background: rgba(245, 108, 108, 0.2);
             border: 1px solid rgba(245, 108, 108, 0.4);
@@ -381,6 +448,16 @@
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="annualProfitFillChallenge" style="width:0%"></div>
+
+        <!-- Tab切换 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tabBtnOverview" onclick="switchTab('overview')">经营总览</button>
+            <button class="tab-btn" id="tabBtnProduct" onclick="switchTab('product')">商品分析</button>
+        </div>
+        
+        <!-- 经营总览 -->
+        <div class="tab-content active" id="tabOverview">
+
                 </div>
             </div>
         </div>
@@ -444,7 +521,68 @@
         </div>
     </div>
 
-    <script>
+    
+    </div>
+
+        </div>
+        
+        <!-- 商品分析 -->
+        <div class="tab-content" id="tabProduct">
+            <div id="productLoading" style="text-align:center;padding:40px;color:#909399;">正在加载商品数据...</div>
+            <div id="productContent" style="display:none;">
+                <!-- 商品筛选栏 -->
+                <div class="product-filter-bar">
+                    <input type="text" class="product-search" id="productSearch" placeholder="搜索商品名称..." oninput="searchProduct(this.value)">
+                    <select class="control-select" id="productShopFilter" onchange="filterProductShop(this.value)">
+                        <option value="all">全部店铺</option>
+                        <option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特</option>
+                        <option value="抖音-小轻担食品旗舰店">抖音-小轻担</option>
+                        <option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特</option>
+                    </select>
+                    <span style="color:#909399;font-size:13px;" id="productCount"></span>
+                </div>
+                
+                <!-- 商品列表 -->
+                <div class="table-section">
+                    <div class="table-title">商品销售排行（点击商品查看详情）</div>
+                    <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
+                        <table class="product-list-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortProductList('name')">商品名称<span class="sort-icon" id="sortName">▼</span></th>
+                                    <th onclick="sortProductList('shop')">店铺<span class="sort-icon" id="sortShop">▼</span></th>
+                                    <th onclick="sortProductList('sales')">销售额<span class="sort-icon" id="sortSales">▼</span></th>
+                                    <th onclick="sortProductList('profit')">毛利润<span class="sort-icon" id="sortProfit">▼</span></th>
+                                    <th onclick="sortProductList('profitRate')">利润率<span class="sort-icon" id="sortProfitRate">▼</span></th>
+                                    <th onclick="sortProductList('totalCost')">总成本<span class="sort-icon" id="sortTotalCost">▼</span></th>
+                                    <th onclick="sortProductList('qianchuan')">千川消耗<span class="sort-icon" id="sortQianchuan">▼</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="productListBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 商品详情 -->
+                <div class="product-detail-panel" id="productDetailPanel" style="display:none;">
+                    <div class="product-detail-title" id="productDetailTitle"></div>
+                    <div class="kpi-section" id="productDetailKPI" style="margin-bottom:16px;"></div>
+                    <div class="charts-section">
+                        <div class="chart-card">
+                            <div class="chart-title">销售额/毛利润趋势</div>
+                            <div class="chart-container" id="productTrendChart"></div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">成本构成分析</div>
+                            <div class="chart-container" id="productCostChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+<script>
         // ============================================================
         // 数据加载配置
         // 如果 data.json 和 index.html 在同一目录，直接用相对路径即可
@@ -527,7 +665,11 @@
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     document.getElementById('mainContent').style.display = 'block';
-                    initAll();
+                    loadProductData().then(function() {
+                        document.getElementById('productLoading').style.display = 'none';
+                        document.getElementById('productContent').style.display = 'block';
+                        initAll();
+                    });
                 }, 300);
 
             } catch (err) {
