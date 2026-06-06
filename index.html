@@ -218,7 +218,10 @@
         .data-table .profit-positive { color: #67c23a; }
         .data-table .profit-negative { color: #f56c6c; }
         .data-table .rate-cell { color: #909399; font-size: 10px; }
-        
+        .data-table td.rate-value { color: #909399; }
+        .data-table thead { position: sticky; top: 0; z-index: 10; }
+        .data-table thead th { background: rgba(30, 50, 80, 0.95); }
+
         @media (max-width: 1200px) {
             .kpi-section { grid-template-columns: repeat(2, 1fr); }
             .charts-section { grid-template-columns: 1fr; }
@@ -480,6 +483,10 @@
                             <option value="all">全部月份</option>
                         </select>
                     </div>
+                    <div class="control-group" id="pDateGroup" style="display:none;">
+                        <span class="control-label">日期：</span>
+                        <input type="date" class="control-input" id="pDateSelect" style="width:140px;">
+                    </div>
                     <div class="control-group">
                         <span class="control-label">店铺筛选：</span>
                         <select class="control-select" id="pShopFilter">
@@ -597,6 +604,24 @@
             productData.meta.shops.forEach(function(s) {
                 shopSel.innerHTML += '<option value="' + s + '">' + s + '</option>';
             });
+            // 填充日期选择器
+            var dateSel = document.getElementById('pDateSelect');
+            var allDates = [];
+            productData.products.forEach(function(p) {
+                Object.keys(p.daily).forEach(function(d) {
+                    if (allDates.indexOf(d) < 0) allDates.push(d);
+                });
+            });
+            allDates.sort();
+            if (allDates.length > 0) {
+                dateSel.min = allDates[0];
+                dateSel.max = allDates[allDates.length - 1];
+                dateSel.value = allDates[allDates.length - 1];
+            }
+            // 时间粒度切换时显示/隐藏日期选择器
+            document.getElementById('pTimeGranularity').addEventListener('change', function() {
+                document.getElementById('pDateGroup').style.display = this.value === 'day' ? '' : 'none';
+            });
         }
         
         function onDimensionChange() {
@@ -656,6 +681,7 @@
         function applyProductFilters() {
             pState.granularity = document.getElementById('pTimeGranularity').value;
             pState.month = document.getElementById('pMonthSelect').value;
+            pState.date = document.getElementById('pDateSelect').value;
             pState.shop = document.getElementById('pShopFilter').value;
             pState.dimension = document.getElementById('pDimension').value;
             pState.search = document.getElementById('pSearchInput').value;
@@ -704,26 +730,71 @@
             var sorted = list.slice().sort(function(a,b) { return (b.monthly||{}).sales - (a.monthly||{}).sales; });
             var top10 = sorted.slice(0, 10);
             var isName = pState.dimension === 'name';
-            document.getElementById('pSalesTopHead').innerHTML = '<tr><th style="width:30px;">#</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th>') + (isName ? '' : '<th>商品名称</th>') + '<th>店铺</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>总成本</th></tr>';
-            document.getElementById('pSalesTopBody').innerHTML = top10.map(function(item, idx) {
+            var html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            top10.forEach(function(item, idx) {
                 var m = item.monthly || {};
-                var pc = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                var shopName = isName ? (item.shops||[]).join(', ') : item.shop;
-                return '<tr><td>' + (idx+1) + '</td>' + (isName ? '<td>' + item.name + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + shopName + '</td><td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td>' + formatMoney(m.totalCost) + '</td></tr>';
-            }).join('');
+                var name = isName ? item.name : (item.name + ' <span style="color:#909399;font-size:11px;">ID:' + item.id.substring(0,8) + '...</span>');
+                var salesRate = m.GMV > 0 ? (m.sales/m.GMV*100) : 0;
+                var profitRate = m.sales > 0 ? (m.profit/m.sales*100) : 0;
+                var refundRate = m.GMV > 0 ? (m.refund/m.GMV*100) : 0;
+                var pc = m.profit >= 0 ? '#67c23a' : '#f56c6c';
+                html += '<div style="display:flex;align-items:center;background:rgba(20,35,60,0.6);border-radius:8px;padding:10px 14px;border:1px solid rgba(64,158,255,0.15);cursor:pointer;" onclick="' + (isName ? 'openProductModalByName' : 'openProductModal') + '(\'' + (isName ? item.name.replace(/'/g, "\\'") : item.id) + '\')">' +
+                    '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#409eff,#66b1ff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold;margin-right:12px;flex-shrink:0;">' + (idx+1) + '</div>' +
+                    '<div style="flex:1;min-width:0;">' +
+                        '<div style="color:#fff;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;">' + name + '</div>' +
+                        '<div style="display:flex;gap:16px;flex-wrap:wrap;">' +
+                            '<span style="color:#c0c4cc;font-size:11px;">GMV: <span style="color:#409eff;font-weight:500;">' + formatMoney(m.GMV) + '</span></span>' +
+                            '<span style="color:#c0c4cc;font-size:11px;">销售额: <span style="color:#67c23a;font-weight:500;">' + formatMoney(m.sales) + '</span> <span style="color:#909399;">(' + salesRate.toFixed(1) + '%)</span></span>' +
+                            '<span style="color:#c0c4cc;font-size:11px;">毛利润: <span style="color:' + pc + ';font-weight:500;">' + formatMoney(m.profit) + '</span> <span style="color:#909399;">(' + profitRate.toFixed(1) + '%)</span></span>' +
+                            '<span style="color:#c0c4cc;font-size:11px;">退款: <span style="color:#f56c6c;font-weight:500;">' + formatMoney(m.refund) + '</span> <span style="color:#909399;">(' + refundRate.toFixed(1) + '%)</span></span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            });
+            html += '</div>';
+            // 清空table，用div填充
+            document.getElementById('pSalesTopTable').style.display = 'none';
+            var container = document.getElementById('pSalesTopTable').parentNode;
+            // 移除旧的div如果存在
+            var oldDiv = container.querySelector('.top10-cards');
+            if (oldDiv) oldDiv.remove();
+            var div = document.createElement('div');
+            div.className = 'top10-cards';
+            div.innerHTML = html;
+            container.appendChild(div);
         }
         
         function renderProfitTop10(list) {
             var sorted = list.slice().sort(function(a,b) { return (b.monthly||{}).profitRate - (a.monthly||{}).profitRate; });
             var top10 = sorted.slice(0, 10);
             var isName = pState.dimension === 'name';
-            document.getElementById('pProfitTopHead').innerHTML = '<tr><th style="width:30px;">#</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th>') + (isName ? '' : '<th>商品名称</th>') + '<th>店铺</th><th>GMV</th><th>销售额</th><th>毛利润</th><th>总成本</th></tr>';
-            document.getElementById('pProfitTopBody').innerHTML = top10.map(function(item, idx) {
+            var html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+            top10.forEach(function(item, idx) {
                 var m = item.monthly || {};
-                var pc = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                var shopName = isName ? (item.shops||[]).join(', ') : item.shop;
-                return '<tr><td>' + (idx+1) + '</td>' + (isName ? '<td>' + item.name + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + shopName + '</td><td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.sales) + '</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td>' + formatMoney(m.totalCost) + '</td></tr>';
-            }).join('');
+                var name = isName ? item.name : (item.name + ' <span style="color:#909399;font-size:11px;">ID:' + item.id.substring(0,8) + '...</span>');
+                var profitRate = m.sales > 0 ? (m.profit/m.sales*100) : 0;
+                var pc = m.profit >= 0 ? '#67c23a' : '#f56c6c';
+                html += '<div style="display:flex;align-items:center;background:rgba(20,35,60,0.6);border-radius:8px;padding:10px 14px;border:1px solid rgba(64,158,255,0.15);cursor:pointer;" onclick="' + (isName ? 'openProductModalByName' : 'openProductModal') + '(\'' + (isName ? item.name.replace(/'/g, "\\'") : item.id) + '\')">' +
+                    '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#67c23a,#85ce61);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold;margin-right:12px;flex-shrink:0;">' + (idx+1) + '</div>' +
+                    '<div style="flex:1;min-width:0;">' +
+                        '<div style="color:#fff;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;">' + name + '</div>' +
+                        '<div style="display:flex;gap:16px;flex-wrap:wrap;">' +
+                            '<span style="color:#c0c4cc;font-size:11px;">销售额: <span style="color:#409eff;font-weight:500;">' + formatMoney(m.sales) + '</span></span>' +
+                            '<span style="color:#c0c4cc;font-size:11px;">毛利润: <span style="color:' + pc + ';font-weight:500;">' + formatMoney(m.profit) + '</span></span>' +
+                            '<span style="color:#c0c4cc;font-size:11px;">利润率: <span style="color:' + pc + ';font-weight:500;font-size:13px;">' + profitRate.toFixed(2) + '%</span></span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            });
+            html += '</div>';
+            document.getElementById('pProfitTopTable').style.display = 'none';
+            var container = document.getElementById('pProfitTopTable').parentNode;
+            var oldDiv = container.querySelector('.top10-cards');
+            if (oldDiv) oldDiv.remove();
+            var div = document.createElement('div');
+            div.className = 'top10-cards';
+            div.innerHTML = html;
+            container.appendChild(div);
         }
         
         function renderDetailTable(list) {
@@ -732,7 +803,7 @@
             
             if (isDay) {
                 // 按日查看：展开每个商品的每日数据
-                document.getElementById('pDetailHead').innerHTML = '<tr><th>时间</th><th>店铺</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th><th>商品名称</th>') + '<th>GMV</th><th>退款</th><th>退款率</th><th>销售额</th><th>产品成本</th><th>成本率</th><th>仓储成本</th><th>仓储率</th><th>千川消耗</th><th>千川率</th><th>佣金</th><th>佣金率</th><th>人工成本</th><th>人工率</th><th>运营成本</th><th>运营率</th><th>总成本</th><th>总成本率</th><th>毛利润</th><th>毛利率</th></tr>';
+                document.getElementById('pDetailHead').innerHTML = '<tr><th>时间</th>' + (isName ? '<th>商品名称</th>' : '<th>商品ID</th><th>商品名称</th>') + '<th>GMV</th><th>退款</th><th>退款率</th><th>销售额</th><th>产品成本</th><th>成本率</th><th>仓储成本</th><th>仓储率</th><th>千川消耗</th><th>千川率</th><th>佣金</th><th>佣金率</th><th>人工成本</th><th>人工率</th><th>运营成本</th><th>运营率</th><th>总成本</th><th>总成本率</th><th>毛利润</th><th>毛利率</th></tr>';
                 var rows = [];
                 // 只对商品ID维度展开每日数据（商品名称维度需要聚合）
                 var source = isName ? productData.byName : productData.products;
@@ -771,7 +842,7 @@
                             var tcr = d.sales > 0 ? (d.totalCost/d.sales*100) : 0;
                             var pr = d.sales > 0 ? (d.profit/d.sales*100) : 0;
                             var pc = d.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                            rows.push('<tr onclick="openProductModalByName(\'' + item.name.replace(/'/g, "\\'") + '\')" style="cursor:pointer;"><td>' + date + '</td><td>' + (item.shops||[]).join(', ') + '</td><td>' + item.name + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.refund) + '</td><td>' + rr.toFixed(2) + '%</td><td>' + formatMoney(d.sales) + '</td><td>' + formatMoney(d.productCost) + '</td><td>' + pcr.toFixed(2) + '%</td><td>' + formatMoney(d.storageCost) + '</td><td>' + sr.toFixed(2) + '%</td><td>' + formatMoney(d.qianchuan) + '</td><td>' + qr.toFixed(2) + '%</td><td>' + formatMoney(d.commission) + '</td><td>' + cr.toFixed(2) + '%</td><td>' + formatMoney(d.labor) + '</td><td>' + lr.toFixed(2) + '%</td><td>' + formatMoney(d.operating) + '</td><td>' + or2.toFixed(2) + '%</td><td>' + formatMoney(d.totalCost) + '</td><td>' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(d.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>');
+                            rows.push('<tr onclick="openProductModalByName(\'' + item.name.replace(/'/g, "\\'") + '\')" style="cursor:pointer;"><td>' + date + '</td><td>' + item.name + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.refund) + '</td><td class="rate-value">' + rr.toFixed(2) + '%</td><td>' + formatMoney(d.sales) + '</td><td>' + formatMoney(d.productCost) + '</td><td class="rate-value">' + pcr.toFixed(2) + '%</td><td>' + formatMoney(d.storageCost) + '</td><td class="rate-value">' + sr.toFixed(2) + '%</td><td>' + formatMoney(d.qianchuan) + '</td><td class="rate-value">' + qr.toFixed(2) + '%</td><td>' + formatMoney(d.commission) + '</td><td class="rate-value">' + cr.toFixed(2) + '%</td><td>' + formatMoney(d.labor) + '</td><td class="rate-value">' + lr.toFixed(2) + '%</td><td>' + formatMoney(d.operating) + '</td><td class="rate-value">' + or2.toFixed(2) + '%</td><td>' + formatMoney(d.totalCost) + '</td><td class="rate-value">' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(d.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>');
                         });
                     } else {
                         Object.keys(item.daily).sort().forEach(function(date) {
@@ -786,14 +857,14 @@
                             var tcr = d.sales > 0 ? (d.totalCost/d.sales*100) : 0;
                             var pr = d.sales > 0 ? (d.profit/d.sales*100) : 0;
                             var pc = d.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                            rows.push('<tr onclick="openProductModal(\'' + item.id + '\')" style="cursor:pointer;"><td>' + date + '</td><td>' + item.shop + '</td><td>' + item.id + '</td><td>' + item.name + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.refund) + '</td><td>' + rr.toFixed(2) + '%</td><td>' + formatMoney(d.sales) + '</td><td>' + formatMoney(d.productCost) + '</td><td>' + pcr.toFixed(2) + '%</td><td>' + formatMoney(d.storageCost) + '</td><td>' + sr.toFixed(2) + '%</td><td>' + formatMoney(d.qianchuan) + '</td><td>' + qr.toFixed(2) + '%</td><td>' + formatMoney(d.commission) + '</td><td>' + cr.toFixed(2) + '%</td><td>' + formatMoney(d.labor) + '</td><td>' + lr.toFixed(2) + '%</td><td>' + formatMoney(d.operating) + '</td><td>' + or2.toFixed(2) + '%</td><td>' + formatMoney(d.totalCost) + '</td><td>' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(d.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>');
+                            rows.push('<tr onclick="openProductModal(\'' + item.id + '\')" style="cursor:pointer;"><td>' + date + '</td><td>' + item.id + '</td><td>' + item.name + '</td><td>' + formatMoney(d.GMV) + '</td><td>' + formatMoney(d.refund) + '</td><td class="rate-value">' + rr.toFixed(2) + '%</td><td>' + formatMoney(d.sales) + '</td><td>' + formatMoney(d.productCost) + '</td><td class="rate-value">' + pcr.toFixed(2) + '%</td><td>' + formatMoney(d.storageCost) + '</td><td class="rate-value">' + sr.toFixed(2) + '%</td><td>' + formatMoney(d.qianchuan) + '</td><td class="rate-value">' + qr.toFixed(2) + '%</td><td>' + formatMoney(d.commission) + '</td><td class="rate-value">' + cr.toFixed(2) + '%</td><td>' + formatMoney(d.labor) + '</td><td class="rate-value">' + lr.toFixed(2) + '%</td><td>' + formatMoney(d.operating) + '</td><td class="rate-value">' + or2.toFixed(2) + '%</td><td>' + formatMoney(d.totalCost) + '</td><td class="rate-value">' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(d.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>');
                         });
                     }
                 });
                 document.getElementById('pDetailBody').innerHTML = rows.join('');
             } else {
                 // 按月查看：显示汇总数据
-                document.getElementById('pDetailHead').innerHTML = '<tr><th>时间</th><th>店铺</th>' + (isName ? '<th>商品名称</th><th>ID数</th>' : '<th>商品ID</th><th>商品名称</th>') + '<th>GMV</th><th>退款</th><th>退款率</th><th>销售额</th><th>产品成本</th><th>成本率</th><th>仓储成本</th><th>仓储率</th><th>千川消耗</th><th>千川率</th><th>佣金</th><th>佣金率</th><th>人工成本</th><th>人工率</th><th>运营成本</th><th>运营率</th><th>总成本</th><th>总成本率</th><th>毛利润</th><th>毛利率</th></tr>';
+                document.getElementById('pDetailHead').innerHTML = '<tr><th>时间</th>' + (isName ? '<th>商品名称</th><th>ID数</th>' : '<th>商品ID</th><th>商品名称</th>') + '<th>GMV</th><th>退款</th><th>退款率</th><th>销售额</th><th>产品成本</th><th>成本率</th><th>仓储成本</th><th>仓储率</th><th>千川消耗</th><th>千川率</th><th>佣金</th><th>佣金率</th><th>人工成本</th><th>人工率</th><th>运营成本</th><th>运营率</th><th>总成本</th><th>总成本率</th><th>毛利润</th><th>毛利率</th></tr>';
                 document.getElementById('pDetailBody').innerHTML = list.map(function(item) {
                     var m = item.monthly || {};
                     var rr = m.GMV > 0 ? (m.refund/m.GMV*100) : 0;
@@ -806,9 +877,8 @@
                     var tcr = m.sales > 0 ? (m.totalCost/m.sales*100) : 0;
                     var pr = m.sales > 0 ? (m.profit/m.sales*100) : 0;
                     var pc = m.profit >= 0 ? 'profit-positive' : 'profit-negative';
-                    var shopName = isName ? (item.shops||[]).join(', ') : item.shop;
                     var onclick = isName ? 'openProductModalByName(\'' + item.name.replace(/'/g, "\\'") + '\')' : 'openProductModal(\'' + item.id + '\')';
-                    return '<tr onclick="' + onclick + '" style="cursor:pointer;"><td>' + (productData.meta.month||'') + '</td><td>' + shopName + '</td>' + (isName ? '<td>' + item.name + '</td><td>' + (item.idCount||1) + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.refund) + '</td><td>' + rr.toFixed(2) + '%</td><td>' + formatMoney(m.sales) + '</td><td>' + formatMoney(m.productCost) + '</td><td>' + pcr.toFixed(2) + '%</td><td>' + formatMoney(m.storageCost) + '</td><td>' + sr.toFixed(2) + '%</td><td>' + formatMoney(m.qianchuan) + '</td><td>' + qr.toFixed(2) + '%</td><td>' + formatMoney(m.commission) + '</td><td>' + cr.toFixed(2) + '%</td><td>' + formatMoney(m.labor) + '</td><td>' + lr.toFixed(2) + '%</td><td>' + formatMoney(m.operating) + '</td><td>' + or2.toFixed(2) + '%</td><td>' + formatMoney(m.totalCost) + '</td><td>' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>';
+                    return '<tr onclick="' + onclick + '" style="cursor:pointer;"><td>' + (productData.meta.month||'') + '</td>' + (isName ? '<td>' + item.name + '</td><td>' + (item.idCount||1) + '</td>' : '<td>' + item.id + '</td><td>' + item.name + '</td>') + '<td>' + formatMoney(m.GMV) + '</td><td>' + formatMoney(m.refund) + '</td><td class="rate-value">' + rr.toFixed(2) + '%</td><td>' + formatMoney(m.sales) + '</td><td>' + formatMoney(m.productCost) + '</td><td class="rate-value">' + pcr.toFixed(2) + '%</td><td>' + formatMoney(m.storageCost) + '</td><td class="rate-value">' + sr.toFixed(2) + '%</td><td>' + formatMoney(m.qianchuan) + '</td><td class="rate-value">' + qr.toFixed(2) + '%</td><td>' + formatMoney(m.commission) + '</td><td class="rate-value">' + cr.toFixed(2) + '%</td><td>' + formatMoney(m.labor) + '</td><td class="rate-value">' + lr.toFixed(2) + '%</td><td>' + formatMoney(m.operating) + '</td><td class="rate-value">' + or2.toFixed(2) + '%</td><td>' + formatMoney(m.totalCost) + '</td><td class="rate-value">' + tcr.toFixed(2) + '%</td><td class="' + pc + '">' + formatMoney(m.profit) + '</td><td class="' + pc + '">' + pr.toFixed(2) + '%</td></tr>';
                 }).join('');
             }
         }
