@@ -13,20 +13,6 @@
       "id": "3806635791631908864",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 2978935.42,
-        "refund": 306668.49,
-        "sales": 2672266.93,
-        "productCost": 1844435.48,
-        "storageCost": 293454.99,
-        "qianchuan": 30828.6,
-        "commission": 182152.85,
-        "labor": 75623.52,
-        "operating": 160336.02,
-        "totalCost": 2586831.46,
-        "profit": 85435.47,
-        "profitRate": 3.2
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 110146.2,
@@ -418,26 +404,26 @@
           "totalCost": 49010.57,
           "profit": 887.43
         }
+      },
+      "monthly": {
+        "GMV": 2978935.42,
+        "refund": 306668.49,
+        "sales": 2672266.93,
+        "productCost": 1844435.48,
+        "storageCost": 293454.99,
+        "qianchuan": 30828.6,
+        "commission": 182152.85,
+        "labor": 75623.55,
+        "operating": 160336.02,
+        "totalCost": 2586831.47,
+        "profit": 85435.46,
+        "profitRate": 3.2
       }
     },
     {
       "id": "3768981892938990080",
       "name": "鲨鱼菲特玉米鸡胸肉饼60g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 139280.29,
-        "refund": 10451.92,
-        "sales": 128828.37,
-        "productCost": 88090.8,
-        "storageCost": 17781.28,
-        "qianchuan": 2328.07,
-        "commission": 6639.05,
-        "labor": 3635.83,
-        "operating": 7729.7,
-        "totalCost": 126204.73,
-        "profit": 2623.64,
-        "profitRate": 2.04
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 8033.68,
@@ -829,26 +815,26 @@
           "totalCost": 1528.07,
           "profit": 29.23
         }
+      },
+      "monthly": {
+        "GMV": 139280.29,
+        "refund": 10451.92,
+        "sales": 128828.37,
+        "productCost": 88090.8,
+        "storageCost": 17781.28,
+        "qianchuan": 2328.07,
+        "commission": 6639.05,
+        "labor": 3635.81,
+        "operating": 7729.69,
+        "totalCost": 126204.75,
+        "profit": 2623.62,
+        "profitRate": 2.04
       }
     },
     {
       "id": "26119030449545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 133617.9,
-        "refund": 16854.0,
-        "sales": 116763.9,
-        "productCost": 81406.94,
-        "storageCost": 12803.13,
-        "qianchuan": 0.0,
-        "commission": 11343.92,
-        "labor": 3092.49,
-        "operating": 7005.83,
-        "totalCost": 115652.31,
-        "profit": 1111.59,
-        "profitRate": 0.95
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 3425.4,
@@ -1240,26 +1226,26 @@
           "totalCost": 2344.1,
           "profit": 1.8
         }
+      },
+      "monthly": {
+        "GMV": 133617.9,
+        "refund": 16854.0,
+        "sales": 116763.9,
+        "productCost": 81406.94,
+        "storageCost": 12803.13,
+        "qianchuan": 0.0,
+        "commission": 11343.92,
+        "labor": 3092.46,
+        "operating": 7005.82,
+        "totalCost": 115652.33,
+        "profit": 1111.57,
+        "profitRate": 0.95
       }
     },
     {
       "id": "3785688345091375104",
       "name": "鲨鱼菲特去皮大鸡腿75g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 78394.0,
-        "refund": 8315.1,
-        "sales": 70078.9,
-        "productCost": 41962.9,
-        "storageCost": 4509.04,
-        "qianchuan": 1563.02,
-        "commission": 11533.25,
-        "labor": 1987.37,
-        "operating": 4204.73,
-        "totalCost": 65760.32,
-        "profit": 4318.58,
-        "profitRate": 6.16
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 3947.5,
@@ -1651,26 +1637,26 @@
           "totalCost": 582.48,
           "profit": 56.22
         }
+      },
+      "monthly": {
+        "GMV": 78394.0,
+        "refund": 8315.1,
+        "sales": 70078.9,
+        "productCost": 41962.9,
+        "storageCost": 4509.04,
+        "qianchuan": 1563.02,
+        "commission": 11533.25,
+        "labor": 1987.36,
+        "operating": 4204.74,
+        "totalCost": 65760.31,
+        "profit": 4318.59,
+        "profitRate": 6.16
       }
     },
     {
       "id": "3787510961531913216",
       "name": "小轻担鸡胸肉肠300g",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 69192.2,
-        "refund": 6213.7,
-        "sales": 62978.5,
-        "productCost": 36263.18,
-        "storageCost": 6163.43,
-        "qianchuan": 533.35,
-        "commission": 10756.1,
-        "labor": 1856.13,
-        "operating": 3778.71,
-        "totalCost": 59350.9,
-        "profit": 3627.6,
-        "profitRate": 5.76
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 2210.1,
@@ -2062,26 +2048,26 @@
           "totalCost": 2062.9,
           "profit": 51.8
         }
+      },
+      "monthly": {
+        "GMV": 69192.2,
+        "refund": 6213.7,
+        "sales": 62978.5,
+        "productCost": 36263.18,
+        "storageCost": 6163.43,
+        "qianchuan": 533.35,
+        "commission": 10756.1,
+        "labor": 1856.14,
+        "operating": 3778.7,
+        "totalCost": 59350.89,
+        "profit": 3627.61,
+        "profitRate": 5.76
       }
     },
     {
       "id": "3784929847424451072",
       "name": "小轻担鸡胸肉50g",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 32726.14,
-        "refund": 4113.32,
-        "sales": 28612.82,
-        "productCost": 16337.34,
-        "storageCost": 4280.26,
-        "qianchuan": 3185.94,
-        "commission": 2352.94,
-        "labor": 807.96,
-        "operating": 1716.77,
-        "totalCost": 28681.21,
-        "profit": -68.39,
-        "profitRate": -0.24
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 1386.11,
@@ -2473,26 +2459,26 @@
           "totalCost": 132.74,
           "profit": -3.34
         }
+      },
+      "monthly": {
+        "GMV": 32726.14,
+        "refund": 4113.32,
+        "sales": 28612.82,
+        "productCost": 16337.34,
+        "storageCost": 4280.26,
+        "qianchuan": 3185.94,
+        "commission": 2352.94,
+        "labor": 807.93,
+        "operating": 1716.77,
+        "totalCost": 28681.23,
+        "profit": -68.41,
+        "profitRate": -0.24
       }
     },
     {
       "id": "3809824373280474112",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 23425.85,
-        "refund": 2498.25,
-        "sales": 20927.6,
-        "productCost": 14386.5,
-        "storageCost": 2303.88,
-        "qianchuan": 67.41,
-        "commission": 0.0,
-        "labor": 583.19,
-        "operating": 1255.66,
-        "totalCost": 18596.63,
-        "profit": 2330.97,
-        "profitRate": 11.14
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 56.9,
@@ -2884,26 +2870,26 @@
           "totalCost": 151.57,
           "profit": 8.07
         }
+      },
+      "monthly": {
+        "GMV": 23425.85,
+        "refund": 2498.25,
+        "sales": 20927.6,
+        "productCost": 14386.5,
+        "storageCost": 2303.88,
+        "qianchuan": 67.41,
+        "commission": 0.0,
+        "labor": 583.2,
+        "operating": 1255.65,
+        "totalCost": 18596.63,
+        "profit": 2330.97,
+        "profitRate": 11.14
       }
     },
     {
       "id": "26298444657545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 22191.9,
-        "refund": 2555.1,
-        "sales": 19636.8,
-        "productCost": 13677.6,
-        "storageCost": 2154.96,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 571.39,
-        "operating": 1178.21,
-        "totalCost": 17582.16,
-        "profit": 2054.64,
-        "profitRate": 10.46
-      },
       "daily": {
         "2026-04-16": {
           "GMV": 9778.5,
@@ -3100,26 +3086,26 @@
           "totalCost": 108.86,
           "profit": 10.84
         }
+      },
+      "monthly": {
+        "GMV": 22191.9,
+        "refund": 2555.1,
+        "sales": 19636.8,
+        "productCost": 13677.6,
+        "storageCost": 2154.96,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 571.39,
+        "operating": 1178.19,
+        "totalCost": 17582.16,
+        "profit": 2054.64,
+        "profitRate": 10.46
       }
     },
     {
       "id": "25644721714545",
       "name": "鲨鱼菲特去皮大鸡腿75g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 18576.1,
-        "refund": 9496.1,
-        "sales": 9080.0,
-        "productCost": 5445.06,
-        "storageCost": 593.35,
-        "qianchuan": 0.0,
-        "commission": 1367.82,
-        "labor": 264.59,
-        "operating": 544.8,
-        "totalCost": 8215.62,
-        "profit": 864.38,
-        "profitRate": 9.52
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 328.3,
@@ -3511,26 +3497,26 @@
           "totalCost": 38.46,
           "profit": 11.44
         }
+      },
+      "monthly": {
+        "GMV": 18576.1,
+        "refund": 9496.1,
+        "sales": 9080.0,
+        "productCost": 5445.06,
+        "storageCost": 593.35,
+        "qianchuan": 0.0,
+        "commission": 1367.82,
+        "labor": 264.6,
+        "operating": 544.79,
+        "totalCost": 8215.61,
+        "profit": 864.39,
+        "profitRate": 9.52
       }
     },
     {
       "id": "3772709095673561088",
       "name": "鲨鱼菲特豆皮鸡胸肉卷40g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 8577.62,
-        "refund": 1005.08,
-        "sales": 7572.54,
-        "productCost": 4050.0,
-        "storageCost": 786.06,
-        "qianchuan": 264.49,
-        "commission": 625.23,
-        "labor": 217.92,
-        "operating": 454.35,
-        "totalCost": 6398.05,
-        "profit": 1174.49,
-        "profitRate": 15.51
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 505.76,
@@ -3922,26 +3908,26 @@
           "totalCost": 117.55,
           "profit": 41.94
         }
+      },
+      "monthly": {
+        "GMV": 8577.62,
+        "refund": 1005.08,
+        "sales": 7572.54,
+        "productCost": 4050.0,
+        "storageCost": 786.06,
+        "qianchuan": 264.49,
+        "commission": 625.23,
+        "labor": 217.92,
+        "operating": 454.34,
+        "totalCost": 6398.06,
+        "profit": 1174.48,
+        "profitRate": 15.51
       }
     },
     {
       "id": "3797515817273393152",
       "name": "小轻担去皮大鸡腿75g",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 7479.7,
-        "refund": 816.5,
-        "sales": 6663.2,
-        "productCost": 4609.8,
-        "storageCost": 662.47,
-        "qianchuan": 4.67,
-        "commission": 548.93,
-        "labor": 187.69,
-        "operating": 399.79,
-        "totalCost": 6413.35,
-        "profit": 249.85,
-        "profitRate": 3.75
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 102.7,
@@ -4307,26 +4293,26 @@
           "totalCost": 108.09,
           "profit": 11.61
         }
+      },
+      "monthly": {
+        "GMV": 7479.7,
+        "refund": 816.5,
+        "sales": 6663.2,
+        "productCost": 4609.8,
+        "storageCost": 662.47,
+        "qianchuan": 4.67,
+        "commission": 548.93,
+        "labor": 187.71,
+        "operating": 399.78,
+        "totalCost": 6413.35,
+        "profit": 249.85,
+        "profitRate": 3.75
       }
     },
     {
       "id": "3766530753022788096",
       "name": "鲨鱼菲特低脂鹰嘴豆60g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 7030.4,
-        "refund": 984.63,
-        "sales": 6045.77,
-        "productCost": 3320.2,
-        "storageCost": 752.27,
-        "qianchuan": 134.46,
-        "commission": 692.02,
-        "labor": 179.02,
-        "operating": 362.75,
-        "totalCost": 5440.71,
-        "profit": 605.06,
-        "profitRate": 10.01
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 390.77,
@@ -4718,26 +4704,26 @@
           "totalCost": 390.04,
           "profit": 17.7
         }
+      },
+      "monthly": {
+        "GMV": 7030.4,
+        "refund": 984.63,
+        "sales": 6045.77,
+        "productCost": 3320.2,
+        "storageCost": 752.27,
+        "qianchuan": 134.46,
+        "commission": 692.02,
+        "labor": 179.04,
+        "operating": 362.74,
+        "totalCost": 5440.75,
+        "profit": 605.02,
+        "profitRate": 10.01
       }
     },
     {
       "id": "26366438237545",
       "name": "鲨鱼菲特玉米鸡胸肉饼60g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 3885.37,
-        "refund": 593.48,
-        "sales": 3291.89,
-        "productCost": 2100.0,
-        "storageCost": 421.79,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 116.44,
-        "operating": 197.51,
-        "totalCost": 2835.74,
-        "profit": 456.15,
-        "profitRate": 13.86
-      },
       "daily": {
         "2026-04-29": {
           "GMV": 3058.17,
@@ -4765,26 +4751,26 @@
           "totalCost": 686.71,
           "profit": 103.59
         }
+      },
+      "monthly": {
+        "GMV": 3885.37,
+        "refund": 593.48,
+        "sales": 3291.89,
+        "productCost": 2100.0,
+        "storageCost": 421.79,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 116.44,
+        "operating": 197.52,
+        "totalCost": 2835.74,
+        "profit": 456.15,
+        "profitRate": 13.86
       }
     },
     {
       "id": "3769552502949807104",
       "name": "鲨鱼菲特燕麦棒200g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 3682.5,
-        "refund": 1020.6,
-        "sales": 2661.9,
-        "productCost": 1091.74,
-        "storageCost": 300.17,
-        "qianchuan": 10.38,
-        "commission": 439.25,
-        "labor": 74.07,
-        "operating": 159.71,
-        "totalCost": 2075.32,
-        "profit": 586.58,
-        "profitRate": 22.04
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 346.8,
@@ -5163,26 +5149,26 @@
           "totalCost": 0.34,
           "profit": -0.34
         }
+      },
+      "monthly": {
+        "GMV": 3682.5,
+        "refund": 1020.6,
+        "sales": 2661.9,
+        "productCost": 1091.74,
+        "storageCost": 300.17,
+        "qianchuan": 10.38,
+        "commission": 439.25,
+        "labor": 74.06,
+        "operating": 159.71,
+        "totalCost": 2075.29,
+        "profit": 586.61,
+        "profitRate": 22.04
       }
     },
     {
       "id": "3768244616680309248",
       "name": "鲨鱼菲特全麦贝果面包840g/420g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 2369.1,
-        "refund": 198.3,
-        "sales": 2170.8,
-        "productCost": 1036.11,
-        "storageCost": 158.15,
-        "qianchuan": 5.52,
-        "commission": 343.38,
-        "labor": 62.3,
-        "operating": 130.25,
-        "totalCost": 1735.71,
-        "profit": 435.09,
-        "profitRate": 20.04
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 115.6,
@@ -5522,26 +5508,26 @@
           "totalCost": 29.23,
           "profit": 0.67
         }
+      },
+      "monthly": {
+        "GMV": 2369.1,
+        "refund": 198.3,
+        "sales": 2170.8,
+        "productCost": 1036.11,
+        "storageCost": 158.15,
+        "qianchuan": 5.52,
+        "commission": 343.38,
+        "labor": 62.3,
+        "operating": 130.21,
+        "totalCost": 1735.7,
+        "profit": 435.1,
+        "profitRate": 20.04
       }
     },
     {
       "id": "3810720097409040896",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 2783.4,
-        "refund": 642.6,
-        "sales": 2140.8,
-        "productCost": 1445.6,
-        "storageCost": 227.76,
-        "qianchuan": 10.42,
-        "commission": 7.98,
-        "labor": 62.06,
-        "operating": 128.45,
-        "totalCost": 1882.27,
-        "profit": 258.53,
-        "profitRate": 12.08
-      },
       "daily": {
         "2026-04-05": {
           "GMV": 79.8,
@@ -5777,26 +5763,26 @@
           "totalCost": 1.13,
           "profit": -1.13
         }
+      },
+      "monthly": {
+        "GMV": 2783.4,
+        "refund": 642.6,
+        "sales": 2140.8,
+        "productCost": 1445.6,
+        "storageCost": 227.76,
+        "qianchuan": 10.42,
+        "commission": 7.98,
+        "labor": 62.06,
+        "operating": 128.43,
+        "totalCost": 1882.27,
+        "profit": 258.53,
+        "profitRate": 12.08
       }
     },
     {
       "id": "3769180533129610240",
       "name": "鲨鱼菲特杂粮糙米饭100g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 2265.8,
-        "refund": 254.1,
-        "sales": 2011.7,
-        "productCost": 819.0,
-        "storageCost": 248.64,
-        "qianchuan": 4.53,
-        "commission": 196.58,
-        "labor": 58.57,
-        "operating": 120.7,
-        "totalCost": 1448.02,
-        "profit": 563.68,
-        "profitRate": 28.02
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 18.9,
@@ -6136,26 +6122,26 @@
           "totalCost": 11.75,
           "profit": 7.15
         }
+      },
+      "monthly": {
+        "GMV": 2265.8,
+        "refund": 254.1,
+        "sales": 2011.7,
+        "productCost": 819.0,
+        "storageCost": 248.64,
+        "qianchuan": 4.53,
+        "commission": 196.58,
+        "labor": 58.58,
+        "operating": 120.68,
+        "totalCost": 1448.02,
+        "profit": 563.68,
+        "profitRate": 28.02
       }
     },
     {
       "id": "3799012667247690240",
       "name": "小轻担全麦吐司1080g/540g",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 2069.5,
-        "refund": 253.2,
-        "sales": 1816.3,
-        "productCost": 1048.79,
-        "storageCost": 396.11,
-        "qianchuan": 0.07,
-        "commission": 169.51,
-        "labor": 51.24,
-        "operating": 108.98,
-        "totalCost": 1774.7,
-        "profit": 41.6,
-        "profitRate": 2.29
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 386.3,
@@ -6495,26 +6481,26 @@
           "totalCost": 12.28,
           "profit": 4.62
         }
+      },
+      "monthly": {
+        "GMV": 2069.5,
+        "refund": 253.2,
+        "sales": 1816.3,
+        "productCost": 1048.79,
+        "storageCost": 396.11,
+        "qianchuan": 0.07,
+        "commission": 169.51,
+        "labor": 51.23,
+        "operating": 108.94,
+        "totalCost": 1774.71,
+        "profit": 41.59,
+        "profitRate": 2.29
       }
     },
     {
       "id": "3784160071148240896",
       "name": "鲨鱼菲特风干鸡胸肉250g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 1277.0,
-        "refund": 153.6,
-        "sales": 1123.4,
-        "productCost": 552.6,
-        "storageCost": 83.52,
-        "qianchuan": 7.02,
-        "commission": 26.19,
-        "labor": 31.79,
-        "operating": 67.4,
-        "totalCost": 768.52,
-        "profit": 354.88,
-        "profitRate": 31.59
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 49.9,
@@ -6750,26 +6736,26 @@
           "totalCost": 32.77,
           "profit": 17.13
         }
+      },
+      "monthly": {
+        "GMV": 1277.0,
+        "refund": 153.6,
+        "sales": 1123.4,
+        "productCost": 552.6,
+        "storageCost": 83.52,
+        "qianchuan": 7.02,
+        "commission": 26.19,
+        "labor": 31.77,
+        "operating": 67.37,
+        "totalCost": 768.53,
+        "profit": 354.87,
+        "profitRate": 31.59
       }
     },
     {
       "id": "3767699441499374080",
       "name": "鲨鱼菲特低脂甜玉米粒90g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 1159.9,
-        "refund": 63.7,
-        "sales": 1096.2,
-        "productCost": 489.1,
-        "storageCost": 121.63,
-        "qianchuan": 0.67,
-        "commission": 121.92,
-        "labor": 32.51,
-        "operating": 65.77,
-        "totalCost": 831.6,
-        "profit": 264.6,
-        "profitRate": 24.14
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 88.7,
@@ -6992,26 +6978,26 @@
           "totalCost": 113.01,
           "profit": 36.49
         }
+      },
+      "monthly": {
+        "GMV": 1159.9,
+        "refund": 63.7,
+        "sales": 1096.2,
+        "productCost": 489.1,
+        "storageCost": 121.63,
+        "qianchuan": 0.67,
+        "commission": 121.92,
+        "labor": 32.5,
+        "operating": 65.75,
+        "totalCost": 831.61,
+        "profit": 264.59,
+        "profitRate": 24.14
       }
     },
     {
       "id": "3776748703549882880",
       "name": "研味师松茸芝麻盐80g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 1105.67,
-        "refund": 100.5,
-        "sales": 1005.17,
-        "productCost": 528.84,
-        "storageCost": 168.88,
-        "qianchuan": 115.47,
-        "commission": 208.88,
-        "labor": 28.73,
-        "operating": 60.31,
-        "totalCost": 1111.11,
-        "profit": -105.94,
-        "profitRate": -10.54
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 19.8,
@@ -7286,26 +7272,26 @@
           "totalCost": 22.16,
           "profit": -5.26
         }
+      },
+      "monthly": {
+        "GMV": 1105.67,
+        "refund": 100.5,
+        "sales": 1005.17,
+        "productCost": 528.84,
+        "storageCost": 168.88,
+        "qianchuan": 115.47,
+        "commission": 208.88,
+        "labor": 28.71,
+        "operating": 60.3,
+        "totalCost": 1111.11,
+        "profit": -105.94,
+        "profitRate": -10.54
       }
     },
     {
       "id": "26291999340545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 1030.1,
-        "refund": 173.5,
-        "sales": 856.6,
-        "productCost": 578.24,
-        "storageCost": 95.12,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 28.6,
-        "operating": 51.4,
-        "totalCost": 753.36,
-        "profit": 103.24,
-        "profitRate": 12.05
-      },
       "daily": {
         "2026-04-26": {
           "GMV": 748.4,
@@ -7346,26 +7332,26 @@
           "totalCost": 35.82,
           "profit": 4.08
         }
+      },
+      "monthly": {
+        "GMV": 1030.1,
+        "refund": 173.5,
+        "sales": 856.6,
+        "productCost": 578.24,
+        "storageCost": 95.12,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 28.6,
+        "operating": 51.39,
+        "totalCost": 753.35,
+        "profit": 103.25,
+        "profitRate": 12.05
       }
     },
     {
       "id": "3786766650301349888",
       "name": "鲨鱼菲特魔芋贡菜20g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 985.5,
-        "refund": 140.6,
-        "sales": 844.9,
-        "productCost": 473.96,
-        "storageCost": 93.67,
-        "qianchuan": 2.52,
-        "commission": 45.84,
-        "labor": 23.28,
-        "operating": 50.69,
-        "totalCost": 689.97,
-        "profit": 154.93,
-        "profitRate": 18.34
-      },
       "daily": {
         "2026-04-03": {
           "GMV": 99.7,
@@ -7640,26 +7626,26 @@
           "totalCost": 67.75,
           "profit": 9.05
         }
+      },
+      "monthly": {
+        "GMV": 985.5,
+        "refund": 140.6,
+        "sales": 844.9,
+        "productCost": 473.96,
+        "storageCost": 93.67,
+        "qianchuan": 2.52,
+        "commission": 45.84,
+        "labor": 23.26,
+        "operating": 50.65,
+        "totalCost": 689.97,
+        "profit": 154.93,
+        "profitRate": 18.34
       }
     },
     {
       "id": "3766535397954421248",
       "name": "鲨鱼菲特三色豆60g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 849.49,
-        "refund": 19.9,
-        "sales": 829.59,
-        "productCost": 353.6,
-        "storageCost": 91.37,
-        "qianchuan": 5.75,
-        "commission": 128.88,
-        "labor": 22.99,
-        "operating": 49.78,
-        "totalCost": 652.37,
-        "profit": 177.22,
-        "profitRate": 21.36
-      },
       "daily": {
         "2026-04-02": {
           "GMV": 19.9,
@@ -7921,26 +7907,26 @@
           "totalCost": 13.28,
           "profit": 6.62
         }
+      },
+      "monthly": {
+        "GMV": 849.49,
+        "refund": 19.9,
+        "sales": 829.59,
+        "productCost": 353.6,
+        "storageCost": 91.37,
+        "qianchuan": 5.75,
+        "commission": 128.88,
+        "labor": 22.99,
+        "operating": 49.75,
+        "totalCost": 652.37,
+        "profit": 177.22,
+        "profitRate": 21.36
       }
     },
     {
       "id": "25259224895545",
       "name": "鲨鱼菲特玉米鸡胸肉饼60g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 897.69,
-        "refund": 152.45,
-        "sales": 745.24,
-        "productCost": 468.0,
-        "storageCost": 97.63,
-        "qianchuan": 0.0,
-        "commission": 56.68,
-        "labor": 20.41,
-        "operating": 44.71,
-        "totalCost": 687.43,
-        "profit": 57.81,
-        "profitRate": 7.76
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 93.97,
@@ -8189,26 +8175,26 @@
           "totalCost": 0.0,
           "profit": 0.0
         }
+      },
+      "monthly": {
+        "GMV": 897.69,
+        "refund": 152.45,
+        "sales": 745.24,
+        "productCost": 468.0,
+        "storageCost": 97.63,
+        "qianchuan": 0.0,
+        "commission": 56.68,
+        "labor": 20.41,
+        "operating": 44.73,
+        "totalCost": 687.43,
+        "profit": 57.81,
+        "profitRate": 7.76
       }
     },
     {
       "id": "3771759454756930048",
       "name": "鲨鱼菲特荞麦魔芋方便面60g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 635.4,
-        "refund": 92.5,
-        "sales": 542.9,
-        "productCost": 168.15,
-        "storageCost": 114.76,
-        "qianchuan": 9.42,
-        "commission": 16.95,
-        "labor": 15.74,
-        "operating": 32.57,
-        "totalCost": 357.6,
-        "profit": 185.3,
-        "profitRate": 34.13
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 36.7,
@@ -8496,26 +8482,26 @@
           "totalCost": 17.11,
           "profit": 2.69
         }
+      },
+      "monthly": {
+        "GMV": 635.4,
+        "refund": 92.5,
+        "sales": 542.9,
+        "productCost": 168.15,
+        "storageCost": 114.76,
+        "qianchuan": 9.42,
+        "commission": 16.95,
+        "labor": 15.73,
+        "operating": 32.53,
+        "totalCost": 357.6,
+        "profit": 185.3,
+        "profitRate": 34.13
       }
     },
     {
       "id": "3798109375361581056",
       "name": "鲨鱼菲特口袋沙拉棒25g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 633.5,
-        "refund": 107.7,
-        "sales": 525.8,
-        "productCost": 248.5,
-        "storageCost": 66.13,
-        "qianchuan": 2.51,
-        "commission": 0.0,
-        "labor": 14.77,
-        "operating": 31.55,
-        "totalCost": 363.46,
-        "profit": 162.34,
-        "profitRate": 30.88
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 34.9,
@@ -8712,26 +8698,26 @@
           "totalCost": 11.6,
           "profit": 5.3
         }
+      },
+      "monthly": {
+        "GMV": 633.5,
+        "refund": 107.7,
+        "sales": 525.8,
+        "productCost": 248.5,
+        "storageCost": 66.13,
+        "qianchuan": 2.51,
+        "commission": 0.0,
+        "labor": 14.76,
+        "operating": 31.53,
+        "totalCost": 363.48,
+        "profit": 162.32,
+        "profitRate": 30.87
       }
     },
     {
       "id": "3788826263205051904",
       "name": "鲨鱼菲特鹰嘴豆荞麦锅巴25g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 556.8,
-        "refund": 129.6,
-        "sales": 427.2,
-        "productCost": 203.84,
-        "storageCost": 76.59,
-        "qianchuan": 0.44,
-        "commission": 24.7,
-        "labor": 11.77,
-        "operating": 25.63,
-        "totalCost": 342.97,
-        "profit": 84.23,
-        "profitRate": 19.72
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 32.9,
@@ -8967,26 +8953,26 @@
           "totalCost": 8.69,
           "profit": 2.21
         }
+      },
+      "monthly": {
+        "GMV": 556.8,
+        "refund": 129.6,
+        "sales": 427.2,
+        "productCost": 203.84,
+        "storageCost": 76.59,
+        "qianchuan": 0.44,
+        "commission": 24.7,
+        "labor": 11.77,
+        "operating": 25.59,
+        "totalCost": 342.97,
+        "profit": 84.23,
+        "profitRate": 19.72
       }
     },
     {
       "id": "26033980723545",
       "name": "小轻担鸡胸肉肠300g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 594.1,
-        "refund": 176.7,
-        "sales": 417.4,
-        "productCost": 228.16,
-        "storageCost": 51.28,
-        "qianchuan": 0.0,
-        "commission": 50.38,
-        "labor": 12.85,
-        "operating": 25.04,
-        "totalCost": 367.72,
-        "profit": 49.68,
-        "profitRate": 11.9
-      },
       "daily": {
         "2026-04-03": {
           "GMV": 75.3,
@@ -9157,26 +9143,26 @@
           "totalCost": 11.47,
           "profit": 3.43
         }
+      },
+      "monthly": {
+        "GMV": 594.1,
+        "refund": 176.7,
+        "sales": 417.4,
+        "productCost": 228.16,
+        "storageCost": 51.28,
+        "qianchuan": 0.0,
+        "commission": 50.38,
+        "labor": 12.85,
+        "operating": 25.01,
+        "totalCost": 367.71,
+        "profit": 49.69,
+        "profitRate": 11.9
       }
     },
     {
       "id": "3779235702072542208",
       "name": "鲨鱼菲特低脂鹰嘴豆60g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 407.88,
-        "refund": 23.99,
-        "sales": 383.89,
-        "productCost": 221.0,
-        "storageCost": 41.93,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 11.69,
-        "operating": 23.03,
-        "totalCost": 297.66,
-        "profit": 86.23,
-        "profitRate": 22.46
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 71.97,
@@ -9269,26 +9255,26 @@
           "totalCost": 102.93,
           "profit": 29.04
         }
+      },
+      "monthly": {
+        "GMV": 407.88,
+        "refund": 23.99,
+        "sales": 383.89,
+        "productCost": 221.0,
+        "storageCost": 41.93,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 11.69,
+        "operating": 23.04,
+        "totalCost": 297.66,
+        "profit": 86.23,
+        "profitRate": 22.46
       }
     },
     {
       "id": "3785880160369247232",
       "name": "小轻担鸡胸肉50g",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 479.0,
-        "refund": 108.6,
-        "sales": 370.4,
-        "productCost": 223.38,
-        "storageCost": 49.24,
-        "qianchuan": 0.01,
-        "commission": 0.0,
-        "labor": 10.24,
-        "operating": 22.22,
-        "totalCost": 305.09,
-        "profit": 65.31,
-        "profitRate": 17.63
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 29.9,
@@ -9472,26 +9458,26 @@
           "totalCost": 16.11,
           "profit": 2.79
         }
+      },
+      "monthly": {
+        "GMV": 479.0,
+        "refund": 108.6,
+        "sales": 370.4,
+        "productCost": 223.38,
+        "storageCost": 49.24,
+        "qianchuan": 0.01,
+        "commission": 0.0,
+        "labor": 10.24,
+        "operating": 22.19,
+        "totalCost": 305.09,
+        "profit": 65.31,
+        "profitRate": 17.63
       }
     },
     {
       "id": "26109181377545",
       "name": "鲨鱼菲特去皮大鸡腿75g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 355.3,
-        "refund": 0.0,
-        "sales": 355.3,
-        "productCost": 214.42,
-        "storageCost": 22.95,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 9.53,
-        "operating": 21.32,
-        "totalCost": 268.22,
-        "profit": 87.08,
-        "profitRate": 24.51
-      },
       "daily": {
         "2026-04-04": {
           "GMV": 26.9,
@@ -9558,26 +9544,26 @@
           "totalCost": 38.08,
           "profit": 11.82
         }
+      },
+      "monthly": {
+        "GMV": 355.3,
+        "refund": 0.0,
+        "sales": 355.3,
+        "productCost": 214.42,
+        "storageCost": 22.95,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 9.53,
+        "operating": 21.3,
+        "totalCost": 268.22,
+        "profit": 87.08,
+        "profitRate": 24.51
       }
     },
     {
       "id": "26286424898545",
       "name": "鲨鱼菲特去皮大鸡腿75g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 542.1,
-        "refund": 206.5,
-        "sales": 335.6,
-        "productCost": 196.3,
-        "storageCost": 27.12,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 11.79,
-        "operating": 20.14,
-        "totalCost": 255.35,
-        "profit": 80.25,
-        "profitRate": 23.91
-      },
       "daily": {
         "2026-04-21": {
           "GMV": 28.4,
@@ -9657,26 +9643,26 @@
           "totalCost": 37.97,
           "profit": 11.93
         }
+      },
+      "monthly": {
+        "GMV": 542.1,
+        "refund": 206.5,
+        "sales": 335.6,
+        "productCost": 196.3,
+        "storageCost": 27.12,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 11.79,
+        "operating": 20.13,
+        "totalCost": 255.35,
+        "profit": 80.25,
+        "profitRate": 23.91
       }
     },
     {
       "id": "26272194210545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 293.2,
-        "refund": 0.0,
-        "sales": 293.2,
-        "productCost": 200.16,
-        "storageCost": 32.54,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 8.74,
-        "operating": 17.59,
-        "totalCost": 259.04,
-        "profit": 34.16,
-        "profitRate": 11.65
-      },
       "daily": {
         "2026-04-17": {
           "GMV": 79.8,
@@ -9743,26 +9729,26 @@
           "totalCost": 35.82,
           "profit": 4.08
         }
+      },
+      "monthly": {
+        "GMV": 293.2,
+        "refund": 0.0,
+        "sales": 293.2,
+        "productCost": 200.16,
+        "storageCost": 32.54,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 8.75,
+        "operating": 17.58,
+        "totalCost": 259.03,
+        "profit": 34.17,
+        "profitRate": 11.65
       }
     },
     {
       "id": "25583454904545",
       "name": "小轻担鸡胸肉50g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 124.0,
-        "refund": 0.0,
-        "sales": 124.0,
-        "productCost": 71.4,
-        "storageCost": 15.23,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 3.23,
-        "operating": 7.44,
-        "totalCost": 97.3,
-        "profit": 26.7,
-        "profitRate": 21.53
-      },
       "daily": {
         "2026-04-04": {
           "GMV": 14.9,
@@ -9816,26 +9802,26 @@
           "totalCost": 12.46,
           "profit": 3.94
         }
+      },
+      "monthly": {
+        "GMV": 124.0,
+        "refund": 0.0,
+        "sales": 124.0,
+        "productCost": 71.4,
+        "storageCost": 15.23,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 3.24,
+        "operating": 7.43,
+        "totalCost": 97.3,
+        "profit": 26.7,
+        "profitRate": 21.53
       }
     },
     {
       "id": "26303733157545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 186.5,
-        "refund": 79.8,
-        "sales": 106.7,
-        "productCost": 72.28,
-        "storageCost": 11.89,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 3.02,
-        "operating": 6.4,
-        "totalCost": 93.6,
-        "profit": 13.1,
-        "profitRate": 12.28
-      },
       "daily": {
         "2026-04-18": {
           "GMV": 39.9,
@@ -9889,26 +9875,26 @@
           "totalCost": 35.54,
           "profit": 4.36
         }
+      },
+      "monthly": {
+        "GMV": 186.5,
+        "refund": 79.8,
+        "sales": 106.7,
+        "productCost": 72.28,
+        "storageCost": 11.89,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 3.02,
+        "operating": 6.39,
+        "totalCost": 93.6,
+        "profit": 13.1,
+        "profitRate": 12.28
       }
     },
     {
       "id": "26330479255545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 79.8,
-        "refund": 0.0,
-        "sales": 79.8,
-        "productCost": 55.6,
-        "storageCost": 8.76,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 2.27,
-        "operating": 4.79,
-        "totalCost": 71.42,
-        "profit": 8.38,
-        "profitRate": 10.51
-      },
       "daily": {
         "2026-04-22": {
           "GMV": 39.9,
@@ -9936,26 +9922,26 @@
           "totalCost": 35.72,
           "profit": 4.18
         }
+      },
+      "monthly": {
+        "GMV": 79.8,
+        "refund": 0.0,
+        "sales": 79.8,
+        "productCost": 55.6,
+        "storageCost": 8.76,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 2.27,
+        "operating": 4.78,
+        "totalCost": 71.41,
+        "profit": 8.39,
+        "profitRate": 10.51
       }
     },
     {
       "id": "3789772322152514048",
       "name": "鲨鱼菲特酸辣海带结30g",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 46.8,
-        "refund": 0.0,
-        "sales": 46.8,
-        "productCost": 20.25,
-        "storageCost": 6.05,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 1.28,
-        "operating": 2.81,
-        "totalCost": 30.39,
-        "profit": 16.41,
-        "profitRate": 35.07
-      },
       "daily": {
         "2026-04-02": {
           "GMV": 29.9,
@@ -9983,60 +9969,26 @@
           "totalCost": 11.13,
           "profit": 5.77
         }
-      }
-    },
-    {
-      "id": "26298573040545",
-      "name": "鲨鱼菲特去皮鸭腿110g",
-      "shop": "快手-鲨鱼菲特方便食品旗舰店",
+      },
       "monthly": {
-        "GMV": 39.9,
+        "GMV": 46.8,
         "refund": 0.0,
-        "sales": 39.9,
-        "productCost": 27.8,
-        "storageCost": 4.38,
+        "sales": 46.8,
+        "productCost": 20.25,
+        "storageCost": 6.05,
         "qianchuan": 0.0,
         "commission": 0.0,
-        "labor": 1.15,
-        "operating": 2.39,
-        "totalCost": 35.72,
-        "profit": 4.18,
-        "profitRate": 10.47
-      },
-      "daily": {
-        "2026-04-27": {
-          "GMV": 39.9,
-          "refund": 0.0,
-          "sales": 39.9,
-          "productCost": 27.8,
-          "storageCost": 4.38,
-          "qianchuan": 0.0,
-          "commission": 0.0,
-          "labor": 1.15,
-          "operating": 2.39,
-          "totalCost": 35.72,
-          "profit": 4.18
-        }
+        "labor": 1.28,
+        "operating": 2.8,
+        "totalCost": 30.39,
+        "profit": 16.41,
+        "profitRate": 35.06
       }
     },
     {
       "id": "26298573303545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 39.9,
-        "refund": 0.0,
-        "sales": 39.9,
-        "productCost": 27.8,
-        "storageCost": 4.38,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 1.42,
-        "operating": 2.39,
-        "totalCost": 35.99,
-        "profit": 3.91,
-        "profitRate": 9.79
-      },
       "daily": {
         "2026-04-24": {
           "GMV": 39.9,
@@ -10051,12 +10003,7 @@
           "totalCost": 35.99,
           "profit": 3.91
         }
-      }
-    },
-    {
-      "id": "26317752029545",
-      "name": "鲨鱼菲特去皮鸭腿110g",
-      "shop": "快手-鲨鱼菲特方便食品旗舰店",
+      },
       "monthly": {
         "GMV": 39.9,
         "refund": 0.0,
@@ -10065,12 +10012,17 @@
         "storageCost": 4.38,
         "qianchuan": 0.0,
         "commission": 0.0,
-        "labor": 1.4,
+        "labor": 1.42,
         "operating": 2.39,
-        "totalCost": 35.98,
-        "profit": 3.92,
-        "profitRate": 9.83
-      },
+        "totalCost": 35.99,
+        "profit": 3.91,
+        "profitRate": 9.8
+      }
+    },
+    {
+      "id": "26317752029545",
+      "name": "鲨鱼菲特去皮鸭腿110g",
+      "shop": "快手-鲨鱼菲特方便食品旗舰店",
       "daily": {
         "2026-04-26": {
           "GMV": 39.9,
@@ -10085,26 +10037,60 @@
           "totalCost": 35.98,
           "profit": 3.92
         }
+      },
+      "monthly": {
+        "GMV": 39.9,
+        "refund": 0.0,
+        "sales": 39.9,
+        "productCost": 27.8,
+        "storageCost": 4.38,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 1.4,
+        "operating": 2.39,
+        "totalCost": 35.98,
+        "profit": 3.92,
+        "profitRate": 9.82
+      }
+    },
+    {
+      "id": "26298573040545",
+      "name": "鲨鱼菲特去皮鸭腿110g",
+      "shop": "快手-鲨鱼菲特方便食品旗舰店",
+      "daily": {
+        "2026-04-27": {
+          "GMV": 39.9,
+          "refund": 0.0,
+          "sales": 39.9,
+          "productCost": 27.8,
+          "storageCost": 4.38,
+          "qianchuan": 0.0,
+          "commission": 0.0,
+          "labor": 1.15,
+          "operating": 2.39,
+          "totalCost": 35.72,
+          "profit": 4.18
+        }
+      },
+      "monthly": {
+        "GMV": 39.9,
+        "refund": 0.0,
+        "sales": 39.9,
+        "productCost": 27.8,
+        "storageCost": 4.38,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 1.15,
+        "operating": 2.39,
+        "totalCost": 35.72,
+        "profit": 4.18,
+        "profitRate": 10.48
       }
     },
     {
       "id": "26317654783545",
       "name": "鲨鱼菲特去皮鸭腿110g",
       "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 26.9,
-        "refund": 0.0,
-        "sales": 26.9,
-        "productCost": 16.68,
-        "storageCost": 3.13,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 0.65,
-        "operating": 1.61,
-        "totalCost": 22.08,
-        "profit": 4.82,
-        "profitRate": 17.94
-      },
       "daily": {
         "2026-04-21": {
           "GMV": 26.9,
@@ -10119,26 +10105,26 @@
           "totalCost": 22.08,
           "profit": 4.82
         }
+      },
+      "monthly": {
+        "GMV": 26.9,
+        "refund": 0.0,
+        "sales": 26.9,
+        "productCost": 16.68,
+        "storageCost": 3.13,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 0.65,
+        "operating": 1.61,
+        "totalCost": 22.08,
+        "profit": 4.82,
+        "profitRate": 17.92
       }
     },
     {
       "id": "3787500806090129920",
       "name": "小轻担鸡胸肉丸300g",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 26.8,
-        "refund": 0.0,
-        "sales": 26.8,
-        "productCost": 12.76,
-        "storageCost": 5.84,
-        "qianchuan": 0.0,
-        "commission": 5.36,
-        "labor": 0.58,
-        "operating": 1.61,
-        "totalCost": 26.15,
-        "profit": 0.65,
-        "profitRate": 2.41
-      },
       "daily": {
         "2026-04-07": {
           "GMV": 12.9,
@@ -10166,60 +10152,26 @@
           "totalCost": 13.22,
           "profit": 0.68
         }
-      }
-    },
-    {
-      "id": "25504869122545",
-      "name": "鲨鱼菲特风干鸡胸肉250g",
-      "shop": "快手-鲨鱼菲特方便食品旗舰店",
-      "monthly": {
-        "GMV": 140.7,
-        "refund": 140.7,
-        "sales": 0.0,
-        "productCost": 0.0,
-        "storageCost": 0.0,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 0.0,
-        "operating": 0.0,
-        "totalCost": 0.0,
-        "profit": 0.0,
-        "profitRate": 0.0
       },
-      "daily": {
-        "2026-04-02": {
-          "GMV": 140.7,
-          "refund": 140.7,
-          "sales": 0.0,
-          "productCost": 0.0,
-          "storageCost": 0.0,
-          "qianchuan": 0.0,
-          "commission": 0.0,
-          "labor": 0.0,
-          "operating": 0.0,
-          "totalCost": 0.0,
-          "profit": 0.0
-        }
+      "monthly": {
+        "GMV": 26.8,
+        "refund": 0.0,
+        "sales": 26.8,
+        "productCost": 12.76,
+        "storageCost": 5.84,
+        "qianchuan": 0.0,
+        "commission": 5.36,
+        "labor": 0.58,
+        "operating": 1.6,
+        "totalCost": 26.15,
+        "profit": 0.65,
+        "profitRate": 2.43
       }
     },
     {
       "id": "3802690662525173760",
       "name": "小轻担鸡胸肉50g-赠品",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 0.0,
-        "refund": 0.0,
-        "sales": 0.0,
-        "productCost": 981.24,
-        "storageCost": 721.5,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 0.0,
-        "operating": 0.0,
-        "totalCost": 1702.74,
-        "profit": -1702.74,
-        "profitRate": 0.0
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 0.0,
@@ -10611,26 +10563,26 @@
           "totalCost": 1.77,
           "profit": -1.77
         }
+      },
+      "monthly": {
+        "GMV": 0.0,
+        "refund": 0.0,
+        "sales": 0.0,
+        "productCost": 981.24,
+        "storageCost": 721.5,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 0.0,
+        "operating": 0.0,
+        "totalCost": 1702.74,
+        "profit": -1702.74,
+        "profitRate": 0
       }
     },
     {
       "id": "3802701225804300800",
       "name": "小轻担鸡胸肉50g-赠品",
       "shop": "抖音-小轻担食品旗舰店",
-      "monthly": {
-        "GMV": 0.0,
-        "refund": 0.0,
-        "sales": 0.0,
-        "productCost": 242.76,
-        "storageCost": 89.25,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 0.0,
-        "operating": 0.0,
-        "totalCost": 332.01,
-        "profit": -332.01,
-        "profitRate": 0.0
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 0.0,
@@ -11022,26 +10974,26 @@
           "totalCost": 2.79,
           "profit": -2.79
         }
+      },
+      "monthly": {
+        "GMV": 0.0,
+        "refund": 0.0,
+        "sales": 0.0,
+        "productCost": 242.76,
+        "storageCost": 89.25,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 0.0,
+        "operating": 0.0,
+        "totalCost": 332.01,
+        "profit": -332.01,
+        "profitRate": 0
       }
     },
     {
       "id": "3807213810478089216",
       "name": "小轻担鸡胸肉50g-赠品",
       "shop": "抖音-鲨鱼菲特甄选食品专卖店",
-      "monthly": {
-        "GMV": 0.0,
-        "refund": 0.0,
-        "sales": 0.0,
-        "productCost": 5158.14,
-        "storageCost": 3792.75,
-        "qianchuan": 0.0,
-        "commission": 0.0,
-        "labor": 0.0,
-        "operating": 0.0,
-        "totalCost": 8950.89,
-        "profit": -8950.89,
-        "profitRate": 0.0
-      },
       "daily": {
         "2026-04-01": {
           "GMV": 0.0,
@@ -11433,7 +11385,603 @@
           "totalCost": 33.63,
           "profit": -33.63
         }
+      },
+      "monthly": {
+        "GMV": 0.0,
+        "refund": 0.0,
+        "sales": 0.0,
+        "productCost": 5158.14,
+        "storageCost": 3792.75,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 0.0,
+        "operating": 0.0,
+        "totalCost": 8950.89,
+        "profit": -8950.89,
+        "profitRate": 0
       }
+    },
+    {
+      "id": "25504869122545",
+      "name": "鲨鱼菲特风干鸡胸肉250g",
+      "shop": "快手-鲨鱼菲特方便食品旗舰店",
+      "daily": {
+        "2026-04-02": {
+          "GMV": 140.7,
+          "refund": 140.7,
+          "sales": 0.0,
+          "productCost": 0.0,
+          "storageCost": 0.0,
+          "qianchuan": 0.0,
+          "commission": 0.0,
+          "labor": 0.0,
+          "operating": 0.0,
+          "totalCost": 0.0,
+          "profit": 0.0
+        }
+      },
+      "monthly": {
+        "GMV": 140.7,
+        "refund": 140.7,
+        "sales": 0.0,
+        "productCost": 0.0,
+        "storageCost": 0.0,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 0.0,
+        "operating": 0.0,
+        "totalCost": 0.0,
+        "profit": 0.0,
+        "profitRate": 0
+      }
+    }
+  ],
+  "byShop": [
+    {
+      "shop": "抖音-鲨鱼菲特甄选食品专卖店",
+      "productCount": 21,
+      "monthly": {
+        "GMV": 3254402.32,
+        "refund": 332871.16,
+        "sales": 2921531.16,
+        "productCost": 2009056.31,
+        "storageCost": 325179.52,
+        "qianchuan": 35360.7,
+        "commission": 203202.95,
+        "labor": 82678.34,
+        "operating": 175291.52,
+        "totalCost": 2830769.83,
+        "profit": 90761.33
+      },
+      "profitRate": 3.11
+    },
+    {
+      "shop": "快手-鲨鱼菲特方便食品旗舰店",
+      "productCount": 18,
+      "monthly": {
+        "GMV": 182661.36,
+        "refund": 30428.33,
+        "sales": 152233.03,
+        "productCost": 104814.24,
+        "storageCost": 16352.02,
+        "qianchuan": 0.0,
+        "commission": 12818.8,
+        "labor": 4149.97,
+        "operating": 9133.84,
+        "totalCost": 147269.01,
+        "profit": 4964.02
+      },
+      "profitRate": 3.26
+    },
+    {
+      "shop": "抖音-小轻担食品旗舰店",
+      "productCount": 8,
+      "monthly": {
+        "GMV": 111973.34,
+        "refund": 11505.32,
+        "sales": 100468.02,
+        "productCost": 59719.25,
+        "storageCost": 12368.1,
+        "qianchuan": 3724.04,
+        "commission": 13832.84,
+        "labor": 2913.83,
+        "operating": 6027.98,
+        "totalCost": 98586.17,
+        "profit": 1881.85
+      },
+      "profitRate": 1.87
+    }
+  ],
+  "byName": [
+    {
+      "name": "鲨鱼菲特去皮鸭腿110g",
+      "idCount": 13,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店",
+        "快手-鲨鱼菲特方便食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 3162690.67,
+        "refund": 329471.74,
+        "sales": 2833218.93,
+        "productCost": 1956358.48,
+        "storageCost": 311109.3,
+        "qianchuan": 30906.43,
+        "commission": 193504.75,
+        "labor": 79979.92,
+        "operating": 169993.03,
+        "totalCost": 2741852.02,
+        "profit": 91366.91
+      },
+      "profitRate": 3.22
+    },
+    {
+      "name": "鲨鱼菲特玉米鸡胸肉饼60g",
+      "idCount": 3,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店",
+        "快手-鲨鱼菲特方便食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 144063.35,
+        "refund": 11197.85,
+        "sales": 132865.5,
+        "productCost": 90658.8,
+        "storageCost": 18300.7,
+        "qianchuan": 2328.07,
+        "commission": 6695.73,
+        "labor": 3772.66,
+        "operating": 7971.94,
+        "totalCost": 129727.92,
+        "profit": 3137.58
+      },
+      "profitRate": 2.36
+    },
+    {
+      "name": "鲨鱼菲特去皮大鸡腿75g",
+      "idCount": 4,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店",
+        "快手-鲨鱼菲特方便食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 97867.5,
+        "refund": 18017.7,
+        "sales": 79849.8,
+        "productCost": 47818.68,
+        "storageCost": 5152.46,
+        "qianchuan": 1563.02,
+        "commission": 12901.07,
+        "labor": 2273.28,
+        "operating": 4790.96,
+        "totalCost": 74499.49,
+        "profit": 5350.31
+      },
+      "profitRate": 6.7
+    },
+    {
+      "name": "小轻担鸡胸肉肠300g",
+      "idCount": 2,
+      "shops": [
+        "抖音-小轻担食品旗舰店",
+        "快手-鲨鱼菲特方便食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 69786.3,
+        "refund": 6390.4,
+        "sales": 63395.9,
+        "productCost": 36491.34,
+        "storageCost": 6214.71,
+        "qianchuan": 533.35,
+        "commission": 10806.48,
+        "labor": 1868.99,
+        "operating": 3803.71,
+        "totalCost": 59718.6,
+        "profit": 3677.3
+      },
+      "profitRate": 5.8
+    },
+    {
+      "name": "小轻担鸡胸肉50g",
+      "idCount": 3,
+      "shops": [
+        "抖音-小轻担食品旗舰店",
+        "快手-鲨鱼菲特方便食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 33329.14,
+        "refund": 4221.92,
+        "sales": 29107.22,
+        "productCost": 16632.12,
+        "storageCost": 4344.73,
+        "qianchuan": 3185.95,
+        "commission": 2352.94,
+        "labor": 821.41,
+        "operating": 1746.39,
+        "totalCost": 29083.62,
+        "profit": 23.6
+      },
+      "profitRate": 0.08
+    },
+    {
+      "name": "鲨鱼菲特豆皮鸡胸肉卷40g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 8577.62,
+        "refund": 1005.08,
+        "sales": 7572.54,
+        "productCost": 4050.0,
+        "storageCost": 786.06,
+        "qianchuan": 264.49,
+        "commission": 625.23,
+        "labor": 217.92,
+        "operating": 454.34,
+        "totalCost": 6398.06,
+        "profit": 1174.48
+      },
+      "profitRate": 15.51
+    },
+    {
+      "name": "小轻担去皮大鸡腿75g",
+      "idCount": 1,
+      "shops": [
+        "抖音-小轻担食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 7479.7,
+        "refund": 816.5,
+        "sales": 6663.2,
+        "productCost": 4609.8,
+        "storageCost": 662.47,
+        "qianchuan": 4.67,
+        "commission": 548.93,
+        "labor": 187.71,
+        "operating": 399.78,
+        "totalCost": 6413.35,
+        "profit": 249.85
+      },
+      "profitRate": 3.75
+    },
+    {
+      "name": "鲨鱼菲特低脂鹰嘴豆60g",
+      "idCount": 2,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 7438.28,
+        "refund": 1008.62,
+        "sales": 6429.66,
+        "productCost": 3541.2,
+        "storageCost": 794.2,
+        "qianchuan": 134.46,
+        "commission": 692.02,
+        "labor": 190.73,
+        "operating": 385.78,
+        "totalCost": 5738.41,
+        "profit": 691.25
+      },
+      "profitRate": 10.75
+    },
+    {
+      "name": "鲨鱼菲特燕麦棒200g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 3682.5,
+        "refund": 1020.6,
+        "sales": 2661.9,
+        "productCost": 1091.74,
+        "storageCost": 300.17,
+        "qianchuan": 10.38,
+        "commission": 439.25,
+        "labor": 74.06,
+        "operating": 159.71,
+        "totalCost": 2075.29,
+        "profit": 586.61
+      },
+      "profitRate": 22.04
+    },
+    {
+      "name": "鲨鱼菲特全麦贝果面包840g/420g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 2369.1,
+        "refund": 198.3,
+        "sales": 2170.8,
+        "productCost": 1036.11,
+        "storageCost": 158.15,
+        "qianchuan": 5.52,
+        "commission": 343.38,
+        "labor": 62.3,
+        "operating": 130.21,
+        "totalCost": 1735.7,
+        "profit": 435.1
+      },
+      "profitRate": 20.04
+    },
+    {
+      "name": "鲨鱼菲特杂粮糙米饭100g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 2265.8,
+        "refund": 254.1,
+        "sales": 2011.7,
+        "productCost": 819.0,
+        "storageCost": 248.64,
+        "qianchuan": 4.53,
+        "commission": 196.58,
+        "labor": 58.58,
+        "operating": 120.68,
+        "totalCost": 1448.02,
+        "profit": 563.68
+      },
+      "profitRate": 28.02
+    },
+    {
+      "name": "小轻担全麦吐司1080g/540g",
+      "idCount": 1,
+      "shops": [
+        "抖音-小轻担食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 2069.5,
+        "refund": 253.2,
+        "sales": 1816.3,
+        "productCost": 1048.79,
+        "storageCost": 396.11,
+        "qianchuan": 0.07,
+        "commission": 169.51,
+        "labor": 51.23,
+        "operating": 108.94,
+        "totalCost": 1774.71,
+        "profit": 41.59
+      },
+      "profitRate": 2.29
+    },
+    {
+      "name": "鲨鱼菲特风干鸡胸肉250g",
+      "idCount": 2,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店",
+        "快手-鲨鱼菲特方便食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 1417.7,
+        "refund": 294.3,
+        "sales": 1123.4,
+        "productCost": 552.6,
+        "storageCost": 83.52,
+        "qianchuan": 7.02,
+        "commission": 26.19,
+        "labor": 31.77,
+        "operating": 67.37,
+        "totalCost": 768.53,
+        "profit": 354.87
+      },
+      "profitRate": 31.59
+    },
+    {
+      "name": "鲨鱼菲特低脂甜玉米粒90g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 1159.9,
+        "refund": 63.7,
+        "sales": 1096.2,
+        "productCost": 489.1,
+        "storageCost": 121.63,
+        "qianchuan": 0.67,
+        "commission": 121.92,
+        "labor": 32.5,
+        "operating": 65.75,
+        "totalCost": 831.61,
+        "profit": 264.59
+      },
+      "profitRate": 24.14
+    },
+    {
+      "name": "研味师松茸芝麻盐80g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 1105.67,
+        "refund": 100.5,
+        "sales": 1005.17,
+        "productCost": 528.84,
+        "storageCost": 168.88,
+        "qianchuan": 115.47,
+        "commission": 208.88,
+        "labor": 28.71,
+        "operating": 60.3,
+        "totalCost": 1111.11,
+        "profit": -105.94
+      },
+      "profitRate": -10.54
+    },
+    {
+      "name": "鲨鱼菲特魔芋贡菜20g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 985.5,
+        "refund": 140.6,
+        "sales": 844.9,
+        "productCost": 473.96,
+        "storageCost": 93.67,
+        "qianchuan": 2.52,
+        "commission": 45.84,
+        "labor": 23.26,
+        "operating": 50.65,
+        "totalCost": 689.97,
+        "profit": 154.93
+      },
+      "profitRate": 18.34
+    },
+    {
+      "name": "鲨鱼菲特三色豆60g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 849.49,
+        "refund": 19.9,
+        "sales": 829.59,
+        "productCost": 353.6,
+        "storageCost": 91.37,
+        "qianchuan": 5.75,
+        "commission": 128.88,
+        "labor": 22.99,
+        "operating": 49.75,
+        "totalCost": 652.37,
+        "profit": 177.22
+      },
+      "profitRate": 21.36
+    },
+    {
+      "name": "鲨鱼菲特荞麦魔芋方便面60g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 635.4,
+        "refund": 92.5,
+        "sales": 542.9,
+        "productCost": 168.15,
+        "storageCost": 114.76,
+        "qianchuan": 9.42,
+        "commission": 16.95,
+        "labor": 15.73,
+        "operating": 32.53,
+        "totalCost": 357.6,
+        "profit": 185.3
+      },
+      "profitRate": 34.13
+    },
+    {
+      "name": "鲨鱼菲特口袋沙拉棒25g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 633.5,
+        "refund": 107.7,
+        "sales": 525.8,
+        "productCost": 248.5,
+        "storageCost": 66.13,
+        "qianchuan": 2.51,
+        "commission": 0.0,
+        "labor": 14.76,
+        "operating": 31.53,
+        "totalCost": 363.48,
+        "profit": 162.32
+      },
+      "profitRate": 30.87
+    },
+    {
+      "name": "鲨鱼菲特鹰嘴豆荞麦锅巴25g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 556.8,
+        "refund": 129.6,
+        "sales": 427.2,
+        "productCost": 203.84,
+        "storageCost": 76.59,
+        "qianchuan": 0.44,
+        "commission": 24.7,
+        "labor": 11.77,
+        "operating": 25.59,
+        "totalCost": 342.97,
+        "profit": 84.23
+      },
+      "profitRate": 19.72
+    },
+    {
+      "name": "鲨鱼菲特酸辣海带结30g",
+      "idCount": 1,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店"
+      ],
+      "monthly": {
+        "GMV": 46.8,
+        "refund": 0.0,
+        "sales": 46.8,
+        "productCost": 20.25,
+        "storageCost": 6.05,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 1.28,
+        "operating": 2.8,
+        "totalCost": 30.39,
+        "profit": 16.41
+      },
+      "profitRate": 35.06
+    },
+    {
+      "name": "小轻担鸡胸肉丸300g",
+      "idCount": 1,
+      "shops": [
+        "抖音-小轻担食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 26.8,
+        "refund": 0.0,
+        "sales": 26.8,
+        "productCost": 12.76,
+        "storageCost": 5.84,
+        "qianchuan": 0.0,
+        "commission": 5.36,
+        "labor": 0.58,
+        "operating": 1.6,
+        "totalCost": 26.15,
+        "profit": 0.65
+      },
+      "profitRate": 2.43
+    },
+    {
+      "name": "小轻担鸡胸肉50g-赠品",
+      "idCount": 3,
+      "shops": [
+        "抖音-鲨鱼菲特甄选食品专卖店",
+        "抖音-小轻担食品旗舰店"
+      ],
+      "monthly": {
+        "GMV": 0.0,
+        "refund": 0.0,
+        "sales": 0.0,
+        "productCost": 6382.14,
+        "storageCost": 4603.5,
+        "qianchuan": 0.0,
+        "commission": 0.0,
+        "labor": 0.0,
+        "operating": 0.0,
+        "totalCost": 10985.64,
+        "profit": -10985.64
+      },
+      "profitRate": 0
     }
   ]
 }
