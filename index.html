@@ -275,26 +275,31 @@
             color: #909399;
         }
         .analysis-body {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .analysis-card {
+            flex: 1;
+            min-width: 160px;
+            max-width: 200px;
             background: rgba(20, 35, 60, 0.5);
             border-radius: 10px;
-            padding: 14px;
+            padding: 12px 14px;
             border-left: 3px solid var(--analysis-color, #409eff);
+            cursor: pointer;
             transition: all 0.3s ease;
         }
         .analysis-card:hover {
-            background: rgba(20, 35, 60, 0.7);
+            background: rgba(20, 35, 60, 0.8);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .analysis-card-header {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .analysis-card-icon {
             width: 28px;
@@ -305,61 +310,83 @@
             justify-content: center;
             font-size: 14px;
             background: rgba(var(--analysis-rgb, 64,158,255), 0.15);
+            flex-shrink: 0;
         }
         .analysis-card-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: #fff;
+            line-height: 1.3;
         }
-        .analysis-card-content {
-            font-size: 12px;
+        .analysis-card-status {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 6px;
+            border-radius: 8px;
+            background: rgba(var(--analysis-rgb, 64,158,255), 0.15);
+            color: var(--analysis-color, #409eff);
+            white-space: nowrap;
+        }
+        .analysis-card-summary {
+            font-size: 11px;
             color: #c0c4cc;
-            line-height: 1.6;
+            line-height: 1.5;
+            margin-top: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-        .analysis-card-content .highlight {
+        .analysis-card-summary .highlight {
             color: var(--analysis-color, #409eff);
             font-weight: bold;
         }
-        .analysis-card-content .positive { color: #67c23a; }
-        .analysis-card-content .negative { color: #f56c6c; }
-        .analysis-card-content .warning { color: #e6a23c; }
-        .analysis-section { margin-bottom: 10px; }
-        .analysis-section:last-child { margin-bottom: 0; }
-        .analysis-section-title {
-            font-size: 12px;
+        .analysis-card-summary .positive { color: #67c23a; }
+        .analysis-card-summary .negative { color: #f56c6c; }
+        .analysis-card-summary .warning { color: #e6a23c; }
+
+        /* 分析详情弹窗 */
+        #analysisModal .modal-content {
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        #analysisModal .modal-body {
+            padding: 20px;
+        }
+        .analysis-detail-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(64, 158, 255, 0.1);
+        }
+        .analysis-detail-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .analysis-detail-title {
+            font-size: 14px;
             font-weight: 500;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
-        .analysis-section-body {
-            font-size: 12px;
+        .analysis-detail-body {
+            font-size: 13px;
             color: #c0c4cc;
-            line-height: 1.7;
-            padding-left: 8px;
-            border-left: 2px solid rgba(64,158,255,0.2);
+            line-height: 1.8;
+            padding-left: 10px;
+            border-left: 2px solid rgba(64, 158, 255, 0.2);
         }
-        .analysis-suggestion {
-            margin-bottom: 4px;
-            padding: 3px 0;
+        .analysis-detail-suggestion {
+            margin-bottom: 6px;
+            padding: 4px 0;
         }
-        .analysis-suggestion:last-child { margin-bottom: 0; }
-        .analysis-card-status {
-            margin-left: auto;
-            font-size: 11px;
-            font-weight: 500;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(245,108,108,0.15);
-        }
-
-        @media (max-width: 1200px) {
-            .analysis-body { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .analysis-body { grid-template-columns: 1fr; }
+        .analysis-detail-suggestion:last-child {
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -685,6 +712,19 @@
                 <div class="charts-section">
                     <div class="chart-card"><div class="chart-title">销售额/毛利润趋势</div><div class="chart-container" id="productModalTrend" style="height:300px;"></div></div>
                     <div class="chart-card"><div class="chart-title">成本构成分析</div><div class="chart-container" id="productModalCost" style="height:300px;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析详情弹窗 -->
+        <div class="modal" id="analysisModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;" onclick="if(event.target===this)closeAnalysisModal()">
+            <div class="modal-content" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:700px;max-height:85vh;background:linear-gradient(145deg,rgba(30,50,80,0.98),rgba(20,35,60,0.98));border-radius:12px;border:1px solid rgba(64,158,255,0.3);overflow-y:auto;">
+                <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(64,158,255,0.15);">
+                    <div class="modal-title" id="analysisModalTitle" style="font-size:16px;font-weight:bold;color:#fff;">分析详情</div>
+                    <button class="modal-close" onclick="closeAnalysisModal()" style="background:none;border:none;color:#909399;font-size:20px;cursor:pointer;">&times;</button>
+                </div>
+                <div class="modal-body" id="analysisModalBody">
+                    <!-- 动态生成 -->
                 </div>
             </div>
         </div>
@@ -1499,8 +1539,26 @@
         };
         
         // ---------- 智能经营分析（深度诊断引擎） ----------
+        window.analysisDetailData = [];
+
+        function openAnalysisModal(index) {
+            var data = window.analysisDetailData[index];
+            if (!data) return;
+            document.getElementById('analysisModalTitle').innerHTML = data.icon + ' ' + data.title;
+            var bodyHtml = data.sections.map(function(sec) {
+                return '<div class="analysis-detail-section"><div class="analysis-detail-title">' + sec.title + '</div><div class="analysis-detail-body">' + sec.body + '</div></div>';
+            }).join('');
+            document.getElementById('analysisModalBody').innerHTML = bodyHtml;
+            document.getElementById('analysisModal').style.display = 'block';
+        }
+
+        function closeAnalysisModal() {
+            document.getElementById('analysisModal').style.display = 'none';
+        }
+
         function renderAnalysis() {
             if (!businessData) return;
+            window.analysisDetailData = [];
             var currentData = getSelectedMonthData();
             var sales = currentData.销售额 || 1;
             var profit = currentData.毛利润 || 0;
@@ -1580,20 +1638,18 @@
             }
 
             // ---------- 辅助函数 ----------
-            function makeCard(icon, title, status, statusColor, statusBg, sections, color, rgb) {
-                var statusHtml = status ? '<div class="analysis-card-status" style="color:' + statusColor + ';background:' + statusBg + '">' + status + '</div>' : '';
-                var sectionsHtml = sections.map(function(sec) {
-                    return '<div class="analysis-section"><div class="analysis-section-title">' + sec.title + '</div><div class="analysis-section-body">' + sec.body + '</div></div>';
-                }).join('');
-                return '<div class="analysis-card" style="--analysis-color:' + color + ';--analysis-rgb:' + rgb + '">' +
-                    '<div class="analysis-card-header"><div class="analysis-card-icon">' + icon + '</div><div class="analysis-card-title">' + title + '</div>' + statusHtml + '</div>' +
-                    '<div class="analysis-card-content">' + sectionsHtml + '</div></div>';
+            function makeCard(index, icon, title, status, statusColor, statusBg, summary, color, rgb) {
+                return '<div class="analysis-card" style="--analysis-color:' + color + ';--analysis-rgb:' + rgb + '" onclick="openAnalysisModal(' + index + ')">' +
+                    '<div class="analysis-card-header"><div class="analysis-card-icon">' + icon + '</div><div class="analysis-card-title">' + title + '</div>' +
+                    '<div class="analysis-card-status" style="color:' + statusColor + ';background:' + statusBg + '">' + status + '</div></div>' +
+                    '<div class="analysis-card-summary">' + summary + '</div></div>';
             }
 
             function fmt(v) { return formatMoney(v); }
             function pct(v) { return formatPercent(v); }
 
             var cards = [];
+            var idx = 0;
 
             // ========== 板块1：盈利模型深度诊断 ==========
             (function() {
@@ -1604,6 +1660,11 @@
                 if (laborRate > 4) issues.push('人工成本率偏高');
                 if (profitRate < 0) { status = '亏损'; statusColor = '#f56c6c'; statusBg = 'rgba(245,108,108,0.15)'; color = '#f56c6c'; rgb = '245,108,108'; }
                 else if (issues.length > 0) { status = '需关注'; statusColor = '#e6a23c'; statusBg = 'rgba(230,162,60,0.15)'; color = '#e6a23c'; rgb = '230,162,60'; }
+
+                var summary = '毛利率' + pct(profitRate) + '，产品成本率' + pct(productCostRate);
+                if (productCostRate > 65) summary += '偏高，侵蚀利润空间';
+                else if (profitRate < 0) summary += '，整体处于亏损状态';
+                else summary += '，成本结构整体可控';
 
                 var coreFindings = '当前真实毛利率为 <span class="highlight ' + (profitRate >= 0 ? 'positive' : 'negative') + '">' + pct(profitRate) + '</span>，';
                 if (productCostRate > 65) {
@@ -1639,7 +1700,7 @@
                 }
                 if (suggestions.length === 0) suggestions.push('保持当前成本管控策略，每月复盘一次成本结构变化');
 
-                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-suggestion">① ' + s + '</div>'; }).join('');
+                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-detail-suggestion">① ' + s + '</div>'; }).join('');
 
                 var expectedHtml = '';
                 if (productCostRate > 65) {
@@ -1652,12 +1713,16 @@
                     expectedHtml = '维持当前优化节奏，预计利润率可稳定在 <span class="highlight positive">' + (profitRate + 0.5).toFixed(2) + '%</span> 以上。';
                 }
 
-                cards.push(makeCard('🔍', '盈利模型深度诊断', status, statusColor, statusBg, [
-                    { title: '📌 核心发现', body: coreFindings },
-                    { title: '🔬 根因分析', body: rootCauses },
-                    { title: '💡 优化方案', body: suggestionHtml },
-                    { title: '📈 预期效果', body: expectedHtml }
-                ], color, rgb));
+                window.analysisDetailData.push({
+                    icon: '🔍', title: '盈利模型深度诊断', status: status, color: color,
+                    sections: [
+                        { title: '📌 核心发现', body: coreFindings },
+                        { title: '🔬 根因分析', body: rootCauses },
+                        { title: '💡 优化方案', body: suggestionHtml },
+                        { title: '📈 预期效果', body: expectedHtml }
+                    ]
+                });
+                cards.push(makeCard(idx++, '🔍', '盈利模型深度诊断', status, statusColor, statusBg, summary, color, rgb));
             })();
 
             // ========== 板块2：投放效率深度诊断 ==========
@@ -1665,6 +1730,11 @@
                 var status = '优秀', statusColor = '#67c23a', statusBg = 'rgba(103,194,58,0.15)', color = '#67c23a', rgb = '103,194,58';
                 if (roi < 3) { status = '需优化'; statusColor = '#f56c6c'; statusBg = 'rgba(245,108,108,0.15)'; color = '#f56c6c'; rgb = '245,108,108'; }
                 else if (roi < 5) { status = '一般'; statusColor = '#e6a23c'; statusBg = 'rgba(230,162,60,0.15)'; color = '#e6a23c'; rgb = '230,162,60'; }
+
+                var summary = '千川ROI ' + roi.toFixed(2) + '，流量成本占比' + pct(qianchuanRate);
+                if (roi >= 5) summary += '，投放效率优秀';
+                else if (roi >= 3) summary += '，投放效率一般';
+                else summary += '，投放效率偏低需优化';
 
                 var coreFindings = '千川ROI为 <span class="highlight ' + (roi >= 5 ? 'positive' : (roi >= 3 ? 'warning' : 'negative')) + '">' + roi.toFixed(2) + '</span>（' + (roi >= 5 ? '优秀' : (roi >= 3 ? '一般' : '需优化')) + '），流量成本占比 <span class="highlight">' + pct(qianchuanRate) + '</span>。';
                 if (qianchuanRate > 5) coreFindings += '千川消耗占销售额比重偏高，自然流量占比不足。';
@@ -1686,7 +1756,7 @@
                 }
                 if (suggestions.length === 0) suggestions.push('保持当前投放策略，每周复盘素材ROI并淘汰低效计划');
 
-                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-suggestion">① ' + s + '</div>'; }).join('');
+                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-detail-suggestion">① ' + s + '</div>'; }).join('');
 
                 var expectedHtml = '';
                 if (roi < 3) {
@@ -1699,12 +1769,16 @@
                     expectedHtml = '维持当前投放效率，预计每月投放ROI可稳定在 <span class="highlight positive">' + (roi + 0.3).toFixed(2) + '</span> 以上。';
                 }
 
-                cards.push(makeCard('🚀', '投放效率深度诊断', status, statusColor, statusBg, [
-                    { title: '📌 核心发现', body: coreFindings },
-                    { title: '🔬 根因分析', body: rootCauses },
-                    { title: '💡 优化方案', body: suggestionHtml },
-                    { title: '📈 预期效果', body: expectedHtml }
-                ], color, rgb));
+                window.analysisDetailData.push({
+                    icon: '🚀', title: '投放效率深度诊断', status: status, color: color,
+                    sections: [
+                        { title: '📌 核心发现', body: coreFindings },
+                        { title: '🔬 根因分析', body: rootCauses },
+                        { title: '💡 优化方案', body: suggestionHtml },
+                        { title: '📈 预期效果', body: expectedHtml }
+                    ]
+                });
+                cards.push(makeCard(idx++, '🚀', '投放效率深度诊断', status, statusColor, statusBg, summary, color, rgb));
             })();
 
             // ========== 板块3：库存与周转效率诊断 ==========
@@ -1712,6 +1786,10 @@
                 var status = '健康', statusColor = '#67c23a', statusBg = 'rgba(103,194,58,0.15)', color = '#67c23a', rgb = '103,194,58';
                 if (storageCostRate > 10 || turnover < 3) { status = '需关注'; statusColor = '#e6a23c'; statusBg = 'rgba(230,162,60,0.15)'; color = '#e6a23c'; rgb = '230,162,60'; }
                 if (storageCostRate > 10 && turnover < 3) { status = '高风险'; statusColor = '#f56c6c'; statusBg = 'rgba(245,108,108,0.15)'; color = '#f56c6c'; rgb = '245,108,108'; }
+
+                var summary = '仓储成本率' + pct(storageCostRate) + '，周转' + turnover.toFixed(2) + '次/年';
+                if (storageCostRate > 10 || turnover < 3) summary += '，库存管理需关注';
+                else summary += '，处于健康区间';
 
                 var coreFindings = '仓储成本率 <span class="highlight ' + (storageCostRate < 8 ? 'positive' : 'warning') + '">' + pct(storageCostRate) + '</span>（健康值&lt;8%），库存周转估算 <span class="highlight">' + turnover.toFixed(2) + '</span> 次/年（健康值&gt;4）。';
                 if (storageCostRate > 10) coreFindings += '仓储成本占比过高，库存积压风险较大。';
@@ -1733,7 +1811,7 @@
                 }
                 if (suggestions.length === 0) suggestions.push('维持当前库存策略，每月复盘周转率与滞销品占比');
 
-                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-suggestion">① ' + s + '</div>'; }).join('');
+                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-detail-suggestion">① ' + s + '</div>'; }).join('');
 
                 var expectedHtml = '';
                 if (storageCostRate > 10 || turnover < 3) {
@@ -1747,12 +1825,16 @@
                     expectedHtml = '保持当前库存管理节奏，预计仓储成本率可控制在 <span class="highlight positive">' + Math.max(5, storageCostRate - 0.5).toFixed(2) + '%</span> 以内。';
                 }
 
-                cards.push(makeCard('📦', '库存与周转效率诊断', status, statusColor, statusBg, [
-                    { title: '📌 核心发现', body: coreFindings },
-                    { title: '🔬 根因分析', body: rootCauses },
-                    { title: '💡 优化方案', body: suggestionHtml },
-                    { title: '📈 预期效果', body: expectedHtml }
-                ], color, rgb));
+                window.analysisDetailData.push({
+                    icon: '📦', title: '库存与周转效率诊断', status: status, color: color,
+                    sections: [
+                        { title: '📌 核心发现', body: coreFindings },
+                        { title: '🔬 根因分析', body: rootCauses },
+                        { title: '💡 优化方案', body: suggestionHtml },
+                        { title: '📈 预期效果', body: expectedHtml }
+                    ]
+                });
+                cards.push(makeCard(idx++, '📦', '库存与周转效率诊断', status, statusColor, statusBg, summary, color, rgb));
             })();
 
             // ========== 板块4：利润增长路径分析 ==========
@@ -1769,6 +1851,8 @@
                 if (profitUpCost > bestProfit) { bestPath = '产品成本降低5%'; bestProfit = profitUpCost; }
                 if (profitUpQc > bestProfit) { bestPath = '千川消耗降低20%'; bestProfit = profitUpQc; }
 
+                var summary = '最高效路径：<span class="highlight">' + bestPath + '</span>，预计月利润+' + fmt(bestProfit - profit);
+
                 var coreFindings = '通过敏感性分析，当前最高效的利润提升路径是：<span class="highlight positive">' + bestPath + '</span>，预计月利润可从 <span class="highlight">' + fmt(profit) + '</span> 提升至 <span class="highlight positive">' + fmt(bestProfit) + '</span>。';
 
                 var rootCauses = '利润增长的核心瓶颈在于：';
@@ -1782,16 +1866,20 @@
                     '产品成本降低5%：预计利润增加 <span class="highlight positive">' + fmt(profitUpCost - profit) + '</span>，可通过供应链谈判或集中采购实现',
                     '千川消耗降低20%：预计利润增加 <span class="highlight positive">' + fmt(profitUpQc - profit) + '</span>，可通过优化素材与精准人群实现'
                 ];
-                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-suggestion">① ' + s + '</div>'; }).join('');
+                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-detail-suggestion">① ' + s + '</div>'; }).join('');
 
                 var expectedHtml = '综合最优路径为 <span class="highlight positive">' + bestPath + '</span>，预计月利润提升 <span class="highlight positive">' + fmt(bestProfit - profit) + '</span>（+' + ((bestProfit - profit) / Math.abs(profit || 1) * 100).toFixed(1) + '%），建议优先执行。';
 
-                cards.push(makeCard('💰', '利润增长路径分析', status, statusColor, statusBg, [
-                    { title: '📌 核心发现', body: coreFindings },
-                    { title: '🔬 根因分析', body: rootCauses },
-                    { title: '💡 优化方案', body: suggestionHtml },
-                    { title: '📈 预期效果', body: expectedHtml }
-                ], color, rgb));
+                window.analysisDetailData.push({
+                    icon: '💰', title: '利润增长路径分析', status: status, color: color,
+                    sections: [
+                        { title: '📌 核心发现', body: coreFindings },
+                        { title: '🔬 根因分析', body: rootCauses },
+                        { title: '💡 优化方案', body: suggestionHtml },
+                        { title: '📈 预期效果', body: expectedHtml }
+                    ]
+                });
+                cards.push(makeCard(idx++, '💰', '利润增长路径分析', status, statusColor, statusBg, summary, color, rgb));
             })();
 
             // ========== 板块5：店铺结构优化建议 ==========
@@ -1804,6 +1892,10 @@
                 var status = '健康', statusColor = '#67c23a', statusBg = 'rgba(103,194,58,0.15)', color = '#67c23a', rgb = '103,194,58';
                 if (worstShop.profitRate < 0) { status = '需优化'; statusColor = '#f56c6c'; statusBg = 'rgba(245,108,108,0.15)'; color = '#f56c6c'; rgb = '245,108,108'; }
                 else if (worstShop.profitRate < avgProfitRate * 0.5) { status = '需关注'; statusColor = '#e6a23c'; statusBg = 'rgba(230,162,60,0.15)'; color = '#e6a23c'; rgb = '230,162,60'; }
+
+                var summary = bestShop.name.replace(/(抖音|快手|微信)-/, '') + '利润率最高' + pct(bestShop.profitRate);
+                if (worstShop.profitRate < 0) summary += '，' + worstShop.name.replace(/(抖音|快手|微信)-/, '') + '亏损' + pct(worstShop.profitRate) + '需优化';
+                else summary += '，' + worstShop.name.replace(/(抖音|快手|微信)-/, '') + '最低' + pct(worstShop.profitRate);
 
                 var coreFindings = '各店铺利润率差异明显：最高 <span class="highlight positive">' + bestShop.name.replace(/(抖音|快手|微信)-/, '') + '（' + pct(bestShop.profitRate) + '）</span>，最低 <span class="highlight ' + (worstShop.profitRate < 0 ? 'negative' : 'warning') + '">' + worstShop.name.replace(/(抖音|快手|微信)-/, '') + '（' + pct(worstShop.profitRate) + '）</span>。';
 
@@ -1829,7 +1921,7 @@
                 });
                 if (suggestions.length === 0) suggestions.push('各店铺结构合理，建议每月对比各店利润率变化，及时调整资源分配');
 
-                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-suggestion">① ' + s + '</div>'; }).join('');
+                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-detail-suggestion">① ' + s + '</div>'; }).join('');
 
                 var expectedHtml = '';
                 if (worstShop.profitRate < 0) {
@@ -1839,12 +1931,16 @@
                     expectedHtml = '复制高利润店铺成功经验，预计整体利润率可提升 <span class="highlight positive">0.3-0.8%</span>。';
                 }
 
-                cards.push(makeCard('🏪', '店铺结构优化建议', status, statusColor, statusBg, [
-                    { title: '📌 核心发现', body: coreFindings },
-                    { title: '🔬 根因分析', body: rootCauses },
-                    { title: '💡 优化方案', body: suggestionHtml },
-                    { title: '📈 预期效果', body: expectedHtml }
-                ], color, rgb));
+                window.analysisDetailData.push({
+                    icon: '🏪', title: '店铺结构优化建议', status: status, color: color,
+                    sections: [
+                        { title: '📌 核心发现', body: coreFindings },
+                        { title: '🔬 根因分析', body: rootCauses },
+                        { title: '💡 优化方案', body: suggestionHtml },
+                        { title: '📈 预期效果', body: expectedHtml }
+                    ]
+                });
+                cards.push(makeCard(idx++, '🏪', '店铺结构优化建议', status, statusColor, statusBg, summary, color, rgb));
             })();
 
             // ========== 板块6：趋势推演与预警 ==========
@@ -1860,6 +1956,16 @@
                 var status = '平稳', statusColor = '#67c23a', statusBg = 'rgba(103,194,58,0.15)', color = '#67c23a', rgb = '103,194,58';
                 if (profitDecline && costRise) { status = '双重预警'; statusColor = '#f56c6c'; statusBg = 'rgba(245,108,108,0.15)'; color = '#f56c6c'; rgb = '245,108,108'; }
                 else if (profitDecline || costRise) { status = '预警'; statusColor = '#e6a23c'; statusBg = 'rgba(230,162,60,0.15)'; color = '#e6a23c'; rgb = '230,162,60'; }
+
+                var summary = '';
+                if (profitDecline) {
+                    summary += '利润率连续' + (trendData.length) + '月下降，从' + pct(first.profitRate) + '降至' + pct(latest.profitRate);
+                } else if (latest.profitRate > prev.profitRate) {
+                    summary += '利润率呈回升趋势，从' + pct(prev.profitRate) + '升至' + pct(latest.profitRate);
+                } else {
+                    summary += '利润率近' + (trendData.length) + '个月相对平稳，维持在' + pct(latest.profitRate);
+                }
+                if (costRise) summary += '；成本率持续上升需警惕';
 
                 var coreFindings = '';
                 if (profitDecline) {
@@ -1889,7 +1995,7 @@
                 }
                 if (suggestions.length === 0) suggestions.push('保持当前经营策略，建议每月初制定利润率目标并分解至各店铺');
 
-                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-suggestion">① ' + s + '</div>'; }).join('');
+                var suggestionHtml = suggestions.map(function(s) { return '<div class="analysis-detail-suggestion">① ' + s + '</div>'; }).join('');
 
                 var expectedHtml = '';
                 if (profitDecline || costRise) {
@@ -1898,12 +2004,16 @@
                     expectedHtml = '维持当前趋势，预计下月利润率可保持在 <span class="highlight positive">' + pct(latest.profitRate) + '</span> 左右，建议设定成本率不高于 <span class="highlight">' + pct(latest.productCostRate) + '</span> 的管控红线。';
                 }
 
-                cards.push(makeCard('📊', '趋势推演与预警', status, statusColor, statusBg, [
-                    { title: '📌 核心发现', body: coreFindings },
-                    { title: '🔬 根因分析', body: rootCauses },
-                    { title: '💡 优化方案', body: suggestionHtml },
-                    { title: '📈 预期效果', body: expectedHtml }
-                ], color, rgb));
+                window.analysisDetailData.push({
+                    icon: '📊', title: '趋势推演与预警', status: status, color: color,
+                    sections: [
+                        { title: '📌 核心发现', body: coreFindings },
+                        { title: '🔬 根因分析', body: rootCauses },
+                        { title: '💡 优化方案', body: suggestionHtml },
+                        { title: '📈 预期效果', body: expectedHtml }
+                    ]
+                });
+                cards.push(makeCard(idx++, '📊', '趋势推演与预警', status, statusColor, statusBg, summary, color, rgb));
             })();
 
             // 更新副标题
