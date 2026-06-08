@@ -247,6 +247,89 @@
         .tab-content.active { display:block; }
         .profit-positive { color: #67c23a; }
         .profit-negative { color: #f56c6c; }
+
+        /* 智能经营分析板块 */
+        .analysis-section {
+            background: linear-gradient(145deg, rgba(30, 50, 80, 0.7), rgba(20, 35, 60, 0.8));
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(64, 158, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(64, 158, 255, 0.15);
+        }
+        .analysis-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .analysis-subtitle {
+            font-size: 12px;
+            color: #909399;
+        }
+        .analysis-body {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .analysis-card {
+            background: rgba(20, 35, 60, 0.5);
+            border-radius: 10px;
+            padding: 14px;
+            border-left: 3px solid var(--analysis-color, #409eff);
+            transition: all 0.3s ease;
+        }
+        .analysis-card:hover {
+            background: rgba(20, 35, 60, 0.7);
+            transform: translateY(-2px);
+        }
+        .analysis-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .analysis-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: rgba(var(--analysis-rgb, 64,158,255), 0.15);
+        }
+        .analysis-card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+        }
+        .analysis-card-content {
+            font-size: 12px;
+            color: #c0c4cc;
+            line-height: 1.6;
+        }
+        .analysis-card-content .highlight {
+            color: var(--analysis-color, #409eff);
+            font-weight: bold;
+        }
+        .analysis-card-content .positive { color: #67c23a; }
+        .analysis-card-content .negative { color: #f56c6c; }
+        .analysis-card-content .warning { color: #e6a23c; }
+
+        @media (max-width: 1200px) {
+            .analysis-body { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .analysis-body { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -321,7 +404,18 @@
         </div>
         
         <div class="kpi-section" id="kpiSection"></div>
-        
+
+        <!-- 智能经营分析板块 -->
+        <div class="analysis-section" id="analysisSection">
+            <div class="analysis-header">
+                <div class="analysis-title">📊 智能经营分析</div>
+                <div class="analysis-subtitle" id="analysisSubtitle">基于当前筛选数据实时分析</div>
+            </div>
+            <div class="analysis-body" id="analysisBody">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+
         <!-- 完成率模块 -->
         <div class="kpi-section" id="completionSection" style="margin-top: 0;">
             <div class="kpi-card" style="--card-color:#e6a23c;">
@@ -1373,6 +1467,149 @@
             '2026-12': 0
         };
         
+        // ---------- 智能经营分析 ----------
+        function renderAnalysis() {
+            if (!businessData) return;
+            var currentData = getSelectedMonthData();
+            var profitRate = currentData.销售额 > 0 ? (currentData.毛利润 / currentData.销售额 * 100) : 0;
+            var refundRate = currentData.GMV > 0 ? (currentData.退款 / currentData.GMV * 100) : 0;
+            var costRate = currentData.销售额 > 0 ? (currentData.总成本 / currentData.销售额 * 100) : 0;
+            var sales = currentData.销售额 || 1;
+            
+            var cards = [];
+            
+            // 1. 利润率分析
+            var prIcon = profitRate > 5 ? '✅' : (profitRate >= 0 ? '⚠️' : '❌');
+            var prColor = profitRate > 5 ? '#67c23a' : (profitRate >= 0 ? '#e6a23c' : '#f56c6c');
+            var prRgb = profitRate > 5 ? '103,194,58' : (profitRate >= 0 ? '230,162,60' : '245,108,108');
+            var prText = profitRate > 5 
+                ? '当前利润率 <span class="highlight positive">' + profitRate.toFixed(2) + '%</span>，高于健康水平，盈利能力良好，建议保持当前经营策略。'
+                : (profitRate >= 0 
+                    ? '当前利润率 <span class="highlight warning">' + profitRate.toFixed(2) + '%</span>，处于微利状态，建议优化成本结构或提升客单价。'
+                    : '当前利润率 <span class="highlight negative">' + profitRate.toFixed(2) + '%</span>，处于亏损状态，需重点关注成本控制与销售额提升。');
+            cards.push({ icon: prIcon, title: '利润率分析', color: prColor, rgb: prRgb, content: prText });
+            
+            // 2. 成本结构分析
+            var costRates = {
+                '产品成本': { rate: (currentData.产品成本 / sales * 100), threshold: 70 },
+                '千川消耗': { rate: (currentData.千川消耗 / sales * 100), threshold: 5 },
+                '人工成本': { rate: (currentData.人工成本 / sales * 100), threshold: 5 },
+                '佣金': { rate: (currentData.佣金 / sales * 100), threshold: 8 },
+                '仓储成本': { rate: (currentData.仓储成本 / sales * 100), threshold: 10 }
+            };
+            var highCosts = [];
+            Object.keys(costRates).forEach(function(k) {
+                if (costRates[k].rate > costRates[k].threshold) highCosts.push(k + ' <span class="highlight warning">' + costRates[k].rate.toFixed(2) + '%</span>');
+            });
+            var costText = highCosts.length > 0
+                ? '成本结构中，' + highCosts.join('、') + ' 高于警戒线，建议针对性优化。总成本率 <span class="highlight">' + costRate.toFixed(2) + '%</span>。'
+                : '成本结构整体健康，各成本项占比均在合理范围内。总成本率 <span class="highlight positive">' + costRate.toFixed(2) + '%</span>。';
+            cards.push({ icon: '💰', title: '成本结构分析', color: '#409eff', rgb: '64,158,255', content: costText });
+            
+            // 3. 环比变化分析
+            var comparePeriod = getComparePeriod();
+            if (comparePeriod && state.compareMode === 'mom') {
+                var compareData = aggregateData(comparePeriod.start, comparePeriod.end);
+                var salesChange = compareData.销售额 > 0 ? ((currentData.销售额 - compareData.销售额) / compareData.销售额 * 100) : 0;
+                var profitChange = compareData.毛利润 !== 0 ? ((currentData.毛利润 - compareData.毛利润) / Math.abs(compareData.毛利润) * 100) : 0;
+                var changeIcon = salesChange > 10 ? '📈' : (salesChange < -10 ? '📉' : '➡️');
+                var changeColor = salesChange > 10 ? '#67c23a' : (salesChange < -10 ? '#f56c6c' : '#909399');
+                var changeRgb = salesChange > 10 ? '103,194,58' : (salesChange < -10 ? '245,108,108' : '144,147,153');
+                var changeText = salesChange > 10
+                    ? '销售额环比 <span class="highlight positive">+' + salesChange.toFixed(1) + '%</span>，增长良好；利润环比 <span class="highlight ' + (profitChange >= 0 ? 'positive' : 'negative') + '">' + (profitChange >= 0 ? '+' : '') + profitChange.toFixed(1) + '%</span>。'
+                    : (salesChange < -10
+                        ? '销售额环比 <span class="highlight negative">' + salesChange.toFixed(1) + '%</span>，出现下滑；利润环比 <span class="highlight ' + (profitChange >= 0 ? 'positive' : 'negative') + '">' + (profitChange >= 0 ? '+' : '') + profitChange.toFixed(1) + '%</span>，需关注经营风险。'
+                        : '销售额环比 <span class="highlight">' + salesChange.toFixed(1) + '%</span>，波动平稳；利润环比 <span class="highlight ' + (profitChange >= 0 ? 'positive' : 'negative') + '">' + (profitChange >= 0 ? '+' : '') + profitChange.toFixed(1) + '%</span>。');
+                cards.push({ icon: changeIcon, title: '环比变化分析', color: changeColor, rgb: changeRgb, content: changeText });
+            }
+            
+            // 4. 店铺表现分析
+            var shopData = {};
+            var start = new Date(state.startDate), end = new Date(state.endDate);
+            if (state.granularity === 'month' && state.month !== 'all') {
+                start = new Date(state.month + '-01');
+                var lastDay = new Date(parseInt(state.month.split('-')[0]), parseInt(state.month.split('-')[1]), 0).getDate();
+                end = new Date(state.month + '-' + String(lastDay).padStart(2, '0'));
+            }
+            Object.keys(businessData.daily_data).forEach(function(month) {
+                if (state.granularity === 'month' && state.month !== 'all' && month !== state.month) return;
+                Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+                    var date = new Date(dateStr);
+                    if (date >= start && date <= end) {
+                        businessData.daily_data[month][dateStr].shops.forEach(function(shop) {
+                            if (!shopData[shop.name]) shopData[shop.name] = { name: shop.name, sales: 0, profit: 0 };
+                            shopData[shop.name].sales += shop.sales;
+                            shopData[shop.name].profit += shop.profit;
+                        });
+                    }
+                });
+            });
+            var shopList = Object.values(shopData).map(function(s) {
+                return Object.assign({}, s, { profitRate: s.sales > 0 ? (s.profit / s.sales * 100) : 0 });
+            }).sort(function(a, b) { return b.profitRate - a.profitRate; });
+            if (shopList.length > 0) {
+                var bestShop = shopList[0];
+                var worstShop = shopList[shopList.length - 1];
+                var shopText = '表现最佳：<span class="highlight positive">' + bestShop.name.replace(/(抖音|快手|微信)-/, '') + '</span>（利润率 ' + bestShop.profitRate.toFixed(2) + '%）';
+                if (worstShop.profitRate < 0) {
+                    shopText += '；<span class="highlight negative">' + worstShop.name.replace(/(抖音|快手|微信)-/, '') + '</span> 处于亏损（利润率 ' + worstShop.profitRate.toFixed(2) + '%），需重点关注。';
+                } else {
+                    shopText += '；末位 ' + worstShop.name.replace(/(抖音|快手|微信)-/, '') + ' 利润率 ' + worstShop.profitRate.toFixed(2) + '%。';
+                }
+                cards.push({ icon: '🏪', title: '店铺表现分析', color: '#b37feb', rgb: '179,127,235', content: shopText });
+            }
+            
+            // 5. 退款风险分析
+            var refundIcon = refundRate > 8 ? '🔴' : (refundRate > 5 ? '🟡' : '🟢');
+            var refundColor = refundRate > 8 ? '#f56c6c' : (refundRate > 5 ? '#e6a23c' : '#67c23a');
+            var refundRgb = refundRate > 8 ? '245,108,108' : (refundRate > 5 ? '230,162,60' : '103,194,58');
+            var refundText = refundRate > 8
+                ? '退款率 <span class="highlight negative">' + refundRate.toFixed(2) + '%</span>，高于警戒线，需重点关注商品质量、物流时效或客服体验。'
+                : (refundRate > 5
+                    ? '退款率 <span class="highlight warning">' + refundRate.toFixed(2) + '%</span>，处于正常偏高区间，建议持续监控。'
+                    : '退款率 <span class="highlight positive">' + refundRate.toFixed(2) + '%</span>，处于健康水平，售后控制良好。');
+            cards.push({ icon: refundIcon, title: '退款风险分析', color: refundColor, rgb: refundRgb, content: refundText });
+            
+            // 6. 目标完成分析
+            if (state.granularity === 'month' && state.month !== 'all') {
+                var monthTarget = MONTHLY_TARGETS[state.month] || 0;
+                if (monthTarget > 0) {
+                    var monthRate = (currentData.销售额 / monthTarget * 100);
+                    var targetIcon = monthRate >= 100 ? '🎯' : (monthRate >= 80 ? '⏳' : '⚡');
+                    var targetColor = monthRate >= 100 ? '#67c23a' : (monthRate >= 80 ? '#e6a23c' : '#f56c6c');
+                    var targetRgb = monthRate >= 100 ? '103,194,58' : (monthRate >= 80 ? '230,162,60' : '245,108,108');
+                    var targetText = monthRate >= 100
+                        ? '月度销售目标 <span class="highlight positive">已达成</span>（完成率 ' + monthRate.toFixed(1) + '%），表现优异！'
+                        : (monthRate >= 80
+                            ? '月度销售目标完成率 <span class="highlight warning">' + monthRate.toFixed(1) + '%</span>，进度良好，继续努力冲刺。'
+                            : '月度销售目标完成率 <span class="highlight negative">' + monthRate.toFixed(1) + '%</span>，进度滞后，需加大销售力度。');
+                    cards.push({ icon: targetIcon, title: '目标完成分析', color: targetColor, rgb: targetRgb, content: targetText });
+                }
+            } else {
+                var annualSales = 0;
+                businessData.monthly_summary.forEach(function(m) { annualSales += m['销售额']; });
+                var annualRate = (annualSales / ANNUAL_TARGET_BASE * 100);
+                var annualIcon = annualRate >= 50 ? '🎯' : (annualRate >= 30 ? '⏳' : '⚡');
+                var annualColor = annualRate >= 50 ? '#67c23a' : (annualRate >= 30 ? '#e6a23c' : '#f56c6c');
+                var annualRgb = annualRate >= 50 ? '103,194,58' : (annualRate >= 30 ? '230,162,60' : '245,108,108');
+                var annualText = '年度保底目标完成率 <span class="highlight ' + (annualRate >= 50 ? 'positive' : (annualRate >= 30 ? 'warning' : 'negative')) + '">' + annualRate.toFixed(1) + '%</span>（累计 ' + formatMoney(annualSales) + ' / ' + formatMoney(ANNUAL_TARGET_BASE) + '）。';
+                cards.push({ icon: annualIcon, title: '年度目标分析', color: annualColor, rgb: annualRgb, content: annualText });
+            }
+            
+            // 更新副标题
+            var periodText = state.granularity === 'month' && state.month !== 'all' 
+                ? state.month + ' 月度分析' 
+                : state.startDate + ' 至 ' + state.endDate;
+            document.getElementById('analysisSubtitle').textContent = '分析周期：' + periodText;
+            
+            // 渲染卡片
+            document.getElementById('analysisBody').innerHTML = cards.map(function(card) {
+                return '<div class="analysis-card" style="--analysis-color:' + card.color + ';--analysis-rgb:' + card.rgb + '">' +
+                    '<div class="analysis-card-header"><div class="analysis-card-icon">' + card.icon + '</div><div class="analysis-card-title">' + card.title + '</div></div>' +
+                    '<div class="analysis-card-content">' + card.content + '</div></div>';
+            }).join('');
+        }
+
         function renderCompletionRates() {
             // 计算年度累计销售额和毛利润
             var annualSales = 0, annualProfit = 0;
@@ -1837,14 +2074,14 @@
                 // 按日查看时，忽略月份选择器，只使用日期范围
                 state.month = 'all';
             }
-            renderKPI(); renderShopCards(); renderTable(); renderCompletionRates();
+            renderKPI(); renderAnalysis(); renderShopCards(); renderTable(); renderCompletionRates();
             updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
 
         // ---------- 初始化 ----------
         function initAll() {
             updateTime();
-            renderKPI(); renderShopCards(); renderTable(); renderCompletionRates();
+            renderKPI(); renderAnalysis(); renderShopCards(); renderTable(); renderCompletionRates();
             updateTrendChart(); updateShopCompareChart(); updateCostPieChart(); updateProfitTrendChart();
         }
 
