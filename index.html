@@ -895,13 +895,37 @@
             if (!productData) return [];
             var source = pState.dimension === 'name' ? productData.byName : productData.products;
             return source.filter(function(item) {
+                // 店铺筛选
                 if (pState.shop !== 'all') {
-                    if (pState.dimension === 'name') return item.shops && item.shops.indexOf(pState.shop) >= 0;
-                    return item.shop === pState.shop;
+                    if (pState.dimension === 'name') {
+                        if (!item.shops || item.shops.indexOf(pState.shop) < 0) return false;
+                    } else {
+                        if (item.shop !== pState.shop) return false;
+                    }
                 }
+                // 搜索筛选
                 if (pState.search) {
                     var key = pState.dimension === 'name' ? item.name : item.id;
-                    return key && key.indexOf(pState.search) >= 0;
+                    if (!key || key.indexOf(pState.search) < 0) return false;
+                }
+                // 月份筛选 - 当选择具体月份时，只保留该月份有数据的商品
+                if (pState.month !== 'all' && pState.granularity === 'month') {
+                    var hasDataInMonth = false;
+                    if (pState.dimension === 'name') {
+                        // 按名称维度：检查所有同名商品是否有该月份数据
+                        var relatedProducts = productData.products.filter(function(p) { return p.name === item.name; });
+                        relatedProducts.forEach(function(p) {
+                            Object.keys(p.daily).forEach(function(date) {
+                                if (date.startsWith(pState.month)) hasDataInMonth = true;
+                            });
+                        });
+                    } else {
+                        // 按ID维度：检查该商品是否有该月份数据
+                        Object.keys(item.daily).forEach(function(date) {
+                            if (date.startsWith(pState.month)) hasDataInMonth = true;
+                        });
+                    }
+                    if (!hasDataInMonth) return false;
                 }
                 return true;
             });
