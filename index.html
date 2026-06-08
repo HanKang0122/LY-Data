@@ -784,10 +784,13 @@
         
         function initProductFilters() {
             if (!productData) return;
-            // 填充月份
+            // 填充月份 - 从periods数组读取所有月份
             var monthSel = document.getElementById('pMonthSelect');
             monthSel.innerHTML = '<option value="all">全部月份</option>';
-            monthSel.innerHTML += '<option value="' + productData.meta.month + '">' + productData.meta.month + '</option>';
+            var periods = productData.meta.periods || [productData.meta.month];
+            periods.forEach(function(m) {
+                monthSel.innerHTML += '<option value="' + m + '">' + m + '</option>';
+            });
             // 填充店铺
             var shopSel = document.getElementById('pShopFilter');
             shopSel.innerHTML = '<option value="all">全部店铺</option>';
