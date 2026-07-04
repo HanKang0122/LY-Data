@@ -2151,7 +2151,7 @@
         function renderTable() {
             var rows = [];
             if (state.granularity === 'month') {
-                var months = state.month === 'all' ? (businessData.meta.periods || []) : [state.month];
+                var months = state.month === 'all' ? (businessData.meta.periods || []).sort().reverse() : [state.month];
                 months.forEach(function(month) {
                     var m = businessData.monthly_summary.find(function(item) { return item['月份'] === month; });
                     if (m) {
@@ -2253,18 +2253,19 @@
         function updateTrendChart() {
             if (!trendChart) trendChart = echarts.init(document.getElementById('trendChart'));
             var start = new Date(state.startDate), end = new Date(state.endDate);
-            var dates = [], gmvData = [], salesData = [], profitData = [];
+            var dateMap = {};
             Object.keys(businessData.daily_data).forEach(function(month) {
                 Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
                     var date = new Date(dateStr);
                     if (date >= start && date <= end) {
-                        dates.push(dateStr);
-                        gmvData.push(businessData.daily_data[month][dateStr].total.GMV);
-                        salesData.push(businessData.daily_data[month][dateStr].total.sales);
-                        profitData.push(businessData.daily_data[month][dateStr].total.profit);
+                        dateMap[dateStr] = businessData.daily_data[month][dateStr].total;
                     }
                 });
             });
+            var dates = Object.keys(dateMap).sort().reverse();
+            var gmvData = dates.map(function(d){return dateMap[d].GMV;});
+            var salesData = dates.map(function(d){return dateMap[d].sales;});
+            var profitData = dates.map(function(d){return dateMap[d].profit;});
             trendChart.setOption({
                 tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,35,60,0.9)', borderColor: '#409eff', textStyle: {color:'#fff'}, formatter: function(params) {
                     var result = params[0].axisValue + '<br/>';
@@ -2323,7 +2324,7 @@
                         }
                     });
                 });
-                allDates.sort();
+                allDates.sort().reverse();
                 shopNames = Object.keys(shopDaily);
                 xData = allDates;
                 var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
@@ -2342,7 +2343,7 @@
                         });
                     });
                 });
-                var months = businessData.meta.periods || [];
+                var months = (businessData.meta.periods || []).sort().reverse();
                 var firstMonth = months[0] || '2026-01';
                 shopNames = Object.keys(shopMonthly[firstMonth] || {});
                 xData = months;
@@ -2447,14 +2448,15 @@
                 });
                 // 按日期排序
                 var combined = allDates.map(function(d, i) { return { date: d, rate: allRates[i] }; });
-                combined.sort(function(a, b) { return a.date.localeCompare(b.date); });
+                combined.sort(function(a, b) { return b.date.localeCompare(a.date); });
                 xData = combined.map(function(item) { return item.date; });
                 profitRates = combined.map(function(item) { return item.rate; });
                 chartTitle = '每日利润率趋势';
             } else {
                 // 显示各月利润率趋势
-                xData = businessData.monthly_summary.map(function(m){return m['月份'];});
-                profitRates = businessData.monthly_summary.map(function(m){return m.利润率;});
+                var sorted = businessData.monthly_summary.slice().sort(function(a,b){return b['月份'].localeCompare(a['月份']);});
+                xData = sorted.map(function(m){return m['月份'];});
+                profitRates = sorted.map(function(m){return m.利润率;});
                 chartTitle = '月度利润率趋势';
             }
             profitTrendChart.setOption({
