@@ -2252,20 +2252,38 @@
         // ---------- 图表 ----------
         function updateTrendChart() {
             if (!trendChart) trendChart = echarts.init(document.getElementById('trendChart'));
-            var start = new Date(state.startDate), end = new Date(state.endDate);
-            var dateMap = {};
-            Object.keys(businessData.daily_data).forEach(function(month) {
-                Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
-                    var date = new Date(dateStr);
-                    if (date >= start && date <= end) {
-                        dateMap[dateStr] = businessData.daily_data[month][dateStr].total;
+            var dates, gmvData, salesData, profitData;
+            // 按月查看且选了全部月份时，显示月度汇总趋势
+            if (state.granularity === 'month' && state.month === 'all') {
+                var sortedMonths = (businessData.meta.periods || []).sort();
+                dates = sortedMonths;
+                gmvData = []; salesData = []; profitData = [];
+                sortedMonths.forEach(function(m) {
+                    var summary = businessData.monthly_summary.find(function(item){return item['月份'] === m;});
+                    if (summary) {
+                        gmvData.push(summary.GMV);
+                        salesData.push(summary['销售额']);
+                        profitData.push(summary['毛利润']);
+                    } else {
+                        gmvData.push(0); salesData.push(0); profitData.push(0);
                     }
                 });
-            });
-            var dates = Object.keys(dateMap).sort();
-            var gmvData = dates.map(function(d){return dateMap[d].GMV;});
-            var salesData = dates.map(function(d){return dateMap[d].sales;});
-            var profitData = dates.map(function(d){return dateMap[d].profit;});
+            } else {
+                var start = new Date(state.startDate), end = new Date(state.endDate);
+                var dateMap = {};
+                Object.keys(businessData.daily_data).forEach(function(month) {
+                    Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+                        var date = new Date(dateStr);
+                        if (date >= start && date <= end) {
+                            dateMap[dateStr] = businessData.daily_data[month][dateStr].total;
+                        }
+                    });
+                });
+                dates = Object.keys(dateMap).sort();
+                gmvData = dates.map(function(d){return dateMap[d].GMV;});
+                salesData = dates.map(function(d){return dateMap[d].sales;});
+                profitData = dates.map(function(d){return dateMap[d].profit;});
+            }
             trendChart.setOption({
                 tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,35,60,0.9)', borderColor: '#409eff', textStyle: {color:'#fff'}, formatter: function(params) {
                     var result = params[0].axisValue + '<br/>';
