@@ -2297,39 +2297,42 @@
                 var shopDaily = {};
                 dates.forEach(function(dateStr) {
                     monthData[dateStr].shops.forEach(function(shop) {
-                        if (!shopDaily[shop.name]) shopDaily[shop.name] = [];
-                        shopDaily[shop.name].push(shop.sales);
+                        if (!shopDaily[shop.name]) shopDaily[shop.name] = {};
+                        shopDaily[shop.name][dateStr] = shop.sales;
                     });
                 });
                 shopNames = Object.keys(shopDaily);
                 xData = dates;
                 var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
                 seriesData = shopNames.map(function(name, idx) {
-                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: shopDaily[name], itemStyle:{color:colors[idx%colors.length]} };
+                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: dates.map(function(d){return shopDaily[name][d]||0;}), itemStyle:{color:colors[idx%colors.length]} };
                 });
             } else if (state.granularity === 'day') {
                 // 按日查看时，显示日期范围内的每日数据
                 var start = new Date(state.startDate), end = new Date(state.endDate);
-                var allDates = [];
-                var shopDaily = {};
+                var dateShopMap = {};
                 Object.keys(businessData.daily_data).forEach(function(month) {
                     Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
                         var date = new Date(dateStr);
                         if (date >= start && date <= end) {
-                            allDates.push(dateStr);
+                            dateShopMap[dateStr] = {};
                             businessData.daily_data[month][dateStr].shops.forEach(function(shop) {
-                                if (!shopDaily[shop.name]) shopDaily[shop.name] = [];
-                                shopDaily[shop.name].push(shop.sales);
+                                dateShopMap[dateStr][shop.name] = shop.sales;
                             });
                         }
                     });
                 });
-                allDates.sort();
-                shopNames = Object.keys(shopDaily);
+                var allDates = Object.keys(dateShopMap).sort();
+                var shopNames = [];
+                allDates.forEach(function(d) {
+                    Object.keys(dateShopMap[d]).forEach(function(name) {
+                        if (shopNames.indexOf(name) === -1) shopNames.push(name);
+                    });
+                });
                 xData = allDates;
                 var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
                 seriesData = shopNames.map(function(name, idx) {
-                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: shopDaily[name], itemStyle:{color:colors[idx%colors.length]} };
+                    return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: allDates.map(function(d){return dateShopMap[d][name]||0;}), itemStyle:{color:colors[idx%colors.length]} };
                 });
             } else {
                 // 显示各月累计数据
