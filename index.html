@@ -184,7 +184,7 @@
         .chart-container { height: 280px; }
         
         /* 店铺详情 */
-        .shop-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .shop-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .shop-card {
             background: linear-gradient(145deg, rgba(30, 50, 80, 0.7), rgba(20, 35, 60, 0.8));
             border-radius: 12px; padding: 15px;
@@ -2321,7 +2321,7 @@
                 });
                 shopNames = Object.keys(shopDaily);
                 xData = dates;
-                var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                var colors = ['#409eff','#67c23a','#e6a23c','#909399','#b37feb'];
                 seriesData = shopNames.map(function(name, idx) {
                     return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: dates.map(function(d){return shopDaily[name][d]||0;}), itemStyle:{color:colors[idx%colors.length]} };
                 });
@@ -2348,7 +2348,7 @@
                     });
                 });
                 xData = allDates;
-                var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                var colors = ['#409eff','#67c23a','#e6a23c','#909399','#b37feb'];
                 seriesData = shopNames.map(function(name, idx) {
                     return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: allDates.map(function(d){return dateShopMap[d][name]||0;}), itemStyle:{color:colors[idx%colors.length]} };
                 });
@@ -2368,7 +2368,7 @@
                 var firstMonth = months[0] || '2026-01';
                 shopNames = Object.keys(shopMonthly[firstMonth] || {});
                 xData = months;
-                var colors = ['#409eff','#67c23a','#e6a23c','#909399'];
+                var colors = ['#409eff','#67c23a','#e6a23c','#909399','#b37feb'];
                 seriesData = shopNames.map(function(name, idx) {
                     return { name: name.replace('抖音-','').replace('快手-','').replace('微信-',''), type:'bar', stack:'total', data: months.map(function(m){return shopMonthly[m][name]||0;}), itemStyle:{color:colors[idx%colors.length]} };
                 });
