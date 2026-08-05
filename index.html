@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>零壹经营体-经营数据大屏</title>
+    <title>零壹管理中台</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,13 +53,15 @@
         }
 
         /* 头部 */
-        .header { text-align: center; padding: 15px 0 20px; position: relative; }
+        .header { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 15px 0 20px; position: relative; }
         .header::after {
             content: '';
             position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 60%; height: 2px;
             background: linear-gradient(90deg, transparent, #409eff, transparent);
         }
+        .header-logo { width: 48px; height: 48px; flex-shrink: 0; }
+        .header-text { text-align: center; }
         .header h1 {
             font-size: 36px; font-weight: bold; letter-spacing: 6px;
             background: linear-gradient(90deg, #409eff, #67c23a, #409eff);
@@ -232,7 +234,8 @@
         @media (max-width: 768px) {
             .kpi-section { grid-template-columns: 1fr; }
             .shop-section { grid-template-columns: 1fr; }
-            .header h1 { font-size: 24px; }
+            .header h1 { font-size: 24px; letter-spacing: 3px; }
+            .header-logo { width: 36px; height: 36px; }
             .control-panel { flex-direction: column; }
         }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -423,12 +426,29 @@
 
     <div class="container" id="mainContent" style="display:none;">
         <div class="header">
-            <h1>零壹经营体 · 经营数据大屏</h1>
-            <div class="subtitle">零壹食品电商经营数据监控平台</div>
-            <div class="time-row">
-                <span class="time" id="currentTime"></span>
-                <span class="data-time" id="dataTime"></span>
-                <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+            <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#409eff"/>
+                        <stop offset="100%" style="stop-color:#67c23a"/>
+                    </linearGradient>
+                </defs>
+                <!-- 0: gradient ring -->
+                <circle cx="38" cy="50" r="26" fill="none" stroke="url(#logoGrad)" stroke-width="8"/>
+                <!-- 1: vertical bar with base -->
+                <rect x="66" y="22" width="8" height="44" rx="3" fill="url(#logoGrad)"/>
+                <rect x="58" y="60" width="24" height="6" rx="3" fill="url(#logoGrad)"/>
+                <!-- dot accent -->
+                <circle cx="38" cy="50" r="6" fill="url(#logoGrad)" opacity="0.8"/>
+            </svg>
+            <div class="header-text">
+                <h1>零壹管理中台</h1>
+                <div class="subtitle">零壹食品电商经营数据监控平台</div>
+                <div class="time-row">
+                    <span class="time" id="currentTime"></span>
+                    <span class="data-time" id="dataTime"></span>
+                    <button class="refresh-btn" onclick="loadData()">🔄 刷新数据</button>
+                </div>
             </div>
         </div>
         
