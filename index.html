@@ -827,6 +827,47 @@ body {
 .kpi-compare .compare-value.up { color: var(--success); }
 .kpi-compare .compare-value.down { color: var(--danger); }
 
+/* 经营数据 - 筛选面板 */
+.biz-filter-panel {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+.biz-filter-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.biz-filter-row .filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.biz-filter-row .filter-item label {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.biz-filter-row .filter-item select,
+.biz-filter-row .filter-item input[type="date"] {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+}
+.biz-filter-row .filter-item select:focus,
+.biz-filter-row .filter-item input[type="date"]:focus {
+  border-color: var(--primary);
+}
+
 /* 经营数据 - 对比指示器 */
 .biz-compare-indicator {
   background: #fff7e6;
@@ -913,24 +954,7 @@ body {
       <span class="platform-name">全域电商销售管理中台</span>
     </div>
     <div class="header-center">
-      <!-- 时间筛选 -->
-      <div class="filter-group">
-        <span class="filter-label">时间</span>
-        <button class="filter-btn" data-time="today">今日</button>
-        <button class="filter-btn" data-time="yesterday">昨日</button>
-        <button class="filter-btn active" data-time="7d">近7天</button>
-        <button class="filter-btn" data-time="week">自然周</button>
-        <button class="filter-btn" data-time="month">自然月</button>
-        <button class="filter-btn" data-time="custom">自定义</button>
-      </div>
-      <!-- 平台筛选 -->
-      <div class="filter-group">
-        <span class="filter-label">平台</span>
-        <button class="filter-btn active" data-platform="all">全平台</button>
-        <button class="filter-btn" data-platform="douyin">抖音</button>
-        <button class="filter-btn" data-platform="kuaishou">快手</button>
-        <button class="filter-btn" data-platform="weixin">视频号</button>
-      </div>
+      <!-- 全局筛选已移至各模块内部 -->
     </div>
     <div class="header-right">
       <button class="header-icon-btn" onclick="toggleAIPanel()" title="AI智能问数">🤖</button>
@@ -1071,22 +1095,62 @@ body {
             <button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button>
           </div>
         </div>
-        <!-- 经营数据筛选栏 -->
-        <div class="filter-bar">
-          <div class="filter-item">
-            <label>时间粒度</label>
-            <select id="biz-granularity" onchange="onBizGranularityChange()">
-              <option value="month">按月查看</option>
-              <option value="day">按日查看</option>
-            </select>
-          </div>
-          <div class="filter-item">
-            <label>对比模式</label>
-            <select id="biz-compare-mode" onchange="onBizCompareChange()">
-              <option value="none">无对比</option>
-              <option value="mom">环比（上一周期）</option>
-              <option value="yoy">同比（去年同期）</option>
-            </select>
+        <!-- 经营数据筛选栏（模块内独立筛选） -->
+        <div class="biz-filter-panel">
+          <div class="biz-filter-row">
+            <div class="filter-item">
+              <label>时间粒度</label>
+              <select id="biz-granularity" onchange="onBizFilterChange()">
+                <option value="year">按年</option>
+                <option value="month" selected>按月</option>
+                <option value="day">按日</option>
+              </select>
+            </div>
+            <div class="filter-item" id="biz-year-group" style="display:none;">
+              <label>年份</label>
+              <select id="biz-year" onchange="onBizFilterChange()">
+                <option value="2026">2026年</option>
+              </select>
+            </div>
+            <div class="filter-item" id="biz-month-group" style="display:none;">
+              <label>月份</label>
+              <select id="biz-month" onchange="onBizFilterChange()">
+                <option value="all">全部月份</option>
+                <option value="2026-01">2026年1月</option>
+                <option value="2026-02">2026年2月</option>
+                <option value="2026-03">2026年3月</option>
+                <option value="2026-04">2026年4月</option>
+                <option value="2026-05">2026年5月</option>
+                <option value="2026-06">2026年6月</option>
+                <option value="2026-07">2026年7月</option>
+                <option value="2026-08">2026年8月</option>
+              </select>
+            </div>
+            <div class="filter-item" id="biz-date-group" style="display:none;">
+              <label>起始日期</label>
+              <input type="date" id="biz-start-date" onchange="onBizFilterChange()">
+              <span style="color:var(--muted);">至</span>
+              <label>截止日期</label>
+              <input type="date" id="biz-end-date" onchange="onBizFilterChange()">
+            </div>
+            <div class="filter-item">
+              <label>平台</label>
+              <select id="biz-platform" onchange="onBizFilterChange()">
+                <option value="all">全平台</option>
+                <option value="douyin">抖音</option>
+                <option value="kuaishou">快手</option>
+                <option value="weixin">视频号</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>对比模式</label>
+              <select id="biz-compare-mode" onchange="onBizFilterChange()">
+                <option value="none">无对比</option>
+                <option value="mom">环比（上一周期）</option>
+                <option value="yoy">同比（去年同期）</option>
+              </select>
+            </div>
+            <button class="filter-bar btn primary" onclick="renderBusinessData()">应用筛选</button>
           </div>
           <div class="biz-compare-indicator" id="bizCompareIndicator" style="display:none;">
             <span>📊 对比模式已开启</span>
@@ -1802,7 +1866,7 @@ function buildTable(headers, rows, footRow) {
 
 // ---------- 日期工具 ----------
 function getMaxDate() {
-  if (!businessData || !businessData.daily_data) return '2026-08-03';
+  if (!businessData || !businessData.daily_data) return '2026-08-06';
   var all = [];
   Object.keys(businessData.daily_data).forEach(function(m){ Object.keys(businessData.daily_data[m]).forEach(function(d){ all.push(d); }); });
   all.sort();
@@ -2000,7 +2064,7 @@ function renderPageByRoute(route) {
   computeDateRange();
   switch (route) {
     case 'home': renderHome(); break;
-    case 'business-data': renderBusinessData(); break;
+    case 'business-data': initBizFilters(); break;
     case 'operation-data': renderOperationData(); break;
     case 'product-data': renderProductData(); break;
     case 'commerce-data': renderCommerceData(); break;
@@ -2126,38 +2190,100 @@ function renderHomeAlertList() {
   }).join('');
 }
 
-// ==================== 经营数据（完整版，含店铺卡片/对比模式/时间粒度） ====================
-function onBizGranularityChange() {
-  var sel = document.getElementById('biz-granularity');
-  if (sel) appState.bizGranularity = sel.value;
+// ==================== 经营数据（模块内独立筛选） ====================
+var bizState = {
+  granularity: 'month',
+  year: '2026',
+  month: 'all',
+  startDate: '',
+  endDate: '',
+  platform: 'all',
+  compareMode: 'none'
+};
+
+function onBizFilterChange() {
+  var gran = document.getElementById('biz-granularity');
+  if (gran) bizState.granularity = gran.value;
+  var yearSel = document.getElementById('biz-year');
+  if (yearSel) bizState.year = yearSel.value;
+  var monthSel = document.getElementById('biz-month');
+  if (monthSel) bizState.month = monthSel.value;
+  var startDateInput = document.getElementById('biz-start-date');
+  if (startDateInput) bizState.startDate = startDateInput.value;
+  var endDateInput = document.getElementById('biz-end-date');
+  if (endDateInput) bizState.endDate = endDateInput.value;
+  var platSel = document.getElementById('biz-platform');
+  if (platSel) bizState.platform = platSel.value;
+  var cmpSel = document.getElementById('biz-compare-mode');
+  if (cmpSel) bizState.compareMode = cmpSel.value;
+
+  // 显示/隐藏对应的日期选择器
+  var yearGroup = document.getElementById('biz-year-group');
+  var monthGroup = document.getElementById('biz-month-group');
+  var dateGroup = document.getElementById('biz-date-group');
+  if (yearGroup) yearGroup.style.display = bizState.granularity === 'year' ? 'flex' : 'none';
+  if (monthGroup) monthGroup.style.display = bizState.granularity === 'month' ? 'flex' : 'none';
+  if (dateGroup) dateGroup.style.display = bizState.granularity === 'day' ? 'flex' : 'none';
+
+  // 按日模式：如果日期为空，设置默认值
+  if (bizState.granularity === 'day') {
+    if (!bizState.startDate) { bizState.startDate = getMinDate(); if (startDateInput) startDateInput.value = bizState.startDate; }
+    if (!bizState.endDate) { bizState.endDate = getMaxDate(); if (endDateInput) endDateInput.value = bizState.endDate; }
+  }
+
   renderBusinessData();
 }
-function onBizCompareChange() {
-  var sel = document.getElementById('biz-compare-mode');
-  if (sel) appState.bizCompareMode = sel.value;
-  renderBusinessData();
+
+function computeBizDateRange() {
+  var minD = getMinDate(), maxD = getMaxDate();
+  var start, end;
+  if (bizState.granularity === 'year') {
+    var y = parseInt(bizState.year) || 2026;
+    start = y + '-01-01';
+    end = y + '-12-31';
+    // 限制到实际数据范围
+    if (new Date(start) < new Date(minD)) start = minD;
+    if (new Date(end) > new Date(maxD)) end = maxD;
+  } else if (bizState.granularity === 'month') {
+    if (bizState.month === 'all') {
+      start = minD; end = maxD;
+    } else {
+      var parts = bizState.month.split('-');
+      var lastDay = new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate();
+      start = bizState.month + '-01';
+      end = bizState.month + '-' + String(lastDay).padStart(2, '0');
+    }
+  } else {
+    // day
+    start = bizState.startDate || minD;
+    end = bizState.endDate || maxD;
+  }
+  return { start: start, end: end };
 }
+
 function getBizComparePeriod() {
-  if (appState.bizCompareMode === 'none') return null;
-  var range = computeDateRange();
+  if (bizState.compareMode === 'none') return null;
+  var range = computeBizDateRange();
   var start = new Date(range.start), end = new Date(range.end);
   var days = Math.ceil((end - start) / 86400000) + 1;
-  if (appState.bizCompareMode === 'mom') {
+  if (bizState.compareMode === 'mom') {
     var compareEnd = new Date(start); compareEnd.setDate(compareEnd.getDate() - 1);
     var compareStart = new Date(compareEnd); compareStart.setDate(compareStart.getDate() - days + 1);
     return { start: toDateStr(compareStart), end: toDateStr(compareEnd), label: '环比' };
-  } else if (appState.bizCompareMode === 'yoy') {
-    var compareStart2 = new Date(start); compareStart2.setFullYear(compareStart2.getFullYear() - 1);
-    var compareEnd2 = new Date(end); compareEnd2.setFullYear(compareEnd2.getFullYear() - 1);
-    return { start: toDateStr(compareStart2), end: toDateStr(compareEnd2), label: '同比' };
+  } else if (bizState.compareMode === 'yoy') {
+    var cs = new Date(start); cs.setFullYear(cs.getFullYear() - 1);
+    var ce = new Date(end); ce.setFullYear(ce.getFullYear() - 1);
+    return { start: toDateStr(cs), end: toDateStr(ce), label: '同比' };
   }
   return null;
 }
+
 function calcChange(current, previous) {
   if (previous === 0) return { value: 0, text: '-', direction: 'neutral' };
   var change = ((current - previous) / Math.abs(previous)) * 100;
   return { value: change, text: (change >= 0 ? '+' : '') + change.toFixed(1) + '%', direction: change >= 0 ? 'up' : 'down' };
 }
+
 function setBizKpiCompare(id, currentValue, compareValue, comparePeriod) {
   var el = document.getElementById(id);
   if (!el) return;
@@ -2165,17 +2291,59 @@ function setBizKpiCompare(id, currentValue, compareValue, comparePeriod) {
   var changeInfo = calcChange(currentValue, compareValue);
   el.classList.add('show');
   el.innerHTML =
-    '<div class="compare-item">' +
-      '<span class="compare-label">' + comparePeriod.label + '</span>' +
-      '<span class="compare-value ' + changeInfo.direction + '">' + changeInfo.text + '</span>' +
-    '</div>' +
-    '<div class="compare-item">' +
-      '<span class="compare-label">上期值</span>' +
-      '<span class="compare-value">' + formatMoney(compareValue) + '</span>' +
-    '</div>';
+    '<div class="compare-item"><span class="compare-label">' + comparePeriod.label + '</span>' +
+    '<span class="compare-value ' + changeInfo.direction + '">' + changeInfo.text + '</span></div>' +
+    '<div class="compare-item"><span class="compare-label">上期值</span>' +
+    '<span class="compare-value">' + formatMoney(compareValue) + '</span></div>';
 }
+
+function initBizFilters() {
+  // 动态生成年份和月份下拉选项
+  if (businessData && businessData.meta && businessData.meta.periods) {
+    var periods = businessData.meta.periods.slice().sort();
+    var years = [], months = [];
+    periods.forEach(function(p) {
+      var parts = p.split('-');
+      if (years.indexOf(parts[0]) === -1) years.push(parts[0]);
+      months.push(p);
+    });
+    // 年份下拉
+    var yearSel = document.getElementById('biz-year');
+    if (yearSel) {
+      var curY = yearSel.value || '2026';
+      yearSel.innerHTML = years.map(function(y){ return '<option value="'+y+'">'+y+'年</option>'; }).join('');
+      if (years.indexOf(curY) !== -1) yearSel.value = curY;
+    }
+    // 月份下拉
+    var monthSel = document.getElementById('biz-month');
+    if (monthSel) {
+      var curM = monthSel.value || 'all';
+      monthSel.innerHTML = '<option value="all">全部月份</option>' +
+        months.map(function(m){ var p=m.split('-'); return '<option value="'+m+'">'+p[0]+'年'+parseInt(p[1])+'月</option>'; }).join('');
+      monthSel.value = curM;
+    }
+  }
+  // 初始化日期选择器：始终更新min/max，仅在为空时设置默认值
+  var startDateInput = document.getElementById('biz-start-date');
+  var endDateInput = document.getElementById('biz-end-date');
+  var minD = getMinDate(), maxD = getMaxDate();
+  if (startDateInput) {
+    startDateInput.min = minD; startDateInput.max = maxD;
+    if (!startDateInput.value) startDateInput.value = minD;
+  }
+  if (endDateInput) {
+    endDateInput.min = minD; endDateInput.max = maxD;
+    if (!endDateInput.value) endDateInput.value = maxD;
+  }
+  // 同步状态并渲染
+  onBizFilterChange();
+}
+
 function renderBusinessData() {
-  var range = computeDateRange();
+  if (!businessData || !businessData.daily_data) return;
+  // 临时设置 appState.platform 供 aggregate 函数使用
+  appState.platform = bizState.platform;
+  var range = computeBizDateRange();
   var agg = aggregateData(range.start, range.end);
   var profitRate = agg.销售额 > 0 ? (agg.毛利润 / agg.销售额 * 100) : 0;
   var refundRate = agg.GMV > 0 ? (agg.退款 / agg.GMV * 100) : 0;
@@ -2196,74 +2364,60 @@ function renderBusinessData() {
       indicator.style.display = 'flex';
       var typeEl = document.getElementById('bizCompareType');
       if (typeEl) typeEl.textContent = comparePeriod.label + '：' + comparePeriod.start + ' ~ ' + comparePeriod.end;
-    } else {
-      indicator.style.display = 'none';
-    }
+    } else { indicator.style.display = 'none'; }
   }
   setBizKpiCompare('biz-kpi-gmv-compare', agg.GMV, compareData ? compareData.GMV : 0, comparePeriod);
   setBizKpiCompare('biz-kpi-sales-compare', agg.销售额, compareData ? compareData.销售额 : 0, comparePeriod);
   setBizKpiCompare('biz-kpi-profit-compare', agg.毛利润, compareData ? compareData.毛利润 : 0, comparePeriod);
   setBizKpiCompare('biz-kpi-totalcost-compare', agg.总成本, compareData ? compareData.总成本 : 0, comparePeriod);
 
-  // 店铺卡片
+  // 店铺卡片、图表、明细表
   renderBizShopCards(range);
-
-  // 图表
   updateBizTrendChart(range);
   updateBizShopCompareChart(range);
   updateBizCostPieChart(agg);
   updateBizProfitTrendChart(range);
-
-  // 明细表
   renderBizDetailTable(range);
-
-  // 同步筛选器UI
-  var granSel = document.getElementById('biz-granularity');
-  if (granSel) granSel.value = appState.bizGranularity;
-  var cmpSel = document.getElementById('biz-compare-mode');
-  if (cmpSel) cmpSel.value = appState.bizCompareMode;
 }
+
 function renderBizShopCards(range) {
   var el = document.getElementById('bizShopCards');
   if (!el) return;
-  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shopData = aggregateShops(range.start, range.end, bizState.platform);
   var shops = Object.values(shopData).map(function(s) {
-    return {
-      name: s.name,
-      platform: s.platform,
-      GMV: s.GMV,
-      sales: s.sales,
-      profit: s.profit,
-      totalCost: s.totalCost,
-      profitRate: s.sales > 0 ? (s.profit / s.sales * 100) : 0,
-      costRate: s.sales > 0 ? (s.totalCost / s.sales * 100) : 0
-    };
+    return { name:s.name, platform:s.platform, GMV:s.GMV, sales:s.sales, profit:s.profit, totalCost:s.totalCost,
+      profitRate: s.sales > 0 ? (s.profit / s.sales * 100) : 0, costRate: s.sales > 0 ? (s.totalCost / s.sales * 100) : 0 };
   });
   el.innerHTML = shops.map(function(shop) {
-    return '<div class="biz-shop-card">' +
-      '<div class="shop-name">' + shortName(shop.name) +
-        '<span class="platform-tag ' + shop.platform + '">' + (PLATFORM_LABELS[shop.platform] || shop.platform) + '</span>' +
-      '</div>' +
+    return '<div class="biz-shop-card"><div class="shop-name">' + shortName(shop.name) +
+      '<span class="platform-tag ' + shop.platform + '">' + (PLATFORM_LABELS[shop.platform] || shop.platform) + '</span></div>' +
       '<div class="shop-metric"><span class="metric-label">GMV</span><span class="metric-value">' + formatMoney(shop.GMV) + '</span></div>' +
       '<div class="shop-metric"><span class="metric-label">销售额</span><span class="metric-value">' + formatMoney(shop.sales) + '</span></div>' +
       '<div class="shop-metric"><span class="metric-label">毛利润</span><span class="metric-value ' + (shop.profit >= 0 ? 'profit' : 'loss') + '">' + formatMoney(shop.profit) + '<span class="metric-rate ' + (shop.profitRate >= 0 ? 'profit' : 'loss') + '">(' + formatPercent(shop.profitRate) + ')</span></span></div>' +
-      '<div class="shop-metric"><span class="metric-label">总成本</span><span class="metric-value">' + formatMoney(shop.totalCost) + '<span class="metric-rate">(' + formatPercent(shop.costRate) + ')</span></span></div>' +
-    '</div>';
+      '<div class="shop-metric"><span class="metric-label">总成本</span><span class="metric-value">' + formatMoney(shop.totalCost) + '<span class="metric-rate">(' + formatPercent(shop.costRate) + ')</span></span></div></div>';
   }).join('');
 }
+
 function updateBizTrendChart(range) {
   var chart = getChart('biz-trend-chart'); if (!chart) return;
   var dates, gmvData, salesData, profitData;
-  var start = new Date(range.start), end = new Date(range.end);
-  var days = Math.ceil((end - start) / 86400000) + 1;
-  if (days > 45) {
+  // 根据粒度决定图表展示方式
+  if (bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all')) {
+    // 按日展示趋势
+    var daily = aggregateDaily(range.start, range.end);
+    dates = Object.keys(daily).sort();
+    gmvData = dates.map(function(d){ return daily[d].GMV; });
+    salesData = dates.map(function(d){ return daily[d].sales; });
+    profitData = dates.map(function(d){ return daily[d].profit; });
+  } else {
+    // 按月展示趋势（年/全部月份）
     var months = monthsInRange(range.start, range.end);
     if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
     var monthly = aggregateMonthly();
     dates = months;
     gmvData = []; salesData = []; profitData = [];
     months.forEach(function(m){
-      if (appState.platform === 'all') {
+      if (bizState.platform === 'all') {
         var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
         if (ms) { gmvData.push(ms.GMV); salesData.push(ms['销售额']); profitData.push(ms['毛利润']); }
         else { var ma = monthly[m] || {GMV:0,sales:0,profit:0}; gmvData.push(ma.GMV); salesData.push(ma.sales); profitData.push(ma.profit); }
@@ -2272,18 +2426,12 @@ function updateBizTrendChart(range) {
         gmvData.push(ma2.GMV); salesData.push(ma2.sales); profitData.push(ma2.profit);
       }
     });
-  } else {
-    var daily = aggregateDaily(range.start, range.end);
-    dates = Object.keys(daily).sort();
-    gmvData = dates.map(function(d){ return daily[d].GMV; });
-    salesData = dates.map(function(d){ return daily[d].sales; });
-    profitData = dates.map(function(d){ return daily[d].profit; });
   }
   chart.setOption({
     tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
     legend: { data:['GMV','销售额','毛利润'], textStyle:{color:'#606266'}, top:0 },
     grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-    xAxis: { type:'category', data:dates, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    xAxis: { type:'category', data:dates, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:dates.length>10?45:0,fontSize:10}) },
     yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
     series: [
       { name:'GMV', type:'line', smooth:true, data:gmvData, itemStyle:{color:THEME.primary}, showSymbol:false },
@@ -2292,12 +2440,13 @@ function updateBizTrendChart(range) {
     ]
   }, true);
 }
+
 function updateBizShopCompareChart(range) {
   var chart = getChart('biz-shop-compare'); if (!chart) return;
-  var start = new Date(range.start), end = new Date(range.end);
-  var days = Math.ceil((end - start) / 86400000) + 1;
   var xData, shopNames, seriesData;
-  if (days <= 45) {
+  var useDaily = bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all');
+  if (useDaily) {
+    var start = new Date(range.start), end = new Date(range.end);
     var dateShopMap = {};
     Object.keys(businessData.daily_data).forEach(function(month){
       Object.keys(businessData.daily_data[month]).forEach(function(dateStr){
@@ -2305,7 +2454,7 @@ function updateBizShopCompareChart(range) {
         if (date >= start && date <= end) {
           dateShopMap[dateStr] = {};
           businessData.daily_data[month][dateStr].shops.forEach(function(shop){
-            if (appState.platform !== 'all' && shop.platform !== appState.platform) return;
+            if (bizState.platform !== 'all' && shop.platform !== bizState.platform) return;
             dateShopMap[dateStr][shop.name] = shop.sales;
           });
         }
@@ -2327,7 +2476,7 @@ function updateBizShopCompareChart(range) {
       if (!shopMonthly[month]) return;
       Object.keys(businessData.daily_data[month]).forEach(function(dateStr){
         businessData.daily_data[month][dateStr].shops.forEach(function(shop){
-          if (appState.platform !== 'all' && shop.platform !== appState.platform) return;
+          if (bizState.platform !== 'all' && shop.platform !== bizState.platform) return;
           if (!shopMonthly[month][shop.name]) shopMonthly[month][shop.name] = 0;
           shopMonthly[month][shop.name] += shop.sales;
         });
@@ -2344,11 +2493,12 @@ function updateBizShopCompareChart(range) {
     tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
     legend: { data:shopNames.map(shortName), textStyle:{color:'#606266'}, top:0 },
     grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:xData.length>10?45:0,fontSize:10}) },
     yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
     series: seriesData
   }, true);
 }
+
 function updateBizCostPieChart(agg) {
   var chart = getChart('biz-cost-pie'); if (!chart) return;
   var sales = agg.销售额;
@@ -2369,18 +2519,22 @@ function updateBizCostPieChart(agg) {
     series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#fff',borderWidth:2}, label:{show:false}, emphasis:{label:{show:true,fontSize:12,fontWeight:'bold',formatter:function(p){ return p.name + '\n' + costRates[p.name].toFixed(2) + '%'; }}}, data:data }]
   }, true);
 }
+
 function updateBizProfitTrendChart(range) {
   var chart = getChart('biz-profit-trend'); if (!chart) return;
   var xData, profitRates;
-  var start = new Date(range.start), end = new Date(range.end);
-  var days = Math.ceil((end - start) / 86400000) + 1;
-  if (days > 45) {
+  if (bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all')) {
+    var daily = aggregateDaily(range.start, range.end);
+    var dates = Object.keys(daily).sort();
+    xData = dates;
+    profitRates = dates.map(function(d){ var t = daily[d]; return t.sales > 0 ? (t.profit / t.sales * 100) : 0; });
+  } else {
     var months = monthsInRange(range.start, range.end);
     if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
     var monthly = aggregateMonthly();
     xData = months;
     profitRates = months.map(function(m){
-      if (appState.platform === 'all') {
+      if (bizState.platform === 'all') {
         var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
         return ms ? ms.利润率 : 0;
       } else {
@@ -2388,16 +2542,11 @@ function updateBizProfitTrendChart(range) {
         return ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
       }
     });
-  } else {
-    var daily = aggregateDaily(range.start, range.end);
-    var dates = Object.keys(daily).sort();
-    xData = dates;
-    profitRates = dates.map(function(d){ var t = daily[d]; return t.sales > 0 ? (t.profit / t.sales * 100) : 0; });
   }
   chart.setOption({
     tooltip: Object.assign(tooltipAxis(), { formatter:'{b}: {c}%' }),
     grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:xData.length>10?45:0,fontSize:10}) },
     yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:'{value}%'}), splitLine:splitLineStyle() },
     series: [{ type:'line', smooth:true, data:profitRates, itemStyle:{color:THEME.success}, lineStyle:{width:3},
       areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(103,194,58,0.3)'},{offset:1,color:'rgba(103,194,58,0.05)'}]) },
@@ -2405,13 +2554,14 @@ function updateBizProfitTrendChart(range) {
     }]
   }, true);
 }
+
 function renderBizDetailTable(range) {
   var el = document.getElementById('biz-detail-table'); if (!el) return;
   var cols = ['时间','GMV','退款','退款率','销售额','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润','利润率'];
   var rows = [];
   var total = { GMV:0,退款:0,销售额:0,产品成本:0,仓储成本:0,千川消耗:0,佣金:0,人工成本:0,运营成本:0,总成本:0,毛利润:0 };
 
-  if (appState.bizGranularity === 'day') {
+  if (bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all')) {
     // 按日显示
     var daily = aggregateDaily(range.start, range.end);
     var dates = Object.keys(daily).sort();
@@ -2424,10 +2574,10 @@ function renderBizDetailTable(range) {
       total.总成本 += d.totalCost; total.毛利润 += d.profit;
     });
   } else {
-    // 按月显示
+    // 按月/按年显示
     var months = monthsInRange(range.start, range.end);
     if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
-    var monthly = appState.platform === 'all' ? null : aggregateMonthly();
+    var monthly = bizState.platform === 'all' ? null : aggregateMonthly();
     months.forEach(function(m) {
       var r;
       if (monthly) {
