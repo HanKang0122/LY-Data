@@ -769,6 +769,77 @@ body {
 .data-table .num-negative { color: var(--danger); }
 .data-table .num-primary { color: var(--primary); }
 
+/* 经营数据 - 店铺卡片 */
+.biz-shop-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.biz-shop-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.biz-shop-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.biz-shop-card .shop-name {
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 12px;
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+  font-weight: 500;
+}
+.biz-shop-card .platform-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #fff;
+  margin-left: 6px;
+}
+.platform-tag.douyin { background: #ff2d55; }
+.platform-tag.kuaishou { background: #ff6b00; }
+.platform-tag.weixin { background: #07c160; }
+.biz-shop-card .shop-metric {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.biz-shop-card .shop-metric .metric-label { color: var(--muted); }
+.biz-shop-card .shop-metric .metric-value { color: var(--ink); font-weight: 500; }
+.biz-shop-card .shop-metric .metric-value.profit { color: var(--success); }
+.biz-shop-card .shop-metric .metric-value.loss { color: var(--danger); }
+.biz-shop-card .shop-metric .metric-rate { font-size: 11px; margin-left: 4px; }
+
+/* 经营数据 - KPI对比行 */
+.kpi-compare {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-light);
+  font-size: 12px;
+  display: none;
+}
+.kpi-compare.show { display: flex; justify-content: space-between; }
+.kpi-compare .compare-item { display: flex; flex-direction: column; gap: 2px; }
+.kpi-compare .compare-label { color: var(--muted); font-size: 11px; }
+.kpi-compare .compare-value { font-weight: bold; }
+.kpi-compare .compare-value.up { color: var(--success); }
+.kpi-compare .compare-value.down { color: var(--danger); }
+
+/* 经营数据 - 对比指示器 */
+.biz-compare-indicator {
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* 实时预警列表 */
 .alert-list { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
 .alert-list .alert-item {
@@ -820,14 +891,14 @@ body {
     <div class="login-form">
       <div class="form-group">
         <label>账号</label>
-        <input type="text" id="loginUser" placeholder="请输入账号" value="admin">
+        <input type="text" id="loginUser" placeholder="请输入账号" value="韩康">
       </div>
       <div class="form-group">
         <label>密码</label>
-        <input type="password" id="loginPass" placeholder="请输入密码" value="123456">
+        <input type="password" id="loginPass" placeholder="请输入密码" value="shft20240801">
       </div>
       <button class="login-btn" onclick="doLogin()">登 录</button>
-      <p class="login-hint">演示账号: admin / 123456 (管理员) · viewer / 123456 (只读)</p>
+      <p class="login-hint">管理员账号: 韩康 / shft20240801 · 只读账号: viewer / 123456</p>
     </div>
   </div>
 </div>
@@ -1000,17 +1071,63 @@ body {
             <button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button>
           </div>
         </div>
-        <div class="tab-bar">
-          <div class="tab-item active">经营总览</div>
-          <div class="tab-item">店铺对比</div>
-          <div class="tab-item">利润分析</div>
+        <!-- 经营数据筛选栏 -->
+        <div class="filter-bar">
+          <div class="filter-item">
+            <label>时间粒度</label>
+            <select id="biz-granularity" onchange="onBizGranularityChange()">
+              <option value="month">按月查看</option>
+              <option value="day">按日查看</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label>对比模式</label>
+            <select id="biz-compare-mode" onchange="onBizCompareChange()">
+              <option value="none">无对比</option>
+              <option value="mom">环比（上一周期）</option>
+              <option value="yoy">同比（去年同期）</option>
+            </select>
+          </div>
+          <div class="biz-compare-indicator" id="bizCompareIndicator" style="display:none;">
+            <span>📊 对比模式已开启</span>
+            <span id="bizCompareType"></span>
+          </div>
         </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">GMV（商品交易总额）</div><div class="kpi-value" id="biz-kpi-gmv">--</div><div class="kpi-sub" id="biz-kpi-gmv-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">销售额</div><div class="kpi-value" id="biz-kpi-sales">--</div><div class="kpi-sub" id="biz-kpi-sales-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">毛利润</div><div class="kpi-value" id="biz-kpi-profit">--</div><div class="kpi-sub" id="biz-kpi-profit-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">利润率</div><div class="kpi-value" id="biz-kpi-profitrate">--</div><div class="kpi-sub" id="biz-kpi-profitrate-sub">数据加载中…</div></div>
+        <div class="tab-bar" id="bizTabBar">
+          <div class="tab-item active" data-biz-tab="overview">经营总览</div>
+          <div class="tab-item" data-biz-tab="shops">店铺对比</div>
+          <div class="tab-item" data-biz-tab="profit">利润分析</div>
         </div>
+        <!-- KPI卡片 -->
+        <div class="kpi-grid" id="bizKpiGrid">
+          <div class="kpi-card">
+            <div class="kpi-label">GMV（商品交易总额）</div>
+            <div class="kpi-value" id="biz-kpi-gmv">--</div>
+            <div class="kpi-sub" id="biz-kpi-gmv-sub">数据加载中…</div>
+            <div class="kpi-compare" id="biz-kpi-gmv-compare"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">销售额</div>
+            <div class="kpi-value" id="biz-kpi-sales">--</div>
+            <div class="kpi-sub" id="biz-kpi-sales-sub">数据加载中…</div>
+            <div class="kpi-compare" id="biz-kpi-sales-compare"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">毛利润</div>
+            <div class="kpi-value" id="biz-kpi-profit">--</div>
+            <div class="kpi-sub" id="biz-kpi-profit-sub">数据加载中…</div>
+            <div class="kpi-compare" id="biz-kpi-profit-compare"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">总成本</div>
+            <div class="kpi-value" id="biz-kpi-totalcost">--</div>
+            <div class="kpi-sub" id="biz-kpi-totalcost-sub">数据加载中…</div>
+            <div class="kpi-compare" id="biz-kpi-totalcost-compare"></div>
+          </div>
+        </div>
+        <!-- 店铺卡片 -->
+        <div class="biz-shop-section" id="bizShopCards"></div>
+        <!-- 图表区域 -->
         <div class="chart-grid cols-2">
           <div class="chart-card">
             <div class="card-title">销售趋势</div>
@@ -1031,6 +1148,7 @@ body {
             <div id="biz-profit-trend" style="width:100%;height:300px;"></div>
           </div>
         </div>
+        <!-- 数据明细表 -->
         <div class="table-slot">
           <div class="table-header"><span class="table-title">经营数据明细</span><button class="filter-bar btn" onclick="exportCurrentTable()">导出Excel</button></div>
           <div class="data-table-wrap" id="biz-detail-table"></div>
@@ -1370,7 +1488,7 @@ body {
 
 <script>
 // ==================== 全局状态 ====================
-var currentUser = { name: '管理员', role: 'admin', roleText: '超级管理员' };
+var currentUser = { name: '韩康', role: 'admin', roleText: '超级管理员' };
 var autoRefreshTimer = null;
 
 // ==================== 登录/登出 ====================
@@ -1379,10 +1497,13 @@ function doLogin() {
   var pass = document.getElementById('loginPass').value;
   if (!user || !pass) { alert('请输入账号和密码'); return; }
 
-  if (user === 'viewer') {
+  if (user === '韩康' && pass === 'shft20240801') {
+    currentUser = { name: '韩康', role: 'admin', roleText: '超级管理员' };
+  } else if (user === 'viewer' && pass === '123456') {
     currentUser = { name: '访客', role: 'viewer', roleText: '只读用户' };
   } else {
-    currentUser = { name: '管理员', role: 'admin', roleText: '超级管理员' };
+    alert('账号或密码错误，请重新输入');
+    return;
   }
 
   document.getElementById('loginPage').classList.add('hidden');
@@ -1497,6 +1618,45 @@ document.querySelectorAll('.tab-bar').forEach(function(bar) {
     tab.addEventListener('click', function() {
       bar.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
       tab.classList.add('active');
+      // 经营数据Tab切换
+      var bizTab = tab.getAttribute('data-biz-tab');
+      if (bizTab) {
+        appState.bizTab = bizTab;
+        var shopCards = document.getElementById('bizShopCards');
+        var kpiGrid = document.getElementById('bizKpiGrid');
+        var trendChart = document.getElementById('biz-trend-chart').closest('.chart-card');
+        var shopCompareChart = document.getElementById('biz-shop-compare').closest('.chart-card');
+        var costPieChart = document.getElementById('biz-cost-pie').closest('.chart-card');
+        var profitTrendChart = document.getElementById('biz-profit-trend').closest('.chart-card');
+        if (bizTab === 'overview') {
+          if (kpiGrid) kpiGrid.style.display = '';
+          if (shopCards) shopCards.style.display = '';
+          if (trendChart) trendChart.parentElement.style.display = '';
+          if (shopCompareChart) shopCompareChart.parentElement.style.display = '';
+          if (costPieChart) costPieChart.parentElement.style.display = '';
+          if (profitTrendChart) profitTrendChart.parentElement.style.display = '';
+        } else if (bizTab === 'shops') {
+          if (kpiGrid) kpiGrid.style.display = '';
+          if (shopCards) shopCards.style.display = '';
+          if (trendChart) trendChart.parentElement.style.display = 'none';
+          if (shopCompareChart) shopCompareChart.parentElement.style.display = '';
+          if (costPieChart) costPieChart.parentElement.style.display = 'none';
+          if (profitTrendChart) profitTrendChart.parentElement.style.display = 'none';
+        } else if (bizTab === 'profit') {
+          if (kpiGrid) kpiGrid.style.display = '';
+          if (shopCards) shopCards.style.display = 'none';
+          if (trendChart) trendChart.parentElement.style.display = '';
+          if (shopCompareChart) shopCompareChart.parentElement.style.display = 'none';
+          if (costPieChart) costPieChart.parentElement.style.display = '';
+          if (profitTrendChart) profitTrendChart.parentElement.style.display = '';
+        }
+        setTimeout(function() {
+          Object.keys(chartInstances).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
+          });
+        }, 50);
+      }
     });
   });
 });
@@ -1574,7 +1734,10 @@ var appState = {
   currentRoute: 'home',
   homeTrendGran: 'month',
   customStart: '',
-  customEnd: ''
+  customEnd: '',
+  bizGranularity: 'month',
+  bizCompareMode: 'none',
+  bizTab: 'overview'
 };
 
 // 主题色（浅色）
@@ -1963,22 +2126,130 @@ function renderHomeAlertList() {
   }).join('');
 }
 
-// ==================== 经营数据（与 index.html 一致） ====================
+// ==================== 经营数据（完整版，含店铺卡片/对比模式/时间粒度） ====================
+function onBizGranularityChange() {
+  var sel = document.getElementById('biz-granularity');
+  if (sel) appState.bizGranularity = sel.value;
+  renderBusinessData();
+}
+function onBizCompareChange() {
+  var sel = document.getElementById('biz-compare-mode');
+  if (sel) appState.bizCompareMode = sel.value;
+  renderBusinessData();
+}
+function getBizComparePeriod() {
+  if (appState.bizCompareMode === 'none') return null;
+  var range = computeDateRange();
+  var start = new Date(range.start), end = new Date(range.end);
+  var days = Math.ceil((end - start) / 86400000) + 1;
+  if (appState.bizCompareMode === 'mom') {
+    var compareEnd = new Date(start); compareEnd.setDate(compareEnd.getDate() - 1);
+    var compareStart = new Date(compareEnd); compareStart.setDate(compareStart.getDate() - days + 1);
+    return { start: toDateStr(compareStart), end: toDateStr(compareEnd), label: '环比' };
+  } else if (appState.bizCompareMode === 'yoy') {
+    var compareStart2 = new Date(start); compareStart2.setFullYear(compareStart2.getFullYear() - 1);
+    var compareEnd2 = new Date(end); compareEnd2.setFullYear(compareEnd2.getFullYear() - 1);
+    return { start: toDateStr(compareStart2), end: toDateStr(compareEnd2), label: '同比' };
+  }
+  return null;
+}
+function calcChange(current, previous) {
+  if (previous === 0) return { value: 0, text: '-', direction: 'neutral' };
+  var change = ((current - previous) / Math.abs(previous)) * 100;
+  return { value: change, text: (change >= 0 ? '+' : '') + change.toFixed(1) + '%', direction: change >= 0 ? 'up' : 'down' };
+}
+function setBizKpiCompare(id, currentValue, compareValue, comparePeriod) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (!comparePeriod) { el.classList.remove('show'); el.innerHTML = ''; return; }
+  var changeInfo = calcChange(currentValue, compareValue);
+  el.classList.add('show');
+  el.innerHTML =
+    '<div class="compare-item">' +
+      '<span class="compare-label">' + comparePeriod.label + '</span>' +
+      '<span class="compare-value ' + changeInfo.direction + '">' + changeInfo.text + '</span>' +
+    '</div>' +
+    '<div class="compare-item">' +
+      '<span class="compare-label">上期值</span>' +
+      '<span class="compare-value">' + formatMoney(compareValue) + '</span>' +
+    '</div>';
+}
 function renderBusinessData() {
   var range = computeDateRange();
   var agg = aggregateData(range.start, range.end);
   var profitRate = agg.销售额 > 0 ? (agg.毛利润 / agg.销售额 * 100) : 0;
   var refundRate = agg.GMV > 0 ? (agg.退款 / agg.GMV * 100) : 0;
   var costRate = agg.销售额 > 0 ? (agg.总成本 / agg.销售额 * 100) : 0;
+
+  // KPI卡片
   setKpi('biz-kpi-gmv', formatMoney(agg.GMV), 'biz-kpi-gmv-sub', '退款率 ' + formatPercent(refundRate));
   setKpi('biz-kpi-sales', formatMoney(agg.销售额), 'biz-kpi-sales-sub', '退款 ' + formatMoney(agg.退款));
-  setKpi('biz-kpi-profit', formatMoney(agg.毛利润), 'biz-kpi-profit-sub', agg.毛利润 >= 0 ? '盈利' : '亏损');
-  setKpi('biz-kpi-profitrate', formatPercent(profitRate), 'biz-kpi-profitrate-sub', '成本率 ' + formatPercent(costRate));
+  setKpi('biz-kpi-profit', formatMoney(agg.毛利润), 'biz-kpi-profit-sub', '利润率 ' + formatPercent(profitRate));
+  setKpi('biz-kpi-totalcost', formatMoney(agg.总成本), 'biz-kpi-totalcost-sub', '成本率 ' + formatPercent(costRate));
+
+  // 对比模式
+  var comparePeriod = getBizComparePeriod();
+  var compareData = comparePeriod ? aggregateData(comparePeriod.start, comparePeriod.end) : null;
+  var indicator = document.getElementById('bizCompareIndicator');
+  if (indicator) {
+    if (comparePeriod) {
+      indicator.style.display = 'flex';
+      var typeEl = document.getElementById('bizCompareType');
+      if (typeEl) typeEl.textContent = comparePeriod.label + '：' + comparePeriod.start + ' ~ ' + comparePeriod.end;
+    } else {
+      indicator.style.display = 'none';
+    }
+  }
+  setBizKpiCompare('biz-kpi-gmv-compare', agg.GMV, compareData ? compareData.GMV : 0, comparePeriod);
+  setBizKpiCompare('biz-kpi-sales-compare', agg.销售额, compareData ? compareData.销售额 : 0, comparePeriod);
+  setBizKpiCompare('biz-kpi-profit-compare', agg.毛利润, compareData ? compareData.毛利润 : 0, comparePeriod);
+  setBizKpiCompare('biz-kpi-totalcost-compare', agg.总成本, compareData ? compareData.总成本 : 0, comparePeriod);
+
+  // 店铺卡片
+  renderBizShopCards(range);
+
+  // 图表
   updateBizTrendChart(range);
   updateBizShopCompareChart(range);
   updateBizCostPieChart(agg);
   updateBizProfitTrendChart(range);
+
+  // 明细表
   renderBizDetailTable(range);
+
+  // 同步筛选器UI
+  var granSel = document.getElementById('biz-granularity');
+  if (granSel) granSel.value = appState.bizGranularity;
+  var cmpSel = document.getElementById('biz-compare-mode');
+  if (cmpSel) cmpSel.value = appState.bizCompareMode;
+}
+function renderBizShopCards(range) {
+  var el = document.getElementById('bizShopCards');
+  if (!el) return;
+  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shops = Object.values(shopData).map(function(s) {
+    return {
+      name: s.name,
+      platform: s.platform,
+      GMV: s.GMV,
+      sales: s.sales,
+      profit: s.profit,
+      totalCost: s.totalCost,
+      profitRate: s.sales > 0 ? (s.profit / s.sales * 100) : 0,
+      costRate: s.sales > 0 ? (s.totalCost / s.sales * 100) : 0
+    };
+  });
+  el.innerHTML = shops.map(function(shop) {
+    return '<div class="biz-shop-card">' +
+      '<div class="shop-name">' + shortName(shop.name) +
+        '<span class="platform-tag ' + shop.platform + '">' + (PLATFORM_LABELS[shop.platform] || shop.platform) + '</span>' +
+      '</div>' +
+      '<div class="shop-metric"><span class="metric-label">GMV</span><span class="metric-value">' + formatMoney(shop.GMV) + '</span></div>' +
+      '<div class="shop-metric"><span class="metric-label">销售额</span><span class="metric-value">' + formatMoney(shop.sales) + '</span></div>' +
+      '<div class="shop-metric"><span class="metric-label">毛利润</span><span class="metric-value ' + (shop.profit >= 0 ? 'profit' : 'loss') + '">' + formatMoney(shop.profit) + '<span class="metric-rate ' + (shop.profitRate >= 0 ? 'profit' : 'loss') + '">(' + formatPercent(shop.profitRate) + ')</span></span></div>' +
+      '<div class="shop-metric"><span class="metric-label">总成本</span><span class="metric-value">' + formatMoney(shop.totalCost) + '<span class="metric-rate">(' + formatPercent(shop.costRate) + ')</span></span></div>' +
+    '</div>';
+  }).join('');
 }
 function updateBizTrendChart(range) {
   var chart = getChart('biz-trend-chart'); if (!chart) return;
@@ -2136,44 +2407,61 @@ function updateBizProfitTrendChart(range) {
 }
 function renderBizDetailTable(range) {
   var el = document.getElementById('biz-detail-table'); if (!el) return;
-  var months = monthsInRange(range.start, range.end);
-  if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
-  var monthly = appState.platform === 'all' ? null : aggregateMonthly();
-  var cols = ['月份','GMV','销售额','退款','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润','退款率','利润率'];
+  var cols = ['时间','GMV','退款','退款率','销售额','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润','利润率'];
   var rows = [];
   var total = { GMV:0,退款:0,销售额:0,产品成本:0,仓储成本:0,千川消耗:0,佣金:0,人工成本:0,运营成本:0,总成本:0,毛利润:0 };
-  months.forEach(function(m){
-    var r;
-    if (monthly) {
-      var ma = monthly[m] || emptyTot();
-      r = { 月份:m, GMV:ma.GMV, 销售额:ma.sales, 退款:ma.refund, 产品成本:ma.productCost, 仓储成本:ma.storageCost, 千川消耗:ma.qianchuan, 佣金:ma.commission, 人工成本:ma.labor, 运营成本:ma.operating, 总成本:ma.totalCost, 毛利润:ma.profit };
-    } else {
-      var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
-      if (!ms) return;
-      r = { 月份:m, GMV:ms.GMV, 销售额:ms['销售额'], 退款:ms['退款'], 产品成本:ms['产品成本'], 仓储成本:ms['仓储成本'], 千川消耗:ms['千川消耗'], 佣金:ms['佣金'], 人工成本:ms['人工成本'], 运营成本:ms['运营成本'], 总成本:ms['总成本'], 毛利润:ms['毛利润'] };
-    }
-    rows.push(r);
-    ['GMV','退款','销售额','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润'].forEach(function(k){
-      total[k] += r[k];
+
+  if (appState.bizGranularity === 'day') {
+    // 按日显示
+    var daily = aggregateDaily(range.start, range.end);
+    var dates = Object.keys(daily).sort();
+    dates.forEach(function(dateStr) {
+      var d = daily[dateStr];
+      rows.push({ 时间:dateStr, GMV:d.GMV, 退款:d.refund, 销售额:d.sales, 产品成本:d.productCost, 仓储成本:d.storageCost, 千川消耗:d.qianchuan, 佣金:d.commission, 人工成本:d.labor, 运营成本:d.operating, 总成本:d.totalCost, 毛利润:d.profit });
+      total.GMV += d.GMV; total.退款 += d.refund; total.销售额 += d.sales;
+      total.产品成本 += d.productCost; total.仓储成本 += d.storageCost; total.千川消耗 += d.qianchuan;
+      total.佣金 += d.commission; total.人工成本 += d.labor; total.运营成本 += d.operating;
+      total.总成本 += d.totalCost; total.毛利润 += d.profit;
     });
-  });
-  var cellRows = rows.map(function(r){
+  } else {
+    // 按月显示
+    var months = monthsInRange(range.start, range.end);
+    if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+    var monthly = appState.platform === 'all' ? null : aggregateMonthly();
+    months.forEach(function(m) {
+      var r;
+      if (monthly) {
+        var ma = monthly[m] || emptyTot();
+        r = { 时间:m, GMV:ma.GMV, 退款:ma.refund, 销售额:ma.sales, 产品成本:ma.productCost, 仓储成本:ma.storageCost, 千川消耗:ma.qianchuan, 佣金:ma.commission, 人工成本:ma.labor, 运营成本:ma.operating, 总成本:ma.totalCost, 毛利润:ma.profit };
+      } else {
+        var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
+        if (!ms) return;
+        r = { 时间:m, GMV:ms.GMV, 退款:ms['退款'], 销售额:ms['销售额'], 产品成本:ms['产品成本'], 仓储成本:ms['仓储成本'], 千川消耗:ms['千川消耗'], 佣金:ms['佣金'], 人工成本:ms['人工成本'], 运营成本:ms['运营成本'], 总成本:ms['总成本'], 毛利润:ms['毛利润'] };
+      }
+      rows.push(r);
+      total.GMV += r.GMV; total.退款 += r.退款; total.销售额 += r.销售额;
+      total.产品成本 += r.产品成本; total.仓储成本 += r.仓储成本; total.千川消耗 += r.千川消耗;
+      total.佣金 += r.佣金; total.人工成本 += r.人工成本; total.运营成本 += r.运营成本;
+      total.总成本 += r.总成本; total.毛利润 += r.毛利润;
+    });
+  }
+
+  var cellRows = rows.map(function(r) {
     var rr = r.GMV > 0 ? (r.退款 / r.GMV * 100) : 0;
     var pr = r.销售额 > 0 ? (r.毛利润 / r.销售额 * 100) : 0;
-    var arr = [{v:r.月份},{v:formatMoney(r.GMV)},{v:formatMoney(r.销售额)},{v:formatMoney(r.退款)},
-      {v:formatMoney(r.产品成本)},{v:formatMoney(r.仓储成本)},{v:formatMoney(r.千川消耗)},{v:formatMoney(r.佣金)},
-      {v:formatMoney(r.人工成本)},{v:formatMoney(r.运营成本)},{v:formatMoney(r.总成本)},
+    return [{v:r.时间},{v:formatMoney(r.GMV)},{v:formatMoney(r.退款)},{v:formatPercent(rr)},
+      {v:formatMoney(r.销售额)},{v:formatMoney(r.产品成本)},{v:formatMoney(r.仓储成本)},{v:formatMoney(r.千川消耗)},
+      {v:formatMoney(r.佣金)},{v:formatMoney(r.人工成本)},{v:formatMoney(r.运营成本)},{v:formatMoney(r.总成本)},
       {v:formatMoney(r.毛利润), cls:r.毛利润>=0?'num-positive':'num-negative'},
-      {v:formatPercent(rr)}, {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}];
-    return arr;
+      {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}];
   });
   var trr = total.GMV > 0 ? (total.退款 / total.GMV * 100) : 0;
   var tpr = total.销售额 > 0 ? (total.毛利润 / total.销售额 * 100) : 0;
-  var foot = [{v:'合计'},{v:formatMoney(total.GMV)},{v:formatMoney(total.销售额)},{v:formatMoney(total.退款)},
-    {v:formatMoney(total.产品成本)},{v:formatMoney(total.仓储成本)},{v:formatMoney(total.千川消耗)},{v:formatMoney(total.佣金)},
-    {v:formatMoney(total.人工成本)},{v:formatMoney(total.运营成本)},{v:formatMoney(total.总成本)},
+  var foot = [{v:'合计'},{v:formatMoney(total.GMV)},{v:formatMoney(total.退款)},{v:formatPercent(trr)},
+    {v:formatMoney(total.销售额)},{v:formatMoney(total.产品成本)},{v:formatMoney(total.仓储成本)},{v:formatMoney(total.千川消耗)},
+    {v:formatMoney(total.佣金)},{v:formatMoney(total.人工成本)},{v:formatMoney(total.运营成本)},{v:formatMoney(total.总成本)},
     {v:formatMoney(total.毛利润), cls:total.毛利润>=0?'num-positive':'num-negative'},
-    {v:formatPercent(trr)}, {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'}];
+    {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'}];
   el.innerHTML = buildTable(cols, cellRows, foot);
 }
 
