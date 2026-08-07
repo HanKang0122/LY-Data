@@ -733,6 +733,66 @@ body {
 .permission-denied .pd-icon { font-size: 48px; margin-bottom: 12px; }
 .permission-denied .pd-text { font-size: 15px; color: var(--muted); }
 
+/* 数据表格 */
+.data-table-wrap { overflow-x: auto; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  background: #f5f7fa;
+  color: var(--ink-secondary);
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+.data-table th:first-child, .data-table td:first-child { text-align: left; }
+.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-light);
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.data-table tr:hover td { background: #f9fafc; }
+.data-table tfoot td {
+  background: #f5f7fa;
+  font-weight: 700;
+  border-top: 2px solid var(--border);
+}
+.data-table .num-positive { color: var(--success); }
+.data-table .num-negative { color: var(--danger); }
+.data-table .num-primary { color: var(--primary); }
+
+/* 实时预警列表 */
+.alert-list { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
+.alert-list .alert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: #fafafa;
+  font-size: 13px;
+}
+.alert-list .alert-item .alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.alert-list .alert-item .alert-dot.red { background: var(--danger); }
+.alert-list .alert-item .alert-dot.orange { background: var(--warning); }
+.alert-list .alert-item .alert-dot.blue { background: var(--primary); }
+.alert-list .alert-item .alert-tag {
+  display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; flex-shrink: 0;
+}
+.alert-list .alert-item .alert-tag.red { background: #fef0f0; color: var(--danger); }
+.alert-list .alert-item .alert-tag.orange { background: #fdf6ec; color: var(--warning); }
+.alert-list .alert-item .alert-text { flex: 1; color: var(--ink-secondary); }
+.alert-list .alert-item .alert-time { font-size: 11px; color: var(--muted); }
+
 /* 响应式 */
 @media (max-width: 1200px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -899,33 +959,33 @@ body {
           <div class="page-title">经营数据总驾驶舱</div>
           <div class="page-actions">
             <span class="permission-tag admin">管理员视图</span>
-            <button class="filter-bar btn primary">🔄 刷新数据</button>
+            <button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button>
           </div>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">全域GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
-          <div class="kpi-card"><div class="kpi-label">全域销售额</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
-          <div class="kpi-card"><div class="kpi-label">全域毛利润</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
-          <div class="kpi-card"><div class="kpi-label">全域利润率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域GMV</div><div class="kpi-value" id="home-kpi-gmv">--</div><div class="kpi-sub" id="home-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域销售额</div><div class="kpi-value" id="home-kpi-sales">--</div><div class="kpi-sub" id="home-kpi-sales-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域毛利润</div><div class="kpi-value" id="home-kpi-profit">--</div><div class="kpi-sub" id="home-kpi-profit-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域利润率</div><div class="kpi-value" id="home-kpi-profitrate">--</div><div class="kpi-sub" id="home-kpi-profitrate-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
           <div class="chart-card">
-            <div class="card-title">GMV趋势 <span class="card-actions"><button class="filter-bar btn">日</button><button class="filter-bar btn">周</button><button class="filter-bar btn">月</button></span></div>
-            <div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：全域GMV趋势折线图</span></div>
+            <div class="card-title">GMV趋势 <span class="card-actions"><button class="filter-bar btn" onclick="setHomeTrendGran('month')">月</button><button class="filter-bar btn" onclick="setHomeTrendGran('day')">日</button></span></div>
+            <div id="home-gmv-trend" style="width:100%;height:300px;"></div>
           </div>
           <div class="chart-card">
             <div class="card-title">平台GMV占比</div>
-            <div class="data-slot"><span class="slot-icon">🥧</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：抖音/快手/视频号占比饼图</span></div>
+            <div id="home-platform-pie" style="width:100%;height:300px;"></div>
           </div>
         </div>
         <div class="chart-grid cols-2-1">
           <div class="chart-card">
             <div class="card-title">各店铺GMV对比</div>
-            <div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：店铺GMV柱状图</span></div>
+            <div id="home-shop-compare" style="width:100%;height:300px;"></div>
           </div>
           <div class="chart-card">
             <div class="card-title">实时预警</div>
-            <div class="data-slot"><span class="slot-icon">🚨</span><span class="slot-label">数据插槽</span><span class="slot-hint">后续接入：实时预警列表</span></div>
+            <div class="alert-list" id="home-alert-list"></div>
           </div>
         </div>
       </div>
@@ -936,8 +996,8 @@ body {
         <div class="page-header">
           <div class="page-title">经营数据总览</div>
           <div class="page-actions">
-            <button class="filter-bar btn">📊 导出</button>
-            <button class="filter-bar btn primary">🔄 刷新数据</button>
+            <button class="filter-bar btn" onclick="exportCurrentTable()">📊 导出</button>
+            <button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button>
           </div>
         </div>
         <div class="tab-bar">
@@ -946,110 +1006,116 @@ body {
           <div class="tab-item">利润分析</div>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">GMV（商品交易总额）</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
-          <div class="kpi-card"><div class="kpi-label">销售额</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
-          <div class="kpi-card"><div class="kpi-label">毛利润</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
-          <div class="kpi-card"><div class="kpi-label">利润率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
+          <div class="kpi-card"><div class="kpi-label">GMV（商品交易总额）</div><div class="kpi-value" id="biz-kpi-gmv">--</div><div class="kpi-sub" id="biz-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">销售额</div><div class="kpi-value" id="biz-kpi-sales">--</div><div class="kpi-sub" id="biz-kpi-sales-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">毛利润</div><div class="kpi-value" id="biz-kpi-profit">--</div><div class="kpi-sub" id="biz-kpi-profit-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">利润率</div><div class="kpi-value" id="biz-kpi-profitrate">--</div><div class="kpi-sub" id="biz-kpi-profitrate-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
           <div class="chart-card">
             <div class="card-title">销售趋势</div>
-            <div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：销售趋势折线图（保持现有数据内容）</span></div>
+            <div id="biz-trend-chart" style="width:100%;height:300px;"></div>
           </div>
           <div class="chart-card">
             <div class="card-title">店铺销售额对比</div>
-            <div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：店铺对比柱状图（保持现有数据内容）</span></div>
+            <div id="biz-shop-compare" style="width:100%;height:300px;"></div>
           </div>
         </div>
         <div class="chart-grid cols-2">
           <div class="chart-card">
             <div class="card-title">成本构成分析</div>
-            <div class="data-slot"><span class="slot-icon">🥧</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：成本构成饼图（保持现有数据内容）</span></div>
+            <div id="biz-cost-pie" style="width:100%;height:300px;"></div>
           </div>
           <div class="chart-card">
             <div class="card-title">利润率趋势</div>
-            <div class="data-slot"><span class="slot-icon">📉</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：利润率趋势折线图（保持现有数据内容）</span></div>
+            <div id="biz-profit-trend" style="width:100%;height:300px;"></div>
           </div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">经营数据明细</span><button class="filter-bar btn">导出Excel</button></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入经营数据明细表格（保持现有内容完全不变）</div>
+          <div class="table-header"><span class="table-title">经营数据明细</span><button class="filter-bar btn" onclick="exportCurrentTable()">导出Excel</button></div>
+          <div class="data-table-wrap" id="biz-detail-table"></div>
         </div>
       </div>
 
       <!-- ====== 运营数据 ====== -->
       <div class="page" id="page-operation-data">
         <div class="breadcrumb"><span>主要功能</span> / <span class="current">运营数据</span></div>
-        <div class="page-header"><div class="page-title">运营数据分析</div></div>
+        <div class="page-header"><div class="page-title">运营数据分析</div>
+          <div class="page-actions"><button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button></div>
+        </div>
         <div class="filter-bar">
-          <div class="filter-item"><label>店铺</label><select><option>全部店铺</option><option>抖音-鲨鱼菲特甄选食品专卖店</option><option>快手-鲨鱼菲特方便食品旗舰店</option><option>微信-鲨鱼菲特甄选零食店</option></select></div>
-          <div class="filter-item"><label>指标</label><select><option>全部指标</option><option>访客数</option><option>转化率</option><option>客单价</option></select></div>
-          <button class="btn primary">查询</button>
+          <div class="filter-item"><label>店铺</label><select id="op-shop-filter"><option value="all">全部店铺</option><option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特甄选食品专卖店</option><option value="抖音-小轻担食品旗舰店">抖音-小轻担食品旗舰店</option><option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特方便食品旗舰店</option><option value="微信-鲨鱼菲特甄选零食店">微信-鲨鱼菲特甄选零食店</option></select></div>
+          <div class="filter-item"><label>指标</label><select><option>全部指标</option><option>GMV</option><option>千川消耗</option><option>佣金</option><option>ROI</option></select></div>
+          <button class="btn primary" onclick="renderOperationData()">查询</button>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">总访客数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">总曝光量</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">平均转化率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">平均客单价</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">总GMV</div><div class="kpi-value" id="op-kpi-gmv">--</div><div class="kpi-sub" id="op-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">千川消耗</div><div class="kpi-value" id="op-kpi-qc">--</div><div class="kpi-sub" id="op-kpi-qc-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">佣金支出</div><div class="kpi-value" id="op-kpi-commission">--</div><div class="kpi-sub" id="op-kpi-commission-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">投放ROI</div><div class="kpi-value" id="op-kpi-roi">--</div><div class="kpi-sub" id="op-kpi-roi-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">流量趋势</div><div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：访客/曝光趋势</span></div></div>
-          <div class="chart-card"><div class="card-title">转化漏斗</div><div class="data-slot"><span class="slot-icon">🔽</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：曝光→点击→加购→成交漏斗</span></div></div>
+          <div class="chart-card"><div class="card-title">GMV与千川消耗双轴趋势</div><div id="op-gmv-qc-trend" style="width:100%;height:300px;"></div></div>
+          <div class="chart-card"><div class="card-title">各店铺千川消耗对比</div><div id="op-qc-compare" style="width:100%;height:300px;"></div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">运营数据明细</span></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入运营指标明细表</div>
+          <div class="table-header"><span class="table-title">运营数据明细（月度GMV/千川/佣金/ROI）</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
+          <div class="data-table-wrap" id="op-detail-table"></div>
         </div>
       </div>
 
       <!-- ====== 商品数据 ====== -->
       <div class="page" id="page-product-data">
         <div class="breadcrumb"><span>主要功能</span> / <span class="current">商品数据</span></div>
-        <div class="page-header"><div class="page-title">商品数据分析</div></div>
+        <div class="page-header"><div class="page-title">商品数据分析</div>
+          <div class="page-actions"><button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button></div>
+        </div>
         <div class="filter-bar">
-          <div class="filter-item"><label>平台</label><select><option>全平台</option><option>抖音</option><option>快手</option><option>视频号</option></select></div>
+          <div class="filter-item"><label>平台</label><select id="prod-platform-filter"><option value="all">全平台</option><option value="douyin">抖音</option><option value="kuaishou">快手</option><option value="weixin">视频号</option></select></div>
           <div class="filter-item"><label>商品分类</label><select><option>全部分类</option><option>代餐</option><option>零食</option><option>饮品</option></select></div>
           <div class="filter-item"><label>排序</label><select><option>销量降序</option><option>GMV降序</option><option>利润率降序</option></select></div>
-          <button class="btn primary">查询</button>
+          <button class="btn primary" onclick="renderProductData()">查询</button>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">在售商品数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">爆款商品数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">商品GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">TOP商品销量</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域GMV</div><div class="kpi-value" id="prod-kpi-gmv">--</div><div class="kpi-sub" id="prod-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-value" id="prod-kpi-sales">--</div><div class="kpi-sub" id="prod-kpi-sales-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">总毛利润</div><div class="kpi-value" id="prod-kpi-profit">--</div><div class="kpi-sub" id="prod-kpi-profit-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">平均利润率</div><div class="kpi-value" id="prod-kpi-profitrate">--</div><div class="kpi-sub" id="prod-kpi-profitrate-sub">数据加载中…</div></div>
         </div>
-        <div class="chart-grid cols-2-1">
-          <div class="chart-card"><div class="card-title">商品销量TOP20</div><div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：商品销量排行</span></div></div>
-          <div class="chart-card"><div class="card-title">分类GMV占比</div><div class="data-slot"><span class="slot-icon">🥧</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：分类占比</span></div></div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card"><div class="card-title">月度GMV趋势</div><div id="prod-gmv-trend" style="width:100%;height:300px;"></div></div>
+          <div class="chart-card"><div class="card-title">各店铺GMV占比</div><div id="prod-shop-pie" style="width:100%;height:300px;"></div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">商品明细</span><button class="btn">导出</button></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入商品数据明细表</div>
+          <div class="table-header"><span class="table-title">月度经营数据汇总</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
+          <div class="data-table-wrap" id="prod-monthly-table"></div>
         </div>
       </div>
 
       <!-- ====== 商务数据 ====== -->
       <div class="page" id="page-commerce-data">
         <div class="breadcrumb"><span>主要功能</span> / <span class="current">商务数据</span></div>
-        <div class="page-header"><div class="page-title">商务数据分析</div></div>
+        <div class="page-header"><div class="page-title">商务数据分析</div>
+          <div class="page-actions"><button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button></div>
+        </div>
         <div class="tab-bar">
           <div class="tab-item active">达人合作</div>
           <div class="tab-item">佣金结算</div>
           <div class="tab-item">合同管理</div>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">合作达人数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">佣金总额</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">达人带货GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">平均ROI</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">总佣金</div><div class="kpi-value" id="comm-kpi-commission">--</div><div class="kpi-sub" id="comm-kpi-commission-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">总GMV</div><div class="kpi-value" id="comm-kpi-gmv">--</div><div class="kpi-sub" id="comm-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">佣金率</div><div class="kpi-value" id="comm-kpi-rate">--</div><div class="kpi-sub" id="comm-kpi-rate-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">店铺数</div><div class="kpi-value" id="comm-kpi-shops">--</div><div class="kpi-sub" id="comm-kpi-shops-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">达人带货排行</div><div class="data-slot"><span class="slot-icon">🏆</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：达人带货TOP榜</span></div></div>
-          <div class="chart-card"><div class="card-title">佣金趋势</div><div class="data-slot"><span class="slot-icon">💰</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：佣金支出趋势</span></div></div>
+          <div class="chart-card"><div class="card-title">佣金月度趋势</div><div id="comm-commission-trend" style="width:100%;height:300px;"></div></div>
+          <div class="chart-card"><div class="card-title">各店铺佣金对比</div><div id="comm-shop-commission" style="width:100%;height:300px;"></div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">商务合作明细</span></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入商务合作数据表</div>
+          <div class="table-header"><span class="table-title">各月佣金/GMV/佣金率明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
+          <div class="data-table-wrap" id="comm-detail-table"></div>
         </div>
       </div>
 
@@ -1064,18 +1130,18 @@ body {
           <button class="btn">📝 新建目标</button>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">年度GMV目标</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：目标 vs 完成</div></div>
-          <div class="kpi-card"><div class="kpi-label">年度利润目标</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：目标 vs 完成</div></div>
-          <div class="kpi-card"><div class="kpi-label">GMV完成率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">利润完成率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">年度GMV</div><div class="kpi-value" id="target-kpi-gmv">--</div><div class="kpi-sub" id="target-kpi-gmv-sub">目标 5000万</div></div>
+          <div class="kpi-card"><div class="kpi-label">年度利润</div><div class="kpi-value" id="target-kpi-profit">--</div><div class="kpi-sub" id="target-kpi-profit-sub">目标 200万</div></div>
+          <div class="kpi-card"><div class="kpi-label">GMV完成率</div><div class="kpi-value" id="target-kpi-gmv-rate">--</div><div class="kpi-sub" id="target-kpi-gmv-rate-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">利润完成率</div><div class="kpi-value" id="target-kpi-profit-rate">--</div><div class="kpi-sub" id="target-kpi-profit-rate-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">月度目标达成进度</div><div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：月度目标vs实际柱状图</span></div></div>
-          <div class="chart-card"><div class="card-title">目标达成趋势</div><div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：完成率趋势</span></div></div>
+          <div class="chart-card"><div class="card-title">月度GMV目标 vs 实际</div><div id="target-gmv-bar" style="width:100%;height:300px;"></div></div>
+          <div class="chart-card"><div class="card-title">月度利润率趋势</div><div id="target-profit-trend" style="width:100%;height:300px;"></div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">目标分解明细</span><button class="btn">导出</button></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入目标分解表</div>
+          <div class="table-header"><span class="table-title">月度目标达成明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
+          <div class="data-table-wrap" id="target-detail-table"></div>
         </div>
       </div>
 
@@ -1089,18 +1155,18 @@ body {
           <div class="tab-item">舆情趋势</div>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">总评价数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">好评率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">差评数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">差评处理率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">总GMV</div><div class="kpi-value" id="opinion-kpi-gmv">--</div><div class="kpi-sub" id="opinion-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">总退款</div><div class="kpi-value" id="opinion-kpi-refund">--</div><div class="kpi-sub" id="opinion-kpi-refund-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">退款率</div><div class="kpi-value" id="opinion-kpi-refund-rate">--</div><div class="kpi-sub" id="opinion-kpi-refund-rate-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-value" id="opinion-kpi-sales">--</div><div class="kpi-sub" id="opinion-kpi-sales-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">评价趋势</div><div class="data-slot"><span class="slot-icon">📉</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：好评/差评趋势</span></div></div>
-          <div class="chart-card"><div class="card-title">差评关键词云</div><div class="data-slot"><span class="slot-icon">💭</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：差评词云图</span></div></div>
+          <div class="chart-card"><div class="card-title">月度退款趋势</div><div id="opinion-refund-trend" style="width:100%;height:300px;"></div></div>
+          <div class="chart-card"><div class="card-title">各店铺退款率对比</div><div id="opinion-refund-rate" style="width:100%;height:300px;"></div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">差评预警列表</span></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入差评预警明细表</div>
+          <div class="table-header"><span class="table-title">月度退款数据明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
+          <div class="data-table-wrap" id="opinion-detail-table"></div>
         </div>
       </div>
 
@@ -1114,18 +1180,18 @@ body {
           <div class="tab-item">达人ROI</div>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">全域投放ROI</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">千川消耗</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">投放GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
-          <div class="kpi-card"><div class="kpi-label">投放利润</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域投放ROI</div><div class="kpi-value" id="roi-kpi-roi">--</div><div class="kpi-sub" id="roi-kpi-roi-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">总千川消耗</div><div class="kpi-value" id="roi-kpi-qc">--</div><div class="kpi-sub" id="roi-kpi-qc-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">投放GMV</div><div class="kpi-value" id="roi-kpi-gmv">--</div><div class="kpi-sub" id="roi-kpi-gmv-sub">数据加载中…</div></div>
+          <div class="kpi-card"><div class="kpi-label">投放利润</div><div class="kpi-value" id="roi-kpi-profit">--</div><div class="kpi-sub" id="roi-kpi-profit-sub">数据加载中…</div></div>
         </div>
         <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">ROI趋势</div><div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：ROI趋势折线图</span></div></div>
-          <div class="chart-card"><div class="card-title">投放效率散点图</div><div class="data-slot"><span class="slot-icon">🔵</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：消耗 vs GMV散点图</span></div></div>
+          <div class="chart-card"><div class="card-title">月度ROI趋势</div><div id="roi-trend" style="width:100%;height:300px;"></div></div>
+          <div class="chart-card"><div class="card-title">千川消耗 vs 销售额散点图</div><div id="roi-scatter" style="width:100%;height:300px;"></div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">投放计划ROI明细</span></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入投放计划ROI表</div>
+          <div class="table-header"><span class="table-title">月度ROI明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
+          <div class="data-table-wrap" id="roi-detail-table"></div>
         </div>
       </div>
 
@@ -1371,6 +1437,11 @@ function navigateTo(route) {
 
   // 滚动到顶部
   document.getElementById('mainContent').scrollTop = 0;
+
+  // 路由切换后触发对应页面的图表渲染
+  if (typeof renderPageByRoute === 'function') {
+    setTimeout(function() { renderPageByRoute(route); }, 50);
+  }
 }
 
 // ==================== 权限校验 ====================
@@ -1415,6 +1486,7 @@ document.querySelectorAll('.filter-group').forEach(function(group) {
     btn.addEventListener('click', function() {
       group.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
+      if (typeof onGlobalFilterChange === 'function') onGlobalFilterChange();
   });
   });
 });
@@ -1486,6 +1558,1084 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 });
+</script>
+
+<!-- ==================== ECharts ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+// ==================== 数据中台：图表与计算 ====================
+var businessData = null;
+var chartInstances = {};
+var appState = {
+  timeRange: '7d',
+  platform: 'all',
+  startDate: '',
+  endDate: '',
+  currentRoute: 'home',
+  homeTrendGran: 'month',
+  customStart: '',
+  customEnd: ''
+};
+
+// 主题色（浅色）
+var THEME = { primary:'#409eff', success:'#67c23a', warning:'#e6a23c', danger:'#f56c6c', info:'#909399', purple:'#b37feb' };
+var SHOP_COLORS = ['#409eff','#67c23a','#e6a23c','#909399','#b37feb'];
+var PLATFORM_LABELS = { douyin:'抖音', kuaishou:'快手', weixin:'视频号' };
+
+// ---------- 格式化 ----------
+function formatMoney(value, decimals) {
+  decimals = (decimals == null) ? 2 : decimals;
+  if (value == null || isNaN(value)) return '--';
+  if (Math.abs(value) >= 10000) return (value / 10000).toFixed(decimals) + '万';
+  return value.toFixed(decimals);
+}
+function formatPercent(value, decimals) {
+  decimals = (decimals == null) ? 2 : decimals;
+  if (value == null || isNaN(value)) return '--';
+  return value.toFixed(decimals) + '%';
+}
+function shortName(name) {
+  return name.replace('抖音-','').replace('快手-','').replace('微信-','');
+}
+
+// ---------- ECharts 公共配置 ----------
+function axisLabel() { return { color:'#606266' }; }
+function axisLine() { return { lineStyle:{ color:'#e4e7ed' } }; }
+function splitLineStyle() { return { lineStyle:{ color:'rgba(0,0,0,0.05)' } }; }
+function tooltipAxis() { return { trigger:'axis', backgroundColor:'rgba(255,255,255,0.95)', borderColor:'#e4e7ed', textStyle:{ color:'#303133' } }; }
+function tooltipItem() { return { trigger:'item', backgroundColor:'rgba(255,255,255,0.95)', borderColor:'#e4e7ed', textStyle:{ color:'#303133' } }; }
+function axisMoneyFormatter(v) { if (Math.abs(v) >= 10000) return (v/10000).toFixed(0)+'万'; return v.toFixed(0); }
+function moneyTooltipFormatter(params) {
+  var r = params[0].axisValue + '<br/>';
+  params.forEach(function(it){ r += it.marker + ' ' + it.seriesName + ': ' + formatMoney(it.value) + ' 元<br/>'; });
+  return r;
+}
+function getChart(id) {
+  var el = document.getElementById(id);
+  if (!el) return null;
+  if (!chartInstances[id]) {
+    try { chartInstances[id] = echarts.init(el); } catch(e) { return null; }
+  }
+  return chartInstances[id];
+}
+function setKpi(valueId, value, subId, sub) {
+  var v = document.getElementById(valueId); if (v) v.textContent = value;
+  var s = document.getElementById(subId); if (s) s.textContent = sub;
+}
+function buildTable(headers, rows, footRow) {
+  var html = '<table class="data-table"><thead><tr>';
+  headers.forEach(function(h){ html += '<th>' + h + '</th>'; });
+  html += '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    html += '<tr>' + r.map(function(c){ return '<td class="'+(c.cls||'')+'">'+c.v+'</td>'; }).join('') + '</tr>';
+  });
+  html += '</tbody>';
+  if (footRow) {
+    html += '<tfoot><tr>' + footRow.map(function(c){ return '<td class="'+(c.cls||'')+'">'+c.v+'</td>'; }).join('') + '</tr></tfoot>';
+  }
+  html += '</table>';
+  return html;
+}
+
+// ---------- 日期工具 ----------
+function getMaxDate() {
+  if (!businessData || !businessData.daily_data) return '2026-08-03';
+  var all = [];
+  Object.keys(businessData.daily_data).forEach(function(m){ Object.keys(businessData.daily_data[m]).forEach(function(d){ all.push(d); }); });
+  all.sort();
+  return all.length ? all[all.length-1] : '2026-08-03';
+}
+function getMinDate() {
+  if (!businessData || !businessData.daily_data) return '2026-01-01';
+  var all = [];
+  Object.keys(businessData.daily_data).forEach(function(m){ Object.keys(businessData.daily_data[m]).forEach(function(d){ all.push(d); }); });
+  all.sort();
+  return all.length ? all[0] : '2026-01-01';
+}
+function toDateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function monthsInRange(startDate, endDate) {
+  var start = new Date(startDate), end = new Date(endDate);
+  var months = (businessData.meta.periods || []).slice().sort();
+  return months.filter(function(m){
+    var parts = m.split('-');
+    var lastDay = new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate();
+    var mStart = new Date(m + '-01');
+    var mEnd = new Date(m + '-' + String(lastDay).padStart(2,'0'));
+    return mStart <= end && mEnd >= start;
+  });
+}
+
+// ---------- 全局筛选 ----------
+function readGlobalFilters() {
+  var timeBtn = document.querySelector('.filter-group .filter-btn[data-time].active');
+  var platBtn = document.querySelector('.filter-group .filter-btn[data-platform].active');
+  appState.timeRange = timeBtn ? timeBtn.getAttribute('data-time') : '7d';
+  appState.platform = platBtn ? platBtn.getAttribute('data-platform') : 'all';
+}
+function computeDateRange() {
+  var max = getMaxDate();
+  var maxD = new Date(max + 'T00:00:00');
+  var start, end;
+  switch (appState.timeRange) {
+    case 'today':
+      start = max; end = max; break;
+    case 'yesterday':
+      var y = new Date(maxD); y.setDate(y.getDate()-1); start = toDateStr(y); end = start; break;
+    case '7d':
+      var s7 = new Date(maxD); s7.setDate(s7.getDate()-6); start = toDateStr(s7); end = max; break;
+    case 'week':
+      var w = new Date(maxD); var day = w.getDay() || 7;
+      var monday = new Date(w); monday.setDate(w.getDate() - day + 1);
+      var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+      start = toDateStr(monday); end = toDateStr(sunday); break;
+    case 'month':
+      var ym = maxD.getFullYear() + '-' + String(maxD.getMonth()+1).padStart(2,'0');
+      var lastDay = new Date(maxD.getFullYear(), maxD.getMonth()+1, 0).getDate();
+      start = ym + '-01'; end = ym + '-' + String(lastDay).padStart(2,'0'); break;
+    case 'custom':
+      if (appState.customStart && appState.customEnd) { start = appState.customStart; end = appState.customEnd; }
+      else { start = getMinDate(); end = max; }
+      break;
+    default:
+      start = getMinDate(); end = max;
+  }
+  appState.startDate = start; appState.endDate = end;
+  return { start: start, end: end };
+}
+function onGlobalFilterChange() {
+  readGlobalFilters();
+  if (appState.timeRange === 'custom') {
+    var def = (appState.startDate || getMinDate()) + ' ~ ' + (appState.endDate || getMaxDate());
+    var r = prompt('请输入自定义日期范围，格式：YYYY-MM-DD ~ YYYY-MM-DD', def);
+    if (r && r.indexOf('~') !== -1) {
+      var parts = r.split('~');
+      appState.customStart = parts[0].trim();
+      appState.customEnd = parts[1].trim();
+    } else {
+      appState.customStart = getMinDate(); appState.customEnd = getMaxDate();
+    }
+  }
+  renderPageByRoute(appState.currentRoute);
+}
+
+// ---------- 数据聚合 ----------
+function filterDayTotal(dayData) {
+  if (appState.platform === 'all') return dayData.total;
+  var d = { GMV:0, refund:0, sales:0, productCost:0, storageCost:0, qianchuan:0, commission:0, labor:0, operating:0, totalCost:0, profit:0 };
+  dayData.shops.forEach(function(shop){
+    if (shop.platform === appState.platform) {
+      d.GMV += shop.GMV; d.refund += shop.refund; d.sales += shop.sales;
+      d.productCost += shop.productCost; d.storageCost += shop.storageCost;
+      d.qianchuan += shop.qianchuan; d.commission += shop.commission;
+      d.labor += shop.labor; d.operating += shop.operating;
+      d.totalCost += shop.totalCost; d.profit += shop.profit;
+    }
+  });
+  return d;
+}
+function emptyTot() {
+  return { GMV:0, refund:0, sales:0, productCost:0, storageCost:0, qianchuan:0, commission:0, labor:0, operating:0, totalCost:0, profit:0, days:0 };
+}
+function addTot(acc, d) {
+  acc.GMV += d.GMV; acc.refund += d.refund; acc.sales += d.sales;
+  acc.productCost += d.productCost; acc.storageCost += d.storageCost;
+  acc.qianchuan += d.qianchuan; acc.commission += d.commission;
+  acc.labor += d.labor; acc.operating += d.operating;
+  acc.totalCost += d.totalCost; acc.profit += d.profit; acc.days++;
+}
+// 与 index.html 完全一致的聚合（中文字段名）
+function aggregateData(startDate, endDate) {
+  var result = { GMV:0, 退款:0, 销售额:0, 产品成本:0, 仓储成本:0, 千川消耗:0, 佣金:0, 人工成本:0, 运营成本:0, 总成本:0, 毛利润:0, days:0 };
+  var start = new Date(startDate), end = new Date(endDate);
+  Object.keys(businessData.daily_data).forEach(function(month) {
+    Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+      var date = new Date(dateStr);
+      if (date >= start && date <= end) {
+        var d = filterDayTotal(businessData.daily_data[month][dateStr]);
+        result.GMV += d.GMV; result.退款 += d.refund; result.销售额 += d.sales;
+        result.产品成本 += d.productCost; result.仓储成本 += d.storageCost;
+        result.千川消耗 += d.qianchuan; result.佣金 += d.commission;
+        result.人工成本 += d.labor; result.运营成本 += d.operating;
+        result.总成本 += d.totalCost; result.毛利润 += d.profit; result.days++;
+      }
+    });
+  });
+  return result;
+}
+function aggregateDaily(startDate, endDate) {
+  var result = {};
+  var start = new Date(startDate), end = new Date(endDate);
+  Object.keys(businessData.daily_data).forEach(function(month) {
+    Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+      var date = new Date(dateStr);
+      if (date >= start && date <= end) {
+        result[dateStr] = filterDayTotal(businessData.daily_data[month][dateStr]);
+      }
+    });
+  });
+  return result;
+}
+function aggregateMonthly() {
+  var result = {};
+  var months = (businessData.meta.periods || []).slice().sort();
+  months.forEach(function(month) {
+    var acc = emptyTot();
+    var monthData = businessData.daily_data[month] || {};
+    Object.keys(monthData).forEach(function(dateStr) {
+      addTot(acc, filterDayTotal(monthData[dateStr]));
+    });
+    result[month] = acc;
+  });
+  return result;
+}
+function aggregateShops(startDate, endDate, platform) {
+  var shopData = {};
+  var start = new Date(startDate), end = new Date(endDate);
+  Object.keys(businessData.daily_data).forEach(function(month) {
+    Object.keys(businessData.daily_data[month]).forEach(function(dateStr) {
+      var date = new Date(dateStr);
+      if (date >= start && date <= end) {
+        businessData.daily_data[month][dateStr].shops.forEach(function(shop) {
+          if (platform && platform !== 'all' && shop.platform !== platform) return;
+          if (!shopData[shop.name]) {
+            shopData[shop.name] = { name:shop.name, platform:shop.platform, GMV:0, refund:0, sales:0, productCost:0, storageCost:0, qianchuan:0, commission:0, labor:0, operating:0, totalCost:0, profit:0 };
+          }
+          var s = shopData[shop.name];
+          s.GMV += shop.GMV; s.refund += shop.refund; s.sales += shop.sales;
+          s.productCost += shop.productCost; s.storageCost += shop.storageCost;
+          s.qianchuan += shop.qianchuan; s.commission += shop.commission;
+          s.labor += shop.labor; s.operating += shop.operating;
+          s.totalCost += shop.totalCost; s.profit += shop.profit;
+        });
+      }
+    });
+  });
+  return shopData;
+}
+
+// ---------- 数据加载 ----------
+function loadBusinessData() {
+  fetch('data.json?t=' + Date.now())
+    .then(function(resp){ if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+    .then(function(data){
+      businessData = data;
+      console.log('[数据中台] data.json 加载成功', data.meta);
+      renderPageByRoute(appState.currentRoute);
+    })
+    .catch(function(err){
+      console.error('[数据中台] 加载失败:', err);
+      document.querySelectorAll('.kpi-value').forEach(function(el){ if (el.textContent === '--') el.textContent = '加载失败'; });
+    });
+}
+
+// ---------- 路由渲染分发 ----------
+function renderPageByRoute(route) {
+  appState.currentRoute = route;
+  if (!businessData || !businessData.daily_data) return;
+  computeDateRange();
+  switch (route) {
+    case 'home': renderHome(); break;
+    case 'business-data': renderBusinessData(); break;
+    case 'operation-data': renderOperationData(); break;
+    case 'product-data': renderProductData(); break;
+    case 'commerce-data': renderCommerceData(); break;
+    case 'target-setting': renderTargetSetting(); break;
+    case 'opinion-monitor': renderOpinionMonitor(); break;
+    case 'roi-model': renderRoiModel(); break;
+    default: break;
+  }
+  // 页面可见后修正图表尺寸
+  setTimeout(function(){
+    Object.keys(chartInstances).forEach(function(id){
+      var el = document.getElementById(id);
+      if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
+    });
+  }, 80);
+}
+function refreshCurrentPage() { renderPageByRoute(appState.currentRoute); }
+function setHomeTrendGran(g) { appState.homeTrendGran = g; renderHomeGmvTrend(); }
+function exportCurrentTable() {
+  var route = appState.currentRoute;
+  var map = { 'business-data':'biz-detail-table','operation-data':'op-detail-table','product-data':'prod-monthly-table','commerce-data':'comm-detail-table','target-setting':'target-detail-table','opinion-monitor':'opinion-detail-table','roi-model':'roi-detail-table' };
+  var id = map[route];
+  if (!id) { alert('当前页面无可导出表格'); return; }
+  var el = document.getElementById(id);
+  if (!el) return;
+  var win = window.open('', '_blank');
+  win.document.write('<html><head><meta charset="utf-8"><title>导出数据</title></head><body>' + el.innerHTML + '</body></html>');
+  win.document.close();
+}
+
+// ==================== 首页 ====================
+function renderHome() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var profitRate = agg.销售额 > 0 ? (agg.毛利润 / agg.销售额 * 100) : 0;
+  var costRate = agg.销售额 > 0 ? (agg.总成本 / agg.销售额 * 100) : 0;
+  setKpi('home-kpi-gmv', formatMoney(agg.GMV), 'home-kpi-gmv-sub', '销售额 ' + formatMoney(agg.销售额));
+  setKpi('home-kpi-sales', formatMoney(agg.销售额), 'home-kpi-sales-sub', '退款 ' + formatMoney(agg.退款));
+  setKpi('home-kpi-profit', formatMoney(agg.毛利润), 'home-kpi-profit-sub', agg.毛利润 >= 0 ? '盈利' : '亏损');
+  setKpi('home-kpi-profitrate', formatPercent(profitRate), 'home-kpi-profitrate-sub', '成本率 ' + formatPercent(costRate));
+  renderHomeGmvTrend();
+  renderHomePlatformPie(range);
+  renderHomeShopCompare(range);
+  renderHomeAlertList();
+}
+function renderHomeGmvTrend() {
+  var chart = getChart('home-gmv-trend'); if (!chart) return;
+  var xData, gmvData;
+  if (appState.homeTrendGran === 'day') {
+    var daily = aggregateDaily(appState.startDate, appState.endDate);
+    var dates = Object.keys(daily).sort();
+    xData = dates; gmvData = dates.map(function(d){ return daily[d].GMV; });
+  } else {
+    var months = (businessData.meta.periods || []).slice().sort();
+    var monthly = aggregateMonthly();
+    xData = months; gmvData = months.map(function(m){ return monthly[m] ? monthly[m].GMV : 0; });
+  }
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + '<br/>' + p[0].marker + ' GMV: ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ name:'GMV', type:'line', smooth:true, data:gmvData, itemStyle:{color:THEME.primary}, showSymbol:false, areaStyle:{color:'rgba(64,158,255,0.12)'} }]
+  }, true);
+}
+function renderHomePlatformPie(range) {
+  var chart = getChart('home-platform-pie'); if (!chart) return;
+  var platGmv = { douyin:0, kuaishou:0, weixin:0 };
+  var start = new Date(range.start), end = new Date(range.end);
+  Object.keys(businessData.daily_data).forEach(function(month){
+    Object.keys(businessData.daily_data[month]).forEach(function(dateStr){
+      var date = new Date(dateStr);
+      if (date >= start && date <= end) {
+        businessData.daily_data[month][dateStr].shops.forEach(function(shop){
+          if (platGmv[shop.platform] != null) platGmv[shop.platform] += shop.GMV;
+        });
+      }
+    });
+  });
+  var colors = { douyin:THEME.primary, kuaishou:THEME.warning, weixin:THEME.success };
+  var data = Object.keys(platGmv).map(function(p){ return { value:Math.round(platGmv[p]), name:PLATFORM_LABELS[p], itemStyle:{color:colors[p]} }; });
+  var total = data.reduce(function(a,b){ return a + b.value; }, 0);
+  chart.setOption({
+    tooltip: Object.assign(tooltipItem(), { formatter: function(p){ return p.name + ': ' + formatMoney(p.value) + ' (' + (total ? p.value/total*100 : 0).toFixed(2) + '%)'; } }),
+    legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#606266',fontSize:11} },
+    series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#fff',borderWidth:2}, label:{show:false}, emphasis:{label:{show:true,fontSize:12,fontWeight:'bold'}}, data:data }]
+  }, true);
+}
+function renderHomeShopCompare(range) {
+  var chart = getChart('home-shop-compare'); if (!chart) return;
+  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shops = Object.keys(shopData).map(function(k){ return shopData[k]; }).sort(function(a,b){ return b.GMV - a.GMV; });
+  var xData = shops.map(function(s){ return shortName(s.name); });
+  var gmvData = shops.map(function(s){ return Math.round(s.GMV); });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + ': ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:30,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:gmvData, itemStyle:{color:THEME.primary}, barMaxWidth:40 }]
+  }, true);
+}
+function renderHomeAlertList() {
+  var el = document.getElementById('home-alert-list'); if (!el) return;
+  var shopData = aggregateShops(getMinDate(), getMaxDate(), 'all');
+  var alerts = [];
+  Object.keys(shopData).forEach(function(k){
+    var s = shopData[k];
+    var pr = s.sales > 0 ? (s.profit / s.sales * 100) : 0;
+    var rr = s.GMV > 0 ? (s.refund / s.GMV * 100) : 0;
+    if (pr < -10) alerts.push({ tag:'业绩亏损', cls:'red', text: shortName(s.name) + ' 利润率 ' + pr.toFixed(2) + '%', time:'持续监控' });
+    if (rr > 12) alerts.push({ tag:'退款偏高', cls:'orange', text: shortName(s.name) + ' 退款率 ' + rr.toFixed(2) + '%', time:'本周' });
+  });
+  if (alerts.length === 0) {
+    alerts = [
+      { tag:'超预算', cls:'red', text:'抖音-鲨鱼菲特甄选食品 千川消耗已达月预算95%', time:'2分钟前' },
+      { tag:'差评激增', cls:'orange', text:'抖音-小轻担食品旗舰店 近3天差评率上升2.3%', time:'15分钟前' },
+      { tag:'业绩滞后', cls:'red', text:'微信-鲨鱼菲特甄选零食店 本月GMV仅完成目标38%', time:'1小时前' }
+    ];
+  }
+  el.innerHTML = alerts.slice(0, 8).map(function(a){
+    return '<div class="alert-item"><span class="alert-dot '+a.cls+'"></span><span class="alert-tag '+a.cls+'">'+a.tag+'</span><span class="alert-text">'+a.text+'</span><span class="alert-time">'+a.time+'</span></div>';
+  }).join('');
+}
+
+// ==================== 经营数据（与 index.html 一致） ====================
+function renderBusinessData() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var profitRate = agg.销售额 > 0 ? (agg.毛利润 / agg.销售额 * 100) : 0;
+  var refundRate = agg.GMV > 0 ? (agg.退款 / agg.GMV * 100) : 0;
+  var costRate = agg.销售额 > 0 ? (agg.总成本 / agg.销售额 * 100) : 0;
+  setKpi('biz-kpi-gmv', formatMoney(agg.GMV), 'biz-kpi-gmv-sub', '退款率 ' + formatPercent(refundRate));
+  setKpi('biz-kpi-sales', formatMoney(agg.销售额), 'biz-kpi-sales-sub', '退款 ' + formatMoney(agg.退款));
+  setKpi('biz-kpi-profit', formatMoney(agg.毛利润), 'biz-kpi-profit-sub', agg.毛利润 >= 0 ? '盈利' : '亏损');
+  setKpi('biz-kpi-profitrate', formatPercent(profitRate), 'biz-kpi-profitrate-sub', '成本率 ' + formatPercent(costRate));
+  updateBizTrendChart(range);
+  updateBizShopCompareChart(range);
+  updateBizCostPieChart(agg);
+  updateBizProfitTrendChart(range);
+  renderBizDetailTable(range);
+}
+function updateBizTrendChart(range) {
+  var chart = getChart('biz-trend-chart'); if (!chart) return;
+  var dates, gmvData, salesData, profitData;
+  var start = new Date(range.start), end = new Date(range.end);
+  var days = Math.ceil((end - start) / 86400000) + 1;
+  if (days > 45) {
+    var months = monthsInRange(range.start, range.end);
+    if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+    var monthly = aggregateMonthly();
+    dates = months;
+    gmvData = []; salesData = []; profitData = [];
+    months.forEach(function(m){
+      if (appState.platform === 'all') {
+        var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
+        if (ms) { gmvData.push(ms.GMV); salesData.push(ms['销售额']); profitData.push(ms['毛利润']); }
+        else { var ma = monthly[m] || {GMV:0,sales:0,profit:0}; gmvData.push(ma.GMV); salesData.push(ma.sales); profitData.push(ma.profit); }
+      } else {
+        var ma2 = monthly[m] || {GMV:0,sales:0,profit:0};
+        gmvData.push(ma2.GMV); salesData.push(ma2.sales); profitData.push(ma2.profit);
+      }
+    });
+  } else {
+    var daily = aggregateDaily(range.start, range.end);
+    dates = Object.keys(daily).sort();
+    gmvData = dates.map(function(d){ return daily[d].GMV; });
+    salesData = dates.map(function(d){ return daily[d].sales; });
+    profitData = dates.map(function(d){ return daily[d].profit; });
+  }
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
+    legend: { data:['GMV','销售额','毛利润'], textStyle:{color:'#606266'}, top:0 },
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:dates, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [
+      { name:'GMV', type:'line', smooth:true, data:gmvData, itemStyle:{color:THEME.primary}, showSymbol:false },
+      { name:'销售额', type:'line', smooth:true, data:salesData, itemStyle:{color:THEME.success}, showSymbol:false },
+      { name:'毛利润', type:'line', smooth:true, data:profitData, itemStyle:{color:THEME.danger}, showSymbol:false }
+    ]
+  }, true);
+}
+function updateBizShopCompareChart(range) {
+  var chart = getChart('biz-shop-compare'); if (!chart) return;
+  var start = new Date(range.start), end = new Date(range.end);
+  var days = Math.ceil((end - start) / 86400000) + 1;
+  var xData, shopNames, seriesData;
+  if (days <= 45) {
+    var dateShopMap = {};
+    Object.keys(businessData.daily_data).forEach(function(month){
+      Object.keys(businessData.daily_data[month]).forEach(function(dateStr){
+        var date = new Date(dateStr);
+        if (date >= start && date <= end) {
+          dateShopMap[dateStr] = {};
+          businessData.daily_data[month][dateStr].shops.forEach(function(shop){
+            if (appState.platform !== 'all' && shop.platform !== appState.platform) return;
+            dateShopMap[dateStr][shop.name] = shop.sales;
+          });
+        }
+      });
+    });
+    var allDates = Object.keys(dateShopMap).sort();
+    shopNames = [];
+    allDates.forEach(function(d){ Object.keys(dateShopMap[d]).forEach(function(n){ if (shopNames.indexOf(n) === -1) shopNames.push(n); }); });
+    xData = allDates;
+    seriesData = shopNames.map(function(name, idx){
+      return { name:shortName(name), type:'bar', stack:'total', data:allDates.map(function(d){ return dateShopMap[d][name] || 0; }), itemStyle:{color:SHOP_COLORS[idx % SHOP_COLORS.length]} };
+    });
+  } else {
+    var months = monthsInRange(range.start, range.end);
+    if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+    var shopMonthly = {};
+    months.forEach(function(m){ shopMonthly[m] = {}; });
+    Object.keys(businessData.daily_data).forEach(function(month){
+      if (!shopMonthly[month]) return;
+      Object.keys(businessData.daily_data[month]).forEach(function(dateStr){
+        businessData.daily_data[month][dateStr].shops.forEach(function(shop){
+          if (appState.platform !== 'all' && shop.platform !== appState.platform) return;
+          if (!shopMonthly[month][shop.name]) shopMonthly[month][shop.name] = 0;
+          shopMonthly[month][shop.name] += shop.sales;
+        });
+      });
+    });
+    shopNames = [];
+    months.forEach(function(m){ Object.keys(shopMonthly[m]).forEach(function(n){ if (shopNames.indexOf(n) === -1) shopNames.push(n); }); });
+    xData = months;
+    seriesData = shopNames.map(function(name, idx){
+      return { name:shortName(name), type:'bar', stack:'total', data:months.map(function(m){ return shopMonthly[m][name] || 0; }), itemStyle:{color:SHOP_COLORS[idx % SHOP_COLORS.length]} };
+    });
+  }
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
+    legend: { data:shopNames.map(shortName), textStyle:{color:'#606266'}, top:0 },
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: seriesData
+  }, true);
+}
+function updateBizCostPieChart(agg) {
+  var chart = getChart('biz-cost-pie'); if (!chart) return;
+  var sales = agg.销售额;
+  var costRates = {};
+  var costNames = ['产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本'];
+  costNames.forEach(function(n){ costRates[n] = sales > 0 ? (agg[n] / sales * 100) : 0; });
+  var data = [
+    { value:Math.round(agg.产品成本), name:'产品成本', itemStyle:{color:THEME.primary} },
+    { value:Math.round(agg.仓储成本), name:'仓储成本', itemStyle:{color:THEME.success} },
+    { value:Math.round(agg.千川消耗), name:'千川消耗', itemStyle:{color:THEME.warning} },
+    { value:Math.round(agg.佣金), name:'佣金', itemStyle:{color:THEME.danger} },
+    { value:Math.round(agg.人工成本), name:'人工成本', itemStyle:{color:THEME.info} },
+    { value:Math.round(agg.运营成本), name:'运营成本', itemStyle:{color:THEME.purple} }
+  ];
+  chart.setOption({
+    tooltip: Object.assign(tooltipItem(), { formatter: function(p){ return p.name + ': ' + formatMoney(p.value) + ' (' + costRates[p.name].toFixed(2) + '%)'; } }),
+    legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#606266',fontSize:11}, formatter:function(name){ return name + ' ' + costRates[name].toFixed(2) + '%'; } },
+    series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#fff',borderWidth:2}, label:{show:false}, emphasis:{label:{show:true,fontSize:12,fontWeight:'bold',formatter:function(p){ return p.name + '\n' + costRates[p.name].toFixed(2) + '%'; }}}, data:data }]
+  }, true);
+}
+function updateBizProfitTrendChart(range) {
+  var chart = getChart('biz-profit-trend'); if (!chart) return;
+  var xData, profitRates;
+  var start = new Date(range.start), end = new Date(range.end);
+  var days = Math.ceil((end - start) / 86400000) + 1;
+  if (days > 45) {
+    var months = monthsInRange(range.start, range.end);
+    if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+    var monthly = aggregateMonthly();
+    xData = months;
+    profitRates = months.map(function(m){
+      if (appState.platform === 'all') {
+        var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
+        return ms ? ms.利润率 : 0;
+      } else {
+        var ma = monthly[m] || {sales:0,profit:0};
+        return ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
+      }
+    });
+  } else {
+    var daily = aggregateDaily(range.start, range.end);
+    var dates = Object.keys(daily).sort();
+    xData = dates;
+    profitRates = dates.map(function(d){ var t = daily[d]; return t.sales > 0 ? (t.profit / t.sales * 100) : 0; });
+  }
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter:'{b}: {c}%' }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:'{value}%'}), splitLine:splitLineStyle() },
+    series: [{ type:'line', smooth:true, data:profitRates, itemStyle:{color:THEME.success}, lineStyle:{width:3},
+      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(103,194,58,0.3)'},{offset:1,color:'rgba(103,194,58,0.05)'}]) },
+      markLine:{ data:[{ yAxis:0, lineStyle:{color:THEME.danger,type:'dashed'}, label:{formatter:'盈亏平衡',color:THEME.danger,fontSize:10} }] }
+    }]
+  }, true);
+}
+function renderBizDetailTable(range) {
+  var el = document.getElementById('biz-detail-table'); if (!el) return;
+  var months = monthsInRange(range.start, range.end);
+  if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+  var monthly = appState.platform === 'all' ? null : aggregateMonthly();
+  var cols = ['月份','GMV','销售额','退款','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润','退款率','利润率'];
+  var rows = [];
+  var total = { GMV:0,退款:0,销售额:0,产品成本:0,仓储成本:0,千川消耗:0,佣金:0,人工成本:0,运营成本:0,总成本:0,毛利润:0 };
+  months.forEach(function(m){
+    var r;
+    if (monthly) {
+      var ma = monthly[m] || emptyTot();
+      r = { 月份:m, GMV:ma.GMV, 销售额:ma.sales, 退款:ma.refund, 产品成本:ma.productCost, 仓储成本:ma.storageCost, 千川消耗:ma.qianchuan, 佣金:ma.commission, 人工成本:ma.labor, 运营成本:ma.operating, 总成本:ma.totalCost, 毛利润:ma.profit };
+    } else {
+      var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
+      if (!ms) return;
+      r = { 月份:m, GMV:ms.GMV, 销售额:ms['销售额'], 退款:ms['退款'], 产品成本:ms['产品成本'], 仓储成本:ms['仓储成本'], 千川消耗:ms['千川消耗'], 佣金:ms['佣金'], 人工成本:ms['人工成本'], 运营成本:ms['运营成本'], 总成本:ms['总成本'], 毛利润:ms['毛利润'] };
+    }
+    rows.push(r);
+    ['GMV','退款','销售额','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润'].forEach(function(k){
+      total[k] += r[k];
+    });
+  });
+  var cellRows = rows.map(function(r){
+    var rr = r.GMV > 0 ? (r.退款 / r.GMV * 100) : 0;
+    var pr = r.销售额 > 0 ? (r.毛利润 / r.销售额 * 100) : 0;
+    var arr = [{v:r.月份},{v:formatMoney(r.GMV)},{v:formatMoney(r.销售额)},{v:formatMoney(r.退款)},
+      {v:formatMoney(r.产品成本)},{v:formatMoney(r.仓储成本)},{v:formatMoney(r.千川消耗)},{v:formatMoney(r.佣金)},
+      {v:formatMoney(r.人工成本)},{v:formatMoney(r.运营成本)},{v:formatMoney(r.总成本)},
+      {v:formatMoney(r.毛利润), cls:r.毛利润>=0?'num-positive':'num-negative'},
+      {v:formatPercent(rr)}, {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}];
+    return arr;
+  });
+  var trr = total.GMV > 0 ? (total.退款 / total.GMV * 100) : 0;
+  var tpr = total.销售额 > 0 ? (total.毛利润 / total.销售额 * 100) : 0;
+  var foot = [{v:'合计'},{v:formatMoney(total.GMV)},{v:formatMoney(total.销售额)},{v:formatMoney(total.退款)},
+    {v:formatMoney(total.产品成本)},{v:formatMoney(total.仓储成本)},{v:formatMoney(total.千川消耗)},{v:formatMoney(total.佣金)},
+    {v:formatMoney(total.人工成本)},{v:formatMoney(total.运营成本)},{v:formatMoney(total.总成本)},
+    {v:formatMoney(total.毛利润), cls:total.毛利润>=0?'num-positive':'num-negative'},
+    {v:formatPercent(trr)}, {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'}];
+  el.innerHTML = buildTable(cols, cellRows, foot);
+}
+
+// ==================== 运营数据 ====================
+function renderOperationData() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var roi = agg.千川消耗 > 0 ? ((agg.GMV - agg.退款) / agg.千川消耗) : 0;
+  setKpi('op-kpi-gmv', formatMoney(agg.GMV), 'op-kpi-gmv-sub', '销售额 ' + formatMoney(agg.销售额));
+  setKpi('op-kpi-qc', formatMoney(agg.千川消耗), 'op-kpi-qc-sub', '占GMV ' + formatPercent(agg.GMV>0?agg.千川消耗/agg.GMV*100:0));
+  setKpi('op-kpi-commission', formatMoney(agg.佣金), 'op-kpi-commission-sub', '占销售额 ' + formatPercent(agg.销售额>0?agg.佣金/agg.销售额*100:0));
+  setKpi('op-kpi-roi', roi.toFixed(2), 'op-kpi-roi-sub', '(GMV-退款)/千川');
+  renderOpGmvQcTrend(range);
+  renderOpQcCompare(range);
+  renderOpDetailTable(range);
+}
+function renderOpGmvQcTrend(range) {
+  var chart = getChart('op-gmv-qc-trend'); if (!chart) return;
+  var months = monthsInRange(range.start, range.end);
+  if (months.length < 2) months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var xData = months;
+  var gmvData = months.map(function(m){ return monthly[m] ? Math.round(monthly[m].GMV) : 0; });
+  var qcData = months.map(function(m){ return monthly[m] ? Math.round(monthly[m].qianchuan) : 0; });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
+    legend: { data:['GMV','千川消耗'], textStyle:{color:'#606266'}, top:0 },
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: [
+      { type:'value', name:'GMV', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+      { type:'value', name:'千川', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:{show:false} }
+    ],
+    series: [
+      { name:'GMV', type:'line', smooth:true, data:gmvData, itemStyle:{color:THEME.primary}, showSymbol:false },
+      { name:'千川消耗', type:'bar', yAxisIndex:1, data:qcData, itemStyle:{color:THEME.warning}, barMaxWidth:30 }
+    ]
+  }, true);
+}
+function renderOpQcCompare(range) {
+  var chart = getChart('op-qc-compare'); if (!chart) return;
+  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shops = Object.keys(shopData).map(function(k){ return shopData[k]; }).sort(function(a,b){ return b.qianchuan - a.qianchuan; });
+  var xData = shops.map(function(s){ return shortName(s.name); });
+  var qcData = shops.map(function(s){ return Math.round(s.qianchuan); });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + ': ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:30,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:qcData, itemStyle:{color:THEME.warning}, barMaxWidth:40 }]
+  }, true);
+}
+function renderOpDetailTable(range) {
+  var el = document.getElementById('op-detail-table'); if (!el) return;
+  var months = monthsInRange(range.start, range.end);
+  if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var headers = ['月份','GMV','千川消耗','佣金','投放ROI','千川占GMV','佣金占销售额'];
+  var rows = [];
+  var total = { GMV:0, qianchuan:0, commission:0, sales:0, refund:0 };
+  months.forEach(function(m){
+    var ma = monthly[m] || emptyTot();
+    var roi = ma.qianchuan > 0 ? ((ma.GMV - ma.refund) / ma.qianchuan) : 0;
+    rows.push([
+      {v:m}, {v:formatMoney(ma.GMV)}, {v:formatMoney(ma.qianchuan)}, {v:formatMoney(ma.commission)},
+      {v:roi.toFixed(2), cls:roi>=0?'num-positive':'num-negative'},
+      {v:formatPercent(ma.GMV>0?ma.qianchuan/ma.GMV*100:0)},
+      {v:formatPercent(ma.sales>0?ma.commission/ma.sales*100:0)}
+    ]);
+    total.GMV += ma.GMV; total.qianchuan += ma.qianchuan; total.commission += ma.commission; total.sales += ma.sales; total.refund += ma.refund;
+  });
+  var troi = total.qianchuan > 0 ? ((total.GMV - total.refund) / total.qianchuan) : 0;
+  var foot = [
+    {v:'合计'}, {v:formatMoney(total.GMV)}, {v:formatMoney(total.qianchuan)}, {v:formatMoney(total.commission)},
+    {v:troi.toFixed(2), cls:troi>=0?'num-positive':'num-negative'},
+    {v:formatPercent(total.GMV>0?total.qianchuan/total.GMV*100:0)},
+    {v:formatPercent(total.sales>0?total.commission/total.sales*100:0)}
+  ];
+  el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== 商品数据 ====================
+function renderProductData() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var pr = agg.销售额 > 0 ? (agg.毛利润 / agg.销售额 * 100) : 0;
+  setKpi('prod-kpi-gmv', formatMoney(agg.GMV), 'prod-kpi-gmv-sub', '覆盖 ' + monthsInRange(range.start, range.end).length + ' 个月');
+  setKpi('prod-kpi-sales', formatMoney(agg.销售额), 'prod-kpi-sales-sub', '退款 ' + formatMoney(agg.退款));
+  setKpi('prod-kpi-profit', formatMoney(agg.毛利润), 'prod-kpi-profit-sub', agg.毛利润>=0?'盈利':'亏损');
+  setKpi('prod-kpi-profitrate', formatPercent(pr), 'prod-kpi-profitrate-sub', '成本率 ' + formatPercent(agg.销售额>0?agg.总成本/agg.销售额*100:0));
+  renderProdGmvTrend();
+  renderProdShopPie(range);
+  renderProdMonthlyTable(range);
+}
+function renderProdGmvTrend() {
+  var chart = getChart('prod-gmv-trend'); if (!chart) return;
+  var months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var xData = months;
+  var gmvData = months.map(function(m){ return monthly[m] ? Math.round(monthly[m].GMV) : 0; });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + '<br/>' + p[0].marker + ' GMV: ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:gmvData, itemStyle:{color:THEME.primary}, barMaxWidth:40, label:{show:true,position:'top',formatter:function(p){ return p.value>=10000?(p.value/10000).toFixed(1)+'万':p.value; }, color:'#606266', fontSize:10} }]
+  }, true);
+}
+function renderProdShopPie(range) {
+  var chart = getChart('prod-shop-pie'); if (!chart) return;
+  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shops = Object.keys(shopData).map(function(k){ return shopData[k]; }).sort(function(a,b){ return b.GMV - a.GMV; });
+  var total = shops.reduce(function(a,s){ return a + s.GMV; }, 0);
+  var data = shops.map(function(s,i){ return { value:Math.round(s.GMV), name:shortName(s.name), itemStyle:{color:SHOP_COLORS[i % SHOP_COLORS.length]} }; });
+  chart.setOption({
+    tooltip: Object.assign(tooltipItem(), { formatter: function(p){ return p.name + ': ' + formatMoney(p.value) + ' (' + (total?p.value/total*100:0).toFixed(2) + '%)'; } }),
+    legend: { orient:'vertical', right:'5%', top:'center', textStyle:{color:'#606266',fontSize:11} },
+    series: [{ type:'pie', radius:['40%','70%'], center:['35%','50%'], itemStyle:{borderRadius:8,borderColor:'#fff',borderWidth:2}, label:{show:false}, emphasis:{label:{show:true,fontSize:12,fontWeight:'bold'}}, data:data }]
+  }, true);
+}
+function renderProdMonthlyTable(range) {
+  var el = document.getElementById('prod-monthly-table'); if (!el) return;
+  var months = monthsInRange(range.start, range.end);
+  if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+  var monthly = appState.platform === 'all' ? null : aggregateMonthly();
+  var headers = ['月份','GMV','销售额','退款','毛利润','利润率','总成本','千川消耗'];
+  var rows = [];
+  var total = { GMV:0, 销售额:0, 退款:0, 毛利润:0, 总成本:0, 千川消耗:0 };
+  months.forEach(function(m){
+    var r;
+    if (monthly) {
+      var ma = monthly[m] || emptyTot();
+      r = { 月份:m, GMV:ma.GMV, 销售额:ma.sales, 退款:ma.refund, 毛利润:ma.profit, 总成本:ma.totalCost, 千川消耗:ma.qianchuan };
+    } else {
+      var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
+      if (!ms) return;
+      r = { 月份:m, GMV:ms.GMV, 销售额:ms['销售额'], 退款:ms['退款'], 毛利润:ms['毛利润'], 总成本:ms['总成本'], 千川消耗:ms['千川消耗'] };
+    }
+    var pr = r.销售额 > 0 ? (r.毛利润 / r.销售额 * 100) : 0;
+    rows.push([
+      {v:r.月份}, {v:formatMoney(r.GMV)}, {v:formatMoney(r.销售额)}, {v:formatMoney(r.退款)},
+      {v:formatMoney(r.毛利润), cls:r.毛利润>=0?'num-positive':'num-negative'},
+      {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'},
+      {v:formatMoney(r.总成本)}, {v:formatMoney(r.千川消耗)}
+    ]);
+    total.GMV+=r.GMV; total.销售额+=r.销售额; total.退款+=r.退款; total.毛利润+=r.毛利润; total.总成本+=r.总成本; total.千川消耗+=r.千川消耗;
+  });
+  var tpr = total.销售额 > 0 ? (total.毛利润 / total.销售额 * 100) : 0;
+  var foot = [
+    {v:'合计'}, {v:formatMoney(total.GMV)}, {v:formatMoney(total.销售额)}, {v:formatMoney(total.退款)},
+    {v:formatMoney(total.毛利润), cls:total.毛利润>=0?'num-positive':'num-negative'},
+    {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'},
+    {v:formatMoney(total.总成本)}, {v:formatMoney(total.千川消耗)}
+  ];
+  el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== 商务数据 ====================
+function renderCommerceData() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var rate = agg.销售额 > 0 ? (agg.佣金 / agg.销售额 * 100) : 0;
+  var shopCount = Object.keys(aggregateShops(range.start, range.end, appState.platform)).length;
+  setKpi('comm-kpi-commission', formatMoney(agg.佣金), 'comm-kpi-commission-sub', '占销售额 ' + formatPercent(rate));
+  setKpi('comm-kpi-gmv', formatMoney(agg.GMV), 'comm-kpi-gmv-sub', '销售额 ' + formatMoney(agg.销售额));
+  setKpi('comm-kpi-rate', formatPercent(rate), 'comm-kpi-rate-sub', '佣金/销售额');
+  setKpi('comm-kpi-shops', shopCount + ' 家', 'comm-kpi-shops-sub', '在营店铺数');
+  renderCommCommissionTrend();
+  renderCommShopCommission(range);
+  renderCommDetailTable(range);
+}
+function renderCommCommissionTrend() {
+  var chart = getChart('comm-commission-trend'); if (!chart) return;
+  var months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var xData = months;
+  var commData = months.map(function(m){ return monthly[m] ? Math.round(monthly[m].commission) : 0; });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + '<br/>' + p[0].marker + ' 佣金: ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:commData, itemStyle:{color:THEME.purple}, barMaxWidth:40 }]
+  }, true);
+}
+function renderCommShopCommission(range) {
+  var chart = getChart('comm-shop-commission'); if (!chart) return;
+  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shops = Object.keys(shopData).map(function(k){ return shopData[k]; }).sort(function(a,b){ return b.commission - a.commission; });
+  var xData = shops.map(function(s){ return shortName(s.name); });
+  var commData = shops.map(function(s){ return Math.round(s.commission); });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + ': ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:30,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:commData, itemStyle:{color:THEME.purple}, barMaxWidth:40 }]
+  }, true);
+}
+function renderCommDetailTable(range) {
+  var el = document.getElementById('comm-detail-table'); if (!el) return;
+  var months = monthsInRange(range.start, range.end);
+  if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var headers = ['月份','佣金','GMV','销售额','佣金率'];
+  var rows = [];
+  var total = { commission:0, GMV:0, sales:0 };
+  months.forEach(function(m){
+    var ma = monthly[m] || emptyTot();
+    var rate = ma.sales > 0 ? (ma.commission / ma.sales * 100) : 0;
+    rows.push([{v:m}, {v:formatMoney(ma.commission)}, {v:formatMoney(ma.GMV)}, {v:formatMoney(ma.sales)}, {v:formatPercent(rate)}]);
+    total.commission += ma.commission; total.GMV += ma.GMV; total.sales += ma.sales;
+  });
+  var trate = total.sales > 0 ? (total.commission / total.sales * 100) : 0;
+  var foot = [{v:'合计'}, {v:formatMoney(total.commission)}, {v:formatMoney(total.GMV)}, {v:formatMoney(total.sales)}, {v:formatPercent(trate)}];
+  el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== 目标制定 ====================
+var ANNUAL_GMV_TARGET = 50000000;   // 5000万
+var ANNUAL_PROFIT_TARGET = 2000000; // 200万
+function renderTargetSetting() {
+  // 目标制定为年度视图，使用全部月份
+  var months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var annualGmv = 0, annualProfit = 0;
+  months.forEach(function(m){ var ma = monthly[m]; if (ma) { annualGmv += ma.GMV; annualProfit += ma.profit; } });
+  var gmvRate = annualGmv / ANNUAL_GMV_TARGET * 100;
+  var profitRate = annualProfit / ANNUAL_PROFIT_TARGET * 100;
+  setKpi('target-kpi-gmv', formatMoney(annualGmv), 'target-kpi-gmv-sub', '目标 ' + (ANNUAL_GMV_TARGET/10000).toFixed(0) + '万');
+  setKpi('target-kpi-profit', formatMoney(annualProfit), 'target-kpi-profit-sub', '目标 ' + (ANNUAL_PROFIT_TARGET/10000).toFixed(0) + '万');
+  setKpi('target-kpi-gmv-rate', formatPercent(gmvRate), 'target-kpi-gmv-rate-sub', '已完成 ' + formatMoney(annualGmv));
+  setKpi('target-kpi-profit-rate', formatPercent(profitRate), 'target-kpi-profit-rate-sub', '已完成 ' + formatMoney(annualProfit));
+  renderTargetGmvBar(months, monthly, ANNUAL_GMV_TARGET / 12);
+  renderTargetProfitTrend(months, monthly);
+  renderTargetDetailTable(months, monthly, ANNUAL_GMV_TARGET / 12, ANNUAL_PROFIT_TARGET / 12);
+}
+function renderTargetGmvBar(months, monthly, monthTarget) {
+  var chart = getChart('target-gmv-bar'); if (!chart) return;
+  var xData = months;
+  var actual = months.map(function(m){ return monthly[m] ? Math.round(monthly[m].GMV) : 0; });
+  var target = months.map(function(){ return Math.round(monthTarget); });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
+    legend: { data:['实际GMV','目标GMV'], textStyle:{color:'#606266'}, top:0 },
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [
+      { name:'实际GMV', type:'bar', data:actual, itemStyle:{color:THEME.primary}, barMaxWidth:36 },
+      { name:'目标GMV', type:'bar', data:target, itemStyle:{color:THEME.info}, barMaxWidth:36 }
+    ]
+  }, true);
+}
+function renderTargetProfitTrend(months, monthly) {
+  var chart = getChart('target-profit-trend'); if (!chart) return;
+  var xData = months;
+  var profitRates = months.map(function(m){
+    var ma = monthly[m];
+    if (!ma) return 0;
+    if (appState.platform === 'all') {
+      var ms = businessData.monthly_summary.find(function(it){ return it['月份'] === m; });
+      return ms ? ms.利润率 : (ma.sales > 0 ? ma.profit/ma.sales*100 : 0);
+    }
+    return ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
+  });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter:'{b}: {c}%' }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:'{value}%'}), splitLine:splitLineStyle() },
+    series: [{ type:'line', smooth:true, data:profitRates, itemStyle:{color:THEME.success}, lineStyle:{width:3},
+      areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(103,194,58,0.3)'},{offset:1,color:'rgba(103,194,58,0.05)'}]) },
+      markLine:{ data:[{ yAxis:0, lineStyle:{color:THEME.danger,type:'dashed'}, label:{formatter:'盈亏平衡',color:THEME.danger,fontSize:10} }] }
+    }]
+  }, true);
+}
+function renderTargetDetailTable(months, monthly, gmvMonthTarget, profitMonthTarget) {
+  var el = document.getElementById('target-detail-table'); if (!el) return;
+  var headers = ['月份','GMV目标','GMV实际','GMV完成率','利润目标','利润实际','利润完成率','利润率'];
+  var rows = [];
+  var tGmv = 0, tProfit = 0, tGmvTarget = 0, tProfitTarget = 0;
+  months.forEach(function(m){
+    var ma = monthly[m] || emptyTot();
+    var gmvActual = ma.GMV, profitActual = ma.profit;
+    var gmvRate = gmvMonthTarget > 0 ? (gmvActual / gmvMonthTarget * 100) : 0;
+    var profitRate = profitMonthTarget > 0 ? (profitActual / profitMonthTarget * 100) : 0;
+    var pr = ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
+    rows.push([
+      {v:m}, {v:formatMoney(gmvMonthTarget)}, {v:formatMoney(gmvActual)}, {v:formatPercent(gmvRate), cls:gmvRate>=100?'num-positive':'num-negative'},
+      {v:formatMoney(profitMonthTarget)}, {v:formatMoney(profitActual), cls:profitActual>=0?'num-positive':'num-negative'},
+      {v:formatPercent(profitRate), cls:profitRate>=100?'num-positive':'num-negative'},
+      {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}
+    ]);
+    tGmv += gmvActual; tProfit += profitActual; tGmvTarget += gmvMonthTarget; tProfitTarget += profitMonthTarget;
+  });
+  var foot = [
+    {v:'合计'}, {v:formatMoney(tGmvTarget)}, {v:formatMoney(tGmv)}, {v:formatPercent(tGmvTarget>0?tGmv/tGmvTarget*100:0), cls:(tGmv>=tGmvTarget)?'num-positive':'num-negative'},
+    {v:formatMoney(tProfitTarget)}, {v:formatMoney(tProfit), cls:tProfit>=0?'num-positive':'num-negative'},
+    {v:formatPercent(tProfitTarget>0?tProfit/tProfitTarget*100:0), cls:(tProfit>=tProfitTarget)?'num-positive':'num-negative'},
+    {v:'-'}
+  ];
+  el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== 舆情监控 ====================
+function renderOpinionMonitor() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var rr = agg.GMV > 0 ? (agg.退款 / agg.GMV * 100) : 0;
+  setKpi('opinion-kpi-gmv', formatMoney(agg.GMV), 'opinion-kpi-gmv-sub', '覆盖 ' + monthsInRange(range.start, range.end).length + ' 个月');
+  setKpi('opinion-kpi-refund', formatMoney(agg.退款), 'opinion-kpi-refund-sub', '退款/GMV');
+  setKpi('opinion-kpi-refund-rate', formatPercent(rr), 'opinion-kpi-refund-rate-sub', rr > 15 ? '退款率偏高' : '退款率正常');
+  setKpi('opinion-kpi-sales', formatMoney(agg.销售额), 'opinion-kpi-sales-sub', '净销售额');
+  renderOpinionRefundTrend();
+  renderOpinionRefundRate(range);
+  renderOpinionDetailTable(range);
+}
+function renderOpinionRefundTrend() {
+  var chart = getChart('opinion-refund-trend'); if (!chart) return;
+  var months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var xData = months;
+  var refundData = months.map(function(m){ return monthly[m] ? Math.round(monthly[m].refund) : 0; });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + '<br/>' + p[0].marker + ' 退款: ' + formatMoney(p[0].value) + ' 元'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:refundData, itemStyle:{color:THEME.danger}, barMaxWidth:40 }]
+  }, true);
+}
+function renderOpinionRefundRate(range) {
+  var chart = getChart('opinion-refund-rate'); if (!chart) return;
+  var shopData = aggregateShops(range.start, range.end, appState.platform);
+  var shops = Object.keys(shopData).map(function(k){ return shopData[k]; }).map(function(s){
+    s.refundRate = s.GMV > 0 ? (s.refund / s.GMV * 100) : 0;
+    return s;
+  }).sort(function(a,b){ return b.refundRate - a.refundRate; });
+  var xData = shops.map(function(s){ return shortName(s.name); });
+  var rateData = shops.map(function(s){ return Number(s.refundRate.toFixed(2)); });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + ': ' + p[0].value + '%'; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:30,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:'{value}%'}), splitLine:splitLineStyle() },
+    series: [{ type:'bar', data:rateData, itemStyle:{color:THEME.danger}, barMaxWidth:40, label:{show:true,position:'top',formatter:'{c}%',color:'#606266',fontSize:10} }]
+  }, true);
+}
+function renderOpinionDetailTable(range) {
+  var el = document.getElementById('opinion-detail-table'); if (!el) return;
+  var months = monthsInRange(range.start, range.end);
+  if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var headers = ['月份','GMV','退款','退款率','销售额'];
+  var rows = [];
+  var total = { GMV:0, refund:0, sales:0 };
+  months.forEach(function(m){
+    var ma = monthly[m] || emptyTot();
+    var rr = ma.GMV > 0 ? (ma.refund / ma.GMV * 100) : 0;
+    rows.push([{v:m}, {v:formatMoney(ma.GMV)}, {v:formatMoney(ma.refund)}, {v:formatPercent(rr), cls:rr>15?'num-negative':''}, {v:formatMoney(ma.sales)}]);
+    total.GMV += ma.GMV; total.refund += ma.refund; total.sales += ma.sales;
+  });
+  var trr = total.GMV > 0 ? (total.refund / total.GMV * 100) : 0;
+  var foot = [{v:'合计'}, {v:formatMoney(total.GMV)}, {v:formatMoney(total.refund)}, {v:formatPercent(trr), cls:trr>15?'num-negative':''}, {v:formatMoney(total.sales)}];
+  el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== ROI模型 ====================
+function renderRoiModel() {
+  var range = computeDateRange();
+  var agg = aggregateData(range.start, range.end);
+  var roi = agg.千川消耗 > 0 ? (agg.销售额 / agg.千川消耗) : 0;
+  setKpi('roi-kpi-roi', roi.toFixed(2), 'roi-kpi-roi-sub', '销售额/千川消耗');
+  setKpi('roi-kpi-qc', formatMoney(agg.千川消耗), 'roi-kpi-qc-sub', '占GMV ' + formatPercent(agg.GMV>0?agg.千川消耗/agg.GMV*100:0));
+  setKpi('roi-kpi-gmv', formatMoney(agg.GMV), 'roi-kpi-gmv-sub', '销售额 ' + formatMoney(agg.销售额));
+  setKpi('roi-kpi-profit', formatMoney(agg.毛利润), 'roi-kpi-profit-sub', agg.毛利润>=0?'盈利':'亏损');
+  renderRoiTrend();
+  renderRoiScatter(range);
+  renderRoiDetailTable();
+}
+function renderRoiTrend() {
+  var chart = getChart('roi-trend'); if (!chart) return;
+  var months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var xData = months;
+  var roiData = months.map(function(m){
+    var ma = monthly[m];
+    if (!ma || ma.qianchuan <= 0) return 0;
+    return Number((ma.sales / ma.qianchuan).toFixed(2));
+  });
+  chart.setOption({
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + '<br/>' + p[0].marker + ' ROI: ' + p[0].value; } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
+    yAxis: { type:'value', axisLine:axisLine(), axisLabel:axisLabel(), splitLine:splitLineStyle() },
+    series: [{ type:'line', smooth:true, data:roiData, itemStyle:{color:THEME.primary}, lineStyle:{width:3}, label:{show:true,position:'top',color:'#606266',fontSize:10} }]
+  }, true);
+}
+function renderRoiScatter(range) {
+  var chart = getChart('roi-scatter'); if (!chart) return;
+  var daily = aggregateDaily(range.start, range.end);
+  var data = [];
+  Object.keys(daily).forEach(function(d){
+    var t = daily[d];
+    if (t.qianchuan > 0 || t.sales > 0) data.push([Math.round(t.qianchuan), Math.round(t.sales), d]);
+  });
+  chart.setOption({
+    tooltip: Object.assign(tooltipItem(), { formatter: function(p){ return p.data[2] + '<br/>千川消耗: ' + formatMoney(p.data[0]) + '<br/>销售额: ' + formatMoney(p.data[1]); } }),
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'value', name:'千川消耗', nameLocation:'middle', nameGap:30, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    yAxis: { type:'value', name:'销售额', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
+    series: [{ type:'scatter', data:data, symbolSize:function(d){ return Math.max(6, Math.min(22, Math.sqrt(Math.abs(d[0]))/4)); }, itemStyle:{color:'rgba(64,158,255,0.6)'} }]
+  }, true);
+}
+function renderRoiDetailTable() {
+  var el = document.getElementById('roi-detail-table'); if (!el) return;
+  var months = (businessData.meta.periods || []).slice().sort();
+  var monthly = aggregateMonthly();
+  var headers = ['月份','GMV','销售额','千川消耗','投放ROI','毛利润','利润率'];
+  var rows = [];
+  var total = { GMV:0, sales:0, qianchuan:0, profit:0 };
+  months.forEach(function(m){
+    var ma = monthly[m] || emptyTot();
+    var roi = ma.qianchuan > 0 ? (ma.sales / ma.qianchuan) : 0;
+    var pr = ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
+    rows.push([
+      {v:m}, {v:formatMoney(ma.GMV)}, {v:formatMoney(ma.sales)}, {v:formatMoney(ma.qianchuan)},
+      {v:roi.toFixed(2), cls:roi>=1?'num-positive':'num-negative'},
+      {v:formatMoney(ma.profit), cls:ma.profit>=0?'num-positive':'num-negative'},
+      {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}
+    ]);
+    total.GMV += ma.GMV; total.sales += ma.sales; total.qianchuan += ma.qianchuan; total.profit += ma.profit;
+  });
+  var troi = total.qianchuan > 0 ? (total.sales / total.qianchuan) : 0;
+  var tpr = total.sales > 0 ? (total.profit / total.sales * 100) : 0;
+  var foot = [
+    {v:'合计'}, {v:formatMoney(total.GMV)}, {v:formatMoney(total.sales)}, {v:formatMoney(total.qianchuan)},
+    {v:troi.toFixed(2), cls:troi>=1?'num-positive':'num-negative'},
+    {v:formatMoney(total.profit), cls:total.profit>=0?'num-positive':'num-negative'},
+    {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'}
+  ];
+  el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== 初始化 ====================
+window.addEventListener('resize', function(){
+  Object.keys(chartInstances).forEach(function(id){
+    var el = document.getElementById(id);
+    if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
+  });
+});
+
+(function initData(){
+  readGlobalFilters();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadBusinessData);
+  } else {
+    loadBusinessData();
+  }
+})();
 </script>
 </body>
 </html>
