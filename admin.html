@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon-v2.png">
+<title>全域电商销售管理中台</title>
+<style>
+/* ==================== 全局变量 ==================== */
+:root {
+  --bg: #f0f2f5;
+  --bg-white: #ffffff;
+  --bg-hover: #ecf5ff;
+  --bg-active: #e6f0ff;
+  --ink: #303133;
+  --ink-secondary: #606266;
+  --muted: #909399;
+  --placeholder: #c0c4cc;
+  --border: #e4e7ed;
+  --border-light: #ebeef5;
+  --primary: #409eff;
+  --primary-light: #66b1ff;
+  --primary-dark: #337ecc;
+  --success: #67c23a;
+  --warning: #e6a23c;
+  --danger: #f56c6c;
+  --info: #909399;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.08);
+  --header-h: 56px;
+  --ticker-h: 32px;
+  --sidebar-w: 220px;
+  --sidebar-collapsed-w: 64px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ==================== 登录页 ==================== */
+.login-page {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.4s;
+}
+.login-page.hidden { opacity: 0; pointer-events: none; }
+.login-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  width: 400px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.login-card .login-logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.login-card .login-logo .logo-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+.login-card .login-logo h2 {
+  font-size: 20px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.login-card .login-logo p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.login-form .form-group { margin-bottom: 20px; }
+.login-form label {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  margin-bottom: 6px;
+}
+.login-form input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.login-form input:focus { border-color: var(--primary); }
+.login-form .login-btn {
+  width: 100%;
+  height: 42px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-form .login-btn:hover { background: var(--primary-light); }
+.login-form .login-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 16px;
+}
+
+/* ==================== 主布局 ==================== */
+.app-layout { display: none; height: 100vh; flex-direction: column; }
+.app-layout.visible { display: flex; }
+
+/* ==================== 顶部Header ==================== */
+.app-header {
+  height: var(--header-h);
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 20px;
+  flex-shrink: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.header-left { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.header-left .logo-img { width: 32px; height: 32px; border-radius: var(--radius-sm); }
+.header-left .platform-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.header-center { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: center; }
+
+/* 筛选器组 */
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+.filter-group .filter-label {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 8px;
+}
+.filter-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: none;
+  background: transparent;
+  color: var(--ink-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-btn:hover { background: #fff; color: var(--primary); }
+.filter-btn.active { background: var(--primary); color: #fff; }
+
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.header-icon-btn {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--ink-secondary);
+  font-size: 16px;
+  transition: all 0.2s;
+  position: relative;
+}
+.header-icon-btn:hover { background: var(--bg); color: var(--primary); }
+.header-icon-btn .badge {
+  position: absolute;
+  top: 2px; right: 2px;
+  width: 8px; height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+.user-info:hover { background: var(--bg); }
+.user-avatar {
+  width: 30px; height: 30px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.user-name { font-size: 13px; color: var(--ink); }
+.user-role { font-size: 11px; color: var(--muted); }
+
+/* 预警滚动条 */
+.alert-ticker {
+  height: var(--ticker-h);
+  background: #fffbe6;
+  border-bottom: 1px solid #ffe58f;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 10px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.alert-ticker .ticker-icon { color: var(--warning); font-size: 14px; flex-shrink: 0; }
+.alert-ticker .ticker-content {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
+.alert-ticker .ticker-content .ticker-item {
+  display: inline-block;
+  padding: 0 20px;
+}
+.alert-ticker .ticker-content .ticker-item .alert-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  margin-right: 6px;
+}
+.alert-ticker .ticker-content .ticker-item .alert-tag.red { background: #fef0f0; color: var(--danger); }
+.alert-ticker .ticker-content .ticker-item .alert-tag.orange { background: #fdf6ec; color: var(--warning); }
+
+/* ==================== 主体区域 ==================== */
+.app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ==================== 左侧菜单 ==================== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width 0.3s;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.sidebar.collapsed { width: var(--sidebar-collapsed-w); }
+.sidebar.collapsed .menu-text,
+.sidebar.collapsed .submenu-arrow,
+.sidebar.collapsed .menu-group-label { display: none; }
+.sidebar.collapsed .menu-item { justify-content: center; padding: 0; }
+.sidebar.collapsed .submenu { display: none !important; }
+
+.menu-group-label {
+  padding: 16px 20px 6px;
+  font-size: 11px;
+  color: var(--placeholder);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 44px;
+  cursor: pointer;
+  color: var(--ink-secondary);
+  transition: all 0.2s;
+  gap: 10px;
+  position: relative;
+  white-space: nowrap;
+}
+.menu-item:hover { background: var(--bg-hover); color: var(--primary); }
+.menu-item.active {
+  background: var(--bg-active);
+  color: var(--primary);
+  font-weight: 500;
+}
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--primary);
+}
+.menu-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.menu-text { flex: 1; font-size: 13px; }
+.submenu-arrow { font-size: 12px; color: var(--placeholder); transition: transform 0.2s; }
+.menu-item.expanded .submenu-arrow { transform: rotate(90deg); }
+.submenu {
+  display: none;
+  background: #fafafa;
+}
+.submenu.visible { display: block; }
+.submenu .menu-item { height: 40px; padding-left: 52px; font-size: 12px; }
+
+.sidebar-toggle {
+  margin-top: auto;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-toggle:hover { color: var(--primary); }
+
+/* ==================== 右侧内容区 ==================== */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* 页面容器 */
+.page { display: none; }
+.page.active { display: block; }
+
+/* 面包屑 */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.breadcrumb .current { color: var(--ink); }
+
+/* 页面标题 */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.page-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+.page-actions { display: flex; gap: 8px; }
+
+/* ==================== 骨架区块组件 ==================== */
+/* KPI卡片网格 */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+.kpi-card .kpi-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.kpi-card .kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.kpi-card .kpi-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* 图表占位区 */
+.chart-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.chart-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.chart-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.chart-grid.cols-2-1 { grid-template-columns: 2fr 1fr; }
+
+.chart-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+.chart-card .card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chart-card .card-title .card-actions { display: flex; gap: 6px; }
+
+/* 数据插槽占位 */
+.data-slot {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--placeholder);
+  font-size: 13px;
+  gap: 8px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: #fafafa;
+}
+.data-slot .slot-icon { font-size: 32px; opacity: 0.4; }
+.data-slot .slot-label { font-weight: 500; color: var(--muted); }
+.data-slot .slot-hint { font-size: 11px; color: var(--placeholder); }
+
+/* 表格占位 */
+.table-slot {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 20px;
+}
+.table-slot .table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.table-slot .table-header .table-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.table-placeholder {
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--placeholder);
+  font-size: 13px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: #fafafa;
+}
+
+/* 标签页 */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  border: 1px solid var(--border-light);
+  width: fit-content;
+}
+.tab-item {
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+.tab-item:hover { color: var(--primary); }
+.tab-item.active { background: var(--primary); color: #fff; }
+
+/* 筛选栏 */
+.filter-bar {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+.filter-bar .filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-bar .filter-item label {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.filter-bar .filter-item select,
+.filter-bar .filter-item input {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+}
+.filter-bar .filter-item select:focus,
+.filter-bar .filter-item input:focus { border-color: var(--primary); }
+.filter-bar .btn {
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  cursor: pointer;
+  background: #fff;
+  color: var(--ink-secondary);
+  transition: all 0.2s;
+}
+.filter-bar .btn:hover { color: var(--primary); border-color: var(--primary); }
+.filter-bar .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.filter-bar .btn.primary:hover { background: var(--primary-light); }
+
+/* 权限标识 */
+.permission-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.permission-tag.admin { background: #ecf5ff; color: var(--primary); }
+.permission-tag.manager { background: #f0f9eb; color: var(--success); }
+.permission-tag.viewer { background: #f4f4f5; color: var(--info); }
+
+/* AI问数面板 */
+.ai-panel {
+  position: fixed;
+  right: -420px;
+  top: 0;
+  bottom: 0;
+  width: 400px;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+  z-index: 200;
+  transition: right 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+.ai-panel.open { right: 0; }
+.ai-panel .ai-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ai-panel .ai-header .ai-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ai-panel .ai-header .ai-close {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 18px;
+}
+.ai-panel .ai-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ai-panel .ai-body .ai-welcome {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 40px 0;
+}
+.ai-panel .ai-body .ai-welcome .ai-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.ai-panel .ai-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-panel .ai-suggestion {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ai-panel .ai-suggestion:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--bg-hover);
+}
+.ai-panel .ai-input-area {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+.ai-panel .ai-input-area input {
+  flex: 1;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  outline: none;
+}
+.ai-panel .ai-input-area input:focus { border-color: var(--primary); }
+.ai-panel .ai-input-area button {
+  width: 38px; height: 38px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 16px;
+}
+.ai-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.1);
+  z-index: 199;
+  display: none;
+}
+.ai-overlay.visible { display: block; }
+
+/* 消息通知面板 */
+.notification-panel {
+  position: fixed;
+  right: 20px;
+  top: calc(var(--header-h) + 10px);
+  width: 360px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  z-index: 200;
+  display: none;
+}
+.notification-panel.visible { display: block; }
+.notification-panel .np-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notification-panel .np-header .np-title { font-size: 14px; font-weight: 600; }
+.notification-panel .np-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+.notification-panel .np-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.notification-panel .np-item:hover { background: var(--bg); }
+.notification-panel .np-item .np-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.notification-panel .np-item .np-dot.red { background: var(--danger); }
+.notification-panel .np-item .np-dot.orange { background: var(--warning); }
+.notification-panel .np-item .np-dot.blue { background: var(--primary); }
+.notification-panel .np-item .np-content { flex: 1; }
+.notification-panel .np-item .np-text { font-size: 13px; color: var(--ink); }
+.notification-panel .np-item .np-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.notification-panel .np-footer {
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--primary);
+  cursor: pointer;
+  border-top: 1px solid var(--border-light);
+}
+
+/* 权限提示 */
+.permission-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--placeholder);
+}
+.permission-denied .pd-icon { font-size: 48px; margin-bottom: 12px; }
+.permission-denied .pd-text { font-size: 15px; color: var(--muted); }
+
+/* 响应式 */
+@media (max-width: 1200px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { position: fixed; left: 0; top: calc(var(--header-h) + var(--ticker-h)); bottom: 0; z-index: 99; }
+  .sidebar:not(.mobile-open) { transform: translateX(-100%); }
+  .header-center { display: none; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .chart-grid.cols-2, .chart-grid.cols-3, .chart-grid.cols-2-1 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 登录页 ==================== -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🛒</div>
+      <h2>全域电商销售管理中台</h2>
+      <p>抖音 · 快手 · 视频号 全域电商数据管理</p>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label>账号</label>
+        <input type="text" id="loginUser" placeholder="请输入账号" value="admin">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="loginPass" placeholder="请输入密码" value="123456">
+      </div>
+      <button class="login-btn" onclick="doLogin()">登 录</button>
+      <p class="login-hint">演示账号: admin / 123456 (管理员) · viewer / 123456 (只读)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 主布局 ==================== -->
+<div class="app-layout" id="appLayout">
+
+  <!-- 顶部Header -->
+  <div class="app-header">
+    <div class="header-left">
+      <img class="logo-img" src="favicon-v2.png" alt="logo">
+      <span class="platform-name">全域电商销售管理中台</span>
+    </div>
+    <div class="header-center">
+      <!-- 时间筛选 -->
+      <div class="filter-group">
+        <span class="filter-label">时间</span>
+        <button class="filter-btn" data-time="today">今日</button>
+        <button class="filter-btn" data-time="yesterday">昨日</button>
+        <button class="filter-btn active" data-time="7d">近7天</button>
+        <button class="filter-btn" data-time="week">自然周</button>
+        <button class="filter-btn" data-time="month">自然月</button>
+        <button class="filter-btn" data-time="custom">自定义</button>
+      </div>
+      <!-- 平台筛选 -->
+      <div class="filter-group">
+        <span class="filter-label">平台</span>
+        <button class="filter-btn active" data-platform="all">全平台</button>
+        <button class="filter-btn" data-platform="douyin">抖音</button>
+        <button class="filter-btn" data-platform="kuaishou">快手</button>
+        <button class="filter-btn" data-platform="weixin">视频号</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-icon-btn" onclick="toggleAIPanel()" title="AI智能问数">🤖</button>
+      <button class="header-icon-btn" onclick="toggleNotifications()" title="消息预警">
+        🔔<span class="badge"></span>
+      </button>
+      <div class="user-info" onclick="toggleUserMenu()">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <div class="user-name" id="userName">管理员</div>
+          <div class="user-role" id="userRoleText">超级管理员</div>
+        </div>
+      </div>
+      <button class="header-icon-btn" title="系统设置" onclick="navigateTo('system-config')">⚙️</button>
+      <button class="header-icon-btn" onclick="doLogout()" title="退出登录">🚪</button>
+    </div>
+  </div>
+
+  <!-- 预警滚动条 -->
+  <div class="alert-ticker">
+    <span class="ticker-icon">⚠️</span>
+    <div class="ticker-content" id="tickerContent">
+      <span class="ticker-item"><span class="alert-tag red">超预算</span>抖音-鲨鱼菲特甄选食品 千川消耗已达月预算95%</span>
+      <span class="ticker-item"><span class="alert-tag orange">差评激增</span>抖音-小轻担食品旗舰店 近3天差评率上升2.3%</span>
+      <span class="ticker-item"><span class="alert-tag red">业绩滞后</span>微信-鲨鱼菲特甄选零食店 本月GMV仅完成目标38%</span>
+    </div>
+  </div>
+
+  <!-- 主体区域 -->
+  <div class="app-body">
+
+    <!-- 左侧菜单 -->
+    <div class="sidebar" id="sidebar">
+      <div class="menu-group-label">主要功能</div>
+      <div class="menu-item" data-route="home" onclick="navigateTo('home')">
+        <span class="menu-icon">📊</span><span class="menu-text">首页</span>
+      </div>
+      <div class="menu-item" data-route="business-data" onclick="navigateTo('business-data')">
+        <span class="menu-icon">💰</span><span class="menu-text">经营数据</span>
+      </div>
+      <div class="menu-item" data-route="operation-data" onclick="navigateTo('operation-data')">
+        <span class="menu-icon">📈</span><span class="menu-text">运营数据</span>
+      </div>
+      <div class="menu-item" data-route="product-data" onclick="navigateTo('product-data')">
+        <span class="menu-icon">📦</span><span class="menu-text">商品数据</span>
+      </div>
+      <div class="menu-item" data-route="commerce-data" onclick="navigateTo('commerce-data')">
+        <span class="menu-icon">🤝</span><span class="menu-text">商务数据</span>
+      </div>
+      <div class="menu-item" data-route="target-setting" onclick="navigateTo('target-setting')">
+        <span class="menu-icon">🎯</span><span class="menu-text">目标制定</span>
+      </div>
+      <div class="menu-item" data-route="opinion-monitor" onclick="navigateTo('opinion-monitor')">
+        <span class="menu-icon">📡</span><span class="menu-text">舆情监控</span>
+      </div>
+      <div class="menu-item" data-route="roi-model" onclick="navigateTo('roi-model')">
+        <span class="menu-icon">📐</span><span class="menu-text">ROI模型</span>
+      </div>
+      <div class="menu-item" data-route="knowledge-base" onclick="navigateTo('knowledge-base')">
+        <span class="menu-icon">📚</span><span class="menu-text">产品知识库</span>
+      </div>
+
+      <div class="menu-group-label">系统管理</div>
+      <div class="menu-item" data-route="system" onclick="toggleSubmenu(this)">
+        <span class="menu-icon">⚙️</span><span class="menu-text">系统管理</span><span class="submenu-arrow">▶</span>
+      </div>
+      <div class="submenu" id="submenu-system">
+        <div class="menu-item" data-route="system-permission" onclick="navigateTo('system-permission')">
+          <span class="menu-icon">🔑</span><span class="menu-text">权限配置中心</span>
+        </div>
+        <div class="menu-item" data-route="system-account" onclick="navigateTo('system-account')">
+          <span class="menu-icon">👤</span><span class="menu-text">账号管理</span>
+        </div>
+        <div class="menu-item" data-route="system-log" onclick="navigateTo('system-log')">
+          <span class="menu-icon">📋</span><span class="menu-text">操作日志</span>
+        </div>
+        <div class="menu-item" data-route="system-config" onclick="navigateTo('system-config')">
+          <span class="menu-icon">🔧</span><span class="menu-text">全局参数配置</span>
+        </div>
+        <div class="menu-item" data-route="system-ai" onclick="navigateTo('system-ai')">
+          <span class="menu-icon">🧠</span><span class="menu-text">AI大模型对接</span>
+        </div>
+      </div>
+
+      <div class="sidebar-toggle" onclick="toggleSidebar()">
+        <span id="toggleIcon">◀</span><span class="menu-text">收起菜单</span>
+      </div>
+    </div>
+
+    <!-- 右侧内容区 -->
+    <div class="main-content" id="mainContent">
+
+      <!-- ====== 首页 ====== -->
+      <div class="page" id="page-home">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">首页</span></div>
+        <div class="page-header">
+          <div class="page-title">经营数据总驾驶舱</div>
+          <div class="page-actions">
+            <span class="permission-tag admin">管理员视图</span>
+            <button class="filter-bar btn primary">🔄 刷新数据</button>
+          </div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">全域GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域销售额</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域毛利润</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
+          <div class="kpi-card"><div class="kpi-label">全域利润率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：等待接入</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card">
+            <div class="card-title">GMV趋势 <span class="card-actions"><button class="filter-bar btn">日</button><button class="filter-bar btn">周</button><button class="filter-bar btn">月</button></span></div>
+            <div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：全域GMV趋势折线图</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">平台GMV占比</div>
+            <div class="data-slot"><span class="slot-icon">🥧</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：抖音/快手/视频号占比饼图</span></div>
+          </div>
+        </div>
+        <div class="chart-grid cols-2-1">
+          <div class="chart-card">
+            <div class="card-title">各店铺GMV对比</div>
+            <div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：店铺GMV柱状图</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">实时预警</div>
+            <div class="data-slot"><span class="slot-icon">🚨</span><span class="slot-label">数据插槽</span><span class="slot-hint">后续接入：实时预警列表</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 经营数据 ====== -->
+      <div class="page" id="page-business-data">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">经营数据</span></div>
+        <div class="page-header">
+          <div class="page-title">经营数据总览</div>
+          <div class="page-actions">
+            <button class="filter-bar btn">📊 导出</button>
+            <button class="filter-bar btn primary">🔄 刷新数据</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item active">经营总览</div>
+          <div class="tab-item">店铺对比</div>
+          <div class="tab-item">利润分析</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">GMV（商品交易总额）</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
+          <div class="kpi-card"><div class="kpi-label">销售额</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
+          <div class="kpi-card"><div class="kpi-label">毛利润</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
+          <div class="kpi-card"><div class="kpi-label">利润率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：接入经营总览数据</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card">
+            <div class="card-title">销售趋势</div>
+            <div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：销售趋势折线图（保持现有数据内容）</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">店铺销售额对比</div>
+            <div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：店铺对比柱状图（保持现有数据内容）</span></div>
+          </div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card">
+            <div class="card-title">成本构成分析</div>
+            <div class="data-slot"><span class="slot-icon">🥧</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：成本构成饼图（保持现有数据内容）</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">利润率趋势</div>
+            <div class="data-slot"><span class="slot-icon">📉</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：利润率趋势折线图（保持现有数据内容）</span></div>
+          </div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">经营数据明细</span><button class="filter-bar btn">导出Excel</button></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入经营数据明细表格（保持现有内容完全不变）</div>
+        </div>
+      </div>
+
+      <!-- ====== 运营数据 ====== -->
+      <div class="page" id="page-operation-data">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">运营数据</span></div>
+        <div class="page-header"><div class="page-title">运营数据分析</div></div>
+        <div class="filter-bar">
+          <div class="filter-item"><label>店铺</label><select><option>全部店铺</option><option>抖音-鲨鱼菲特甄选食品专卖店</option><option>快手-鲨鱼菲特方便食品旗舰店</option><option>微信-鲨鱼菲特甄选零食店</option></select></div>
+          <div class="filter-item"><label>指标</label><select><option>全部指标</option><option>访客数</option><option>转化率</option><option>客单价</option></select></div>
+          <button class="btn primary">查询</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">总访客数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">总曝光量</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">平均转化率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">平均客单价</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card"><div class="card-title">流量趋势</div><div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：访客/曝光趋势</span></div></div>
+          <div class="chart-card"><div class="card-title">转化漏斗</div><div class="data-slot"><span class="slot-icon">🔽</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：曝光→点击→加购→成交漏斗</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">运营数据明细</span></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入运营指标明细表</div>
+        </div>
+      </div>
+
+      <!-- ====== 商品数据 ====== -->
+      <div class="page" id="page-product-data">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">商品数据</span></div>
+        <div class="page-header"><div class="page-title">商品数据分析</div></div>
+        <div class="filter-bar">
+          <div class="filter-item"><label>平台</label><select><option>全平台</option><option>抖音</option><option>快手</option><option>视频号</option></select></div>
+          <div class="filter-item"><label>商品分类</label><select><option>全部分类</option><option>代餐</option><option>零食</option><option>饮品</option></select></div>
+          <div class="filter-item"><label>排序</label><select><option>销量降序</option><option>GMV降序</option><option>利润率降序</option></select></div>
+          <button class="btn primary">查询</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">在售商品数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">爆款商品数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">商品GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">TOP商品销量</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+        </div>
+        <div class="chart-grid cols-2-1">
+          <div class="chart-card"><div class="card-title">商品销量TOP20</div><div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：商品销量排行</span></div></div>
+          <div class="chart-card"><div class="card-title">分类GMV占比</div><div class="data-slot"><span class="slot-icon">🥧</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：分类占比</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">商品明细</span><button class="btn">导出</button></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入商品数据明细表</div>
+        </div>
+      </div>
+
+      <!-- ====== 商务数据 ====== -->
+      <div class="page" id="page-commerce-data">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">商务数据</span></div>
+        <div class="page-header"><div class="page-title">商务数据分析</div></div>
+        <div class="tab-bar">
+          <div class="tab-item active">达人合作</div>
+          <div class="tab-item">佣金结算</div>
+          <div class="tab-item">合同管理</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">合作达人数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">佣金总额</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">达人带货GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">平均ROI</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card"><div class="card-title">达人带货排行</div><div class="data-slot"><span class="slot-icon">🏆</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：达人带货TOP榜</span></div></div>
+          <div class="chart-card"><div class="card-title">佣金趋势</div><div class="data-slot"><span class="slot-icon">💰</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：佣金支出趋势</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">商务合作明细</span></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入商务合作数据表</div>
+        </div>
+      </div>
+
+      <!-- ====== 目标制定 ====== -->
+      <div class="page" id="page-target-setting">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">目标制定</span></div>
+        <div class="page-header"><div class="page-title">目标制定与达成</div></div>
+        <div class="filter-bar">
+          <div class="filter-item"><label>年度</label><select><option>2026年</option><option>2025年</option></select></div>
+          <div class="filter-item"><label>维度</label><select><option>按月</option><option>按季</option><option>按年</option></select></div>
+          <button class="btn primary">查询</button>
+          <button class="btn">📝 新建目标</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">年度GMV目标</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：目标 vs 完成</div></div>
+          <div class="kpi-card"><div class="kpi-label">年度利润目标</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽：目标 vs 完成</div></div>
+          <div class="kpi-card"><div class="kpi-label">GMV完成率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">利润完成率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card"><div class="card-title">月度目标达成进度</div><div class="data-slot"><span class="slot-icon">📊</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：月度目标vs实际柱状图</span></div></div>
+          <div class="chart-card"><div class="card-title">目标达成趋势</div><div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：完成率趋势</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">目标分解明细</span><button class="btn">导出</button></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入目标分解表</div>
+        </div>
+      </div>
+
+      <!-- ====== 舆情监控 ====== -->
+      <div class="page" id="page-opinion-monitor">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">舆情监控</span></div>
+        <div class="page-header"><div class="page-title">舆情监控系统</div></div>
+        <div class="tab-bar">
+          <div class="tab-item active">评价分析</div>
+          <div class="tab-item">差评预警</div>
+          <div class="tab-item">舆情趋势</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">总评价数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">好评率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">差评数</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">差评处理率</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card"><div class="card-title">评价趋势</div><div class="data-slot"><span class="slot-icon">📉</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：好评/差评趋势</span></div></div>
+          <div class="chart-card"><div class="card-title">差评关键词云</div><div class="data-slot"><span class="slot-icon">💭</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：差评词云图</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">差评预警列表</span></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入差评预警明细表</div>
+        </div>
+      </div>
+
+      <!-- ====== ROI模型 ====== -->
+      <div class="page" id="page-roi-model">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">ROI模型</span></div>
+        <div class="page-header"><div class="page-title">ROI投资回报模型</div></div>
+        <div class="tab-bar">
+          <div class="tab-item active">投放ROI</div>
+          <div class="tab-item">商品ROI</div>
+          <div class="tab-item">达人ROI</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">全域投放ROI</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">千川消耗</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">投放GMV</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+          <div class="kpi-card"><div class="kpi-label">投放利润</div><div class="kpi-value">--</div><div class="kpi-sub">数据插槽</div></div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card"><div class="card-title">ROI趋势</div><div class="data-slot"><span class="slot-icon">📈</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：ROI趋势折线图</span></div></div>
+          <div class="chart-card"><div class="card-title">投放效率散点图</div><div class="data-slot"><span class="slot-icon">🔵</span><span class="slot-label">图表插槽</span><span class="slot-hint">后续接入：消耗 vs GMV散点图</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">投放计划ROI明细</span></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入投放计划ROI表</div>
+        </div>
+      </div>
+
+      <!-- ====== 产品知识库 ====== -->
+      <div class="page" id="page-knowledge-base">
+        <div class="breadcrumb"><span>主要功能</span> / <span class="current">产品知识库</span></div>
+        <div class="page-header">
+          <div class="page-title">产品知识库</div>
+          <div class="page-actions"><button class="btn">📁 新建分类</button><button class="btn primary">➕ 新建文档</button></div>
+        </div>
+        <div class="filter-bar">
+          <div class="filter-item"><label>分类</label><select><option>全部分类</option><option>产品手册</option><option>卖点话术</option><option>FAQ</option><option>竞品分析</option></select></div>
+          <div class="filter-item"><input type="text" placeholder="搜索文档..."></div>
+          <button class="btn primary">搜索</button>
+        </div>
+        <div class="chart-grid cols-3">
+          <div class="chart-card"><div class="card-title">产品手册</div><div class="data-slot" style="min-height:120px;"><span class="slot-icon">📖</span><span class="slot-label">12 篇文档</span></div></div>
+          <div class="chart-card"><div class="card-title">卖点话术</div><div class="data-slot" style="min-height:120px;"><span class="slot-icon">💬</span><span class="slot-label">8 篇文档</span></div></div>
+          <div class="chart-card"><div class="card-title">常见问题FAQ</div><div class="data-slot" style="min-height:120px;"><span class="slot-icon">❓</span><span class="slot-label">25 篇文档</span></div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">文档列表</span></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入知识库文档列表</div>
+        </div>
+      </div>
+
+      <!-- ====== 系统管理-权限配置 ====== -->
+      <div class="page" id="page-system-permission">
+        <div class="breadcrumb"><span>系统管理</span> / <span class="current">权限配置中心</span></div>
+        <div class="page-header"><div class="page-title">权限配置中心</div></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">角色总数</div><div class="kpi-value">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">权限规则数</div><div class="kpi-value">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">在线用户</div><div class="kpi-value">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">待审批</div><div class="kpi-value">--</div></div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">角色权限列表</span><button class="btn primary">➕ 新建角色</button></div>
+          <div class="table-placeholder">📋 数据插槽：角色权限配置表（菜单权限/数据权限/字段脱敏权限）</div>
+        </div>
+      </div>
+
+      <!-- ====== 系统管理-账号管理 ====== -->
+      <div class="page" id="page-system-account">
+        <div class="breadcrumb"><span>系统管理</span> / <span class="current">账号管理</span></div>
+        <div class="page-header"><div class="page-title">账号管理</div></div>
+        <div class="filter-bar">
+          <div class="filter-item"><label>角色</label><select><option>全部角色</option><option>超级管理员</option><option>运营经理</option><option>数据分析师</option><option>只读用户</option></select></div>
+          <div class="filter-item"><label>状态</label><select><option>全部</option><option>启用</option><option>禁用</option></select></div>
+          <button class="btn primary">查询</button>
+          <button class="btn">➕ 新建账号</button>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">账号列表</span></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入账号管理表</div>
+        </div>
+      </div>
+
+      <!-- ====== 系统管理-操作日志 ====== -->
+      <div class="page" id="page-system-log">
+        <div class="breadcrumb"><span>系统管理</span> / <span class="current">操作日志</span></div>
+        <div class="page-header"><div class="page-title">操作日志</div></div>
+        <div class="filter-bar">
+          <div class="filter-item"><label>操作人</label><input type="text" placeholder="输入用户名"></div>
+          <div class="filter-item"><label>模块</label><select><option>全部</option><option>经营数据</option><option>运营数据</option><option>系统管理</option></select></div>
+          <div class="filter-item"><label>时间</label><input type="date"></div>
+          <button class="btn primary">查询</button>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">日志列表</span><button class="btn">导出</button></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入操作日志表</div>
+        </div>
+      </div>
+
+      <!-- ====== 系统管理-全局参数 ====== -->
+      <div class="page" id="page-system-config">
+        <div class="breadcrumb"><span>系统管理</span> / <span class="current">全局参数配置</span></div>
+        <div class="page-header"><div class="page-title">全局参数配置</div></div>
+        <div class="tab-bar">
+          <div class="tab-item active">基础配置</div>
+          <div class="tab-item">数据刷新</div>
+          <div class="tab-item">预警规则</div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card">
+            <div class="card-title">数据刷新配置</div>
+            <div class="data-slot"><span class="slot-icon">🔄</span><span class="slot-label">配置插槽</span><span class="slot-hint">基础轮询：5分钟 / 高频实时：1分钟开关</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">预警阈值配置</div>
+            <div class="data-slot"><span class="slot-icon">⚠️</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：预警阈值设置</span></div>
+          </div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card">
+            <div class="card-title">店铺配置</div>
+            <div class="data-slot"><span class="slot-icon">🏪</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：店铺信息管理</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">平台API配置</div>
+            <div class="data-slot"><span class="slot-icon">🔌</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：抖音/快手/视频号API密钥</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 系统管理-AI大模型 ====== -->
+      <div class="page" id="page-system-ai">
+        <div class="breadcrumb"><span>系统管理</span> / <span class="current">AI大模型对接配置</span></div>
+        <div class="page-header"><div class="page-title">AI大模型对接配置</div></div>
+        <div class="tab-bar">
+          <div class="tab-item active">模型配置</div>
+          <div class="tab-item">提示词模板</div>
+          <div class="tab-item">对话历史</div>
+        </div>
+        <div class="chart-grid cols-2">
+          <div class="chart-card">
+            <div class="card-title">大模型接入配置</div>
+            <div class="data-slot"><span class="slot-icon">🧠</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：模型API Key / Endpoint / 温度参数</span></div>
+          </div>
+          <div class="chart-card">
+            <div class="card-title">智能问数权限</div>
+            <div class="data-slot"><span class="slot-icon">🔐</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：AI问数角色权限配置</span></div>
+          </div>
+        </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">提示词模板列表</span><button class="btn primary">➕ 新建模板</button></div>
+          <div class="table-placeholder">📋 数据插槽：后续接入AI提示词模板管理</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AI问数面板 ==================== -->
+<div class="ai-overlay" id="aiOverlay" onclick="toggleAIPanel()"></div>
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-header">
+    <div class="ai-title">🤖 AI智能问数</div>
+    <span class="ai-close" onclick="toggleAIPanel()">✕</span>
+  </div>
+  <div class="ai-body">
+    <div class="ai-welcome">
+      <div class="ai-icon">🤖</div>
+      <p>您好！我是AI智能助手，可以帮您查询和分析全域电商数据。</p>
+      <p style="margin-top:4px;">试试问我：</p>
+    </div>
+    <div class="ai-suggestions">
+      <div class="ai-suggestion">📊 今天各平台GMV是多少？</div>
+      <div class="ai-suggestion">💰 本月利润率趋势如何？</div>
+      <div class="ai-suggestion">🏪 哪个店铺表现最好？</div>
+      <div class="ai-suggestion">📦 销量TOP10商品有哪些？</div>
+      <div class="ai-suggestion">⚠️ 有哪些预警需要关注？</div>
+    </div>
+  </div>
+  <div class="ai-input-area">
+    <input type="text" placeholder="输入您的问题...">
+    <button>➤</button>
+  </div>
+</div>
+
+<!-- ==================== 消息通知面板 ==================== -->
+<div class="notification-panel" id="notifPanel">
+  <div class="np-header">
+    <span class="np-title">消息预警通知</span>
+    <span style="cursor:pointer;color:var(--muted);font-size:13px;">全部已读</span>
+  </div>
+  <div class="np-list">
+    <div class="np-item"><div class="np-dot red"></div><div class="np-content"><div class="np-text">抖音-鲨鱼菲特甄选食品 千川消耗已达月预算95%</div><div class="np-time">2分钟前</div></div></div>
+    <div class="np-item"><div class="np-dot orange"></div><div class="np-content"><div class="np-text">抖音-小轻担食品旗舰店 差评率上升2.3%</div><div class="np-time">15分钟前</div></div></div>
+    <div class="np-item"><div class="np-dot red"></div><div class="np-content"><div class="np-text">微信-鲨鱼菲特甄选零食店 本月GMV仅完成38%</div><div class="np-time">1小时前</div></div></div>
+    <div class="np-item"><div class="np-dot blue"></div><div class="np-content"><div class="np-text">8月经营数据已更新，请查看</div><div class="np-time">3小时前</div></div></div>
+  </div>
+  <div class="np-footer">查看全部消息</div>
+</div>
+
+<script>
+// ==================== 全局状态 ====================
+var currentUser = { name: '管理员', role: 'admin', roleText: '超级管理员' };
+var autoRefreshTimer = null;
+
+// ==================== 登录/登出 ====================
+function doLogin() {
+  var user = document.getElementById('loginUser').value;
+  var pass = document.getElementById('loginPass').value;
+  if (!user || !pass) { alert('请输入账号和密码'); return; }
+
+  if (user === 'viewer') {
+    currentUser = { name: '访客', role: 'viewer', roleText: '只读用户' };
+  } else {
+    currentUser = { name: '管理员', role: 'admin', roleText: '超级管理员' };
+  }
+
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('appLayout').classList.add('visible');
+  document.getElementById('userName').textContent = currentUser.name;
+  document.getElementById('userRoleText').textContent = currentUser.roleText;
+  document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+
+  // 默认路由
+  var hash = location.hash.replace('#/', '') || 'home';
+  navigateTo(hash);
+
+  // 启动定时刷新
+  startAutoRefresh();
+}
+
+function doLogout() {
+  if (!confirm('确定要退出登录吗？')) return;
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('appLayout').classList.remove('visible');
+  stopAutoRefresh();
+}
+
+// ==================== 路由 ====================
+function navigateTo(route) {
+  // 权限校验
+  if (!checkPermission(route)) {
+    showPermissionDenied(route);
+    return;
+  }
+
+  // 隐藏所有页面
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+
+  // 显示目标页面
+  var page = document.getElementById('page-' + route);
+  if (page) {
+    page.classList.add('active');
+  } else {
+    // 默认显示首页
+    document.getElementById('page-home').classList.add('active');
+    route = 'home';
+  }
+
+  // 更新菜单高亮
+  document.querySelectorAll('.menu-item').forEach(function(m) { m.classList.remove('active'); });
+  var activeMenu = document.querySelector('.menu-item[data-route="' + route + '"]');
+  if (activeMenu) activeMenu.classList.add('active');
+
+  // 更新hash
+  location.hash = '#/' + route;
+
+  // 滚动到顶部
+  document.getElementById('mainContent').scrollTop = 0;
+}
+
+// ==================== 权限校验 ====================
+function checkPermission(route) {
+  // viewer角色限制系统管理
+  if (currentUser.role === 'viewer') {
+    var restricted = ['system-permission', 'system-account', 'system-log', 'system-config', 'system-ai'];
+    if (restricted.indexOf(route) !== -1) return false;
+  }
+  return true;
+}
+
+function showPermissionDenied(route) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var content = document.getElementById('mainContent');
+  var existing = document.getElementById('permDenied');
+  if (existing) existing.remove();
+  var div = document.createElement('div');
+  div.id = 'permDenied';
+  div.className = 'page active';
+  div.innerHTML = '<div class="permission-denied"><div class="pd-icon">🔒</div><div class="pd-text">权限不足</div><p style="font-size:13px;color:var(--muted);margin-top:8px;">当前角色无权访问此页面，请联系管理员开通权限。</p></div>';
+  content.appendChild(div);
+}
+
+// ==================== 侧边栏 ====================
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+  var icon = document.getElementById('toggleIcon');
+  icon.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
+}
+
+function toggleSubmenu(el) {
+  el.classList.toggle('expanded');
+  var submenu = document.getElementById('submenu-system');
+  submenu.classList.toggle('visible');
+}
+
+// ==================== 顶部筛选 ====================
+document.querySelectorAll('.filter-group').forEach(function(group) {
+  group.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      group.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+  });
+  });
+});
+
+// ==================== Tab切换 ====================
+document.querySelectorAll('.tab-bar').forEach(function(bar) {
+  bar.querySelectorAll('.tab-item').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      bar.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+});
+
+// ==================== AI面板 ====================
+function toggleAIPanel() {
+  document.getElementById('aiPanel').classList.toggle('open');
+  document.getElementById('aiOverlay').classList.toggle('visible');
+}
+
+// ==================== 通知面板 ====================
+function toggleNotifications() {
+  document.getElementById('notifPanel').classList.toggle('visible');
+}
+
+function toggleUserMenu() {
+  navigateTo('system-account');
+}
+
+// ==================== 预警滚动 ====================
+function startTickerScroll() {
+  var ticker = document.getElementById('tickerContent');
+  if (!ticker) return;
+  var items = ticker.innerHTML;
+  ticker.innerHTML = items + items;
+  var offset = 0;
+  setInterval(function() {
+    offset -= 1;
+    if (Math.abs(offset) > ticker.scrollWidth / 2) offset = 0;
+    ticker.style.transform = 'translateX(' + offset + 'px)';
+  }, 30);
+}
+
+// ==================== 定时刷新 ====================
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  // 5分钟轮询刷新（骨架阶段仅打印日志）
+  autoRefreshTimer = setInterval(function() {
+    console.log('[自动刷新] 5分钟定时刷新触发 - 骨架阶段暂无数据刷新');
+  }, 5 * 60 * 1000);
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+}
+
+// ==================== 初始化 ====================
+window.addEventListener('DOMContentLoaded', function() {
+  startTickerScroll();
+
+  // 如果已登录（hash路由），直接进入
+  if (location.hash) {
+    var route = location.hash.replace('#/', '');
+    if (route) {
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('appLayout').classList.add('visible');
+      navigateTo(route);
+      startAutoRefresh();
+    }
+  }
+});
+</script>
+</body>
+</html>
