@@ -759,6 +759,39 @@ body {
 .permission-denied .pd-icon { font-size: 48px; margin-bottom: 12px; }
 .permission-denied .pd-text { font-size: 15px; color: var(--muted); }
 
+/* 弹窗 */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.45); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: #fff; border-radius: 8px; width: 420px; max-width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2); overflow: hidden;
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  font-size: 16px; font-weight: 600;
+}
+.modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--muted); }
+.modal-close:hover { color: var(--danger); }
+.modal-body { padding: 20px; }
+.modal-body .form-row { display: flex; align-items: center; margin-bottom: 16px; gap: 12px; }
+.modal-body .form-row label { width: 50px; font-size: 13px; color: var(--muted); flex-shrink: 0; }
+.modal-body .form-row input, .modal-body .form-row select {
+  flex: 1; height: 34px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: 4px; font-size: 13px; outline: none;
+}
+.modal-body .form-row input:focus, .modal-body .form-row select:focus { border-color: var(--primary); }
+.modal-footer {
+  padding: 12px 20px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+.action-btn { padding: 3px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; background: #fff; color: var(--ink-secondary); }
+.action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
 /* 数据表格 */
 .data-table-wrap { overflow-x: auto; }
 .data-table {
@@ -985,14 +1018,14 @@ body {
     <div class="login-form">
       <div class="form-group">
         <label>账号</label>
-        <input type="text" id="loginUser" placeholder="请输入账号" value="韩康">
+        <input type="text" id="loginUser" placeholder="请输入账号">
       </div>
       <div class="form-group">
         <label>密码</label>
-        <input type="password" id="loginPass" placeholder="请输入密码" value="shft20240801">
+        <input type="password" id="loginPass" placeholder="请输入密码">
       </div>
       <button class="login-btn" onclick="doLogin()">登 录</button>
-      <p class="login-hint">管理员账号: 韩康 / shft20240801 · 只读账号: viewer / 123456</p>
+      <p class="login-hint">管理员账号: 韩康 / shft20240801 · 可在「账号管理」中新建账号分配权限</p>
     </div>
   </div>
 </div>
@@ -1066,7 +1099,7 @@ body {
       </div>
       <div class="submenu" id="submenu-system">
         <div class="menu-item" data-route="system-permission" onclick="navigateTo('system-permission')">
-          <span class="menu-icon">🔑</span><span class="menu-text">权限配置中心</span>
+          <span class="menu-icon">🔑</span><span class="menu-text">权限配置</span>
         </div>
         <div class="menu-item" data-route="system-account" onclick="navigateTo('system-account')">
           <span class="menu-icon">👤</span><span class="menu-text">账号管理</span>
@@ -1447,33 +1480,70 @@ body {
 
       <!-- ====== 系统管理-权限配置 ====== -->
       <div class="page" id="page-system-permission">
-        <div class="breadcrumb"><span>系统管理</span> / <span class="current">权限配置中心</span></div>
-        <div class="page-header"><div class="page-title">权限配置中心</div></div>
+        <div class="breadcrumb"><span>系统管理</span> / <span class="current">权限配置</span></div>
+        <div class="page-header"><div class="page-title">权限配置</div></div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">角色总数</div><div class="kpi-value">--</div></div>
-          <div class="kpi-card"><div class="kpi-label">权限规则数</div><div class="kpi-value">--</div></div>
-          <div class="kpi-card"><div class="kpi-label">在线用户</div><div class="kpi-value">--</div></div>
-          <div class="kpi-card"><div class="kpi-label">待审批</div><div class="kpi-value">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">角色总数</div><div class="kpi-value" id="perm-kpi-roles">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">账号总数</div><div class="kpi-value" id="perm-kpi-users">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">启用账号</div><div class="kpi-value" id="perm-kpi-active">--</div></div>
+          <div class="kpi-card"><div class="kpi-label">禁用账号</div><div class="kpi-value" id="perm-kpi-disabled">--</div></div>
         </div>
         <div class="table-slot">
-          <div class="table-header"><span class="table-title">角色权限列表</span><button class="btn primary">➕ 新建角色</button></div>
-          <div class="table-placeholder">📋 数据插槽：角色权限配置表（菜单权限/数据权限/字段脱敏权限）</div>
+          <div class="table-header"><span class="table-title">角色权限配置</span></div>
+          <div class="data-table-wrap" id="perm-role-table"></div>
+        </div>
+        <div class="table-slot" style="margin-top:16px;">
+          <div class="table-header"><span class="table-title">菜单权限说明</span></div>
+          <div class="data-table-wrap" id="perm-menu-table"></div>
         </div>
       </div>
 
       <!-- ====== 系统管理-账号管理 ====== -->
       <div class="page" id="page-system-account">
         <div class="breadcrumb"><span>系统管理</span> / <span class="current">账号管理</span></div>
-        <div class="page-header"><div class="page-title">账号管理</div></div>
-        <div class="filter-bar">
-          <div class="filter-item"><label>角色</label><select><option>全部角色</option><option>超级管理员</option><option>运营经理</option><option>数据分析师</option><option>只读用户</option></select></div>
-          <div class="filter-item"><label>状态</label><select><option>全部</option><option>启用</option><option>禁用</option></select></div>
-          <button class="btn primary">查询</button>
-          <button class="btn">➕ 新建账号</button>
+        <div class="page-header">
+          <div class="page-title">账号管理</div>
+          <div class="page-actions">
+            <button class="biz-apply-btn" onclick="showAddUserModal()">➕ 新建账号</button>
+          </div>
         </div>
         <div class="table-slot">
           <div class="table-header"><span class="table-title">账号列表</span></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入账号管理表</div>
+          <div class="data-table-wrap" id="account-table"></div>
+        </div>
+      </div>
+
+      <!-- 新建/编辑账号弹窗 -->
+      <div class="modal-overlay" id="userModal" style="display:none;">
+        <div class="modal-box">
+          <div class="modal-header">
+            <span class="modal-title" id="userModalTitle">新建账号</span>
+            <button class="modal-close" onclick="closeUserModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-row"><label>姓名</label><input type="text" id="userModalName" placeholder="请输入姓名"></div>
+            <div class="form-row"><label>密码</label><input type="text" id="userModalPass" placeholder="请输入密码"></div>
+            <div class="form-row">
+              <label>角色</label>
+              <select id="userModalRole">
+                <option value="admin">超级管理员（全部权限）</option>
+                <option value="manager">运营经理（经营+运营+商品数据）</option>
+                <option value="analyst">数据分析师（全部数据只读）</option>
+                <option value="viewer">只读用户（仅首页+经营数据）</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>状态</label>
+              <select id="userModalStatus">
+                <option value="1">启用</option>
+                <option value="0">禁用</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="filter-bar btn" onclick="closeUserModal()">取消</button>
+            <button class="biz-apply-btn" onclick="saveUser()">保存</button>
+          </div>
         </div>
       </div>
 
@@ -1599,27 +1669,81 @@ body {
 // ==================== 全局状态 ====================
 var currentUser = { name: '韩康', role: 'admin', roleText: '超级管理员' };
 var autoRefreshTimer = null;
+var editingUserId = null;
+
+// ==================== 用户与角色体系 ====================
+var ROLE_CONFIG = {
+  admin:   { text: '超级管理员', menus: ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','system-permission','system-account','system-log','system-config','system-ai'] },
+  manager: { text: '运营经理',   menus: ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base'] },
+  analyst: { text: '数据分析师', menus: ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base'] },
+  viewer:  { text: '只读用户',   menus: ['home','business-data'] }
+};
+
+var MENU_LABELS = {
+  'home':'首页','business-data':'经营数据','operation-data':'运营数据','product-data':'商品数据',
+  'commerce-data':'商务数据','target-setting':'目标制定','opinion-monitor':'舆情监控','roi-model':'ROI模型',
+  'knowledge-base':'产品知识库','system-permission':'权限配置','system-account':'账号管理',
+  'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
+};
+
+function getDefaultUsers() {
+  return [
+    { id: 1, name: '韩康', password: 'shft20240801', role: 'admin', status: 1 },
+    { id: 2, name: 'viewer', password: '123456', role: 'viewer', status: 1 }
+  ];
+}
+
+function getUsers() {
+  try {
+    var users = JSON.parse(localStorage.getItem('systemUsers') || 'null');
+    if (!users || users.length === 0) {
+      users = getDefaultUsers();
+      localStorage.setItem('systemUsers', JSON.stringify(users));
+    }
+    return users;
+  } catch(e) {
+    return getDefaultUsers();
+  }
+}
+
+function saveUsers(users) {
+  try { localStorage.setItem('systemUsers', JSON.stringify(users)); } catch(e) {}
+}
 
 // ==================== 登录/登出 ====================
 function doLogin() {
-  var user = document.getElementById('loginUser').value;
+  var user = document.getElementById('loginUser').value.trim();
   var pass = document.getElementById('loginPass').value;
   if (!user || !pass) { alert('请输入账号和密码'); return; }
 
-  if (user === '韩康' && pass === 'shft20240801') {
-    currentUser = { name: '韩康', role: 'admin', roleText: '超级管理员' };
-  } else if (user === 'viewer' && pass === '123456') {
-    currentUser = { name: '访客', role: 'viewer', roleText: '只读用户' };
-  } else {
+  var users = getUsers();
+  var found = null;
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].name === user && users[i].password === pass) {
+      found = users[i];
+      break;
+    }
+  }
+
+  if (!found) {
     alert('账号或密码错误，请重新输入');
     return;
   }
+  if (found.status === 0) {
+    alert('该账号已被禁用，请联系管理员');
+    return;
+  }
+
+  currentUser = { name: found.name, role: found.role, roleText: ROLE_CONFIG[found.role] ? ROLE_CONFIG[found.role].text : found.role };
 
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('appLayout').classList.add('visible');
   document.getElementById('userName').textContent = currentUser.name;
   document.getElementById('userRoleText').textContent = currentUser.roleText;
   document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+
+  // 更新菜单可见性
+  updateMenuVisibility();
 
   // 默认路由
   var hash = location.hash.replace('#/', '') || 'home';
@@ -1634,6 +1758,30 @@ function doLogout() {
   document.getElementById('loginPage').classList.remove('hidden');
   document.getElementById('appLayout').classList.remove('visible');
   stopAutoRefresh();
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ==================== 菜单可见性控制 ====================
+function updateMenuVisibility() {
+  var allowedMenus = ROLE_CONFIG[currentUser.role] ? ROLE_CONFIG[currentUser.role].menus : ['home'];
+  document.querySelectorAll('.menu-item[data-route]').forEach(function(item) {
+    var route = item.getAttribute('data-route');
+    var isSystemParent = item.getAttribute('onclick') === 'toggleSubmenu(this)';
+    if (isSystemParent) {
+      // 系统管理父菜单：检查是否有任何子菜单可见
+      var hasVisibleChild = false;
+      item.parentElement.querySelectorAll('.submenu .menu-item').forEach(function(child) {
+        var childRoute = child.getAttribute('data-route');
+        if (allowedMenus.indexOf(childRoute) !== -1) hasVisibleChild = true;
+      });
+      item.style.display = hasVisibleChild ? '' : 'none';
+      var groupLabel = item.parentElement.querySelector('.menu-group-label');
+      if (groupLabel) groupLabel.style.display = hasVisibleChild ? '' : 'none';
+    } else {
+      item.style.display = allowedMenus.indexOf(route) !== -1 ? '' : 'none';
+    }
+  });
 }
 
 // ==================== 路由 ====================
@@ -1676,12 +1824,8 @@ function navigateTo(route) {
 
 // ==================== 权限校验 ====================
 function checkPermission(route) {
-  // viewer角色限制系统管理
-  if (currentUser.role === 'viewer') {
-    var restricted = ['system-permission', 'system-account', 'system-log', 'system-config', 'system-ai'];
-    if (restricted.indexOf(route) !== -1) return false;
-  }
-  return true;
+  var allowedMenus = ROLE_CONFIG[currentUser.role] ? ROLE_CONFIG[currentUser.role].menus : ['home'];
+  return allowedMenus.indexOf(route) !== -1;
 }
 
 function showPermissionDenied(route) {
@@ -1793,7 +1937,9 @@ function toggleNotifications() {
 }
 
 function toggleUserMenu() {
-  navigateTo('system-account');
+  if (currentUser.role === 'admin') {
+    navigateTo('system-account');
+  }
 }
 
 // ==================== 预警滚动 ====================
@@ -1836,17 +1982,6 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     }
   } catch(e) {}
-
-  // 如果已登录（hash路由），直接进入
-  if (location.hash) {
-    var route = location.hash.replace('#/', '');
-    if (route) {
-      document.getElementById('loginPage').classList.add('hidden');
-      document.getElementById('appLayout').classList.add('visible');
-      navigateTo(route);
-      startAutoRefresh();
-    }
-  }
 });
 </script>
 
@@ -2137,6 +2272,8 @@ function renderPageByRoute(route) {
     case 'target-setting': renderTargetSetting(); break;
     case 'opinion-monitor': renderOpinionMonitor(); break;
     case 'roi-model': renderRoiModel(); break;
+    case 'system-permission': renderPermissionPage(); break;
+    case 'system-account': renderAccountPage(); break;
     default: break;
   }
   // 页面可见后修正图表尺寸
@@ -2148,6 +2285,167 @@ function renderPageByRoute(route) {
   }, 80);
 }
 function refreshCurrentPage() { renderPageByRoute(appState.currentRoute); }
+
+// ==================== 权限配置页面 ====================
+function renderPermissionPage() {
+  var users = getUsers();
+  var activeCount = users.filter(function(u){ return u.status === 1; }).length;
+  var disabledCount = users.length - activeCount;
+  var roleCount = Object.keys(ROLE_CONFIG).length;
+
+  setKpi('perm-kpi-roles', roleCount);
+  setKpi('perm-kpi-users', users.length);
+  setKpi('perm-kpi-active', activeCount);
+  setKpi('perm-kpi-disabled', disabledCount);
+
+  // 角色权限表
+  var roleCols = ['角色名称','可访问菜单数','可访问菜单','账号数'];
+  var roleRows = Object.keys(ROLE_CONFIG).map(function(roleKey) {
+    var rc = ROLE_CONFIG[roleKey];
+    var menuTexts = rc.menus.map(function(m){ return MENU_LABELS[m] || m; }).join('、');
+    var userCount = users.filter(function(u){ return u.role === roleKey; }).length;
+    return [
+      {v: rc.text},
+      {v: rc.menus.length + '个'},
+      {v: menuTexts},
+      {v: userCount + '人'}
+    ];
+  });
+  var roleTable = document.getElementById('perm-role-table');
+  if (roleTable) roleTable.innerHTML = buildTable(roleCols, roleRows);
+
+  // 菜单权限说明表
+  var menuCols = ['菜单名称','超级管理员','运营经理','数据分析师','只读用户'];
+  var menuKeys = Object.keys(MENU_LABELS);
+  var menuRows = menuKeys.map(function(mk) {
+    return [
+      {v: MENU_LABELS[mk]},
+      {v: ROLE_CONFIG.admin.menus.indexOf(mk) !== -1 ? '✅' : '—'},
+      {v: ROLE_CONFIG.manager.menus.indexOf(mk) !== -1 ? '✅' : '—'},
+      {v: ROLE_CONFIG.analyst.menus.indexOf(mk) !== -1 ? '✅' : '—'},
+      {v: ROLE_CONFIG.viewer.menus.indexOf(mk) !== -1 ? '✅' : '—'}
+    ];
+  });
+  var menuTable = document.getElementById('perm-menu-table');
+  if (menuTable) menuTable.innerHTML = buildTable(menuCols, menuRows);
+}
+
+// ==================== 账号管理页面 ====================
+function renderAccountPage() {
+  var users = getUsers();
+  var cols = ['序号','姓名','角色','状态','操作'];
+  var rows = users.map(function(u, idx) {
+    var roleText = ROLE_CONFIG[u.role] ? ROLE_CONFIG[u.role].text : u.role;
+    var statusText = u.status === 1 ? '<span style="color:var(--success);font-weight:600;">启用</span>' : '<span style="color:var(--danger);font-weight:600;">禁用</span>';
+    var isSelf = (u.name === currentUser.name);
+    var actions = '';
+    if (!isSelf) {
+      actions += '<button class="action-btn" onclick="toggleUserStatus(' + u.id + ')">' + (u.status === 1 ? '禁用' : '启用') + '</button> ';
+      actions += '<button class="action-btn" onclick="showEditUserModal(' + u.id + ')">编辑</button> ';
+      actions += '<button class="action-btn danger" onclick="deleteUser(' + u.id + ')">删除</button>';
+    } else {
+      actions = '<span style="color:var(--muted);font-size:12px;">当前登录</span>';
+    }
+    return [
+      {v: idx + 1},
+      {v: u.name},
+      {v: roleText},
+      {v: statusText},
+      {v: actions}
+    ];
+  });
+  var el = document.getElementById('account-table');
+  if (el) el.innerHTML = buildTable(cols, rows);
+}
+
+function showAddUserModal() {
+  editingUserId = null;
+  document.getElementById('userModalTitle').textContent = '新建账号';
+  document.getElementById('userModalName').value = '';
+  document.getElementById('userModalPass').value = '';
+  document.getElementById('userModalRole').value = 'viewer';
+  document.getElementById('userModalStatus').value = '1';
+  document.getElementById('userModal').style.display = 'flex';
+}
+
+function showEditUserModal(id) {
+  var users = getUsers();
+  var user = users.find(function(u){ return u.id === id; });
+  if (!user) return;
+  editingUserId = id;
+  document.getElementById('userModalTitle').textContent = '编辑账号';
+  document.getElementById('userModalName').value = user.name;
+  document.getElementById('userModalPass').value = user.password;
+  document.getElementById('userModalRole').value = user.role;
+  document.getElementById('userModalStatus').value = String(user.status);
+  document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeUserModal() {
+  document.getElementById('userModal').style.display = 'none';
+  editingUserId = null;
+}
+
+function saveUser() {
+  var name = document.getElementById('userModalName').value.trim();
+  var pass = document.getElementById('userModalPass').value.trim();
+  var role = document.getElementById('userModalRole').value;
+  var status = parseInt(document.getElementById('userModalStatus').value);
+
+  if (!name) { alert('请输入姓名'); return; }
+  if (!pass) { alert('请输入密码'); return; }
+
+  var users = getUsers();
+  if (editingUserId === null) {
+    // 新建：检查重名
+    if (users.some(function(u){ return u.name === name; })) {
+      alert('该姓名已存在，请使用其他姓名');
+      return;
+    }
+    var newId = users.length > 0 ? Math.max.apply(null, users.map(function(u){ return u.id; })) + 1 : 1;
+    users.push({ id: newId, name: name, password: pass, role: role, status: status });
+  } else {
+    // 编辑：检查重名（排除自己）
+    if (users.some(function(u){ return u.id !== editingUserId && u.name === name; })) {
+      alert('该姓名已存在，请使用其他姓名');
+      return;
+    }
+    var idx = users.findIndex(function(u){ return u.id === editingUserId; });
+    if (idx !== -1) {
+      users[idx].name = name;
+      users[idx].password = pass;
+      users[idx].role = role;
+      users[idx].status = status;
+    }
+  }
+  saveUsers(users);
+  closeUserModal();
+  renderAccountPage();
+  renderPermissionPage();
+}
+
+function toggleUserStatus(id) {
+  var users = getUsers();
+  var idx = users.findIndex(function(u){ return u.id === id; });
+  if (idx !== -1) {
+    users[idx].status = users[idx].status === 1 ? 0 : 1;
+    saveUsers(users);
+    renderAccountPage();
+    renderPermissionPage();
+  }
+}
+
+function deleteUser(id) {
+  var users = getUsers();
+  var user = users.find(function(u){ return u.id === id; });
+  if (!user) return;
+  if (!confirm('确定要删除账号「' + user.name + '」吗？')) return;
+  users = users.filter(function(u){ return u.id !== id; });
+  saveUsers(users);
+  renderAccountPage();
+  renderPermissionPage();
+}
+
 function setHomeTrendGran(g) { appState.homeTrendGran = g; renderHomeGmvTrend(); }
 function exportCurrentTable() {
   var route = appState.currentRoute;
