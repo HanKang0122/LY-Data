@@ -788,6 +788,26 @@ body {
   padding: 12px 20px; border-top: 1px solid var(--border);
   display: flex; justify-content: flex-end; gap: 10px;
 }
+.modal-footer .modal-btn {
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  background: #fff;
+  color: var(--ink-secondary);
+  transition: all 0.2s;
+  line-height: 32px;
+  box-sizing: border-box;
+}
+.modal-footer .modal-btn:hover { color: var(--primary); border-color: var(--primary); }
+.modal-footer .modal-btn.primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.modal-footer .modal-btn.primary:hover { background: var(--primary-light); }
 .action-btn { padding: 3px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; cursor: pointer; background: #fff; color: var(--ink-secondary); }
 .action-btn:hover { border-color: var(--primary); color: var(--primary); }
 .action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
@@ -1541,8 +1561,8 @@ body {
             </div>
           </div>
           <div class="modal-footer">
-            <button class="filter-bar btn" onclick="closeUserModal()">取消</button>
-            <button class="biz-apply-btn" onclick="saveUser()">保存</button>
+            <button class="modal-btn" onclick="closeUserModal()">取消</button>
+            <button class="modal-btn primary" onclick="saveUser()">保存</button>
           </div>
         </div>
       </div>
