@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "key": "role_1786356969773",
+    "text": "市场产品岗",
+    "menus": [
+      "home",
+      "business-data",
+      "operation-data",
+      "product-data",
+      "commerce-data",
+      "opinion-monitor",
+      "knowledge-base"
+    ]
+  }
+]
