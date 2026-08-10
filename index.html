@@ -867,6 +867,22 @@ body {
 .biz-filter-row .filter-item input[type="date"]:focus {
   border-color: var(--primary);
 }
+.biz-filter-row .biz-apply-btn {
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.biz-filter-row .biz-apply-btn:hover {
+  background: var(--primary-light);
+}
 
 /* 经营数据 - 对比指示器 */
 .biz-compare-indicator {
@@ -911,7 +927,7 @@ body {
   .chart-grid.cols-3 { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
-  .sidebar { position: fixed; left: 0; top: calc(var(--header-h) + var(--ticker-h)); bottom: 0; z-index: 99; }
+  .sidebar { position: fixed; left: 0; top: var(--header-h); bottom: 0; z-index: 99; }
   .sidebar:not(.mobile-open) { transform: translateX(-100%); }
   .header-center { display: none; }
   .kpi-grid { grid-template-columns: 1fr; }
@@ -970,16 +986,6 @@ body {
       </div>
       <button class="header-icon-btn" title="系统设置" onclick="navigateTo('system-config')">⚙️</button>
       <button class="header-icon-btn" onclick="doLogout()" title="退出登录">🚪</button>
-    </div>
-  </div>
-
-  <!-- 预警滚动条 -->
-  <div class="alert-ticker">
-    <span class="ticker-icon">⚠️</span>
-    <div class="ticker-content" id="tickerContent">
-      <span class="ticker-item"><span class="alert-tag red">超预算</span>抖音-鲨鱼菲特甄选食品 千川消耗已达月预算95%</span>
-      <span class="ticker-item"><span class="alert-tag orange">差评激增</span>抖音-小轻担食品旗舰店 近3天差评率上升2.3%</span>
-      <span class="ticker-item"><span class="alert-tag red">业绩滞后</span>微信-鲨鱼菲特甄选零食店 本月GMV仅完成目标38%</span>
     </div>
   </div>
 
@@ -1150,7 +1156,7 @@ body {
                 <option value="yoy">同比（去年同期）</option>
               </select>
             </div>
-            <button class="filter-bar btn primary" onclick="renderBusinessData()">应用筛选</button>
+            <button class="biz-apply-btn" onclick="renderBusinessData()">应用筛选</button>
           </div>
           <div class="biz-compare-indicator" id="bizCompareIndicator" style="display:none;">
             <span>📊 对比模式已开启</span>
@@ -1769,8 +1775,6 @@ function stopAutoRefresh() {
 
 // ==================== 初始化 ====================
 window.addEventListener('DOMContentLoaded', function() {
-  startTickerScroll();
-
   // 如果已登录（hash路由），直接进入
   if (location.hash) {
     var route = location.hash.replace('#/', '');
@@ -2388,6 +2392,14 @@ function renderBizShopCards(range) {
     return { name:s.name, platform:s.platform, GMV:s.GMV, sales:s.sales, profit:s.profit, totalCost:s.totalCost,
       profitRate: s.sales > 0 ? (s.profit / s.sales * 100) : 0, costRate: s.sales > 0 ? (s.totalCost / s.sales * 100) : 0 };
   });
+  // 按平台顺序排序：抖音 > 快手 > 视频号
+  var platformOrder = { douyin: 0, kuaishou: 1, weixin: 2 };
+  shops.sort(function(a, b) {
+    var pa = platformOrder[a.platform] !== undefined ? platformOrder[a.platform] : 99;
+    var pb = platformOrder[b.platform] !== undefined ? platformOrder[b.platform] : 99;
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name);
+  });
   el.innerHTML = shops.map(function(shop) {
     return '<div class="biz-shop-card"><div class="shop-name">' + shortName(shop.name) +
       '<span class="platform-tag ' + shop.platform + '">' + (PLATFORM_LABELS[shop.platform] || shop.platform) + '</span></div>' +
@@ -2444,6 +2456,24 @@ function updateBizTrendChart(range) {
 function updateBizShopCompareChart(range) {
   var chart = getChart('biz-shop-compare'); if (!chart) return;
   var xData, shopNames, seriesData;
+  // 构建店铺名→平台 映射，用于按平台排序
+  var shopPlatformMap = {};
+  Object.keys(businessData.daily_data).forEach(function(month){
+    Object.keys(businessData.daily_data[month]).forEach(function(dateStr){
+      businessData.daily_data[month][dateStr].shops.forEach(function(shop){
+        if (!shopPlatformMap[shop.name]) shopPlatformMap[shop.name] = shop.platform;
+      });
+    });
+  });
+  var platformOrder = { douyin: 0, kuaishou: 1, weixin: 2 };
+  function sortShopsByPlatform(names) {
+    return names.sort(function(a, b) {
+      var pa = platformOrder[shopPlatformMap[a]] !== undefined ? platformOrder[shopPlatformMap[a]] : 99;
+      var pb = platformOrder[shopPlatformMap[b]] !== undefined ? platformOrder[shopPlatformMap[b]] : 99;
+      if (pa !== pb) return pa - pb;
+      return a.localeCompare(b);
+    });
+  }
   var useDaily = bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all');
   if (useDaily) {
     var start = new Date(range.start), end = new Date(range.end);
@@ -2463,6 +2493,7 @@ function updateBizShopCompareChart(range) {
     var allDates = Object.keys(dateShopMap).sort();
     shopNames = [];
     allDates.forEach(function(d){ Object.keys(dateShopMap[d]).forEach(function(n){ if (shopNames.indexOf(n) === -1) shopNames.push(n); }); });
+    shopNames = sortShopsByPlatform(shopNames);
     xData = allDates;
     seriesData = shopNames.map(function(name, idx){
       return { name:shortName(name), type:'bar', stack:'total', data:allDates.map(function(d){ return dateShopMap[d][name] || 0; }), itemStyle:{color:SHOP_COLORS[idx % SHOP_COLORS.length]} };
@@ -2484,6 +2515,7 @@ function updateBizShopCompareChart(range) {
     });
     shopNames = [];
     months.forEach(function(m){ Object.keys(shopMonthly[m]).forEach(function(n){ if (shopNames.indexOf(n) === -1) shopNames.push(n); }); });
+    shopNames = sortShopsByPlatform(shopNames);
     xData = months;
     seriesData = shopNames.map(function(name, idx){
       return { name:shortName(name), type:'bar', stack:'total', data:months.map(function(m){ return shopMonthly[m][name] || 0; }), itemStyle:{color:SHOP_COLORS[idx % SHOP_COLORS.length]} };
@@ -2557,7 +2589,7 @@ function updateBizProfitTrendChart(range) {
 
 function renderBizDetailTable(range) {
   var el = document.getElementById('biz-detail-table'); if (!el) return;
-  var cols = ['时间','GMV','退款','退款率','销售额','产品成本','仓储成本','千川消耗','佣金','人工成本','运营成本','总成本','毛利润','利润率'];
+  var cols = ['时间','GMV','退款','退款率','销售额','产品成本','产品成本率','仓储成本','仓储成本率','千川消耗','千川消耗率','佣金','佣金率','人工成本','人工成本率','运营成本','运营成本率','总成本','总成本率','毛利润','利润率'];
   var rows = [];
   var total = { GMV:0,退款:0,销售额:0,产品成本:0,仓储成本:0,千川消耗:0,佣金:0,人工成本:0,运营成本:0,总成本:0,毛利润:0 };
 
@@ -2596,20 +2628,34 @@ function renderBizDetailTable(range) {
     });
   }
 
+  function costRate(cost, sales) { return sales > 0 ? (cost / sales * 100) : 0; }
+
   var cellRows = rows.map(function(r) {
     var rr = r.GMV > 0 ? (r.退款 / r.GMV * 100) : 0;
     var pr = r.销售额 > 0 ? (r.毛利润 / r.销售额 * 100) : 0;
     return [{v:r.时间},{v:formatMoney(r.GMV)},{v:formatMoney(r.退款)},{v:formatPercent(rr)},
-      {v:formatMoney(r.销售额)},{v:formatMoney(r.产品成本)},{v:formatMoney(r.仓储成本)},{v:formatMoney(r.千川消耗)},
-      {v:formatMoney(r.佣金)},{v:formatMoney(r.人工成本)},{v:formatMoney(r.运营成本)},{v:formatMoney(r.总成本)},
+      {v:formatMoney(r.销售额)},
+      {v:formatMoney(r.产品成本)},{v:formatPercent(costRate(r.产品成本,r.销售额))},
+      {v:formatMoney(r.仓储成本)},{v:formatPercent(costRate(r.仓储成本,r.销售额))},
+      {v:formatMoney(r.千川消耗)},{v:formatPercent(costRate(r.千川消耗,r.销售额))},
+      {v:formatMoney(r.佣金)},{v:formatPercent(costRate(r.佣金,r.销售额))},
+      {v:formatMoney(r.人工成本)},{v:formatPercent(costRate(r.人工成本,r.销售额))},
+      {v:formatMoney(r.运营成本)},{v:formatPercent(costRate(r.运营成本,r.销售额))},
+      {v:formatMoney(r.总成本)},{v:formatPercent(costRate(r.总成本,r.销售额))},
       {v:formatMoney(r.毛利润), cls:r.毛利润>=0?'num-positive':'num-negative'},
       {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}];
   });
   var trr = total.GMV > 0 ? (total.退款 / total.GMV * 100) : 0;
   var tpr = total.销售额 > 0 ? (total.毛利润 / total.销售额 * 100) : 0;
   var foot = [{v:'合计'},{v:formatMoney(total.GMV)},{v:formatMoney(total.退款)},{v:formatPercent(trr)},
-    {v:formatMoney(total.销售额)},{v:formatMoney(total.产品成本)},{v:formatMoney(total.仓储成本)},{v:formatMoney(total.千川消耗)},
-    {v:formatMoney(total.佣金)},{v:formatMoney(total.人工成本)},{v:formatMoney(total.运营成本)},{v:formatMoney(total.总成本)},
+    {v:formatMoney(total.销售额)},
+    {v:formatMoney(total.产品成本)},{v:formatPercent(costRate(total.产品成本,total.销售额))},
+    {v:formatMoney(total.仓储成本)},{v:formatPercent(costRate(total.仓储成本,total.销售额))},
+    {v:formatMoney(total.千川消耗)},{v:formatPercent(costRate(total.千川消耗,total.销售额))},
+    {v:formatMoney(total.佣金)},{v:formatPercent(costRate(total.佣金,total.销售额))},
+    {v:formatMoney(total.人工成本)},{v:formatPercent(costRate(total.人工成本,total.销售额))},
+    {v:formatMoney(total.运营成本)},{v:formatPercent(costRate(total.运营成本,total.销售额))},
+    {v:formatMoney(total.总成本)},{v:formatPercent(costRate(total.总成本,total.销售额))},
     {v:formatMoney(total.毛利润), cls:total.毛利润>=0?'num-positive':'num-negative'},
     {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'}];
   el.innerHTML = buildTable(cols, cellRows, foot);
