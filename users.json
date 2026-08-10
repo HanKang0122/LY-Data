@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "韩康",
+    "password": "shft20240801",
+    "role": "admin",
+    "status": 1
+  },
+  {
+    "id": 2,
+    "name": "viewer",
+    "password": "123456",
+    "role": "viewer",
+    "status": 1
+  }
+]
