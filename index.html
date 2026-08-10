@@ -738,6 +738,57 @@ body {
 .comm-ov-stat { display:flex; align-items:center; gap:4px; font-size:12px; color:var(--ink2); }
 .comm-ov-stat .ov-dot { width:8px; height:8px; border-radius:50%; }
 
+/* 提成方案 - 标签徽章 */
+.comm-badge {
+  display: inline-flex; align-items: center; padding: 3px 10px;
+  border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1.4;
+  margin-left: 8px; vertical-align: middle;
+}
+.comm-badge.b-green { background: #f0fdf4; color: #059669; border: 1px solid #bbf7d0; }
+.comm-badge.b-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.comm-badge.b-orange { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+.comm-badge.b-purple { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.comm-badge.b-gray { background: #f4f4f5; color: #71717a; border: 1px solid #e4e4e7; }
+
+/* 提成方案 - 有序列表 */
+.comm-rlist {
+  margin: 8px 0 12px; padding-left: 22px; counter-reset: comm-rlist-counter;
+  list-style: none;
+}
+.comm-rlist > li {
+  position: relative; font-size: 12.5px; color: var(--ink2); line-height: 1.8;
+  padding: 6px 0 6px 6px; margin-bottom: 4px;
+}
+.comm-rlist > li::before {
+  counter-increment: comm-rlist-counter;
+  content: counter(comm-rlist-counter);
+  position: absolute; left: -22px; top: 7px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.comm-rlist > li b { color: var(--ink); }
+
+/* 提成方案 - 信息行/信息盒 */
+.comm-info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 10px 0 12px; }
+.comm-info-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.comm-info-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.comm-info-box {
+  background: #fff; border: 1px solid var(--border); border-radius: 6px;
+  padding: 12px 14px; border-left: 3px solid var(--primary);
+}
+.comm-info-box .ib-label {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  margin-bottom: 4px; letter-spacing: 0.5px;
+}
+.comm-info-box .ib-value {
+  font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.5;
+}
+
+/* 提成方案 - 类型盒双列网格 */
+.comm-type-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
 /* AI分析面板 */
 .ai-analysis-panel {
   background: var(--bg-white); border-radius: var(--radius-md);
@@ -4221,152 +4272,289 @@ function renderCommissionPlan() {
 
 function commPlanV3HTML() {
   var h = '';
+  // 概览卡片
   h += '<div class="comm-overview-card"><div class="comm-overview-icon">🚀</div><div class="comm-overview-info">';
-  h += '<h3>第三版 · 打品驱动型（2026年8月起执行）</h3>';
-  h += '<p>以"打品三阶段"为核心，将商品生命周期与新发品打品周期结合，实现新品快速起量、爆款持续放量、常规品稳定贡献的分层提成体系。</p>';
+  h += '<h3>第三版商务提成方案 · 打品驱动型<span class="comm-badge b-purple">2026年8月起</span></h3>';
+  h += '<p>以"打品三阶段"为核心，建立选品机制、推广权竞争、打新品加持爆款的激励体系，配套组织裂变晋升通道，驱动商务团队从"卖货"向"造品"升级。</p>';
   h += '<div class="comm-overview-stats">';
-  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#059669;"></span>新发品打品期加持</span>';
-  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#dc2626;"></span>爆款品高提成驱动</span>';
-  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#6d28d9;"></span>三阶段动态激励</span>';
+  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#059669;"></span>三类商品定位</span>';
+  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#2563eb;"></span>三阶段打品周期</span>';
+  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#ea580c;"></span>推广权竞争机制</span>';
+  h += '<span class="comm-ov-stat"><span class="ov-dot" style="background:#6d28d9;"></span>组织裂变晋升</span>';
   h += '</div></div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#059669;">1</span><h3>商品定位与基础提成率</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle green">商品分类与基础提成</div>';
+  // 卡片1：打品方案
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#059669;">1</span><h3>打品方案<span class="comm-badge b-green">生效日期：2026年8月1日</span></h3></div><div class="comm-card-body">';
+
+  // 选品机制
+  h += '<div class="comm-stitle green">选品机制</div>';
+  h += buildTable(['运营提供', '说明'], [
+    [{ v: '商品机制' }, { v: '佣金机制、价格策略等' }],
+    [{ v: '达人佣金' }, { v: '各渠道达人佣金标准' }],
+    [{ v: '产品资料' }, { v: '产品卖点、素材、详情页等' }],
+    [{ v: '打品策略' }, { v: '推广节奏、目标达人类型等' }],
+    [{ v: '提成比例' }, { v: '新发品提成确认（1%或1.5%）' }]
+  ]);
+  h += '<div class="comm-tnote">运营端提供商品信息，商务专员根据自身达人资产和打品精力自行评估是否主推。</div>';
+
+  // 商品定位与基础提成
+  h += '<div class="comm-stitle green">商品定位与基础提成</div>';
   h += '<div class="comm-type-row">';
-  h += '<div class="comm-type-box new"><div class="ctb-name">新发品</div><div class="ctb-rate">1% / 1.5%</div><div class="ctb-desc">基础提成1%，打品期加持可达1.5%</div></div>';
-  h += '<div class="comm-type-box hot"><div class="ctb-name">爆款品</div><div class="ctb-rate">0.6%</div><div class="ctb-desc">月GMV达标的高动销商品</div></div>';
-  h += '<div class="comm-type-box norm"><div class="ctb-name">常规品</div><div class="ctb-rate">0.3%</div><div class="ctb-desc">稳定销售的长尾商品</div></div>';
+  h += '<div class="comm-type-box new"><div class="ctb-name">新发品</div><div class="ctb-rate">1% / 1.5%</div><div class="ctb-desc">由部门根据销售战略、销售规划、打品规划等综合评定。提成分1%和1.5%两档，由运营确认。</div></div>';
+  h += '<div class="comm-type-box hot"><div class="ctb-name">爆款品</div><div class="ctb-rate">0.6%</div><div class="ctb-desc">单抖音平台月实销≥200万元（按实销金额口径），当月定位为爆款品。</div></div>';
+  h += '<div class="comm-type-box norm"><div class="ctb-name">常规品</div><div class="ctb-rate">0.3%</div><div class="ctb-desc">不满足新发品和爆款品定位的所有产品。</div></div>';
   h += '</div>';
-  h += '<div class="comm-tnote info"><b>说明：</b>新发品指首次上架推广的商品；爆款品指月GMV达到爆款阈值的高动销商品；常规品为其余稳定销售商品。</div>';
-  h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">2</span><h3>打品周期三阶段</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle blue">新发品打品周期</div>';
+  // 优先级隔离规则
+  h += '<div class="comm-tnote warn"><b>优先级隔离规则：</b>三个定位按优先级（新发品 ＞ 爆款品 ＞ 常规品）相互隔离，同一商品同一周期内只按一个定位执行提成。但定位之间可存在提点加持的关联关系。例：新品在潜力期/突破期已达到实销200万元，仍只按新发品提成规则执行，不降为爆款品0.6%。</div>';
+
+  // 打品周期（三阶段）
+  h += '<div class="comm-stitle blue">打品周期（三阶段）</div>';
   h += '<div class="comm-flow-row">';
-  h += '<div class="comm-flow-box comm-fb-green"><div class="fb-label">第一阶段</div><div class="fb-value">潜力期</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">首月</div></div>';
-  h += '<div class="comm-flow-box comm-fb-orange"><div class="fb-label">第二阶段</div><div class="fb-value">突破期</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">第2-3月</div></div>';
-  h += '<div class="comm-flow-box comm-fb-red"><div class="fb-label">第三阶段</div><div class="fb-value">成熟期</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">第4月起</div></div>';
+  h += '<div class="comm-flow-box comm-fb-green"><div class="fb-label">阶段一</div><div class="fb-value">潜力期</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">首月 · 确定推广权归属</div></div>';
+  h += '<div class="comm-flow-box comm-fb-orange"><div class="fb-label">阶段二</div><div class="fb-value">突破期</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">第2-3月 · 归属人享新品提成</div></div>';
+  h += '<div class="comm-flow-box comm-fb-red"><div class="fb-label">阶段三</div><div class="fb-value">成熟期</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">第4月起 · 非归属人-0.1%转移归属人</div></div>';
   h += '</div>';
-  h += '<div class="comm-tnote"><b>潜力期（首月）：</b>新发品基础提成1%，打品期加持额外+0.5%，合计1.5%，鼓励商务快速推动新品起量。</div>';
-  h += '<div class="comm-tnote"><b>突破期（第2-3月）：</b>新发品进入增长突破阶段，维持打品期加持政策，助力商品冲量。</div>';
-  h += '<div class="comm-tnote warn"><b>成熟期（第4月起）：</b>新发品打品期结束，回归基础提成1%；若成长为爆款品则按爆款品0.6%计算，常规品按0.3%计算。</div>';
+
+  // 阶段一详细
+  h += '<div class="comm-stitle green">阶段一：潜力期（首月）— 确定推广权归属</div>';
+  h += '<div class="comm-tnote"><b>上线时间规则：</b><br>• 新发品上线为当月5号（含）前 → 当月即为打品首月<br>• 新发品上线为当月6号（含）后 → 上线之日起至次月月底为首月</div>';
+  h += '<div class="comm-tnote"><b>推广权归属规则：</b>首月参与打品的所有商务按该品实销排名，排名第一者获得推广权。</div>';
+  h += '<div class="comm-tnote"><b>排名并列处理：</b>①先按商务周期内个人所有商品总实销高者优先；②仍并列则按该品合作达人数量高者优先；③仍并列则共享推广权。</div>';
+  h += '<div class="comm-tnote pos"><b>全部参与者提成：</b>新发品 1% 或 1.5%</div>';
+
+  // 阶段二详细
+  h += '<div class="comm-stitle orange">阶段二：突破期（第2-3个自然月）— 归属人享新品提成 · 必须授权</div>';
+  h += '<div class="comm-tnote"><b>推广权归属人：</b>继续享新发品提成（1%或1.5%）</div>';
+  h += '<div class="comm-tnote warn"><b>授权义务：</b>推广权归属人必须授权所在小组60%以上人员参与推广该新品。</div>';
+  h += '<div class="comm-tnote"><b>非归属人：</b>按商品实际定位提成（爆款0.6% / 常规0.3%）</div>';
+  h += '<div class="comm-tnote pos"><b>延期奖励：</b>阶段内有1个月新发品实销达成爆款标准（≥200万），归属人可延长新品提成2个月。</div>';
+  h += '<div class="comm-tnote info"><b>归属人：</b>新发品 1% 或 1.5%　|　<b>非归属人：</b>爆款 0.6% / 常规 0.3%</div>';
+
+  // 阶段三详细
+  h += '<div class="comm-stitle">阶段三：成熟期（第4个月起）— 正常定位 · 非归属人-0.1%转移归属人</div>';
+  h += '<div class="comm-tnote">新发品进入成熟期后，按正常商品定位（爆款/常规）提成，不再享新发品提成率。</div>';
+  h += '<div class="comm-tnote"><b>商品推广权归属人：</b>自己业绩按正常提成比例 + 额外获得非归属人业绩的0.1%</div>';
+  h += '<div class="comm-tnote"><b>非归属人（参与推广人员）：</b>正常提成比例 -0.1%</div>';
+  h += '<div class="comm-tnote info"><b>归属人：</b>自己业绩 爆款0.6% / 常规0.3% + 非归属人业绩×0.1%　|　<b>非归属人：</b>爆款 0.5% / 常规 0.2%</div>';
   h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">3</span><h3>商务专员提成规则</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle">商品基础提成率</div>';
-  h += buildTable(['商品类型', '基础提成率', '说明'], [
-    [{ v: '新发品' }, { v: '1%', cls: 'num-positive' }, { v: '打品期加持+0.5%可达1.5%' }],
-    [{ v: '爆款品' }, { v: '0.6%', cls: 'num-positive' }, { v: '高动销爆款商品' }],
-    [{ v: '常规品' }, { v: '0.3%' }, { v: '稳定销售的长尾商品' }]
+  // 卡片2：提成方案
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">2</span><h3>提成方案</h3></div><div class="comm-card-body">';
+
+  // 商务专员部分
+  h += '<div class="comm-stitle blue">商务专员部分</div>';
+  h += '<div class="comm-info-row">';
+  h += '<div class="comm-info-box"><div class="ib-label">计算基数</div><div class="ib-value">个人业绩实销金额</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">区分维度</div><div class="ib-value">按商品定位分档</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">计算周期</div><div class="ib-value">月度</div></div>';
+  h += '</div>';
+
+  // 表1：商品基础提成率
+  h += '<div class="comm-stitle">表1：商品基础提成率</div>';
+  h += buildTable(['商品定位', '提成率', '定位标准'], [
+    [{ v: '新发品' }, { v: '1% 或 1.5%', cls: 'num-positive' }, { v: '部门综合评定，运营确认提成档位' }],
+    [{ v: '爆款品' }, { v: '0.6%', cls: 'num-positive' }, { v: '单抖音平台月实销≥200万（实销金额口径）' }],
+    [{ v: '常规品' }, { v: '0.3%' }, { v: '不满足新发品和爆款品的所有产品' }]
   ]);
-  h += '<div class="comm-stitle green">新发品打品期规则</div>';
-  h += '<div class="comm-tnote pos"><b>打品期加持：</b>新发品在潜力期（首月）与突破期（第2-3月）享受额外0.5%提成加持，实际提成率达1.5%。</div>';
-  h += '<div class="comm-stitle orange">成熟期规则</div>';
-  h += '<div class="comm-tnote warn"><b>成熟期回归：</b>第4个月起打品期加持结束，新发品回归基础提成1%。若期间成长为爆款品，按爆款品0.6%提成；若归为常规品，按0.3%提成。</div>';
-  h += '<div class="comm-stitle">打新品加持爆款机制</div>';
-  h += '<div class="comm-tnote info"><b>联动激励：</b>商务专员成功打造的新发品在打品期内成长为爆款品时，该商品在剩余打品期内仍享受1.5%加持提成，鼓励商务持续推动新品向爆款转化。</div>';
-  h += '</div></div>';
+  h += '<div class="comm-tnote"><b>说明：</b>新发品1%和1.5%的适用档位由运营在打品立项时确认。三个定位按优先级相互隔离（新发品＞爆款品＞常规品），同一商品同一月只按一个定位执行。新品在打品期内已达爆款标准，仍按新发品提成执行，不降档。</div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#ea580c;">4</span><h3>商务组长提成</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle orange">组长提成率（团队GMV提成）</div>';
-  h += buildTable(['商品类型', '组长提成率'], [
-    [{ v: '新发品' }, { v: '0.3%', cls: 'num-positive' }],
-    [{ v: '爆款品' }, { v: '0.2%', cls: 'num-positive' }],
-    [{ v: '常规品' }, { v: '0.1%' }]
+  // 表2：新发品打品期提成规则
+  h += '<div class="comm-stitle">表2：新发品打品期提成规则</div>';
+  h += buildTable(['打品阶段', '推广权归属人', '非归属人', '说明'], [
+    [{ v: '潜力期（首月）' }, { v: '1% / 1.5%', cls: 'num-positive' }, { v: '1% / 1.5%', cls: 'num-positive' }, { v: '所有参与者均按新发品提成，首月排名确定推广权' }],
+    [{ v: '突破期（第2-3月）' }, { v: '1% / 1.5%', cls: 'num-positive' }, { v: '爆款0.6% / 常规0.3%' }, { v: '归属人继续享新品提成；非归属人按实际定位执行' }],
+    [{ v: '突破期延期奖励' }, { v: '延长2个月', cls: 'num-positive' }, { v: '—' }, { v: '阶段内1个月实销≥200万，归属人新品提成延长2个月' }]
   ]);
-  h += '<div class="comm-tnote"><b>说明：</b>商务组长按所辖团队整体GMV的对应商品类型提成率计算，鼓励组长推动团队全面发展新发品与爆款品。</div>';
+  h += '<div class="comm-tnote warn"><b>授权义务：</b>突破期推广权归属人必须授权所在小组60%以上人员参与推广该新品。未达到授权比例的，视为放弃独家推广权，该新品对所有商务开放。</div>';
+
+  // 表3：成熟期提成规则
+  h += '<div class="comm-stitle">表3：成熟期提成规则</div>';
+  h += buildTable(['商品定位', '基础提成', '推广权归属人', '非归属人'], [
+    [{ v: '爆款品' }, { v: '0.6%' }, { v: '自己业绩0.6% + 非归属人业绩×0.1%', cls: 'num-positive' }, { v: '0.6%-0.1%=0.5%' }],
+    [{ v: '常规品' }, { v: '0.3%' }, { v: '自己业绩0.3% + 非归属人业绩×0.1%', cls: 'num-positive' }, { v: '0.3%-0.1%=0.2%' }]
+  ]);
+  h += '<div class="comm-tnote"><b>说明：</b>新发品进入成熟期后转为按实际商品定位执行。推广权归属人自己业绩按基础提成执行，额外获得所有非归属人推广该商品业绩的0.1%作为权益奖励；非归属人在基础提成上-0.1%。此规则仅适用于从新发品转入成熟期的商品，非打品起源的爆款品/常规品按基础提成执行。</div>';
+
+  // 表4：打新品加持爆款机制
+  h += '<div class="comm-stitle orange">表4：打新品加持爆款机制（潜力期+突破期生效）</div>';
+  h += '<div class="comm-flow-row">';
+  h += '<div class="comm-flow-box comm-fb-green"><div class="fb-label">条件1</div><div class="fb-value">+0%</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">新品实销＜30万</div></div>';
+  h += '<div class="comm-flow-box comm-fb-orange"><div class="fb-label">条件2</div><div class="fb-value">+0.1%</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">1个新品≥30万</div></div>';
+  h += '<div class="comm-flow-box comm-fb-red"><div class="fb-label">条件3</div><div class="fb-value">+0.1%×N</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">N个新品各≥30万</div></div>';
+  h += '</div>';
+  h += buildTable(['条件', '爆款品提点加持', '封顶'], [
+    [{ v: '单个新品月实销＜30万' }, { v: '+0%' }, { v: '—' }],
+    [{ v: '单个新品月实销≥30万' }, { v: '+0.1%', cls: 'num-positive' }, { v: '—' }],
+    [{ v: 'N个新品各自月实销≥30万' }, { v: '+0.1%×N', cls: 'num-positive' }, { v: '最高+0.3%' }]
+  ]);
+  h += '<div class="comm-tnote info"><b>加持规则说明：</b>面向所有商务专员，在新品潜力期和突破期生效。单个专员当月有多个新发单品各达30万，其所有爆款商品提点叠加+0.1%×N，但封顶+0.3%。例：某专员当月3个新品各达30万+，爆款提成=0.6%+0.3%=0.9%。</div>';
+
+  // 商务组长部分
+  h += '<div class="comm-stitle orange">商务组长部分</div>';
+  h += '<div class="comm-info-row">';
+  h += '<div class="comm-info-box"><div class="ib-label">计算基数</div><div class="ib-value">管理幅宽内专员总业绩实销</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">区分维度</div><div class="ib-value">按商品定位分档</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">计算周期</div><div class="ib-value">月度</div></div>';
+  h += '</div>';
+
+  // 表5：商务组长提成比例
+  h += '<div class="comm-stitle">表5：商务组长提成比例</div>';
+  h += buildTable(['商品定位', '提成率', '适用周期', '说明'], [
+    [{ v: '新发品' }, { v: '0.3%', cls: 'num-positive' }, { v: '仅潜力期+突破期（前3个月）' }, { v: '当月归属小组的所有新发品实销金额' }],
+    [{ v: '爆款品' }, { v: '0.2%', cls: 'num-positive' }, { v: '全周期' }, { v: '当月归属小组的所有爆款品实销金额' }],
+    [{ v: '常规品' }, { v: '0.1%' }, { v: '全周期' }, { v: '当月归属小组的所有常规品实销金额' }]
+  ]);
+  h += '<div class="comm-tnote warn"><b>说明：</b>组长新发品提成0.3%仅针对前3个月。进入成熟期后，原新发品转为爆款品/常规品，组长按对应比例（0.2%/0.1%）执行。组长不享受打新品加持爆款机制和成熟期非归属人业绩0.1%转移机制。</div>';
   h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#059669;">5</span><h3>组织裂变 · 组长晋升体系</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle green">三级组长晋升通道</div>';
+  // 卡片3：组织裂变方案
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">3</span><h3>组织裂变方案</h3></div><div class="comm-card-body">';
+
+  // 商务组长分级与待遇
+  h += '<div class="comm-stitle">商务组长分级与待遇</div>';
   h += '<div class="comm-leader-row">';
-  h += '<div class="comm-leader-box l1"><div class="lb-level">LEVEL 1</div><div class="lb-name">初级组长</div><div class="lb-salary">5000<small> + 1000</small></div><div class="lb-req">基础底薪5000元 + 管理津贴1000元</div></div>';
-  h += '<div class="comm-leader-box l2"><div class="lb-level">LEVEL 2</div><div class="lb-name">高级组长</div><div class="lb-salary">6000<small> + 1500</small></div><div class="lb-req">基础底薪6000元 + 管理津贴1500元</div></div>';
-  h += '<div class="comm-leader-box l3"><div class="lb-level">LEVEL 3</div><div class="lb-name">资深组长</div><div class="lb-salary">7000<small> + 2000</small></div><div class="lb-req">基础底薪7000元 + 管理津贴2000元</div></div>';
-  h += '</div></div></div>';
+  h += '<div class="comm-leader-box l1"><div class="lb-level">LEVEL 1</div><div class="lb-name">初级商务组长</div><div class="lb-salary">5,000<small> + 1,000</small></div><div class="lb-req">至少打造1款爆款的完整项目经理经验</div></div>';
+  h += '<div class="comm-leader-box l2"><div class="lb-level">LEVEL 2</div><div class="lb-name">高级商务组长</div><div class="lb-salary">6,000<small> + 1,500</small></div><div class="lb-req">至少打造2款爆款的完整项目经理经验</div></div>';
+  h += '<div class="comm-leader-box l3"><div class="lb-level">LEVEL 3</div><div class="lb-name">资深商务组长</div><div class="lb-salary">7,000<small> + 2,000</small></div><div class="lb-req">至少打造3款爆款的完整项目经理经验</div></div>';
+  h += '</div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#909399;">6</span><h3>通用规则</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-tnote"><b>规则1：</b>提成按自然月结算，以实际到账GMV为准，退款部分从当月GMV中扣除。</div>';
-  h += '<div class="comm-tnote"><b>规则2：</b>新发品打品期自商品首次推广当月起计算，连续3个月（潜力期+突破期），第4个月起进入成熟期。</div>';
-  h += '<div class="comm-tnote"><b>规则3：</b>爆款品判定标准为月GMV达到爆款阈值（具体阈值由运营部按月发布），次月按爆款品提成率执行。</div>';
-  h += '<div class="comm-tnote"><b>规则4：</b>商务组长需完成所辖团队管理职责，团队GMV未达标时管理津贴按比例扣减。</div>';
-  h += '<div class="comm-tnote"><b>规则5：</b>本方案自2026年8月起执行，最终解释权归公司商务管理部所有。</div>';
+  // 晋升规则
+  h += '<div class="comm-stitle">晋升规则</div>';
+  h += buildTable(['晋升维度', '要求', '说明'], [
+    [{ v: '打爆款经验' }, { v: '满足对应级别爆款项目数量' }, { v: '初级≥1款 / 高级≥2款 / 资深≥3款' }],
+    [{ v: '团队组织规划' }, { v: '结合团队实际编制需求' }, { v: '非自动晋升，需有对应编制空缺' }],
+    [{ v: '管理能力评估' }, { v: '通过管理能力综合评估' }, { v: '评估维度待细化' }],
+    [{ v: '晋升周期' }, { v: '半年度一次（7月 / 1月）' }, { v: '最小晋升周期为半年度' }]
+  ]);
+  h += '<div class="comm-tnote info"><b>晋升路径：</b>商务专员 → 初级商务组长（≥1爆）→ 高级商务组长（≥2爆）→ 资深商务组长（≥3爆）。每次晋升需同时满足爆款经验+团队规划+管理评估三个维度，且最小周期为半年度。</div>';
+
+  // 通用规则
+  h += '<div class="comm-stitle">通用规则</div>';
+  h += '<ol class="comm-rlist">';
+  h += '<li><b>数据采集：</b>订单&销售数据以飞瓜执行订单数据为准，达人归属以订单明细归属达人运营为准。</li>';
+  h += '<li><b>商品定位判定：</b>以商品ID为采集筛选项，按月度单商品实销金额或运营策略判定。爆款品门槛为单抖音平台月实销≥200万元（实销金额口径）。</li>';
+  h += '<li><b>排名并列处理：</b>潜力期首月实销排名并列时，依次按：①个人所有商品总实销高者优先；②该品合作达人数量高者优先；③仍并列则共享推广权。</li>';
+  h += '<li><b>打新品加持封顶：</b>打新品加持爆款提点最高封顶+0.3%（即最多按3个新品计算加持）。</li>';
+  h += '<li><b>处罚规则：</b>如遇工作失误造成运营损失，依据严重程度进行业绩扣除等处罚，包括但不限于佣金设置错误、机制错误等。</li>';
+  h += '</ol>';
   h += '</div></div>';
   return h;
 }
 
 function commPlanV2HTML() {
   var h = '';
-  h += '<div class="comm-overview-card"><div class="comm-overview-icon" style="background:linear-gradient(135deg,#2563eb,#409eff);">📊</div><div class="comm-overview-info">';
-  h += '<h3>第二版 · 双轨提成（2026年5-7月执行）</h3>';
-  h += '<p>按商品类型（上新/稳定/长尾）和GMV阶梯双维度设计提成，专员与组长分别适用不同GMV区间档位，实现精细化分层激励。</p>';
-  h += '</div></div>';
+  // 卡片1：商务提成方案（第二版）
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">1</span><h3>商务提成方案（第二版）<span class="comm-badge b-blue">2026年5月-7月</span></h3></div><div class="comm-card-body">';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">1</span><h3>商品类型划分</h3></div><div class="comm-card-body">';
+  // 方案目的
+  h += '<div class="comm-stitle blue">方案目的</div>';
+  h += '<div class="comm-tnote">基于团队总体经营目标达成及商品运营策略推进的要求，通过优化达人合作策略及资源配置，提升商务销售业绩和商品全销售周期管理，实现与达人的长期合作。</div>';
+
+  // 两个info-box
+  h += '<div class="comm-info-row cols-2">';
+  h += '<div class="comm-info-box"><div class="ib-label">适用岗位</div><div class="ib-value">商务专员、商务组长</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">数据来源</div><div class="ib-value">热度云订单</div></div>';
+  h += '</div>';
+
+  // 方案总规则
+  h += '<div class="comm-stitle">方案总规则</div>';
+  h += '<ol class="comm-rlist">';
+  h += '<li>商务专员按个人全渠道归属个人的实际销售额总额计算，按专员提成比例表阶梯提成。</li>';
+  h += '<li>商务组长按管辖内全渠道全部达人的实际销售额总额计算，按组长提成比例表阶梯提成。</li>';
+  h += '<li>两者提成比例均区分商品类型，月度商品类型按月度运营策略灵活调整。</li>';
+  h += '</ol>';
+
+  // 商品类型定义
+  h += '<div class="comm-stitle">商品类型定义</div>';
   h += '<div class="comm-type-row">';
-  h += '<div class="comm-type-box new"><div class="ctb-name">上新商品</div><div class="ctb-rate">新品</div><div class="ctb-desc">新上架推广的商品</div></div>';
-  h += '<div class="comm-type-box hot"><div class="ctb-name">稳定商品</div><div class="ctb-rate">≥50万</div><div class="ctb-desc">月GMV≥50万的稳定销售商品</div></div>';
-  h += '<div class="comm-type-box norm"><div class="ctb-name">长尾商品</div><div class="ctb-rate"><50万</div><div class="ctb-desc">月GMV<50万的长尾商品</div></div>';
-  h += '</div></div></div>';
-
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">2</span><h3>商务专员提成表</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle">4档GMV阶梯 × 3类商品（提成率）</div>';
-  h += buildTable(['月GMV区间', '上新商品', '稳定商品', '长尾商品'], [
-    [{ v: '0 - 20万' }, { v: '4‰', cls: 'num-positive' }, { v: '2‰' }, { v: '2‰' }],
-    [{ v: '20 - 40万' }, { v: '6‰', cls: 'num-positive' }, { v: '3‰' }, { v: '—' }],
-    [{ v: '40 - 60万' }, { v: '8‰', cls: 'num-positive' }, { v: '5‰' }, { v: '—' }],
-    [{ v: '60万以上' }, { v: '10‰', cls: 'num-positive' }, { v: '6‰' }, { v: '—' }]
-  ]);
-  h += '<div class="comm-tnote warn"><b>注意：</b>长尾商品仅在月GMV 0-20万区间有2‰提成，20万以上区间不再计提长尾商品提成，鼓励商务聚焦上新与稳定商品。</div>';
+  h += '<div class="comm-type-box new"><div class="ctb-name">上新商品</div><div class="ctb-rate">新品</div><div class="ctb-desc">包括"新品上新"和"老品新卖"，新品保护期1-6个月，享受上新商品提成标准。</div></div>';
+  h += '<div class="comm-type-box hot"><div class="ctb-name">稳定商品</div><div class="ctb-rate">≥50万</div><div class="ctb-desc">单商品全渠道全链接实销（自营+合作）≥50万元，享受稳定商品提成标准。</div></div>';
+  h += '<div class="comm-type-box norm"><div class="ctb-name">长尾商品</div><div class="ctb-rate">＜50万</div><div class="ctb-desc">单商品全渠道全链接实销（自营+合作）＜50万元，享受长尾商品提成标准。</div></div>';
+  h += '</div>';
   h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#ea580c;">3</span><h3>商务组长提成表</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle orange">4档团队GMV阶梯 × 3类商品（提成率）</div>';
-  h += buildTable(['团队月GMV区间', '上新商品', '稳定商品', '长尾商品'], [
-    [{ v: '50 - 100万' }, { v: '2‰', cls: 'num-positive' }, { v: '1‰' }, { v: '1‰' }],
-    [{ v: '100 - 200万' }, { v: '3‰', cls: 'num-positive' }, { v: '2‰' }, { v: '—' }],
-    [{ v: '200 - 300万' }, { v: '4‰', cls: 'num-positive' }, { v: '3‰' }, { v: '—' }],
-    [{ v: '300万以上' }, { v: '5‰', cls: 'num-positive' }, { v: '4‰' }, { v: '—' }]
+  // 卡片2：提成比例表
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">2</span><h3>提成比例表</h3></div><div class="comm-card-body">';
+
+  // 商务专员提成比例表
+  h += '<div class="comm-stitle blue">商务专员提成比例表</div>';
+  h += '<div class="comm-tnote warn"><b>注意：</b>长尾商品个人实销≥50万元按稳定商品提成标准走。</div>';
+  h += buildTable(['实销区间', '上新商品', '稳定商品', '长尾商品'], [
+    [{ v: '0W＜S≤20W' }, { v: '4‰', cls: 'num-positive' }, { v: '2‰' }, { v: '2‰' }],
+    [{ v: '20W＜S≤40W' }, { v: '6‰', cls: 'num-positive' }, { v: '3‰' }, { v: '—' }],
+    [{ v: '40W＜S≤60W' }, { v: '8‰', cls: 'num-positive' }, { v: '5‰' }, { v: '—' }],
+    [{ v: '60W＜S≤∞' }, { v: '10‰', cls: 'num-positive' }, { v: '6‰' }, { v: '—' }]
   ]);
-  h += '<div class="comm-tnote"><b>说明：</b>组长按所辖团队整体GMV对应档位计算提成，团队GMV越高、上新商品越多，组长收益越大。</div>';
+
+  // 商务组长提成比例表
+  h += '<div class="comm-stitle orange">商务组长提成比例表</div>';
+  h += buildTable(['实销区间', '上新商品', '稳定商品', '长尾商品'], [
+    [{ v: '50W＜S≤100W' }, { v: '2‰', cls: 'num-positive' }, { v: '1‰' }, { v: '1‰' }],
+    [{ v: '100W＜S≤200W' }, { v: '3‰', cls: 'num-positive' }, { v: '2‰' }, { v: '—' }],
+    [{ v: '200W＜S≤300W' }, { v: '4‰', cls: 'num-positive' }, { v: '3‰' }, { v: '—' }],
+    [{ v: '300W＜S≤∞' }, { v: '5‰', cls: 'num-positive' }, { v: '4‰' }, { v: '—' }]
+  ]);
+
+  // 其它说明
+  h += '<div class="comm-stitle">其它说明</div>';
+  h += '<ol class="comm-rlist">';
+  h += '<li>订单&销售数据采集以热度云订单页面为准，达人归属以订单明细归属达人运营为准。</li>';
+  h += '<li>商品类型以商品ID为采集筛选项，按月度全渠道单商品总额或月度运营策略进行判定。</li>';
+  h += '<li>如遇工作失误造成运营损失，依据严重程度进行业绩扣除等处罚。</li>';
+  h += '</ol>';
   h += '</div></div>';
   return h;
 }
 
 function commPlanV1HTML() {
   var h = '';
-  h += '<div class="comm-overview-card"><div class="comm-overview-icon" style="background:linear-gradient(135deg,#ea580c,#f59e0b);">🏆</div><div class="comm-overview-info">';
-  h += '<h3>第一版 · 奖金激励（2026年1-4月执行）</h3>';
-  h += '<p>以阶梯提成+晋升奖金+专项激励三重激励为核心，简单直观，适合业务起步阶段快速拉动商务积极性。</p>';
+  // 卡片1：奖金激励方案（第一版）
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#ea580c;">1</span><h3>奖金激励方案（第一版）<span class="comm-badge b-orange">2026年1月-4月</span></h3></div><div class="comm-card-body">';
+  h += '<div class="comm-info-row cols-4">';
+  h += '<div class="comm-info-box"><div class="ib-label">适用岗位</div><div class="ib-value">商务专员/中级/高级/资深</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">计算周期</div><div class="ib-value">月度</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">数据来源</div><div class="ib-value">热度云订单</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">计算基数</div><div class="ib-value">实际销售额(S)阶梯提成</div></div>';
+  h += '</div>';
   h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#ea580c;">1</span><h3>阶梯提成</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle orange">4档GMV阶梯提成率</div>';
-  h += buildTable(['月GMV区间', '提成率'], [
-    [{ v: '0 - 30万' }, { v: '3‰' }],
-    [{ v: '30 - 60万' }, { v: '5‰', cls: 'num-positive' }],
-    [{ v: '60 - 90万' }, { v: '8‰', cls: 'num-positive' }],
-    [{ v: '90万以上' }, { v: '10‰', cls: 'num-positive' }]
+  // 卡片2：销售业绩提成
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">2</span><h3>销售业绩提成<span class="comm-badge b-blue">比例制 · 阶梯递增</span></h3></div><div class="comm-card-body">';
+  h += buildTable(['档次', '销售额区间', '提成比例'], [
+    [{ v: 'A' }, { v: '0W < S ≤ 30W' }, { v: '3‰' }],
+    [{ v: 'B' }, { v: '30W < S ≤ 60W' }, { v: '5‰', cls: 'num-positive' }],
+    [{ v: 'C' }, { v: '60W < S ≤ 90W' }, { v: '8‰', cls: 'num-positive' }],
+    [{ v: 'D' }, { v: '90W < S' }, { v: '10‰', cls: 'num-positive' }]
   ]);
-  h += '<div class="comm-tnote"><b>说明：</b>按月GMV所处阶梯适用对应提成率，GMV越高提成率越高，激励商务冲击高阶梯。</div>';
   h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">2</span><h3>晋升奖金</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle blue">4档晋升奖金（月度GMV达标奖金）</div>';
-  h += buildTable(['月GMV区间', '晋升奖金'], [
-    [{ v: '5 - 10万' }, { v: '200 元' }],
-    [{ v: '10 - 25万' }, { v: '600 元', cls: 'num-positive' }],
-    [{ v: '25 - 40万' }, { v: '1000 元', cls: 'num-positive' }],
-    [{ v: '40 - 55万' }, { v: '1500 元', cls: 'num-positive' }]
+  // 卡片3：销售晋升奖金
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#059669;">3</span><h3>销售晋升奖金<span class="comm-badge b-green">固定金额 · 现金激励</span></h3></div><div class="comm-card-body">';
+  h += '<div class="comm-info-row cols-2">';
+  h += '<div class="comm-info-box"><div class="ib-label">激励形式</div><div class="ib-value">现场现金激励</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">税务处理</div><div class="ib-value">纳入薪资个税计算</div></div>';
+  h += '</div>';
+  h += buildTable(['档次', '销售额区间', '岗位等级', '现金激励'], [
+    [{ v: 'A' }, { v: '5W < S ≤ 10W' }, { v: '商务专员' }, { v: '200元' }],
+    [{ v: 'B' }, { v: '10W < S ≤ 25W' }, { v: '中级商务专员' }, { v: '600元', cls: 'num-positive' }],
+    [{ v: 'C' }, { v: '25W < S ≤ 40W' }, { v: '高级商务专员' }, { v: '1000元', cls: 'num-positive' }],
+    [{ v: 'D' }, { v: '40W < S ≤ 55W' }, { v: '资深商务专员' }, { v: '1500元', cls: 'num-positive' }]
   ]);
-  h += '<div class="comm-tnote info"><b>说明：</b>月GMV达到5万即可获得晋升奖金，GMV越高奖金越多，额外激励商务突破业绩门槛。</div>';
+  h += '<div class="comm-tnote info"><b>晋升路径：</b>商务专员 → 中级商务专员 → 高级商务专员 → 资深商务专员。</div>';
   h += '</div></div>';
 
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#059669;">3</span><h3>专项激励</h3></div><div class="comm-card-body">';
-  h += '<div class="comm-stitle green">销量规模激励</div>';
-  h += '<div class="comm-tnote pos"><b>规模奖金：</b>当月GMV突破指定规模（如100万、200万）时，额外发放一次性规模激励奖金，鼓励商务冲击更高销量目标。</div>';
-  h += '<div class="comm-stitle green">过程指标激励</div>';
-  h += '<div class="comm-tnote pos"><b>过程奖金：</b>对达人开发数、新品上架数、直播场次等过程指标设定激励，达成对应指标即可获得过程激励奖金，引导商务关注过程管理。</div>';
+  // 卡片4：专项激励
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">4</span><h3>专项激励<span class="comm-badge b-purple">定制化 · 一项一议</span></h3></div><div class="comm-card-body">';
+  h += '<div class="comm-info-row">';
+  h += '<div class="comm-info-box"><div class="ib-label">制定依据</div><div class="ib-value">月度营销策略牵引</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">核心目标</div><div class="ib-value">大促为核心，方案百花齐放</div></div>';
+  h += '<div class="comm-info-box"><div class="ib-label">协商机制</div><div class="ib-value">专项激励一项一议</div></div>';
+  h += '</div>';
+  h += '<div class="comm-type-row cols-2">';
+  h += '<div class="comm-type-box new"><div class="ctb-name">A. 销量规模激励</div><div class="ctb-desc">包括订单激励、销售额激励等，以销量规模为目标导向的短期激励方案。</div></div>';
+  h += '<div class="comm-type-box hot"><div class="ctb-name">B. 过程指标激励</div><div class="ctb-desc">包括短视频产出量激励、直播场次激励等，以运营过程指标为考核导向。</div></div>';
+  h += '</div>';
   h += '</div></div>';
   return h;
 }
@@ -4374,37 +4562,30 @@ function commPlanV1HTML() {
 function commPlanCompareHTML() {
   var h = '';
   h += '<div class="comm-overview-card"><div class="comm-overview-icon">⚖️</div><div class="comm-overview-info">';
-  h += '<h3>三版提成方案对比</h3>';
+  h += '<h3>版本对比</h3>';
   h += '<p>从奖金激励到双轨提成再到打品驱动，提成体系持续迭代升级，激励机制从简单直观走向精细化、全生命周期覆盖。</p>';
   h += '</div></div>';
 
-  h += '<div class="comm-cmp-grid">';
-  h += '<div class="comm-cmp-col v1"><h4>V1 · 奖金激励</h4><ul>';
-  h += '<li>执行时间：2026年1-4月</li><li>核心特征：阶梯提成+晋升奖金</li>';
-  h += '<li>提成维度：按月GMV阶梯（4档）</li><li>提成率：3‰-10‰</li>';
-  h += '<li>晋升奖金：200-1500元</li><li>专项激励：销量规模+过程指标</li>';
-  h += '<li>商品区分：无商品类型区分</li><li>组长体系：未单独设计</li>';
-  h += '</ul></div>';
-  h += '<div class="comm-cmp-col v2"><h4>V2 · 双轨提成</h4><ul>';
-  h += '<li>执行时间：2026年5-7月</li><li>核心特征：商品类型×GMV双轨</li>';
-  h += '<li>商品分类：上新/稳定/长尾</li><li>专员提成：4档×3类（2‰-10‰）</li>';
-  h += '<li>组长提成：4档×3类（1‰-5‰）</li><li>组长GMV门槛：50万起</li>';
-  h += '<li>长尾商品限制：20万以上不计提</li><li>晋升奖金：取消，转为提成</li>';
-  h += '</ul></div>';
-  h += '<div class="comm-cmp-col v3"><h4>V3 · 打品驱动型</h4><ul>';
-  h += '<li>执行时间：2026年8月起</li><li>核心特征：打品三阶段驱动</li>';
-  h += '<li>商品分类：新发品/爆款品/常规品</li><li>新发品打品期：1.5%（加持+0.5%）</li>';
-  h += '<li>打品三阶段：潜力/突破/成熟</li><li>组长提成：新发0.3%/爆款0.2%/常规0.1%</li>';
-  h += '<li>组织裂变：3级组长晋升体系</li><li>新品加持爆款联动机制</li>';
-  h += '</ul></div>';
-  h += '</div>';
-
-  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">★</span><h3>方案演进路线</h3></div><div class="comm-card-body">';
+  // 方案演进历程
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#6d28d9;">★</span><h3>方案演进历程</h3></div><div class="comm-card-body">';
   h += '<div class="comm-evo-row">';
-  h += '<div class="comm-evo-card e1"><div class="evo-phase">PHASE 1</div><div class="evo-name">奖金激励</div><div class="evo-date">2026年1-4月</div><div class="evo-features">• 简单直观的阶梯提成<br>• 晋升奖金额外激励<br>• 适合业务起步阶段</div></div>';
-  h += '<div class="comm-evo-card e2"><div class="evo-phase">PHASE 2</div><div class="evo-name">双轨提成</div><div class="evo-date">2026年5-7月</div><div class="evo-features">• 商品类型分层提成<br>• 专员与组长双体系<br>• 聚焦上新与稳定商品</div></div>';
-  h += '<div class="comm-evo-card e3"><div class="evo-phase">PHASE 3</div><div class="evo-name">打品驱动型</div><div class="evo-date">2026年8月起</div><div class="evo-features">• 商品全生命周期覆盖<br>• 打品三阶段动态激励<br>• 组织裂变晋升体系</div></div>';
-  h += '</div></div></div>';
+  h += '<div class="comm-evo-card e1"><div class="evo-phase">PHASE 1</div><div class="evo-name">奖金激励方案</div><div class="evo-date">2026年1-4月</div><div class="evo-features">✦ 阶梯提成 + 现金晋升奖金<br>✦ 不区分商品类型<br>✦ 4级岗位晋升体系<br>✦ 专项激励一项一议</div></div>';
+  h += '<div class="comm-evo-card e2"><div class="evo-phase">PHASE 2</div><div class="evo-name">双轨提成方案</div><div class="evo-date">2026年5-7月</div><div class="evo-features">✦ 阶梯提成（3类×4档）<br>✦ 区分商品类型<br>✦ 专员与组长双体系<br>✦ 长尾商品限制机制</div></div>';
+  h += '<div class="comm-evo-card e3"><div class="evo-phase">PHASE 3</div><div class="evo-name">打品驱动型</div><div class="evo-date">2026年8月起</div><div class="evo-features">✦ 打品三阶段周期管理<br>✦ 推广权竞争机制<br>✦ 打新品加持爆款<br>✦ 组织裂变晋升</div></div>';
+  h += '</div>';
+  h += '</div></div>';
+
+  // 三版对比表格
+  h += '<div class="comm-card"><div class="comm-card-header"><span class="num" style="background:#2563eb;">★</span><h3>三版对比</h3></div><div class="comm-card-body">';
+  h += buildTable(['对比维度', 'V3 打品驱动型', 'V2 双轨提成', 'V1 奖金激励'], [
+    [{ v: '执行时间' }, { v: '2026年8月起' }, { v: '2026年5-7月' }, { v: '2026年1-4月' }],
+    [{ v: '核心特征' }, { v: '打品三阶段+推广权竞争' }, { v: '商品类型×GMV双轨' }, { v: '阶梯提成+晋升奖金' }],
+    [{ v: '商品区分' }, { v: '新发品/爆款品/常规品' }, { v: '上新/稳定/长尾' }, { v: '不区分' }],
+    [{ v: '提成方式' }, { v: '按商品定位+打品阶段' }, { v: '阶梯提成（3类×4档）' }, { v: '阶梯提成（4档）' }],
+    [{ v: '组长机制' }, { v: '三级组长+裂变晋升' }, { v: '组长阶梯提成' }, { v: '无' }],
+    [{ v: '打品机制' }, { v: '三阶段+推广权竞争' }, { v: '无' }, { v: '无' }]
+  ]);
+  h += '</div></div>';
   return h;
 }
 
