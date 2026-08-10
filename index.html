@@ -1940,7 +1940,12 @@ body {
       <!-- ====== 系统管理-权限配置 ====== -->
       <div class="page" id="page-system-permission">
         <div class="breadcrumb"><span>系统管理</span> / <span class="current">权限配置</span></div>
-        <div class="page-header"><div class="page-title">权限配置</div></div>
+        <div class="page-header">
+          <div class="page-title">权限配置</div>
+          <div class="page-actions">
+            <button class="biz-apply-btn" onclick="showAddRoleModal()">➕ 新建角色</button>
+          </div>
+        </div>
         <div class="kpi-grid">
           <div class="kpi-card"><div class="kpi-label">角色总数</div><div class="kpi-value" id="perm-kpi-roles">--</div></div>
           <div class="kpi-card"><div class="kpi-label">账号总数</div><div class="kpi-value" id="perm-kpi-users">--</div></div>
@@ -2002,6 +2007,27 @@ body {
           <div class="modal-footer">
             <button class="modal-btn" onclick="closeUserModal()">取消</button>
             <button class="modal-btn primary" onclick="saveUser()">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 新建/编辑角色弹窗 -->
+      <div class="modal-overlay" id="roleModal" style="display:none;">
+        <div class="modal-box" style="max-width:520px;">
+          <div class="modal-header">
+            <span class="modal-title" id="roleModalTitle">新建角色</span>
+            <button class="modal-close" onclick="closeRoleModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-row"><label>角色名称</label><input type="text" id="roleModalName" placeholder="请输入角色名称（如：运营经理）"></div>
+            <div class="form-row" style="align-items:flex-start;">
+              <label>可访问菜单</label>
+              <div id="roleModalMenus" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;flex:1;"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn" onclick="closeRoleModal()">取消</button>
+            <button class="modal-btn primary" onclick="saveRole()">保存</button>
           </div>
         </div>
       </div>
@@ -2131,11 +2157,10 @@ var autoRefreshTimer = null;
 var editingUserId = null;
 
 // ==================== 用户与角色体系 ====================
+var ADMIN_MENUS = ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','system-permission','system-account','system-log','system-config','system-ai'];
+
 var ROLE_CONFIG = {
-  admin:   { text: '超级管理员', menus: ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','system-permission','system-account','system-log','system-config','system-ai'] },
-  manager: { text: '运营经理',   menus: ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base'] },
-  analyst: { text: '数据分析师', menus: ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base'] },
-  viewer:  { text: '只读用户',   menus: ['home','business-data'] }
+  admin: { text: '超级管理员', menus: ADMIN_MENUS.slice(), fixed: true }
 };
 
 var MENU_LABELS = {
@@ -2144,6 +2169,82 @@ var MENU_LABELS = {
   'knowledge-base':'产品知识库','system-permission':'权限配置','system-account':'账号管理',
   'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
 };
+
+// 获取角色配置（兼容动态角色）
+function getRoleConfig(roleKey) {
+  if (roleKey === 'admin') return ROLE_CONFIG.admin;
+  return ROLE_CONFIG[roleKey] || null;
+}
+
+// 获取角色显示文本
+function getRoleText(roleKey) {
+  var rc = getRoleConfig(roleKey);
+  return rc ? rc.text : roleKey;
+}
+
+// 获取角色可访问菜单
+function getRoleMenus(roleKey) {
+  var rc = getRoleConfig(roleKey);
+  return rc ? rc.menus : ['home'];
+}
+
+// 从GitHub加载自定义角色
+function loadCustomRolesFromGitHub() {
+  fetch('roles.json?t=' + Date.now())
+    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+    .then(function(data) {
+      if (data && data.length > 0) {
+        data.forEach(function(r) {
+          if (r.key && r.key !== 'admin') {
+            ROLE_CONFIG[r.key] = { text: r.text, menus: r.menus || ['home'], fixed: false };
+          }
+        });
+        console.log('[用户系统] roles.json 加载成功，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
+      }
+    })
+    .catch(function(err) {
+      console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）');
+    });
+}
+
+// 保存自定义角色到GitHub
+function saveCustomRolesToGitHub() {
+  var customRoles = [];
+  Object.keys(ROLE_CONFIG).forEach(function(key) {
+    if (key !== 'admin') {
+      customRoles.push({ key: key, text: ROLE_CONFIG[key].text, menus: ROLE_CONFIG[key].menus });
+    }
+  });
+
+  var content = utf8ToBase64(JSON.stringify(customRoles, null, 2));
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/roles.json';
+  var headers = {
+    'Authorization': 'token ' + GITHUB_USERS_CONFIG.token,
+    'Accept': 'application/vnd.github+json'
+  };
+
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(resp) { return resp.json(); })
+    .then(function(data) {
+      var payload = {
+        message: '更新角色配置 ' + new Date().toLocaleString('zh-CN'),
+        content: content,
+        branch: GITHUB_USERS_CONFIG.branch
+      };
+      if (data.sha) payload.sha = data.sha;
+      return fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + GITHUB_USERS_CONFIG.token,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+    })
+    .then(function() { console.log('[用户系统] 角色配置已同步到服务器'); })
+    .catch(function(err) { console.error('[用户系统] 角色配置同步失败:', err); });
+}
 
 // GitHub用户数据全局配置
 var GITHUB_USERS_CONFIG = {
@@ -2874,43 +2975,140 @@ function renderPermissionPage() {
   var users = getUsers();
   var activeCount = users.filter(function(u){ return u.status === 1; }).length;
   var disabledCount = users.length - activeCount;
-  var roleCount = Object.keys(ROLE_CONFIG).length;
+  var roleKeys = Object.keys(ROLE_CONFIG);
 
-  setKpi('perm-kpi-roles', roleCount);
+  setKpi('perm-kpi-roles', roleKeys.length);
   setKpi('perm-kpi-users', users.length);
   setKpi('perm-kpi-active', activeCount);
   setKpi('perm-kpi-disabled', disabledCount);
 
   // 角色权限表
-  var roleCols = ['角色名称','可访问菜单数','可访问菜单','账号数'];
-  var roleRows = Object.keys(ROLE_CONFIG).map(function(roleKey) {
+  var roleCols = ['角色名称','可访问菜单数','可访问菜单','账号数','操作'];
+  var roleRows = roleKeys.map(function(roleKey) {
     var rc = ROLE_CONFIG[roleKey];
     var menuTexts = rc.menus.map(function(m){ return MENU_LABELS[m] || m; }).join('、');
     var userCount = users.filter(function(u){ return u.role === roleKey; }).length;
+    var actions = '';
+    if (rc.fixed) {
+      actions = '<span style="color:var(--muted);font-size:12px;">系统内置</span>';
+    } else {
+      actions = '<button class="action-btn" onclick="showEditRoleModal(\'' + roleKey + '\')">编辑</button> ';
+      actions += '<button class="action-btn danger" onclick="deleteRole(\'' + roleKey + '\')">删除</button>';
+    }
     return [
       {v: rc.text},
       {v: rc.menus.length + '个'},
       {v: menuTexts},
-      {v: userCount + '人'}
+      {v: userCount + '人'},
+      {v: actions}
     ];
   });
   var roleTable = document.getElementById('perm-role-table');
   if (roleTable) roleTable.innerHTML = buildTable(roleCols, roleRows);
 
-  // 菜单权限说明表
-  var menuCols = ['菜单名称','超级管理员','运营经理','数据分析师','只读用户'];
+  // 菜单权限说明表（动态列）
+  var menuCols = ['菜单名称'].concat(roleKeys.map(function(rk){ return ROLE_CONFIG[rk].text; }));
   var menuKeys = Object.keys(MENU_LABELS);
   var menuRows = menuKeys.map(function(mk) {
-    return [
-      {v: MENU_LABELS[mk]},
-      {v: ROLE_CONFIG.admin.menus.indexOf(mk) !== -1 ? '✅' : '—'},
-      {v: ROLE_CONFIG.manager.menus.indexOf(mk) !== -1 ? '✅' : '—'},
-      {v: ROLE_CONFIG.analyst.menus.indexOf(mk) !== -1 ? '✅' : '—'},
-      {v: ROLE_CONFIG.viewer.menus.indexOf(mk) !== -1 ? '✅' : '—'}
-    ];
+    var row = [{v: MENU_LABELS[mk]}];
+    roleKeys.forEach(function(rk) {
+      row.push({v: ROLE_CONFIG[rk].menus.indexOf(mk) !== -1 ? '✅' : '—'});
+    });
+    return row;
   });
   var menuTable = document.getElementById('perm-menu-table');
   if (menuTable) menuTable.innerHTML = buildTable(menuCols, menuRows);
+}
+
+// ==================== 角色管理（新建/编辑/删除） ====================
+var editingRoleKey = null;
+
+function showAddRoleModal() {
+  editingRoleKey = null;
+  document.getElementById('roleModalTitle').textContent = '新建角色';
+  document.getElementById('roleModalName').value = '';
+  renderRoleMenuCheckboxes([]);
+  document.getElementById('roleModal').style.display = 'flex';
+}
+
+function showEditRoleModal(roleKey) {
+  var rc = ROLE_CONFIG[roleKey];
+  if (!rc || rc.fixed) return;
+  editingRoleKey = roleKey;
+  document.getElementById('roleModalTitle').textContent = '编辑角色';
+  document.getElementById('roleModalName').value = rc.text;
+  renderRoleMenuCheckboxes(rc.menus);
+  document.getElementById('roleModal').style.display = 'flex';
+}
+
+function closeRoleModal() {
+  document.getElementById('roleModal').style.display = 'none';
+  editingRoleKey = null;
+}
+
+function renderRoleMenuCheckboxes(selectedMenus) {
+  var container = document.getElementById('roleModalMenus');
+  if (!container) return;
+  var html = '';
+  Object.keys(MENU_LABELS).forEach(function(mk) {
+    var checked = selectedMenus.indexOf(mk) !== -1 ? ' checked' : '';
+    html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">'
+      + '<input type="checkbox" value="' + mk + '"' + checked + ' style="width:16px;height:16px;">'
+      + '<span>' + MENU_LABELS[mk] + '</span></label>';
+  });
+  container.innerHTML = html;
+}
+
+function saveRole() {
+  var name = document.getElementById('roleModalName').value.trim();
+  if (!name) { alert('请输入角色名称'); return; }
+
+  // 检查名称是否重复
+  var nameExists = false;
+  Object.keys(ROLE_CONFIG).forEach(function(rk) {
+    if (rk !== editingRoleKey && ROLE_CONFIG[rk].text === name) {
+      nameExists = true;
+    }
+  });
+  if (nameExists) { alert('角色名称「' + name + '」已存在，请使用其他名称'); return; }
+
+  // 收集选中的菜单
+  var checked = document.querySelectorAll('#roleModalMenus input[type=checkbox]:checked');
+  var menus = [];
+  checked.forEach(function(cb) { menus.push(cb.value); });
+  if (menus.length === 0) {
+    if (!confirm('未选择任何菜单，该角色将无法访问任何页面。确定要保存吗？')) return;
+  }
+
+  if (editingRoleKey === null) {
+    // 新建角色
+    var roleKey = 'role_' + Date.now();
+    ROLE_CONFIG[roleKey] = { text: name, menus: menus, fixed: false };
+  } else {
+    // 编辑角色
+    ROLE_CONFIG[editingRoleKey].text = name;
+    ROLE_CONFIG[editingRoleKey].menus = menus;
+  }
+
+  saveCustomRolesToGitHub();
+  closeRoleModal();
+  renderPermissionPage();
+  showSyncToast(editingRoleKey === null ? '角色创建成功，已同步到服务器' : '角色修改成功，已同步到服务器');
+}
+
+function deleteRole(roleKey) {
+  var rc = ROLE_CONFIG[roleKey];
+  if (!rc || rc.fixed) return;
+  var userCount = getUsers().filter(function(u) { return u.role === roleKey; }).length;
+  var msg = '确定要删除角色「' + rc.text + '」吗？';
+  if (userCount > 0) {
+    msg += '\n该角色下还有 ' + userCount + ' 个账号，删除后这些账号将无法正常登录。';
+  }
+  if (!confirm(msg)) return;
+  delete ROLE_CONFIG[roleKey];
+  saveCustomRolesToGitHub();
+  renderPermissionPage();
+  showSyncToast('角色已删除，已同步到服务器');
 }
 
 // ==================== 账号管理页面 ====================
@@ -2918,7 +3116,7 @@ function renderAccountPage() {
   var users = getUsers();
   var cols = ['序号','姓名','角色','状态','操作'];
   var rows = users.map(function(u, idx) {
-    var roleText = ROLE_CONFIG[u.role] ? ROLE_CONFIG[u.role].text : u.role;
+    var roleText = getRoleText(u.role);
     var statusText = u.status === 1 ? '<span style="color:var(--success);font-weight:600;">启用</span>' : '<span style="color:var(--danger);font-weight:600;">禁用</span>';
     var isSelf = (u.name === currentUser.name);
     var actions = '';
@@ -2941,12 +3139,25 @@ function renderAccountPage() {
   if (el) el.innerHTML = buildTable(cols, rows);
 }
 
+// 动态填充用户弹窗的角色下拉
+function populateUserRoleSelect(selectedRole) {
+  var select = document.getElementById('userModalRole');
+  if (!select) return;
+  var html = '<option value="admin">超级管理员（全部权限）</option>';
+  Object.keys(ROLE_CONFIG).forEach(function(rk) {
+    if (rk !== 'admin') {
+      html += '<option value="' + rk + '"' + (selectedRole === rk ? ' selected' : '') + '>' + ROLE_CONFIG[rk].text + '</option>';
+    }
+  });
+  select.innerHTML = html;
+}
+
 function showAddUserModal() {
   editingUserId = null;
   document.getElementById('userModalTitle').textContent = '新建账号';
   document.getElementById('userModalName').value = '';
   document.getElementById('userModalPass').value = '';
-  document.getElementById('userModalRole').value = 'viewer';
+  populateUserRoleSelect('admin');
   document.getElementById('userModalStatus').value = '1';
   document.getElementById('userModal').style.display = 'flex';
 }
@@ -2959,7 +3170,7 @@ function showEditUserModal(id) {
   document.getElementById('userModalTitle').textContent = '编辑账号';
   document.getElementById('userModalName').value = user.name;
   document.getElementById('userModalPass').value = user.password;
-  document.getElementById('userModalRole').value = user.role;
+  populateUserRoleSelect(user.role);
   document.getElementById('userModalStatus').value = String(user.status);
   document.getElementById('userModal').style.display = 'flex';
 }
@@ -5171,6 +5382,7 @@ window.addEventListener('resize', function(){
 (function initData(){
   readGlobalFilters();
   preloadUsers(); // 预加载全局用户数据
+  loadCustomRolesFromGitHub(); // 加载自定义角色
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadBusinessData);
   } else {
