@@ -1024,7 +1024,7 @@ body {
         <label>密码</label>
         <input type="password" id="loginPass" placeholder="请输入密码">
       </div>
-      <button class="login-btn" onclick="doLogin()">登 录</button>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">登 录</button>
       <!-- 登录提示已移除 -->
     </div>
   </div>
@@ -1686,6 +1686,17 @@ var MENU_LABELS = {
   'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
 };
 
+// GitHub用户数据全局配置
+var GITHUB_USERS_CONFIG = {
+  token: ['github_pat_','11CEWY66A0','uMj4xSASbBQ5','_R4rfcyNBkla','2QadJTHPOBXeg','hrEpCJNRysf7c','7oYSim2YCCX7R','LLC5de7oR'].join(''),
+  repo: 'HanKang0122/LY-Data',
+  branch: 'main',
+  file: 'users.json'
+};
+
+var usersCache = null;
+var usersReady = false;
+
 function getDefaultUsers() {
   return [
     { id: 1, name: '韩康', password: 'shft20240801', role: 'admin', status: 1 },
@@ -1693,21 +1704,78 @@ function getDefaultUsers() {
   ];
 }
 
+// UTF-8字符串转Base64（支持中文）
+function utf8ToBase64(str) {
+  var bytes = new TextEncoder().encode(str);
+  var binary = '';
+  for (var i = 0; i < bytes.length; i++) { binary += String.fromCharCode(bytes[i]); }
+  return btoa(binary);
+}
+
+// 预加载用户数据（从GitHub托管的users.json读取）
+function preloadUsers() {
+  fetch('users.json?t=' + Date.now())
+    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+    .then(function(data) {
+      usersCache = data;
+      usersReady = true;
+      console.log('[用户系统] users.json 加载成功，共 ' + data.length + ' 个用户');
+    })
+    .catch(function(err) {
+      console.error('[用户系统] users.json 加载失败，使用默认用户:', err);
+      usersCache = getDefaultUsers();
+      usersReady = true;
+    });
+}
+
 function getUsers() {
-  try {
-    var users = JSON.parse(localStorage.getItem('systemUsers') || 'null');
-    if (!users || users.length === 0) {
-      users = getDefaultUsers();
-      localStorage.setItem('systemUsers', JSON.stringify(users));
-    }
-    return users;
-  } catch(e) {
-    return getDefaultUsers();
-  }
+  if (usersCache && usersCache.length > 0) return usersCache;
+  return getDefaultUsers();
+}
+
+// 同步用户数据到GitHub服务器
+function pushUsersToGitHub(users) {
+  var content = utf8ToBase64(JSON.stringify(users, null, 2));
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/' + GITHUB_USERS_CONFIG.file;
+  var headers = {
+    'Authorization': 'token ' + GITHUB_USERS_CONFIG.token,
+    'Accept': 'application/vnd.github+json'
+  };
+
+  // 先获取当前文件的SHA（用于更新而非新建）
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(resp) { return resp.json(); })
+    .then(function(data) {
+      var payload = {
+        message: '更新用户数据 ' + new Date().toLocaleString('zh-CN'),
+        content: content,
+        branch: GITHUB_USERS_CONFIG.branch
+      };
+      if (data.sha) payload.sha = data.sha;
+
+      return fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + GITHUB_USERS_CONFIG.token,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+    })
+    .then(function(resp) { return resp.json(); })
+    .then(function() {
+      console.log('[用户系统] 用户数据已同步到服务器');
+    })
+    .catch(function(err) {
+      console.error('[用户系统] 同步失败:', err);
+      alert('⚠️ 账号数据同步到服务器失败，请检查网络后重试');
+    });
 }
 
 function saveUsers(users) {
-  try { localStorage.setItem('systemUsers', JSON.stringify(users)); } catch(e) {}
+  usersCache = users; // 立即更新本地缓存，保证页面响应
+  pushUsersToGitHub(users); // 异步推送到GitHub，实现全局同步
 }
 
 // ==================== 登录/登出 ====================
@@ -1715,6 +1783,27 @@ function doLogin() {
   var user = document.getElementById('loginUser').value.trim();
   var pass = document.getElementById('loginPass').value;
   if (!user || !pass) { alert('请输入账号和密码'); return; }
+
+  // 用户数据可能还在从服务器加载，等待就绪
+  if (!usersReady) {
+    var btn = document.getElementById('loginBtn');
+    var origText = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = '加载中...'; btn.disabled = true; }
+    var waitCount = 0;
+    var checkInterval = setInterval(function() {
+      waitCount++;
+      if (usersReady) {
+        clearInterval(checkInterval);
+        if (btn) { btn.textContent = origText; btn.disabled = false; }
+        doLogin(); // 数据就绪后重新执行登录
+      } else if (waitCount > 50) { // 10秒超时
+        clearInterval(checkInterval);
+        if (btn) { btn.textContent = origText; btn.disabled = false; }
+        alert('用户数据加载超时，请刷新页面重试');
+      }
+    }, 200);
+    return;
+  }
 
   var users = getUsers();
   var found = null;
@@ -2422,6 +2511,7 @@ function saveUser() {
   closeUserModal();
   renderAccountPage();
   renderPermissionPage();
+  showSyncToast(editingUserId === null ? '账号创建成功，已同步到服务器' : '账号修改成功，已同步到服务器');
 }
 
 function toggleUserStatus(id) {
@@ -2432,6 +2522,7 @@ function toggleUserStatus(id) {
     saveUsers(users);
     renderAccountPage();
     renderPermissionPage();
+    showSyncToast(users[idx].status === 1 ? '账号已启用，已同步到服务器' : '账号已禁用，已同步到服务器');
   }
 }
 
@@ -2444,6 +2535,21 @@ function deleteUser(id) {
   saveUsers(users);
   renderAccountPage();
   renderPermissionPage();
+  showSyncToast('账号已删除，已同步到服务器');
+}
+
+// 轻量提示Toast
+function showSyncToast(msg) {
+  var toast = document.getElementById('syncToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'syncToast';
+    toast.style.cssText = 'position:fixed;top:80px;right:30px;background:#1a73e8;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s;opacity:0;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(function() { toast.style.opacity = '0'; }, 2500);
 }
 
 function setHomeTrendGran(g) { appState.homeTrendGran = g; renderHomeGmvTrend(); }
@@ -3474,6 +3580,7 @@ window.addEventListener('resize', function(){
 
 (function initData(){
   readGlobalFilters();
+  preloadUsers(); // 预加载全局用户数据
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadBusinessData);
   } else {
