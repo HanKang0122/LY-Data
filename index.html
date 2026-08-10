@@ -1712,18 +1712,53 @@ function utf8ToBase64(str) {
   return btoa(binary);
 }
 
-// 预加载用户数据（从GitHub托管的users.json读取）
+// 预加载用户数据（从GitHub托管的users.json读取，同时合并本地遗留账号）
 function preloadUsers() {
   fetch('users.json?t=' + Date.now())
     .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
     .then(function(data) {
+      // 合并本地遗留账号（旧localStorage中创建但未同步的账号）
+      var localUsers = [];
+      try {
+        var stored = JSON.parse(localStorage.getItem('systemUsers') || '[]');
+        if (stored && stored.length > 0) localUsers = stored;
+      } catch(e) {}
+
+      if (localUsers.length > 0) {
+        // 本地有遗留账号，合并到全局列表（全局已有的不覆盖）
+        var existingNames = data.map(function(u) { return u.name; });
+        var merged = false;
+        localUsers.forEach(function(lu) {
+          if (existingNames.indexOf(lu.name) === -1) {
+            data.push(lu);
+            merged = true;
+            console.log('[用户系统] 发现本地遗留账号已自动合并: ' + lu.name);
+          }
+        });
+        if (merged) {
+          usersCache = data;
+          // 自动将合并后的数据同步到服务器
+          pushUsersToGitHub(data);
+        }
+      }
+
       usersCache = data;
       usersReady = true;
       console.log('[用户系统] users.json 加载成功，共 ' + data.length + ' 个用户');
     })
     .catch(function(err) {
       console.error('[用户系统] users.json 加载失败，使用默认用户:', err);
-      usersCache = getDefaultUsers();
+      // 回退：尝试读取本地存储
+      try {
+        var stored = JSON.parse(localStorage.getItem('systemUsers') || 'null');
+        if (stored && stored.length > 0) {
+          usersCache = stored;
+        } else {
+          usersCache = getDefaultUsers();
+        }
+      } catch(e) {
+        usersCache = getDefaultUsers();
+      }
       usersReady = true;
     });
 }
