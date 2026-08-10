@@ -7,20 +7,6 @@
     "status": 1
   },
   {
-    "id": 2,
-    "name": "陈曦玥",
-    "password": "syft123456",
-    "role": "viewer",
-    "status": 1
-  },
-  {
-    "id": 2,
-    "name": "viewer",
-    "password": "123456",
-    "role": "viewer",
-    "status": 1
-  },
-  {
     "id": 3,
     "name": "谢春艳",
     "password": "syft123456",
