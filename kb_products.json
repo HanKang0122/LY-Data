@@ -1,0 +1,45 @@
+[
+  {
+    "id": "p_1786424775087",
+    "name": "风干鸭翅根（香辣味）",
+    "category": "肉食类",
+    "status": "在售",
+    "spec": "150g/袋（约7个）/香辣味",
+    "barcode": "6979498733346",
+    "shelfLife": "90天",
+    "storage": "置于常温干燥，避免阳光直射",
+    "batchRule": "生产批号由生产日期、生产线编号、流水号及可选特殊标识组成",
+    "expiryStandard": "入库大于30天",
+    "ingredients": "鸭翅根（≥98%）、食用盐、赤藓糖醇、松茸鲜（复合调味料）、植物油、香辛料、辣椒、复合调味料",
+    "origin": "1.鸭翅根（樱桃谷鸭）：河北省沧州市2.松茸鲜：山东省济南市 3.赤藓糖醇：河北省沧州市 4.植物油：安徽省滁州市  5.包材：浙江省温州市",
+    "allergens": "本产品含有大豆及其制品",
+    "certIngredients": [],
+    "packMaterial": "通用自立袋：PET12/AL7/PA15/PE105，21cm*15cm，底部展开8cm，四层袋，双面28丝 标签：80g铜版纸复哑膜，正面标签15cm*13cm，背面标签15cm*8cm",
+    "packForm": "自立袋",
+    "packStorage": "置于常温干燥，避免阳光直射",
+    "packTransport": "1.包装袋干净  2.产品整齐装箱",
+    "packImages": [],
+    "productType": "熟肉制品",
+    "standardCode": "GB2726",
+    "sterilization": "辐照杀菌（7kGy） “辐照杀菌7k”指的是对产品施加7千戈瑞（kGy） 的电离辐射剂量，以达到杀菌目的。",
+    "processFlow": [],
+    "factories": [
+      {
+        "name": "安徽省超牛食品有限公司",
+        "scLicense": "SC10434022330298",
+        "address": "安徽省芜湖市南陵县安徽南陵经济技术开发区太白大道5号",
+        "qualifications": []
+      }
+    ],
+    "testTypeReport": [],
+    "testNutritionReport": [],
+    "testFactoryReport": [],
+    "testOtherReport": [],
+    "sellingPoints": "",
+    "usage": "",
+    "scenarios": "",
+    "targetGroup": "",
+    "excludeGroup": "",
+    "faq": []
+  }
+]
