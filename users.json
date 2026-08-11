@@ -12,5 +12,12 @@
     "password": "syft123456",
     "role": "manager",
     "status": 1
+  },
+  {
+    "id": 2,
+    "name": "陈曦玥",
+    "password": "syft123456",
+    "role": "viewer",
+    "status": 1
   }
 ]
