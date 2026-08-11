@@ -2187,7 +2187,10 @@ function getRoleConfig(roleKey) {
 // 获取角色显示文本
 function getRoleText(roleKey) {
   var rc = getRoleConfig(roleKey);
-  return rc ? rc.text : roleKey;
+  if (rc) return rc.text;
+  // 孤儿角色key（roles.json中已删除但用户仍引用）：显示友好提示
+  if (roleKey && roleKey !== 'admin') return '未配置角色';
+  return roleKey || '未知';
 }
 
 // 获取角色可访问菜单
@@ -2197,8 +2200,9 @@ function getRoleMenus(roleKey) {
 }
 
 // 从GitHub加载自定义角色
+var rolesReady = false;
 function loadCustomRolesFromGitHub() {
-  fetch('roles.json?t=' + Date.now())
+  return fetch('roles.json?t=' + Date.now())
     .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
     .then(function(data) {
       if (data && data.length > 0) {
@@ -2209,9 +2213,11 @@ function loadCustomRolesFromGitHub() {
         });
         console.log('[用户系统] roles.json 加载成功，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
       }
+      rolesReady = true;
     })
     .catch(function(err) {
       console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）');
+      rolesReady = true;
     });
 }
 
@@ -2267,8 +2273,7 @@ var usersReady = false;
 
 function getDefaultUsers() {
   return [
-    { id: 1, name: '韩康', password: 'shft20240801', role: 'admin', status: 1 },
-    { id: 2, name: 'viewer', password: '123456', role: 'viewer', status: 1 }
+    { id: 1, name: '韩康', password: 'shft20240801', role: 'admin', status: 1 }
   ];
 }
 
@@ -2388,14 +2393,14 @@ function doLogin() {
   if (!user || !pass) { alert('请输入账号和密码'); return; }
 
   // 用户数据可能还在从服务器加载，等待就绪
-  if (!usersReady) {
+  if (!usersReady || !rolesReady) {
     var btn = document.getElementById('loginBtn');
     var origText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = '加载中...'; btn.disabled = true; }
     var waitCount = 0;
     var checkInterval = setInterval(function() {
       waitCount++;
-      if (usersReady) {
+      if (usersReady && rolesReady) {
         clearInterval(checkInterval);
         if (btn) { btn.textContent = origText; btn.disabled = false; }
         doLogin(); // 数据就绪后重新执行登录
@@ -2426,7 +2431,7 @@ function doLogin() {
     return;
   }
 
-  currentUser = { name: found.name, role: found.role, roleText: ROLE_CONFIG[found.role] ? ROLE_CONFIG[found.role].text : found.role };
+  currentUser = { name: found.name, role: found.role, roleText: getRoleText(found.role) };
 
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('appLayout').classList.add('visible');
@@ -3004,6 +3009,10 @@ function refreshCurrentPage() { renderPageByRoute(appState.currentRoute); }
 
 // ==================== 权限配置页面 ====================
 function renderPermissionPage() {
+  if (!rolesReady) {
+    loadCustomRolesFromGitHub().then(function() { renderPermissionPage(); });
+    return;
+  }
   var users = getUsers();
   var activeCount = users.filter(function(u){ return u.status === 1; }).length;
   var disabledCount = users.length - activeCount;
@@ -3145,6 +3154,11 @@ function deleteRole(roleKey) {
 
 // ==================== 账号管理页面 ====================
 function renderAccountPage() {
+  if (!rolesReady) {
+    // 角色数据尚未加载完成，等待后重新渲染
+    loadCustomRolesFromGitHub().then(function() { renderAccountPage(); });
+    return;
+  }
   var users = getUsers();
   var cols = ['序号','姓名','角色','状态','操作'];
   var rows = users.map(function(u, idx) {
