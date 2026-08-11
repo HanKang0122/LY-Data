@@ -5787,8 +5787,26 @@ var kbProducts = []; // 产品资料数据
 var kbQcIssues = []; // 品控问题数据
 var kbActiveCategory = '肉食类'; // 当前选中的品类tab（默认第一个）
 var kbExpandedCats = {};
+var kbLastSavedAt = 0; // 上次保存时间戳（防止CDN缓存覆盖新数据）
 
-// 加载知识库数据（优先从localStorage读取缓存，再从GitHub刷新）
+// 通过GitHub API获取文件内容（绕过CDN缓存）
+function fetchKbFileViaApi(filename) {
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/' + filename + '?ref=' + GITHUB_USERS_CONFIG.branch;
+  return fetch(apiUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
+    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+    .then(function(data) {
+      if (data.content) {
+        // GitHub API返回base64编码的内容
+        var decoded = atob(data.content.replace(/\n/g, ''));
+        // 处理UTF-8编码
+        return decodeURIComponent(escape(decoded));
+      }
+      throw new Error('No content');
+    })
+    .then(function(text) { return JSON.parse(text); });
+}
+
+// 加载知识库数据（优先从localStorage读取缓存，再从GitHub API刷新）
 function loadKbData() {
   // 先从localStorage读取缓存数据，立即渲染
   try {
@@ -5805,9 +5823,14 @@ function loadKbData() {
     }
   } catch(e) {}
 
-  // 再从GitHub刷新最新数据
-  fetch('kb_products.json?t=' + Date.now())
-    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  // 如果刚刚保存过（2分钟内），跳过GitHub刷新，避免CDN缓存覆盖新数据
+  var now = Date.now();
+  if (now - kbLastSavedAt < 120000) {
+    return;
+  }
+
+  // 通过GitHub API获取最新数据（绕过CDN缓存）
+  fetchKbFileViaApi('kb_products.json')
     .then(function(d){
       kbProducts = d || [];
       try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
@@ -5815,11 +5838,10 @@ function loadKbData() {
       renderKbCategoryTabs();
     })
     .catch(function(){
-      // GitHub fetch失败时保留localStorage缓存，不清空
+      // API失败时保留localStorage缓存，不清空
       if (kbProducts.length === 0) { kbProducts = []; renderKbCategoryList(); renderKbCategoryTabs(); }
     });
-  fetch('kb_qc.json?t=' + Date.now())
-    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  fetchKbFileViaApi('kb_qc.json')
     .then(function(d){
       kbQcIssues = d || [];
       try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
@@ -6486,6 +6508,8 @@ function saveProduct() {
 function pushKbProductsToGitHub() {
   // 先保存到localStorage作为缓存
   try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
+  // 记录保存时间，防止切换页面后CDN缓存覆盖新数据
+  kbLastSavedAt = Date.now();
   var content = utf8ToBase64(JSON.stringify(kbProducts, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_products.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
@@ -6593,6 +6617,7 @@ function saveQcIssue() {
 
 function pushKbQcToGitHub() {
   try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
+  kbLastSavedAt = Date.now();
   var content = utf8ToBase64(JSON.stringify(kbQcIssues, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_qc.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
