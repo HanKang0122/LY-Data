@@ -2989,6 +2989,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
 <!-- ==================== ECharts ==================== -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<!-- ==================== SheetJS (Excel解析) ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // ==================== 数据中台：图表与计算 ====================
 var businessData = null;
@@ -4467,6 +4469,45 @@ function parseCSV(text) {
   return { headers: headers, rows: rows };
 }
 
+// 解析Excel文件（.xlsx/.xls），返回与parseCSV相同的格式 { headers, rows }
+function parseExcel(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var workbook = XLSX.read(data, { type: 'array' });
+      var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      var jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+      if (jsonData.length < 2) { callback({ headers: [], rows: [] }); return; }
+      var headers = jsonData[0].map(function(h) { return String(h).trim(); });
+      var rows = jsonData.slice(1).map(function(r) {
+        return r.map(function(cell) { return String(cell !== null && cell !== undefined ? cell : '').trim(); });
+      });
+      callback({ headers: headers, rows: rows });
+    } catch (err) {
+      callback(null, err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// 统一文件解析入口：根据扩展名自动选择CSV或Excel解析
+function parseUploadedFile(file, callback) {
+  var name = file.name.toLowerCase();
+  if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+    parseExcel(file, callback);
+  } else if (name.endsWith('.csv')) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try { callback(parseCSV(e.target.result)); }
+      catch (err) { callback(null, err); }
+    };
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    callback(null, new Error('不支持的文件格式，请上传 .xlsx、.xls 或 .csv 文件'));
+  }
+}
+
 function base64ToUtf8(b64) {
   var binary = atob(b64.replace(/\n/g, ''));
   var bytes = new Uint8Array(binary.length);
@@ -4553,20 +4594,18 @@ function handleTalentUpload(event) {
   var file = event.target.files[0];
   if (!file) return;
   var name = file.name.toLowerCase();
-  if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-    alert('暂不支持Excel格式，请将文件另存为CSV格式后重新上传');
+  if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
+    alert('仅支持 .xlsx、.xls 或 .csv 格式文件');
     event.target.value = '';
     return;
   }
-  if (!name.endsWith('.csv')) {
-    alert('仅支持CSV格式文件，请转换后上传');
-    event.target.value = '';
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
+  parseUploadedFile(file, function(parsed, err) {
+    if (err || !parsed) {
+      alert('文件解析失败：' + (err ? err.message : '未知错误'));
+      event.target.value = '';
+      return;
+    }
     try {
-      var parsed = parseCSV(e.target.result);
       var headers = parsed.headers.map(function(h) { return h.trim(); });
       var findIdx = function(keywords) {
         for (var i = 0; i < headers.length; i++) {
@@ -4603,13 +4642,12 @@ function handleTalentUpload(event) {
       renderTalentAssets();
       saveCommDataToGitHub('talent_assets.json', talentAssetsData, '达人资产数据');
       alert('成功导入 ' + talentAssetsData.length + ' 条达人数据');
-    } catch (err) {
-      console.error(err);
-      alert('CSV解析失败：' + err.message);
+    } catch (e) {
+      console.error(e);
+      alert('数据处理失败：' + e.message);
     }
     event.target.value = '';
-  };
-  reader.readAsText(file, 'UTF-8');
+  });
 }
 
 function renderTalentAssets() {
@@ -4625,7 +4663,7 @@ function renderTalentAssets() {
     setKpi('talent-kpi-avg', '--', 'talent-kpi-avg-sub', '无数据');
     var c1 = getChart('talent-platform-chart'); if (c1) c1.clear();
     var c2 = getChart('talent-top-chart'); if (c2) c2.clear();
-    if (el) el.innerHTML = '<div class="comm-empty-state"><div class="empty-icon">📊</div><div class="empty-text">暂无达人资产数据</div><div class="empty-hint">请点击"上传达人资产表"导入CSV文件</div></div>';
+    if (el) el.innerHTML = '<div class="comm-empty-state"><div class="empty-icon">📊</div><div class="empty-text">暂无达人资产数据</div><div class="empty-hint">请点击"上传达人资产表"导入Excel/CSV文件</div></div>';
     return;
   }
 
@@ -4715,20 +4753,18 @@ function handleOrderUpload(event) {
   var file = event.target.files[0];
   if (!file) return;
   var name = file.name.toLowerCase();
-  if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-    alert('暂不支持Excel格式，请将文件另存为CSV格式后重新上传');
+  if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
+    alert('仅支持 .xlsx、.xls 或 .csv 格式文件');
     event.target.value = '';
     return;
   }
-  if (!name.endsWith('.csv')) {
-    alert('仅支持CSV格式文件，请转换后上传');
-    event.target.value = '';
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
+  parseUploadedFile(file, function(parsed, err) {
+    if (err || !parsed) {
+      alert('文件解析失败：' + (err ? err.message : '未知错误'));
+      event.target.value = '';
+      return;
+    }
     try {
-      var parsed = parseCSV(e.target.result);
       var headers = parsed.headers.map(function(h) { return h.trim(); });
       var findIdx = function(keywords) {
         for (var i = 0; i < headers.length; i++) {
@@ -4762,13 +4798,12 @@ function handleOrderUpload(event) {
       renderOrderData();
       saveCommDataToGitHub('order_data.json', orderDataStore, '订单数据');
       alert('成功导入 ' + orderDataStore.length + ' 条订单数据');
-    } catch (err) {
-      console.error(err);
-      alert('CSV解析失败：' + err.message);
+    } catch (e) {
+      console.error(e);
+      alert('数据处理失败：' + e.message);
     }
     event.target.value = '';
-  };
-  reader.readAsText(file, 'UTF-8');
+  });
 }
 
 function renderOrderData() {
