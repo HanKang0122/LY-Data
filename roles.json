@@ -16,7 +16,10 @@
     "key": "role_1786415666806",
     "text": "产品开发岗",
     "menus": [
-      "knowledge-base"
+      "knowledge-base",
+      "knowledge-base:product-materials",
+      "knowledge-base:product-qc",
+      "knowledge-base:product-edit"
     ]
   }
 ]
