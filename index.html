@@ -2030,7 +2030,7 @@ body {
             <div class="form-row"><label>角色名称</label><input type="text" id="roleModalName" placeholder="请输入角色名称（如：运营经理）"></div>
             <div class="form-row" style="align-items:flex-start;">
               <label>可访问菜单</label>
-              <div id="roleModalMenus" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;flex:1;"></div>
+              <div id="roleModalMenus" style="flex:1;max-height:400px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -2167,15 +2167,81 @@ var editingUserId = null;
 // ==================== 用户与角色体系 ====================
 var ADMIN_MENUS = ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','system-permission','system-account','system-log','system-config','system-ai'];
 
-var ROLE_CONFIG = {
-  admin: { text: '超级管理员', menus: ADMIN_MENUS.slice(), fixed: true }
-};
-
 var MENU_LABELS = {
   'home':'首页','business-data':'经营数据','operation-data':'运营数据','product-data':'商品数据',
   'commerce-data':'商务数据','target-setting':'目标制定','opinion-monitor':'舆情监控','roi-model':'ROI模型',
   'knowledge-base':'产品知识库','system-permission':'权限配置','system-account':'账号管理',
   'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
+};
+
+// 二级菜单结构定义（与页面布局自动同步）
+// 每个一级菜单下可以有多条二级菜单，格式: '一级key:二级key' => '显示名'
+var SUB_MENU_LABELS = {
+  'business-data:overview': '经营总览',
+  'business-data:shops': '店铺对比',
+  'business-data:profit': '利润分析',
+  'commerce-data:talent-assets': '达人资产',
+  'commerce-data:order-data': '订单数据',
+  'commerce-data:commission-plan': '提成方案',
+  'commerce-data:sales-performance': '销售业绩',
+  'commerce-data:ops-analysis': '运营分析',
+  'opinion-monitor:review': '评价分析',
+  'opinion-monitor:warning': '差评预警',
+  'opinion-monitor:trend': '舆情趋势',
+  'roi-model:ad-roi': '投放ROI',
+  'roi-model:product-roi': '商品ROI',
+  'roi-model:talent-roi': '达人ROI',
+  'system-config:basic': '基础配置',
+  'system-config:refresh': '数据刷新',
+  'system-config:alert': '预警规则',
+  'system-ai:model': '模型配置',
+  'system-ai:prompt': '提示词模板',
+  'system-ai:history': '对话历史'
+};
+
+// 获取一级菜单下的二级菜单列表（动态）
+function getSubMenus(parentKey) {
+  var subs = [];
+  Object.keys(SUB_MENU_LABELS).forEach(function(k) {
+    if (k.indexOf(parentKey + ':') === 0) {
+      var subKey = k.substring(parentKey.length + 1);
+      subs.push({ key: subKey, fullKey: k, label: SUB_MENU_LABELS[k] });
+    }
+  });
+  // 同时从DOM动态发现未在SUB_MENU_LABELS中定义的tab
+  var page = document.getElementById('page-' + parentKey);
+  if (page) {
+    page.querySelectorAll('[data-biz-tab], [data-comm-tab], .tab-item').forEach(function(tab, idx) {
+      var label = tab.textContent.trim();
+      var subKey = tab.getAttribute('data-biz-tab') || tab.getAttribute('data-comm-tab') || ('tab-' + idx);
+      var fullKey = parentKey + ':' + subKey;
+      if (subs.findIndex(function(s){ return s.fullKey === fullKey; }) === -1) {
+        subs.push({ key: subKey, fullKey: fullKey, label: label });
+      }
+    });
+  }
+  return subs;
+}
+
+// 获取完整菜单树（一级+二级），用于权限配置页面
+function getFullMenuTree() {
+  var tree = [];
+  Object.keys(MENU_LABELS).forEach(function(mk) {
+    var node = { key: mk, label: MENU_LABELS[mk], subs: getSubMenus(mk) };
+    tree.push(node);
+  });
+  return tree;
+}
+
+// 超级管理员拥有全部二级菜单权限（动态生成）
+function getAdminMenus() {
+  var menus = ADMIN_MENUS.slice();
+  Object.keys(SUB_MENU_LABELS).forEach(function(k) { menus.push(k); });
+  return menus;
+}
+
+var ROLE_CONFIG = {
+  admin: { text: '超级管理员', menus: getAdminMenus(), fixed: true }
 };
 
 // 获取角色配置（兼容动态角色）
@@ -2461,7 +2527,7 @@ function doLogout() {
 
 // ==================== 菜单可见性控制 ====================
 function updateMenuVisibility() {
-  var allowedMenus = ROLE_CONFIG[currentUser.role] ? ROLE_CONFIG[currentUser.role].menus : ['home'];
+  var allowedMenus = getRoleMenus(currentUser.role);
   document.querySelectorAll('.menu-item[data-route]').forEach(function(item) {
     var route = item.getAttribute('data-route');
     var isSystemParent = item.getAttribute('onclick') === 'toggleSubmenu(this)';
@@ -2478,6 +2544,30 @@ function updateMenuVisibility() {
     } else {
       item.style.display = allowedMenus.indexOf(route) !== -1 ? '' : 'none';
     }
+  });
+}
+
+// 检查二级菜单权限：如果角色有一级菜单权限但没有特定二级菜单权限，则隐藏对应tab
+function updateSubMenuVisibility(route) {
+  var allowedMenus = getRoleMenus(currentUser.role);
+  var page = document.getElementById('page-' + route);
+  if (!page) return;
+  
+  // 检查该页面是否有一级菜单权限
+  if (allowedMenus.indexOf(route) === -1) return;
+  
+  // 检查是否有该一级菜单下的二级菜单权限
+  var subPrefix = route + ':';
+  var hasSubMenus = allowedMenus.some(function(m){ return m.indexOf(subPrefix) === 0; });
+  
+  if (!hasSubMenus) return; // 没有二级菜单权限细分，显示所有tab
+  
+  // 隐藏未授权的tab
+  page.querySelectorAll('[data-biz-tab], [data-comm-tab], .tab-item').forEach(function(tab) {
+    var subKey = tab.getAttribute('data-biz-tab') || tab.getAttribute('data-comm-tab');
+    if (!subKey) return;
+    var fullKey = route + ':' + subKey;
+    tab.style.display = allowedMenus.indexOf(fullKey) !== -1 ? '' : 'none';
   });
 }
 
@@ -2507,6 +2597,9 @@ function navigateTo(route) {
   var activeMenu = document.querySelector('.menu-item[data-route="' + route + '"]');
   if (activeMenu) activeMenu.classList.add('active');
 
+  // 更新二级菜单（tab）可见性
+  updateSubMenuVisibility(route);
+
   // 更新hash
   location.hash = '#/' + route;
 
@@ -2521,7 +2614,7 @@ function navigateTo(route) {
 
 // ==================== 权限校验 ====================
 function checkPermission(route) {
-  var allowedMenus = ROLE_CONFIG[currentUser.role] ? ROLE_CONFIG[currentUser.role].menus : ['home'];
+  var allowedMenus = getRoleMenus(currentUser.role);
   return allowedMenus.indexOf(route) !== -1;
 }
 
@@ -3027,7 +3120,17 @@ function renderPermissionPage() {
   var roleCols = ['角色名称','可访问菜单数','可访问菜单','账号数','操作'];
   var roleRows = roleKeys.map(function(roleKey) {
     var rc = ROLE_CONFIG[roleKey];
-    var menuTexts = rc.menus.map(function(m){ return MENU_LABELS[m] || m; }).join('、');
+    var menuTexts = rc.menus.filter(function(m){ return m.indexOf(':') === -1; }).map(function(m){
+      var label = MENU_LABELS[m] || m;
+      // 查找该一级菜单下已选中的二级菜单
+      var subPrefix = m + ':';
+      var selectedSubs = rc.menus.filter(function(sm){ return sm.indexOf(subPrefix) === 0; });
+      if (selectedSubs.length > 0) {
+        var subLabels = selectedSubs.map(function(sm){ return SUB_MENU_LABELS[sm] || sm.split(':')[1]; });
+        return label + '(' + subLabels.join('/') + ')';
+      }
+      return label;
+    }).join('、');
     var userCount = users.filter(function(u){ return u.role === roleKey; }).length;
     var actions = '';
     if (rc.fixed) {
@@ -3047,15 +3150,25 @@ function renderPermissionPage() {
   var roleTable = document.getElementById('perm-role-table');
   if (roleTable) roleTable.innerHTML = buildTable(roleCols, roleRows);
 
-  // 菜单权限说明表（动态列）
+  // 菜单权限说明表（动态列，含二级菜单）
   var menuCols = ['菜单名称'].concat(roleKeys.map(function(rk){ return ROLE_CONFIG[rk].text; }));
-  var menuKeys = Object.keys(MENU_LABELS);
-  var menuRows = menuKeys.map(function(mk) {
-    var row = [{v: MENU_LABELS[mk]}];
+  var menuRows = [];
+  var tree = getFullMenuTree();
+  tree.forEach(function(node) {
+    // 一级菜单行
+    var row = [{v: node.label, cls: node.subs.length > 0 ? 'num-primary' : ''}];
     roleKeys.forEach(function(rk) {
-      row.push({v: ROLE_CONFIG[rk].menus.indexOf(mk) !== -1 ? '✅' : '—'});
+      row.push({v: ROLE_CONFIG[rk].menus.indexOf(node.key) !== -1 ? '✅' : '—'});
     });
-    return row;
+    menuRows.push(row);
+    // 二级菜单行
+    node.subs.forEach(function(sub) {
+      var subRow = [{v: '  └ ' + sub.label}];
+      roleKeys.forEach(function(rk) {
+        subRow.push({v: ROLE_CONFIG[rk].menus.indexOf(sub.fullKey) !== -1 ? '✅' : '—'});
+      });
+      menuRows.push(subRow);
+    });
   });
   var menuTable = document.getElementById('perm-menu-table');
   if (menuTable) menuTable.innerHTML = buildTable(menuCols, menuRows);
@@ -3090,14 +3203,43 @@ function closeRoleModal() {
 function renderRoleMenuCheckboxes(selectedMenus) {
   var container = document.getElementById('roleModalMenus');
   if (!container) return;
+  var tree = getFullMenuTree();
   var html = '';
-  Object.keys(MENU_LABELS).forEach(function(mk) {
-    var checked = selectedMenus.indexOf(mk) !== -1 ? ' checked' : '';
-    html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">'
-      + '<input type="checkbox" value="' + mk + '"' + checked + ' style="width:16px;height:16px;">'
-      + '<span>' + MENU_LABELS[mk] + '</span></label>';
+  tree.forEach(function(node) {
+    var parentChecked = selectedMenus.indexOf(node.key) !== -1;
+    var subKeys = node.subs.map(function(s){ return s.fullKey; });
+    var allSubsChecked = subKeys.length > 0 && subKeys.every(function(sk){ return selectedMenus.indexOf(sk) !== -1; });
+    var someSubsChecked = subKeys.some(function(sk){ return selectedMenus.indexOf(sk) !== -1; });
+    
+    // 一级菜单行
+    html += '<div style="margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f0f0f0;">';
+    html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;">';
+    html += '<input type="checkbox" value="' + node.key + '"' + (parentChecked || allSubsChecked ? ' checked' : '') + ' style="width:16px;height:16px;" onchange="onParentMenuToggle(this,\'' + node.key + '\')">';
+    html += '<span>' + node.label + '</span></label>';
+    
+    // 二级菜单行
+    if (node.subs.length > 0) {
+      html += '<div style="margin-left:24px;margin-top:4px;display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;">';
+      node.subs.forEach(function(sub) {
+        var subChecked = selectedMenus.indexOf(sub.fullKey) !== -1 || parentChecked;
+        html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#555;">';
+        html += '<input type="checkbox" value="' + sub.fullKey + '"' + (subChecked ? ' checked' : '') + ' style="width:14px;height:14px;" data-parent="' + node.key + '">';
+        html += '<span>' + sub.label + '</span></label>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
   });
   container.innerHTML = html;
+}
+
+// 一级菜单全选/取消全选二级菜单
+function onParentMenuToggle(checkbox, parentKey) {
+  var container = document.getElementById('roleModalMenus');
+  if (!container) return;
+  container.querySelectorAll('input[data-parent="' + parentKey + '"]').forEach(function(sub) {
+    sub.checked = checkbox.checked;
+  });
 }
 
 function saveRole() {
