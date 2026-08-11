@@ -2271,6 +2271,10 @@ function loadCustomRolesFromGitHub() {
   return fetch('roles.json?t=' + Date.now())
     .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
     .then(function(data) {
+      // 清除旧的自定义角色（保留admin）
+      Object.keys(ROLE_CONFIG).forEach(function(key) {
+        if (key !== 'admin') delete ROLE_CONFIG[key];
+      });
       if (data && data.length > 0) {
         data.forEach(function(r) {
           if (r.key && r.key !== 'admin') {
