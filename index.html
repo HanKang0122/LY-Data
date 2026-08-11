@@ -1070,6 +1070,14 @@ body {
 .kb-tab-panel { display:none; }
 .kb-tab-panel.active { display:block; animation:fadeIn 0.3s ease; }
 
+/* 横向品类标签 */
+.kb-category-tabs { display:flex; gap:0; margin-bottom:16px; border-bottom:2px solid var(--border-light); padding:0; background:var(--bg-white); border-radius:var(--radius-md) var(--radius-md) 0 0; box-shadow:var(--shadow-sm); overflow-x:auto; }
+.kb-cat-tab { padding:10px 20px; cursor:pointer; font-size:14px; font-weight:600; color:var(--muted); white-space:nowrap; border-bottom:3px solid transparent; transition:all 0.2s; position:relative; bottom:-2px; }
+.kb-cat-tab:hover { color:var(--primary); background:var(--bg-light); }
+.kb-cat-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+.kb-cat-tab .cat-count { font-size:11px; color:var(--muted); margin-left:4px; background:#e8ecf1; padding:1px 6px; border-radius:8px; }
+.kb-cat-tab.active .cat-count { background:#d6e4ff; color:var(--primary); }
+
 .kb-category-section { background:var(--bg-white); border-radius:var(--radius-md); margin-bottom:16px; box-shadow:var(--shadow-sm); border:1px solid var(--border-light); overflow:hidden; }
 .kb-category-header { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:#f5f7fa; cursor:pointer; user-select:none; }
 .kb-category-header:hover { background:#eef1f6; }
@@ -1094,8 +1102,8 @@ body {
 .kb-detail-section-title { font-size:14px; font-weight:700; color:var(--primary); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--primary); }
 .kb-detail-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 20px; }
 .kb-detail-item { display:flex; font-size:13px; padding:4px 0; }
-.kb-detail-label { color:var(--muted); width:100px; flex-shrink:0; }
-.kb-detail-value { color:var(--ink); flex:1; }
+.kb-detail-label { color:var(--muted); width:110px; flex-shrink:0; }
+.kb-detail-value { color:var(--ink); flex:1; word-break:break-all; white-space:pre-wrap; }
 .kb-attachment { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:#f0f5ff; border:1px solid #d6e4ff; border-radius:4px; font-size:12px; color:var(--primary); cursor:pointer; margin:2px 4px 2px 0; }
 .kb-attachment:hover { background:#d6e4ff; }
 .kb-factory-block { border:1px solid var(--border); border-radius:6px; padding:12px; margin-bottom:10px; background:#fafbfc; }
@@ -1111,6 +1119,8 @@ body {
 .kb-form-row input, .kb-form-row select, .kb-form-row textarea { flex:1; padding:4px 8px; border:1px solid var(--border); border-radius:4px; font-size:13px; outline:none; }
 .kb-form-row input:focus, .kb-form-row select:focus, .kb-form-row textarea:focus { border-color:var(--primary); }
 .kb-form-row textarea { min-height:60px; resize:vertical; }
+.kb-input-area { font-family:inherit; font-size:13px; line-height:1.5; padding:5px 8px; border:1px solid var(--border); border-radius:4px; resize:vertical; overflow:hidden; white-space:pre-wrap; word-wrap:break-word; }
+.kb-input-area:focus { border-color:var(--primary); outline:none; }
 .kb-form-full { grid-column:1/-1; }
 
 /* 产品行信息分类标签 */
@@ -1456,8 +1466,16 @@ body {
       <div class="menu-item" data-route="roi-model" onclick="navigateTo('roi-model')">
         <span class="menu-icon">📐</span><span class="menu-text">ROI模型</span>
       </div>
-      <div class="menu-item" data-route="knowledge-base" onclick="navigateTo('knowledge-base')">
-        <span class="menu-icon">📚</span><span class="menu-text">产品知识库</span>
+      <div class="menu-item" data-route="knowledge-base" onclick="toggleSubmenu(this, 'submenu-knowledge-base')">
+        <span class="menu-icon">📚</span><span class="menu-text">产品知识库</span><span class="submenu-arrow">▶</span>
+      </div>
+      <div class="submenu" id="submenu-knowledge-base">
+        <div class="menu-item" data-route="knowledge-base-product-materials" onclick="navigateToKb('product-materials')">
+          <span class="menu-icon">📋</span><span class="menu-text">产品资料</span>
+        </div>
+        <div class="menu-item" data-route="knowledge-base-product-qc" onclick="navigateToKb('product-qc')">
+          <span class="menu-icon">🔍</span><span class="menu-text">产品品控</span>
+        </div>
       </div>
 
       <div class="menu-group-label">系统管理</div>
@@ -2013,18 +2031,15 @@ body {
 
       <!-- ====== 产品知识库 ====== -->
       <div class="page" id="page-knowledge-base">
-        <div class="breadcrumb"><span>主要功能</span> / <span class="current">产品知识库</span></div>
+        <div class="breadcrumb"><span>主要功能</span> / <span>产品知识库</span> / <span class="current" id="kb-breadcrumb-current">产品资料</span></div>
         <div class="page-header">
-          <div class="page-title">产品知识库</div>
-        </div>
-        <!-- 二级Tab -->
-        <div class="kb-tab-bar">
-          <div class="kb-tab-item active" data-kb-tab="product-materials" onclick="switchKbTab('product-materials')">📋 产品资料</div>
-          <div class="kb-tab-item" data-kb-tab="product-qc" onclick="switchKbTab('product-qc')">🔍 产品品控</div>
+          <div class="page-title" id="kb-page-title">产品资料</div>
         </div>
 
         <!-- ====== 产品资料面板 ====== -->
         <div class="kb-tab-panel active" id="kb-panel-product-materials">
+          <!-- 横向品类标签 -->
+          <div class="kb-category-tabs" id="kb-category-tabs"></div>
           <div class="comm-filter-bar">
             <div class="comm-filter-item">
               <input type="text" id="kbSearchInput" placeholder="搜索产品名称..." style="width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="filterKbProducts()">
@@ -2051,23 +2066,23 @@ body {
 
       <!-- 产品详情弹窗 -->
       <div class="modal-overlay" id="productDetailModal" style="display:none;">
-        <div class="modal-box" style="max-width:800px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="modal-box" style="max-width:1100px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
           <div class="modal-header">
             <span class="modal-title" id="productDetailTitle">产品详情</span>
             <button class="modal-close" onclick="closeProductDetailModal()">✕</button>
           </div>
-          <div class="modal-body" id="productDetailBody" style="overflow-y:auto;flex:1;"></div>
+          <div class="modal-body" id="productDetailBody" style="overflow-y:auto;flex:1;padding:20px;"></div>
         </div>
       </div>
 
       <!-- 新增产品弹窗 -->
       <div class="modal-overlay" id="productAddModal" style="display:none;">
-        <div class="modal-box" style="max-width:680px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="modal-box" style="max-width:900px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
           <div class="modal-header">
             <span class="modal-title">新增产品</span>
             <button class="modal-close" onclick="closeProductAddModal()">✕</button>
           </div>
-          <div class="modal-body" id="productAddBody" style="overflow-y:auto;flex:1;"></div>
+          <div class="modal-body" id="productAddBody" style="overflow-y:auto;flex:1;padding:20px;"></div>
           <div class="modal-footer">
             <button class="modal-btn" onclick="closeProductAddModal()">取消</button>
             <button class="modal-btn primary" onclick="saveProduct()">保存</button>
@@ -2077,12 +2092,12 @@ body {
 
       <!-- 新增品控弹窗 -->
       <div class="modal-overlay" id="qcAddModal" style="display:none;">
-        <div class="modal-box" style="max-width:600px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="modal-box" style="max-width:800px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
           <div class="modal-header">
             <span class="modal-title">品控问题登记</span>
             <button class="modal-close" onclick="closeQcAddModal()">✕</button>
           </div>
-          <div class="modal-body" id="qcAddBody" style="overflow-y:auto;flex:1;"></div>
+          <div class="modal-body" id="qcAddBody" style="overflow-y:auto;flex:1;padding:20px;"></div>
           <div class="modal-footer">
             <button class="modal-btn" onclick="closeQcAddModal()">取消</button>
             <button class="modal-btn primary" onclick="saveQcIssue()">保存</button>
@@ -2092,12 +2107,12 @@ body {
 
       <!-- 品控答疑弹窗 -->
       <div class="modal-overlay" id="qcReplyModal" style="display:none;">
-        <div class="modal-box" style="max-width:600px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="modal-box" style="max-width:800px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
           <div class="modal-header">
             <span class="modal-title">品控答疑维护</span>
             <button class="modal-close" onclick="closeQcReplyModal()">✕</button>
           </div>
-          <div class="modal-body" id="qcReplyBody" style="overflow-y:auto;flex:1;"></div>
+          <div class="modal-body" id="qcReplyBody" style="overflow-y:auto;flex:1;padding:20px;"></div>
           <div class="modal-footer">
             <button class="modal-btn" onclick="closeQcReplyModal()">取消</button>
             <button class="modal-btn primary" onclick="saveQcReply()">保存</button>
@@ -2674,9 +2689,15 @@ function doLogin() {
   // 更新菜单可见性
   updateMenuVisibility();
 
-  // 默认路由
+  // 默认路由（处理知识库子路由）
   var hash = location.hash.replace('#/', '') || 'home';
-  navigateTo(hash);
+  var mainRoute = hash.split('/')[0];
+  var subRoute = hash.split('/')[1];
+  if (mainRoute === 'knowledge-base' && subRoute) {
+    navigateToKb(subRoute);
+  } else {
+    navigateTo(mainRoute);
+  }
 
   // 启动定时刷新
   startAutoRefresh();
@@ -2696,19 +2717,35 @@ function updateMenuVisibility() {
   var allowedMenus = getRoleMenus(currentUser.role);
   document.querySelectorAll('.menu-item[data-route]').forEach(function(item) {
     var route = item.getAttribute('data-route');
-    var isSystemParent = item.getAttribute('onclick') === 'toggleSubmenu(this)';
-    if (isSystemParent) {
-      // 系统管理父菜单：检查是否有任何子菜单可见
+    var onclickStr = item.getAttribute('onclick') || '';
+    var isParentMenu = onclickStr.indexOf('toggleSubmenu') === 0;
+    if (isParentMenu) {
+      // 父菜单（如系统管理、产品知识库）：检查是否有任何子菜单可见
       var hasVisibleChild = false;
-      item.parentElement.querySelectorAll('.submenu .menu-item').forEach(function(child) {
-        var childRoute = child.getAttribute('data-route');
-        if (allowedMenus.indexOf(childRoute) !== -1) hasVisibleChild = true;
-      });
+      var submenu = item.nextElementSibling;
+      if (submenu && submenu.classList.contains('submenu')) {
+        submenu.querySelectorAll('.menu-item').forEach(function(child) {
+          var childRoute = child.getAttribute('data-route');
+          // 检查子菜单的父级路由权限
+          var parentRoute = childRoute.split('-').slice(0, childRoute.indexOf('knowledge-base') !== -1 ? 2 : 1).join('-');
+          if (childRoute.indexOf('knowledge-base-') === 0) {
+            if (allowedMenus.indexOf('knowledge-base') !== -1) hasVisibleChild = true;
+          } else if (allowedMenus.indexOf(childRoute) !== -1) {
+            hasVisibleChild = true;
+          }
+        });
+      }
       item.style.display = hasVisibleChild ? '' : 'none';
       var groupLabel = item.parentElement.querySelector('.menu-group-label');
       if (groupLabel) groupLabel.style.display = hasVisibleChild ? '' : 'none';
     } else {
-      item.style.display = allowedMenus.indexOf(route) !== -1 ? '' : 'none';
+      // 普通菜单项或子菜单项
+      var isAllowed = allowedMenus.indexOf(route) !== -1;
+      // 知识库子菜单项：检查父级路由权限
+      if (!isAllowed && route.indexOf('knowledge-base-') === 0) {
+        isAllowed = allowedMenus.indexOf('knowledge-base') !== -1;
+      }
+      item.style.display = isAllowed ? '' : 'none';
     }
   });
 }
@@ -2815,10 +2852,10 @@ function toggleSidebar() {
   }, 350);
 }
 
-function toggleSubmenu(el) {
+function toggleSubmenu(el, submenuId) {
   el.classList.toggle('expanded');
-  var submenu = document.getElementById('submenu-system');
-  submenu.classList.toggle('visible');
+  var submenu = document.getElementById(submenuId || 'submenu-system');
+  if (submenu) submenu.classList.toggle('visible');
 }
 
 // ==================== 顶部筛选 ====================
@@ -3252,7 +3289,7 @@ function renderPageByRoute(route) {
     case 'target-setting': renderTargetSetting(); break;
     case 'opinion-monitor': renderOpinionMonitor(); break;
     case 'roi-model': renderRoiModel(); break;
-    case 'knowledge-base': renderKnowledgeBase(); break;
+    case 'knowledge-base': navigateToKb('product-materials'); break;
     case 'system-permission': renderPermissionPage(); break;
     case 'system-account': renderAccountPage(); break;
     default: break;
@@ -5739,31 +5776,119 @@ var KB_CATEGORIES = ['肉食类','零食类','主食类','烘焙类','调味类'
 var kbActiveTab = 'product-materials';
 var kbProducts = []; // 产品资料数据
 var kbQcIssues = []; // 品控问题数据
+var kbActiveCategory = ''; // 当前选中的品类tab
 var kbExpandedCats = {};
 
-// 加载知识库数据
+// 加载知识库数据（优先从localStorage读取缓存，再从GitHub刷新）
 function loadKbData() {
+  // 先从localStorage读取缓存数据，立即渲染
+  try {
+    var cached = localStorage.getItem('kb_products_cache');
+    if (cached) {
+      kbProducts = JSON.parse(cached);
+      renderKbCategoryList();
+      renderKbCategoryTabs();
+    }
+    var cachedQc = localStorage.getItem('kb_qc_cache');
+    if (cachedQc) {
+      kbQcIssues = JSON.parse(cachedQc);
+      renderKbQcTable();
+    }
+  } catch(e) {}
+
+  // 再从GitHub刷新最新数据
   fetch('kb_products.json?t=' + Date.now())
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(function(d){ kbProducts = d || []; renderKbCategoryList(); })
-    .catch(function(){ kbProducts = []; renderKbCategoryList(); });
+    .then(function(d){
+      kbProducts = d || [];
+      try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
+      renderKbCategoryList();
+      renderKbCategoryTabs();
+    })
+    .catch(function(){
+      // GitHub fetch失败时保留localStorage缓存，不清空
+      if (kbProducts.length === 0) { kbProducts = []; renderKbCategoryList(); renderKbCategoryTabs(); }
+    });
   fetch('kb_qc.json?t=' + Date.now())
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(function(d){ kbQcIssues = d || []; renderKbQcTable(); })
-    .catch(function(){ kbQcIssues = []; renderKbQcTable(); });
+    .then(function(d){
+      kbQcIssues = d || [];
+      try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
+      renderKbQcTable();
+    })
+    .catch(function(){
+      if (kbQcIssues.length === 0) { kbQcIssues = []; renderKbQcTable(); }
+    });
 }
 
 function renderKnowledgeBase() {
   loadKbData();
 }
 
+// 侧边栏二级菜单导航
+function navigateToKb(panel) {
+  if (!checkPermission('knowledge-base')) {
+    showPermissionDenied('knowledge-base');
+    return;
+  }
+  // 隐藏所有页面
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  // 显示知识库页面
+  document.getElementById('page-knowledge-base').classList.add('active');
+  // 切换面板
+  switchKbTab(panel);
+  // 更新菜单高亮
+  document.querySelectorAll('.menu-item').forEach(function(m) { m.classList.remove('active'); });
+  var activeMenu = document.querySelector('.menu-item[data-route="knowledge-base-' + panel + '"]');
+  if (activeMenu) activeMenu.classList.add('active');
+  // 更新面包屑和标题
+  var label = panel === 'product-materials' ? '产品资料' : '产品品控';
+  var bcEl = document.getElementById('kb-breadcrumb-current');
+  var titleEl = document.getElementById('kb-page-title');
+  if (bcEl) bcEl.textContent = label;
+  if (titleEl) titleEl.textContent = label;
+  // 更新hash
+  location.hash = '#/knowledge-base/' + panel;
+  // 加载数据
+  loadKbData();
+  // 滚动到顶部
+  document.getElementById('mainContent').scrollTop = 0;
+}
+
 function switchKbTab(tabName) {
   kbActiveTab = tabName;
-  document.querySelectorAll('.kb-tab-item').forEach(function(t){
-    t.classList.toggle('active', t.getAttribute('data-kb-tab') === tabName);
-  });
   document.querySelectorAll('.kb-tab-panel').forEach(function(p){ p.classList.remove('active'); });
-  document.getElementById('kb-panel-' + tabName).classList.add('active');
+  var panel = document.getElementById('kb-panel-' + tabName);
+  if (panel) panel.classList.add('active');
+}
+
+// 横向品类标签渲染
+function renderKbCategoryTabs() {
+  var container = document.getElementById('kb-category-tabs');
+  if (!container) return;
+  var search = (document.getElementById('kbSearchInput') || {}).value || '';
+  search = search.trim().toLowerCase();
+  // 全部标签
+  var totalCount = kbProducts.filter(function(p) {
+    if (!search) return true;
+    return (p.name || '').toLowerCase().indexOf(search) !== -1;
+  }).length;
+  var html = '<div class="kb-cat-tab' + (!kbActiveCategory ? ' active' : '') + '" onclick="selectKbCategory(\'\')">全部<span class="cat-count">' + totalCount + '</span></div>';
+  KB_CATEGORIES.forEach(function(cat) {
+    var count = kbProducts.filter(function(p) {
+      if (p.category !== cat) return false;
+      if (!search) return true;
+      return (p.name || '').toLowerCase().indexOf(search) !== -1;
+    }).length;
+    html += '<div class="kb-cat-tab' + (kbActiveCategory === cat ? ' active' : '') + '" onclick="selectKbCategory(\'' + cat + '\')">' + cat + '<span class="cat-count">' + count + '</span></div>';
+  });
+  container.innerHTML = html;
+}
+
+function selectKbCategory(cat) {
+  kbActiveCategory = cat;
+  renderKbCategoryTabs();
+  renderKbCategoryList();
 }
 
 // ---- 产品资料 ----
@@ -5772,8 +5897,28 @@ function renderKbCategoryList() {
   if (!container) return;
   var search = (document.getElementById('kbSearchInput') || {}).value || '';
   search = search.trim().toLowerCase();
+  // 根据当前选中的品类tab过滤
+  var categoriesToShow = kbActiveCategory ? [kbActiveCategory] : KB_CATEGORIES;
+  // 如果选了具体品类，直接列出该品类下的产品（不折叠）
+  if (kbActiveCategory) {
+    var products = kbProducts.filter(function(p) {
+      if (p.category !== kbActiveCategory) return false;
+      if (!search) return true;
+      return (p.name || '').toLowerCase().indexOf(search) !== -1;
+    });
+    var html = '<div class="kb-category-section"><div class="kb-category-body expanded">';
+    if (products.length === 0) {
+      html += '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">该品类下暂无产品数据</div>';
+    } else {
+      html += renderKbProductRows(products);
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+    return;
+  }
+  // 全部品类：按品类分组展示
   var html = '';
-  KB_CATEGORIES.forEach(function(cat) {
+  categoriesToShow.forEach(function(cat) {
     var products = kbProducts.filter(function(p) {
       if (p.category !== cat) return false;
       if (!search) return true;
@@ -5789,38 +5934,45 @@ function renderKbCategoryList() {
     if (products.length === 0) {
       html += '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">暂无产品数据</div>';
     } else {
-      products.forEach(function(p) {
-        var statusTag = p.status === '淘汰'
-          ? '<span class="kb-product-tag status-discontinued">已淘汰</span>'
-          : '<span class="kb-product-tag status-active">在售</span>';
-        var hasFactories = p.factories && p.factories.length > 0;
-        var hasMaterials = p.ingredients || p.origin || p.allergens || (p.certIngredients && p.certIngredients.length);
-        var hasPack = p.packMaterial || p.packForm || (p.packImages && p.packImages.length);
-        var hasProcess = p.productType || p.standardCode || p.sterilization || (p.processFlow && p.processFlow.length);
-        var hasTest = (p.testTypeReport && p.testTypeReport.length) || (p.testNutritionReport && p.testNutritionReport.length) || (p.testFactoryReport && p.testFactoryReport.length) || (p.testOtherReport && p.testOtherReport.length);
-        var hasContent = p.sellingPoints || p.usage || p.scenarios || p.targetGroup || (p.faq && p.faq.length);
-        html += '<div class="kb-product-row">';
-        html += '<div class="kb-product-name">' + (p.name || '未命名') + '</div>';
-        html += '<div class="kb-info-chips">';
-        html += '<span class="kb-info-chip c-id" onclick="showProductDetail(\'' + p.id + '\',\'sec-id\')">产品标识</span>';
-        html += '<span class="kb-info-chip ' + (hasMaterials ? 'c-mat' : 'c-mat empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-mat\')">原料信息</span>';
-        html += '<span class="kb-info-chip ' + (hasPack ? 'c-pack' : 'c-pack empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-pack\')">包装信息</span>';
-        html += '<span class="kb-info-chip ' + (hasProcess ? 'c-proc' : 'c-proc empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-proc\')">工艺信息</span>';
-        html += '<span class="kb-info-chip ' + (hasFactories ? 'c-fac' : 'c-fac empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-fac\')">工厂信息</span>';
-        html += '<span class="kb-info-chip ' + (hasTest ? 'c-test' : 'c-test empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-test\')">资质检测</span>';
-        html += '<span class="kb-info-chip ' + (hasContent ? 'c-content' : 'c-content empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-content\')">产品内容</span>';
-        html += '</div>';
-        html += '<div class="kb-product-tags">' + statusTag;
-        if (p.factories && p.factories.length > 1) html += '<span class="kb-product-tag" style="background:#f0f5ff;color:var(--primary);">' + p.factories.length + '家工厂</span>';
-        html += '</div>';
-        html += '<div class="kb-product-actions">';
-        html += '<button class="action-btn" onclick="showProductDetail(\'' + p.id + '\')">全部详情</button>';
-        html += '</div></div>';
-      });
+      html += renderKbProductRows(products);
     }
     html += '</div></div>';
   });
   container.innerHTML = html;
+}
+
+// 渲染产品行列表
+function renderKbProductRows(products) {
+  var html = '';
+  products.forEach(function(p) {
+    var statusTag = p.status === '淘汰'
+      ? '<span class="kb-product-tag status-discontinued">已淘汰</span>'
+      : '<span class="kb-product-tag status-active">在售</span>';
+    var hasFactories = p.factories && p.factories.length > 0;
+    var hasMaterials = p.ingredients || p.origin || p.allergens || (p.certIngredients && p.certIngredients.length);
+    var hasPack = p.packMaterial || p.packForm || (p.packImages && p.packImages.length);
+    var hasProcess = p.productType || p.standardCode || p.sterilization || (p.processFlow && p.processFlow.length);
+    var hasTest = (p.testTypeReport && p.testTypeReport.length) || (p.testNutritionReport && p.testNutritionReport.length) || (p.testFactoryReport && p.testFactoryReport.length) || (p.testOtherReport && p.testOtherReport.length);
+    var hasContent = p.sellingPoints || p.usage || p.scenarios || p.targetGroup || (p.faq && p.faq.length);
+    html += '<div class="kb-product-row">';
+    html += '<div class="kb-product-name">' + (p.brand ? p.brand + ' ' : '') + (p.name || '未命名') + '</div>';
+    html += '<div class="kb-info-chips">';
+    html += '<span class="kb-info-chip c-id" onclick="showProductDetail(\'' + p.id + '\',\'sec-id\')">产品标识</span>';
+    html += '<span class="kb-info-chip ' + (hasMaterials ? 'c-mat' : 'c-mat empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-mat\')">原料信息</span>';
+    html += '<span class="kb-info-chip ' + (hasPack ? 'c-pack' : 'c-pack empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-pack\')">包装信息</span>';
+    html += '<span class="kb-info-chip ' + (hasProcess ? 'c-proc' : 'c-proc empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-proc\')">工艺信息</span>';
+    html += '<span class="kb-info-chip ' + (hasFactories ? 'c-fac' : 'c-fac empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-fac\')">工厂信息</span>';
+    html += '<span class="kb-info-chip ' + (hasTest ? 'c-test' : 'c-test empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-test\')">资质检测</span>';
+    html += '<span class="kb-info-chip ' + (hasContent ? 'c-content' : 'c-content empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-content\')">产品内容</span>';
+    html += '</div>';
+    html += '<div class="kb-product-tags">' + statusTag;
+    if (p.factories && p.factories.length > 1) html += '<span class="kb-product-tag" style="background:#f0f5ff;color:var(--primary);">' + p.factories.length + '家工厂</span>';
+    html += '</div>';
+    html += '<div class="kb-product-actions">';
+    html += '<button class="action-btn" onclick="showProductDetail(\'' + p.id + '\')">全部详情</button>';
+    html += '</div></div>';
+  });
+  return html;
 }
 
 function toggleKbCategory(cat) {
@@ -5828,7 +5980,7 @@ function toggleKbCategory(cat) {
   renderKbCategoryList();
 }
 
-function filterKbProducts() { renderKbCategoryList(); }
+function filterKbProducts() { renderKbCategoryTabs(); renderKbCategoryList(); }
 
 function showProductDetail(productId, scrollTo) {
   var p = kbProducts.find(function(x){ return x.id === productId; });
@@ -5839,9 +5991,10 @@ function showProductDetail(productId, scrollTo) {
 
   // ①产品标识
   html += '<div class="kb-detail-section" id="sec-id"><div class="kb-detail-section-title">① 产品标识</div><div class="kb-detail-grid">';
+  html += kbDetailItem('品牌名', p.brand || '-');
   html += kbDetailItem('产品名称', p.name);
   html += kbDetailItem('品类归属', p.category);
-  html += kbDetailItem('规格风味', p.spec || '-');
+  html += kbDetailItem('风味', p.spec || '-');
   html += kbDetailItem('条形码', p.barcode || '-');
   html += kbDetailItem('产品状态', p.status || '-');
   html += kbDetailItem('保质期', p.shelfLife || '-');
@@ -5854,7 +6007,7 @@ function showProductDetail(productId, scrollTo) {
   html += '<div class="kb-detail-section" id="sec-mat"><div class="kb-detail-section-title">② 原料信息</div><div class="kb-detail-grid">';
   html += kbDetailItem('配料表', p.ingredients || '-');
   html += kbDetailItem('原料产地', p.origin || '-');
-  html += kbDetailItem('过敏源', p.allergens || '-');
+  html += kbDetailItem('过敏原', p.allergens || '-');
   html += kbDetailItemFull('特殊原料证明', kbAttachments(p.certIngredients));
   html += '</div></div>';
 
@@ -5933,10 +6086,15 @@ function closeProductDetailModal() {
 }
 
 function kbDetailItem(label, value) {
-  return '<div class="kb-detail-item"><span class="kb-detail-label">' + label + '</span><span class="kb-detail-value">' + (value || '-') + '</span></div>';
+  var v = value || '-';
+  // 支持多行文本换行显示
+  if (v !== '-' && v.indexOf('\n') !== -1) v = v.replace(/\n/g, '<br>');
+  return '<div class="kb-detail-item"><span class="kb-detail-label">' + label + '</span><span class="kb-detail-value">' + v + '</span></div>';
 }
 function kbDetailItemFull(label, value) {
-  return '<div class="kb-detail-item kb-form-full"><span class="kb-detail-label">' + label + '</span><span class="kb-detail-value">' + (value || '-') + '</span></div>';
+  var v = value || '-';
+  if (v !== '-' && v.indexOf('\n') !== -1) v = v.replace(/\n/g, '<br>');
+  return '<div class="kb-detail-item kb-form-full"><span class="kb-detail-label">' + label + '</span><span class="kb-detail-value">' + v + '</span></div>';
 }
 function kbAttachments(files) {
   if (!files || files.length === 0) return '-';
@@ -5952,6 +6110,18 @@ function kbAttachments(files) {
     return '<span class="kb-attachment">' + icon + ' ' + name + '</span>';
   }).join(' ');
 }
+
+// textarea自动调整高度
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, 28) + 'px';
+}
+// 为所有kb-input-area绑定自动调整
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.classList && e.target.classList.contains('kb-input-area')) {
+    autoResizeTextarea(e.target);
+  }
+});
 
 // ---- 新增产品 ----
 var kbTempFiles = {}; // 临时存储表单中的文件 { fieldKey: [{name, data, mime}] }
@@ -6009,42 +6179,46 @@ function resetKbTempFiles() {
   kbTempFactories = [];
 }
 
+var kbTempFaqs = []; // 临时存储FAQ列表
+
 function showAddProductModal() {
   resetKbTempFiles();
   kbTempFactories = [{ name:'', scLicense:'', address:'' }];
+  kbTempFaqs = [{ q:'', a:'' }];
   var body = document.getElementById('productAddBody');
   var html = '';
   html += '<div class="kb-form-section"><div class="kb-form-section-title">基础信息（产品标识）</div>';
-  html += kbFormRow('产品名称', '<input type="text" id="kbAddName" placeholder="品牌名+产品名+规格">');
+  html += kbFormRow('品牌名', '<textarea id="kbAddBrand" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('产品名称', '<textarea id="kbAddName" class="kb-input-area" rows="1" placeholder="产品名+规格"></textarea>');
   html += kbFormRow('产品品类', '<select id="kbAddCategory">' + KB_CATEGORIES.map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join('') + '</select>');
   html += kbFormRow('产品状态', '<select id="kbAddStatus"><option value="在售">在售</option><option value="淘汰">淘汰</option></select>');
-  html += kbFormRow('规格风味', '<input type="text" id="kbAddSpec">');
-  html += kbFormRow('条形码', '<input type="text" id="kbAddBarcode">');
-  html += kbFormRow('保质期', '<input type="text" id="kbAddShelfLife" placeholder="如：12个月">');
-  html += kbFormRow('存储方法', '<input type="text" id="kbAddStorage">');
-  html += kbFormRow('生产批号规则', '<input type="text" id="kbAddBatchRule">');
-  html += kbFormRow('临期认定标准', '<input type="text" id="kbAddExpiryStandard">');
+  html += kbFormRow('风味', '<textarea id="kbAddSpec" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('条形码', '<textarea id="kbAddBarcode" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('保质期', '<textarea id="kbAddShelfLife" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('存储方法', '<textarea id="kbAddStorage" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('生产批号规则', '<textarea id="kbAddBatchRule" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('临期认定标准', '<textarea id="kbAddExpiryStandard" class="kb-input-area" rows="1"></textarea>');
   html += '</div>';
 
   html += '<div class="kb-form-section"><div class="kb-form-section-title">原料信息</div>';
-  html += kbFormRow('配料表', '<textarea id="kbAddIngredients"></textarea>');
-  html += kbFormRow('原料产地', '<input type="text" id="kbAddOrigin">');
-  html += kbFormRow('过敏源', '<input type="text" id="kbAddAllergens" placeholder="如：含麸质、乳制品">');
+  html += kbFormRow('配料表', '<textarea id="kbAddIngredients" class="kb-input-area" rows="2"></textarea>');
+  html += kbFormRow('原料产地', '<textarea id="kbAddOrigin" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('过敏原', '<textarea id="kbAddAllergens" class="kb-input-area" rows="1"></textarea>');
   html += kbUploadRow('特殊原料证明', 'certIngredients');
   html += '</div>';
 
   html += '<div class="kb-form-section"><div class="kb-form-section-title">包装信息</div>';
-  html += kbFormRow('包装材质与规格', '<input type="text" id="kbAddPackMaterial">');
-  html += kbFormRow('包装形态', '<input type="text" id="kbAddPackForm">');
-  html += kbFormRow('存储条件标识', '<input type="text" id="kbAddPackStorage">');
-  html += kbFormRow('运输包装要求', '<input type="text" id="kbAddPackTransport">');
+  html += kbFormRow('包装材质与规格', '<textarea id="kbAddPackMaterial" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('包装形态', '<textarea id="kbAddPackForm" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('存储条件标识', '<textarea id="kbAddPackStorage" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('运输包装要求', '<textarea id="kbAddPackTransport" class="kb-input-area" rows="1"></textarea>');
   html += kbUploadRow('多角度实物图', 'packImages');
   html += '</div>';
 
   html += '<div class="kb-form-section"><div class="kb-form-section-title">工艺信息</div>';
-  html += kbFormRow('产品类型', '<input type="text" id="kbAddProductType">');
-  html += kbFormRow('执行标准代号', '<input type="text" id="kbAddStandardCode">');
-  html += kbFormRow('杀菌防腐工艺', '<input type="text" id="kbAddSterilization">');
+  html += kbFormRow('产品类型', '<textarea id="kbAddProductType" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('执行标准代号', '<textarea id="kbAddStandardCode" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('杀菌防腐工艺', '<textarea id="kbAddSterilization" class="kb-input-area" rows="1"></textarea>');
   html += kbUploadRow('生产工艺流程', 'processFlow');
   html += '</div>';
 
@@ -6064,20 +6238,49 @@ function showAddProductModal() {
 
   // 产品内容
   html += '<div class="kb-form-section"><div class="kb-form-section-title">产品内容</div>';
-  html += kbFormRow('产品卖点', '<textarea id="kbAddSellingPoints" placeholder="卖点信息和使用规范..."></textarea>');
-  html += kbFormRow('食用方法', '<textarea id="kbAddUsage"></textarea>');
-  html += kbFormRow('使用场景', '<input type="text" id="kbAddScenarios">');
-  html += kbFormRow('适用人群', '<input type="text" id="kbAddTargetGroup" placeholder="正向适用人群">');
-  html += kbFormRow('不适用人群', '<input type="text" id="kbAddExcludeGroup" placeholder="负向不适用人群">');
+  html += kbFormRow('产品卖点', '<textarea id="kbAddSellingPoints" class="kb-input-area" rows="2"></textarea>');
+  html += kbFormRow('食用方法', '<textarea id="kbAddUsage" class="kb-input-area" rows="2"></textarea>');
+  html += kbFormRow('使用场景', '<textarea id="kbAddScenarios" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('适用人群', '<textarea id="kbAddTargetGroup" class="kb-input-area" rows="1"></textarea>');
+  html += kbFormRow('不适用人群', '<textarea id="kbAddExcludeGroup" class="kb-input-area" rows="1"></textarea>');
   html += '</div>';
 
-  html += '<div class="kb-form-section"><div class="kb-form-section-title">常见问题（每行一组，格式：问题|答案）</div>';
-  html += kbFormRow('FAQ', '<textarea id="kbAddFaq" placeholder="例：保质期多久？|未开封12个月"></textarea>');
+  // 常见问题 - 动态Q/A
+  html += '<div class="kb-form-section"><div class="kb-form-section-title">常见问题</div>';
+  html += '<div id="kbFaqList"></div>';
+  html += '<button type="button" class="kb-add-factory-btn" onclick="addKbFaq()">＋ 添加FAQ</button>';
   html += '</div>';
 
   body.innerHTML = html;
   renderKbFactoryList();
+  renderKbFaqList();
   document.getElementById('productAddModal').style.display = 'flex';
+}
+
+function renderKbFaqList() {
+  var el = document.getElementById('kbFaqList');
+  if (!el) return;
+  el.innerHTML = kbTempFaqs.map(function(faq, idx) {
+    var html = '<div class="kb-factory-form-block">';
+    html += '<div class="factory-title">FAQ ' + (idx+1) + '</div>';
+    if (kbTempFaqs.length > 1) {
+      html += '<button class="factory-remove" onclick="removeKbFaq(' + idx + ')">✕ 删除</button>';
+    }
+    html += kbFormRow('问题', '<textarea id="kbFaqQ_' + idx + '" class="kb-input-area" rows="1" placeholder="输入问题">' + (faq.q||'') + '</textarea>');
+    html += kbFormRow('答案', '<textarea id="kbFaqA_' + idx + '" class="kb-input-area" rows="2" placeholder="输入答案">' + (faq.a||'') + '</textarea>');
+    html += '</div>';
+    return html;
+  }).join('');
+}
+
+function addKbFaq() {
+  kbTempFaqs.push({ q:'', a:'' });
+  renderKbFaqList();
+}
+
+function removeKbFaq(idx) {
+  kbTempFaqs.splice(idx, 1);
+  renderKbFaqList();
 }
 
 function renderKbFactoryList() {
@@ -6139,14 +6342,11 @@ function closeProductAddModal() {
 function saveProduct() {
   var name = val('kbAddName');
   if (!name) { alert('请输入产品名称'); return; }
-  var faqText = val('kbAddFaq');
-  var faq = [];
-  if (faqText) {
-    faqText.split('\n').forEach(function(line) {
-      var parts = line.split('|');
-      if (parts.length >= 2) faq.push({ q: parts[0].trim(), a: parts[1].trim() });
-    });
-  }
+  var brand = val('kbAddBrand');
+  // 收集FAQ数据
+  var faq = kbTempFaqs.map(function(f, idx) {
+    return { q: val('kbFaqQ_' + idx), a: val('kbFaqA_' + idx) };
+  }).filter(function(f) { return f.q || f.a; });
   // 收集多工厂数据
   var factories = kbTempFactories.map(function(f, idx) {
     return {
@@ -6159,6 +6359,7 @@ function saveProduct() {
 
   var product = {
     id: 'p_' + Date.now(),
+    brand: brand,
     name: name,
     category: val('kbAddCategory'),
     status: val('kbAddStatus'),
@@ -6194,25 +6395,33 @@ function saveProduct() {
     faq: faq
   };
   kbProducts.push(product);
-  pushKbProductsToGitHub();
   closeProductAddModal();
+  renderKbCategoryTabs();
   renderKbCategoryList();
-  showSyncToast('产品创建成功，已同步到服务器');
+  showSyncToast('正在保存到服务器...');
+  pushKbProductsToGitHub()
+    .then(function(){ showSyncToast('产品创建成功，已同步到服务器'); })
+    .catch(function(){ showSyncToast('产品已保存到本地，服务器同步失败，稍后重试'); });
 }
 
 function pushKbProductsToGitHub() {
+  // 先保存到localStorage作为缓存
+  try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
   var content = utf8ToBase64(JSON.stringify(kbProducts, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_products.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新产品资料 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
       if (data.sha) payload.sha = data.sha;
       return fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     })
-    .then(function(){ console.log('[知识库] 产品资料已同步到服务器'); })
-    .catch(function(err){ console.error('[知识库] 产品资料同步失败:', err); });
+    .then(function(r){ 
+      if (!r.ok) throw new Error('GitHub API ' + r.status);
+      console.log('[知识库] 产品资料已同步到服务器'); 
+    })
+    .catch(function(err){ console.error('[知识库] 产品资料同步失败:', err); throw err; });
 }
 
 function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
@@ -6271,7 +6480,7 @@ function showAddQcModal() {
   var productOpts = kbProducts.map(function(p){ return '<option value="'+p.name+'">'+p.name+'</option>'; }).join('');
   html += kbFormRow('产品名称', '<select id="qcAddProduct"><option value="">请选择产品</option>' + productOpts + '</select>');
   html += kbFormRow('问题类型', '<select id="qcAddType"><option value="质量问题">质量问题</option><option value="包装问题">包装问题</option><option value="口感问题">口感问题</option><option value="物流问题">物流问题</option><option value="客诉问题">客诉问题</option><option value="其他">其他</option></select>');
-  html += kbFormRow('问题描述', '<textarea id="qcAddDesc" placeholder="请详细描述品控问题..."></textarea>');
+  html += kbFormRow('问题描述', '<textarea id="qcAddDesc" class="kb-input-area" rows="3" placeholder="请详细描述品控问题..."></textarea>');
   html += kbUploadRow('附件（图片或文件）', 'qcAttach');
   body.innerHTML = html;
   // 设置默认日期
@@ -6304,18 +6513,22 @@ function saveQcIssue() {
 }
 
 function pushKbQcToGitHub() {
+  try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
   var content = utf8ToBase64(JSON.stringify(kbQcIssues, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_qc.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新品控数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
       if (data.sha) payload.sha = data.sha;
       return fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     })
-    .then(function(){ console.log('[知识库] 品控数据已同步到服务器'); })
-    .catch(function(err){ console.error('[知识库] 品控数据同步失败:', err); });
+    .then(function(r){
+      if (!r.ok) throw new Error('GitHub API ' + r.status);
+      console.log('[知识库] 品控数据已同步到服务器');
+    })
+    .catch(function(err){ console.error('[知识库] 品控数据同步失败:', err); throw err; });
 }
 
 function showQcDetail(qcId) {
@@ -6361,9 +6574,9 @@ function showQcReply(qcId) {
     html += '<div class="kb-factory-block">';
     html += '<div class="kb-factory-title">问题 ' + (idx+1) + '：' + (issue.type || '-') + '</div>';
     html += '<div style="font-size:13px;color:var(--ink);margin-bottom:8px;">' + issue.desc + '</div>';
-    html += kbFormRow('专业解释解答', '<textarea id="qcReply_' + idx + '" placeholder="对该问题进行专业解释解答...">' + (issue.reply || '') + '</textarea>');
-    html += kbFormRow('风险防控建议', '<textarea id="qcRisk_' + idx + '" placeholder="风险防控建议...">' + (issue.riskAdvice || '') + '</textarea>');
-    html += kbFormRow('售后处理标准', '<textarea id="qcAfterSales_' + idx + '" placeholder="售后处理标准建议...">' + (issue.afterSalesAdvice || '') + '</textarea>');
+    html += kbFormRow('专业解释解答', '<textarea id="qcReply_' + idx + '" class="kb-input-area" rows="3" placeholder="对该问题进行专业解释解答...">' + (issue.reply || '') + '</textarea>');
+    html += kbFormRow('风险防控建议', '<textarea id="qcRisk_' + idx + '" class="kb-input-area" rows="2" placeholder="风险防控建议...">' + (issue.riskAdvice || '') + '</textarea>');
+    html += kbFormRow('售后处理标准', '<textarea id="qcAfterSales_' + idx + '" class="kb-input-area" rows="2" placeholder="售后处理标准建议...">' + (issue.afterSalesAdvice || '') + '</textarea>');
     html += '</div>';
   });
   body.innerHTML = html;
