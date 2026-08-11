@@ -1088,15 +1088,14 @@ body {
 .kb-category-body { display:none; padding:0; }
 .kb-category-body.expanded { display:block; }
 
-.kb-product-row { display:flex; align-items:center; padding:10px 20px; border-bottom:1px solid var(--border-light); gap:8px; }
+.kb-product-row { display:flex; align-items:center; padding:10px 20px; border-bottom:1px solid var(--border-light); gap:12px; }
 .kb-product-row:last-child { border-bottom:none; }
 .kb-product-row:hover { background:#f9fafc; }
-.kb-product-name { flex:1; font-size:14px; font-weight:500; color:var(--ink); }
-.kb-product-tags { display:flex; gap:6px; }
+.kb-product-name { font-size:14px; font-weight:500; color:var(--ink); white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:6px; }
 .kb-product-tag { font-size:11px; padding:2px 8px; border-radius:3px; }
 .kb-product-tag.status-active { background:#e6f7ee; color:#52c41a; }
 .kb-product-tag.status-discontinued { background:#fff1f0; color:#ff4d4f; }
-.kb-product-actions { display:flex; gap:6px; }
+.kb-product-actions { display:flex; gap:6px; flex-shrink:0; }
 
 .kb-detail-section { margin-bottom:20px; }
 .kb-detail-section-title { font-size:14px; font-weight:700; color:var(--primary); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--primary); }
@@ -2044,7 +2043,7 @@ body {
             <div class="comm-filter-item">
               <input type="text" id="kbSearchInput" placeholder="搜索产品名称..." style="width:240px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="filterKbProducts()">
             </div>
-            <button class="biz-apply-btn" onclick="showAddProductModal()">➕ 新增产品</button>
+            <button class="biz-apply-btn" onclick="editingProductId=null;showAddProductModal()">➕ 新增产品</button>
           </div>
           <div id="kb-category-list"></div>
         </div>
@@ -2373,7 +2372,8 @@ var SUB_MENU_LABELS = {
   'system-ai:prompt': '提示词模板',
   'system-ai:history': '对话历史',
   'knowledge-base:product-materials': '产品资料',
-  'knowledge-base:product-qc': '产品品控'
+  'knowledge-base:product-qc': '产品品控',
+  'knowledge-base:product-edit': '产品修改'
 };
 
 // 获取一级菜单下的二级菜单列表（动态）
@@ -2819,6 +2819,15 @@ function navigateTo(route) {
 function checkPermission(route) {
   var allowedMenus = getRoleMenus(currentUser.role);
   return allowedMenus.indexOf(route) !== -1;
+}
+
+// 检查知识库子权限（如产品修改权限）
+function checkKbPermission(permKey) {
+  if (currentUser.role === 'admin') return true;
+  var allowedMenus = getRoleMenus(currentUser.role);
+  // 检查是否有对应的子权限
+  var fullKey = 'knowledge-base:' + permKey;
+  return allowedMenus.indexOf(fullKey) !== -1 || allowedMenus.indexOf('knowledge-base') !== -1 && allowedMenus.indexOf(fullKey) !== -1;
 }
 
 function showPermissionDenied(route) {
@@ -5776,7 +5785,7 @@ var KB_CATEGORIES = ['肉食类','零食类','主食类','烘焙类','调味类'
 var kbActiveTab = 'product-materials';
 var kbProducts = []; // 产品资料数据
 var kbQcIssues = []; // 品控问题数据
-var kbActiveCategory = ''; // 当前选中的品类tab
+var kbActiveCategory = '肉食类'; // 当前选中的品类tab（默认第一个）
 var kbExpandedCats = {};
 
 // 加载知识库数据（优先从localStorage读取缓存，再从GitHub刷新）
@@ -5868,12 +5877,7 @@ function renderKbCategoryTabs() {
   if (!container) return;
   var search = (document.getElementById('kbSearchInput') || {}).value || '';
   search = search.trim().toLowerCase();
-  // 全部标签
-  var totalCount = kbProducts.filter(function(p) {
-    if (!search) return true;
-    return (p.name || '').toLowerCase().indexOf(search) !== -1;
-  }).length;
-  var html = '<div class="kb-cat-tab' + (!kbActiveCategory ? ' active' : '') + '" onclick="selectKbCategory(\'\')">全部<span class="cat-count">' + totalCount + '</span></div>';
+  var html = '';
   KB_CATEGORIES.forEach(function(cat) {
     var count = kbProducts.filter(function(p) {
       if (p.category !== cat) return false;
@@ -5897,53 +5901,27 @@ function renderKbCategoryList() {
   if (!container) return;
   var search = (document.getElementById('kbSearchInput') || {}).value || '';
   search = search.trim().toLowerCase();
-  // 根据当前选中的品类tab过滤
-  var categoriesToShow = kbActiveCategory ? [kbActiveCategory] : KB_CATEGORIES;
-  // 如果选了具体品类，直接列出该品类下的产品（不折叠）
-  if (kbActiveCategory) {
-    var products = kbProducts.filter(function(p) {
-      if (p.category !== kbActiveCategory) return false;
-      if (!search) return true;
-      return (p.name || '').toLowerCase().indexOf(search) !== -1;
-    });
-    var html = '<div class="kb-category-section"><div class="kb-category-body expanded">';
-    if (products.length === 0) {
-      html += '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">该品类下暂无产品数据</div>';
-    } else {
-      html += renderKbProductRows(products);
-    }
-    html += '</div></div>';
-    container.innerHTML = html;
-    return;
-  }
-  // 全部品类：按品类分组展示
-  var html = '';
-  categoriesToShow.forEach(function(cat) {
-    var products = kbProducts.filter(function(p) {
-      if (p.category !== cat) return false;
-      if (!search) return true;
-      return (p.name || '').toLowerCase().indexOf(search) !== -1;
-    });
-    var isExpanded = kbExpandedCats[cat] || search;
-    html += '<div class="kb-category-section">';
-    html += '<div class="kb-category-header" onclick="toggleKbCategory(\'' + cat + '\')">';
-    html += '<div class="kb-category-name">' + cat + '<span class="kb-category-count">' + products.length + ' 个产品</span></div>';
-    html += '<span class="kb-category-arrow' + (isExpanded ? ' expanded' : '') + '">▶</span>';
-    html += '</div>';
-    html += '<div class="kb-category-body' + (isExpanded ? ' expanded' : '') + '">';
-    if (products.length === 0) {
-      html += '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">暂无产品数据</div>';
-    } else {
-      html += renderKbProductRows(products);
-    }
-    html += '</div></div>';
+  // 始终按当前选中品类展示产品
+  var cat = kbActiveCategory || KB_CATEGORIES[0];
+  var products = kbProducts.filter(function(p) {
+    if (p.category !== cat) return false;
+    if (!search) return true;
+    return (p.name || '').toLowerCase().indexOf(search) !== -1;
   });
+  var html = '<div class="kb-category-section"><div class="kb-category-body expanded">';
+  if (products.length === 0) {
+    html += '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">该品类下暂无产品数据</div>';
+  } else {
+    html += renderKbProductRows(products);
+  }
+  html += '</div></div>';
   container.innerHTML = html;
 }
 
 // 渲染产品行列表
 function renderKbProductRows(products) {
   var html = '';
+  var canEdit = checkKbPermission('product-edit');
   products.forEach(function(p) {
     var statusTag = p.status === '淘汰'
       ? '<span class="kb-product-tag status-discontinued">已淘汰</span>'
@@ -5955,7 +5933,11 @@ function renderKbProductRows(products) {
     var hasTest = (p.testTypeReport && p.testTypeReport.length) || (p.testNutritionReport && p.testNutritionReport.length) || (p.testFactoryReport && p.testFactoryReport.length) || (p.testOtherReport && p.testOtherReport.length);
     var hasContent = p.sellingPoints || p.usage || p.scenarios || p.targetGroup || (p.faq && p.faq.length);
     html += '<div class="kb-product-row">';
-    html += '<div class="kb-product-name">' + (p.brand ? p.brand + ' ' : '') + (p.name || '未命名') + '</div>';
+    // 产品名称 + 在售状态（紧挨名称后面）
+    html += '<div class="kb-product-name">' + (p.brand ? p.brand + ' ' : '') + (p.name || '未命名') + ' ' + statusTag;
+    if (p.factories && p.factories.length > 1) html += ' <span class="kb-product-tag" style="background:#f0f5ff;color:var(--primary);">' + p.factories.length + '家工厂</span>';
+    html += '</div>';
+    // 信息标签（紧跟名称后面，前移）
     html += '<div class="kb-info-chips">';
     html += '<span class="kb-info-chip c-id" onclick="showProductDetail(\'' + p.id + '\',\'sec-id\')">产品标识</span>';
     html += '<span class="kb-info-chip ' + (hasMaterials ? 'c-mat' : 'c-mat empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-mat\')">原料信息</span>';
@@ -5965,10 +5947,9 @@ function renderKbProductRows(products) {
     html += '<span class="kb-info-chip ' + (hasTest ? 'c-test' : 'c-test empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-test\')">资质检测</span>';
     html += '<span class="kb-info-chip ' + (hasContent ? 'c-content' : 'c-content empty') + '" onclick="showProductDetail(\'' + p.id + '\',\'sec-content\')">产品内容</span>';
     html += '</div>';
-    html += '<div class="kb-product-tags">' + statusTag;
-    if (p.factories && p.factories.length > 1) html += '<span class="kb-product-tag" style="background:#f0f5ff;color:var(--primary);">' + p.factories.length + '家工厂</span>';
-    html += '</div>';
+    // 操作按钮
     html += '<div class="kb-product-actions">';
+    if (canEdit) html += '<button class="action-btn" onclick="showEditProductModal(\'' + p.id + '\')">修改</button>';
     html += '<button class="action-btn" onclick="showProductDetail(\'' + p.id + '\')">全部详情</button>';
     html += '</div></div>';
   });
@@ -6185,6 +6166,8 @@ function showAddProductModal() {
   resetKbTempFiles();
   kbTempFactories = [{ name:'', scLicense:'', address:'' }];
   kbTempFaqs = [{ q:'', a:'' }];
+  var titleEl = document.querySelector('#productAddModal .modal-title');
+  if (titleEl) titleEl.textContent = '新增产品';
   var body = document.getElementById('productAddBody');
   var html = '';
   html += '<div class="kb-form-section"><div class="kb-form-section-title">基础信息（产品标识）</div>';
@@ -6337,6 +6320,92 @@ function kbFormRow(label, control) {
 
 function closeProductAddModal() {
   document.getElementById('productAddModal').style.display = 'none';
+  editingProductId = null;
+}
+
+// ---- 修改产品 ----
+var editingProductId = null;
+
+function showEditProductModal(productId) {
+  var p = kbProducts.find(function(x){ return x.id === productId; });
+  if (!p) return;
+  if (!checkKbPermission('product-edit')) {
+    alert('您没有修改产品的权限');
+    return;
+  }
+  editingProductId = productId;
+  // 复用新增产品表单，但预填数据
+  resetKbTempFiles();
+  kbTempFactories = (p.factories && p.factories.length > 0) ? p.factories.map(function(f) {
+    return { name: f.name || '', scLicense: f.scLicense || '', address: f.address || '' };
+  }) : [{ name:'', scLicense:'', address:'' }];
+  // 恢复已有附件到临时存储
+  if (p.certIngredients) kbTempFiles.certIngredients = p.certIngredients;
+  if (p.packImages) kbTempFiles.packImages = p.packImages;
+  if (p.processFlow) kbTempFiles.processFlow = p.processFlow;
+  if (p.testTypeReport) kbTempFiles.testTypeReport = p.testTypeReport;
+  if (p.testNutritionReport) kbTempFiles.testNutritionReport = p.testNutritionReport;
+  if (p.testFactoryReport) kbTempFiles.testFactoryReport = p.testFactoryReport;
+  if (p.testOtherReport) kbTempFiles.testOtherReport = p.testOtherReport;
+  if (p.factories) {
+    p.factories.forEach(function(f, idx) {
+      if (f.qualifications) kbTempFiles['factoryQual_' + idx] = f.qualifications;
+    });
+  }
+  kbTempFaqs = (p.faq && p.faq.length > 0) ? p.faq.map(function(qa) { return { q: qa.q||'', a: qa.a||'' }; }) : [{ q:'', a:'' }];
+
+  // 生成表单（与新增相同）
+  showAddProductModal();
+  // 改标题
+  document.querySelector('#productAddModal .modal-title').textContent = '修改产品';
+  // 预填数据
+  setVal('kbAddBrand', p.brand || '');
+  setVal('kbAddName', p.name || '');
+  setVal('kbAddCategory', p.category || '');
+  setVal('kbAddStatus', p.status || '在售');
+  setVal('kbAddSpec', p.spec || '');
+  setVal('kbAddBarcode', p.barcode || '');
+  setVal('kbAddShelfLife', p.shelfLife || '');
+  setVal('kbAddStorage', p.storage || '');
+  setVal('kbAddBatchRule', p.batchRule || '');
+  setVal('kbAddExpiryStandard', p.expiryStandard || '');
+  setVal('kbAddIngredients', p.ingredients || '');
+  setVal('kbAddOrigin', p.origin || '');
+  setVal('kbAddAllergens', p.allergens || '');
+  setVal('kbAddPackMaterial', p.packMaterial || '');
+  setVal('kbAddPackForm', p.packForm || '');
+  setVal('kbAddPackStorage', p.packStorage || '');
+  setVal('kbAddPackTransport', p.packTransport || '');
+  setVal('kbAddProductType', p.productType || '');
+  setVal('kbAddStandardCode', p.standardCode || '');
+  setVal('kbAddSterilization', p.sterilization || '');
+  setVal('kbAddSellingPoints', p.sellingPoints || '');
+  setVal('kbAddUsage', p.usage || '');
+  setVal('kbAddScenarios', p.scenarios || '');
+  setVal('kbAddTargetGroup', p.targetGroup || '');
+  setVal('kbAddExcludeGroup', p.excludeGroup || '');
+  // 预填工厂信息
+  if (p.factories) {
+    p.factories.forEach(function(f, idx) {
+      setVal('kbFactoryName_' + idx, f.name || '');
+      setVal('kbFactorySc_' + idx, f.scLicense || '');
+      setVal('kbFactoryAddr_' + idx, f.address || '');
+    });
+  }
+  // 预填FAQ
+  if (p.faq) {
+    p.faq.forEach(function(qa, idx) {
+      setVal('kbFaqQ_' + idx, qa.q || '');
+      setVal('kbFaqA_' + idx, qa.a || '');
+    });
+  }
+  // 渲染已有附件
+  Object.keys(kbTempFiles).forEach(function(key) { renderKbFileList(key); });
+}
+
+function setVal(id, value) {
+  var el = document.getElementById(id);
+  if (el) { el.value = value; if (el.classList.contains('kb-input-area')) autoResizeTextarea(el); }
 }
 
 function saveProduct() {
@@ -6358,7 +6427,7 @@ function saveProduct() {
   }).filter(function(f) { return f.name || f.scLicense || f.address; });
 
   var product = {
-    id: 'p_' + Date.now(),
+    id: editingProductId || ('p_' + Date.now()),
     brand: brand,
     name: name,
     category: val('kbAddCategory'),
@@ -6394,14 +6463,24 @@ function saveProduct() {
     excludeGroup: val('kbAddExcludeGroup'),
     faq: faq
   };
-  kbProducts.push(product);
+  var isEdit = !!editingProductId;
+  if (isEdit) {
+    var idx = kbProducts.findIndex(function(x){ return x.id === editingProductId; });
+    if (idx !== -1) {
+      kbProducts[idx] = product;
+    } else {
+      kbProducts.push(product);
+    }
+  } else {
+    kbProducts.push(product);
+  }
   closeProductAddModal();
   renderKbCategoryTabs();
   renderKbCategoryList();
   showSyncToast('正在保存到服务器...');
   pushKbProductsToGitHub()
-    .then(function(){ showSyncToast('产品创建成功，已同步到服务器'); })
-    .catch(function(){ showSyncToast('产品已保存到本地，服务器同步失败，稍后重试'); });
+    .then(function(){ showSyncToast(isEdit ? '产品修改成功，已同步到服务器' : '产品创建成功，已同步到服务器'); })
+    .catch(function(){ showSyncToast(isEdit ? '产品已保存到本地，服务器同步失败，稍后重试' : '产品已保存到本地，服务器同步失败，稍后重试'); });
 }
 
 function pushKbProductsToGitHub() {
