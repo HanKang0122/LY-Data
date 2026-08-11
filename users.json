@@ -19,5 +19,12 @@
     "password": "syft123456",
     "role": "role_1786356969773",
     "status": 1
+  },
+  {
+    "id": 4,
+    "name": "阮超",
+    "password": "rc123456",
+    "role": "admin",
+    "status": 1
   }
 ]
