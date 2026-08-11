@@ -1108,6 +1108,21 @@ body {
 .data-table .num-positive { color: var(--success); }
 .data-table .num-negative { color: var(--danger); }
 .data-table .num-primary { color: var(--primary); }
+.data-table .rate-cell {
+  color: #6b34d4;
+  background: #f5f0ff;
+  font-weight: 500;
+}
+.data-table th.rate-header {
+  background: #ede0ff;
+  color: #5b21b6;
+}
+.data-table tbody tr:hover td.rate-cell { background: #efe6ff; }
+.data-table tfoot td.rate-cell { background: #e8d5ff; }
+.data-table .rate-cell.num-positive { color: var(--success); background: #f0fdf4; }
+.data-table .rate-cell.num-negative { color: var(--danger); background: #fef2f2; }
+.data-table tfoot td.rate-cell.num-positive { background: #dcfce7; }
+.data-table tfoot td.rate-cell.num-negative { background: #fee2e2; }
 
 /* 经营数据 - 店铺卡片 */
 .biz-shop-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -2735,15 +2750,30 @@ function setKpi(valueId, value, subId, sub) {
   var s = document.getElementById(subId); if (s) s.textContent = sub;
 }
 function buildTable(headers, rows, footRow) {
+  var headerClasses = headers.map(function(h){ return (typeof h === 'object' && h.cls) ? h.cls : ''; });
+  var headerLabels = headers.map(function(h){ return (typeof h === 'object' && h.v !== undefined) ? h.v : h; });
   var html = '<table class="data-table"><thead><tr>';
-  headers.forEach(function(h){ html += '<th>' + h + '</th>'; });
+  headerLabels.forEach(function(h, i){ html += '<th class="' + (headerClasses[i] || '') + '">' + h + '</th>'; });
   html += '</tr></thead><tbody>';
   rows.forEach(function(r){
-    html += '<tr>' + r.map(function(c){ return '<td class="'+(c.cls||'')+'">'+c.v+'</td>'; }).join('') + '</tr>';
+    html += '<tr>' + r.map(function(c, i){
+      var cls = c.cls || '';
+      // 如果该列有 rate-header 标记，自动追加 rate-cell
+      if (headerClasses[i] && headerClasses[i].indexOf('rate-header') !== -1 && cls.indexOf('rate-cell') === -1) {
+        cls = (cls ? cls + ' ' : '') + 'rate-cell';
+      }
+      return '<td class="'+cls+'">'+c.v+'</td>';
+    }).join('') + '</tr>';
   });
   html += '</tbody>';
   if (footRow) {
-    html += '<tfoot><tr>' + footRow.map(function(c){ return '<td class="'+(c.cls||'')+'">'+c.v+'</td>'; }).join('') + '</tr></tfoot>';
+    html += '<tfoot><tr>' + footRow.map(function(c, i){
+      var cls = c.cls || '';
+      if (headerClasses[i] && headerClasses[i].indexOf('rate-header') !== -1 && cls.indexOf('rate-cell') === -1) {
+        cls = (cls ? cls + ' ' : '') + 'rate-cell';
+      }
+      return '<td class="'+cls+'">'+c.v+'</td>';
+    }).join('') + '</tr></tfoot>';
   }
   html += '</table>';
   return html;
@@ -2766,6 +2796,15 @@ function getMinDate() {
 }
 function toDateStr(d) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+var WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+function getWeekday(dateStr) {
+  var d = new Date(dateStr);
+  return WEEKDAYS[d.getDay()];
+}
+function formatDateWithWeekday(dateStr) {
+  var parts = dateStr.split('-');
+  return parts[1] + '-' + parts[2] + '\n' + getWeekday(dateStr);
 }
 function monthsInRange(startDate, endDate) {
   var start = new Date(startDate), end = new Date(endDate);
@@ -3589,12 +3628,13 @@ function renderBizShopCards(range) {
 
 function updateBizTrendChart(range) {
   var chart = getChart('biz-trend-chart'); if (!chart) return;
-  var dates, gmvData, salesData, profitData;
+  var dates, gmvData, salesData, profitData, xLabels;
   // 根据粒度决定图表展示方式
   if (bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all')) {
     // 按日展示趋势
     var daily = aggregateDaily(range.start, range.end);
     dates = Object.keys(daily).sort();
+    xLabels = dates.map(function(d){ return formatDateWithWeekday(d); });
     gmvData = dates.map(function(d){ return daily[d].GMV; });
     salesData = dates.map(function(d){ return daily[d].sales; });
     profitData = dates.map(function(d){ return daily[d].profit; });
@@ -3604,6 +3644,7 @@ function updateBizTrendChart(range) {
     if (months.length === 0) months = (businessData.meta.periods || []).slice().sort();
     var monthly = aggregateMonthly();
     dates = months;
+    xLabels = months;
     gmvData = []; salesData = []; profitData = [];
     months.forEach(function(m){
       if (bizState.platform === 'all') {
@@ -3616,11 +3657,17 @@ function updateBizTrendChart(range) {
       }
     });
   }
+  var isDaily = bizState.granularity === 'day' || (bizState.granularity === 'month' && bizState.month !== 'all');
   chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
+    tooltip: Object.assign(tooltipAxis(), { formatter: function(params) {
+      var dateLabel = isDaily ? params[0].axisValue.replace('\n', ' (') + ')' : params[0].axisValue;
+      var r = dateLabel + '<br/>';
+      params.forEach(function(it){ r += it.marker + ' ' + it.seriesName + ': ' + formatMoney(it.value) + ' 元<br/>'; });
+      return r;
+    } }),
     legend: { data:['GMV','销售额','毛利润'], textStyle:{color:'#606266'}, top:0 },
     grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-    xAxis: { type:'category', data:dates, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:dates.length>10?45:0,fontSize:10}) },
+    xAxis: { type:'category', data:xLabels, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:dates.length>10?45:0,fontSize:10,lineHeight:14}) },
     yAxis: { type:'value', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
     series: [
       { name:'GMV', type:'line', smooth:true, data:gmvData, itemStyle:{color:THEME.primary}, showSymbol:false },
@@ -3766,7 +3813,7 @@ function updateBizProfitTrendChart(range) {
 
 function renderBizDetailTable(range) {
   var el = document.getElementById('biz-detail-table'); if (!el) return;
-  var cols = ['时间','GMV','退款','退款率','销售额','产品成本','产品成本率','仓储成本','仓储成本率','千川消耗','千川消耗率','佣金','佣金率','人工成本','人工成本率','运营成本','运营成本率','总成本','总成本率','毛利润','利润率'];
+  var cols = [{v:'时间'},'GMV','退款',{v:'退款率',cls:'rate-header'},'销售额','产品成本',{v:'产品成本率',cls:'rate-header'},'仓储成本',{v:'仓储成本率',cls:'rate-header'},'千川消耗',{v:'千川消耗率',cls:'rate-header'},'佣金',{v:'佣金率',cls:'rate-header'},'人工成本',{v:'人工成本率',cls:'rate-header'},'运营成本',{v:'运营成本率',cls:'rate-header'},'总成本',{v:'总成本率',cls:'rate-header'},'毛利润',{v:'利润率',cls:'rate-header'}];
   var rows = [];
   var total = { GMV:0,退款:0,销售额:0,产品成本:0,仓储成本:0,千川消耗:0,佣金:0,人工成本:0,运营成本:0,总成本:0,毛利润:0 };
 
