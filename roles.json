@@ -11,5 +11,12 @@
       "opinion-monitor",
       "knowledge-base"
     ]
+  },
+  {
+    "key": "role_1786415622750",
+    "text": "产品开发岗",
+    "menus": [
+      "knowledge-base"
+    ]
   }
 ]
