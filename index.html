@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="favicon-v2.png">
-<title>全域电商销售管理中台</title>
+<title>零壹电商管理中台</title>
 <style>
 /* ==================== 全局变量 ==================== */
 :root {
@@ -1388,7 +1388,7 @@ body {
   <div class="login-card">
     <div class="login-logo">
       <div class="logo-icon">🛒</div>
-      <h2>全域电商销售管理中台</h2>
+      <h2>零壹电商管理中台</h2>
       <p>抖音 · 快手 · 视频号 全域电商数据管理</p>
     </div>
     <div class="login-form">
@@ -1413,7 +1413,7 @@ body {
   <div class="app-header">
     <div class="header-left">
       <img class="logo-img" src="favicon-v2.png" alt="logo">
-      <span class="platform-name">全域电商销售管理中台</span>
+      <span class="platform-name">零壹电商管理中台</span>
     </div>
     <div class="header-center">
       <!-- 全局筛选已移至各模块内部 -->
@@ -1474,6 +1474,23 @@ body {
         </div>
         <div class="menu-item" data-route="knowledge-base-product-qc" onclick="navigateToKb('product-qc')">
           <span class="menu-icon">🔍</span><span class="menu-text">产品品控</span>
+        </div>
+      </div>
+      <div class="menu-item" data-route="product-strategy" onclick="toggleSubmenu(this, 'submenu-product-strategy')">
+        <span class="menu-icon">🧭</span><span class="menu-text">新品策航</span><span class="submenu-arrow">▶</span>
+      </div>
+      <div class="submenu" id="submenu-product-strategy">
+        <div class="menu-item" data-route="product-strategy-strategy" onclick="navigateToStrategy('strategy')">
+          <span class="menu-icon">📝</span><span class="menu-text">策略制定</span>
+        </div>
+        <div class="menu-item" data-route="product-strategy-pricing" onclick="navigateToStrategy('pricing')">
+          <span class="menu-icon">💰</span><span class="menu-text">价格制定</span>
+        </div>
+        <div class="menu-item" data-route="product-strategy-promotion" onclick="navigateToStrategy('promotion')">
+          <span class="menu-icon">🚀</span><span class="menu-text">推广跟踪</span>
+        </div>
+        <div class="menu-item" data-route="product-strategy-review" onclick="navigateToStrategy('review')">
+          <span class="menu-icon">📊</span><span class="menu-text">结果复盘</span>
         </div>
       </div>
 
@@ -2119,6 +2136,79 @@ body {
         </div>
       </div>
 
+      <!-- ====== 新品策航 ====== -->
+      <div class="page" id="page-product-strategy">
+        <div class="breadcrumb"><span>主要功能</span> / <span>新品策航</span> / <span class="current" id="ps-breadcrumb-current">策略制定</span></div>
+        <div class="page-header">
+          <div class="page-title" id="ps-page-title">策略制定</div>
+          <div class="page-actions">
+            <button class="biz-apply-btn" id="ps-add-btn" onclick="showStrategyProductModal()">➕ 新建策航产品</button>
+          </div>
+        </div>
+
+        <!-- 策略制定面板 -->
+        <div class="kb-tab-panel active" id="ps-panel-strategy">
+          <div class="filter-bar">
+            <div class="filter-item"><label>产品筛选</label><input type="text" id="ps-search" placeholder="搜索产品名称..." style="width:200px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;" oninput="renderStrategyList()"></div>
+            <div class="filter-item"><label>阶段</label><select id="ps-stage-filter" onchange="renderStrategyList()" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:4px;"><option value="all">全部阶段</option><option value="策略制定">策略制定</option><option value="价格制定">价格制定</option><option value="推广中">推广中</option><option value="已复盘">已复盘</option></select></div>
+          </div>
+          <div class="table-slot">
+            <div class="table-header"><span class="table-title">策航产品列表</span></div>
+            <div class="data-table-wrap" id="ps-strategy-table"></div>
+          </div>
+        </div>
+
+        <!-- 价格制定面板 -->
+        <div class="kb-tab-panel" id="ps-panel-pricing">
+          <div class="table-slot">
+            <div class="table-header"><span class="table-title">价格策略制定</span></div>
+            <div class="data-table-wrap" id="ps-pricing-table"></div>
+          </div>
+        </div>
+
+        <!-- 推广跟踪面板 -->
+        <div class="kb-tab-panel" id="ps-panel-promotion">
+          <div class="table-slot">
+            <div class="table-header"><span class="table-title">推广过程跟踪</span></div>
+            <div class="data-table-wrap" id="ps-promotion-table"></div>
+          </div>
+        </div>
+
+        <!-- 结果复盘面板 -->
+        <div class="kb-tab-panel" id="ps-panel-review">
+          <div class="table-slot">
+            <div class="table-header"><span class="table-title">结果复盘与标准体系</span></div>
+            <div class="data-table-wrap" id="ps-review-table"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 新品策航-新建产品弹窗 -->
+      <div class="modal-overlay" id="strategyProductModal" style="display:none;">
+        <div class="modal-box" style="max-width:700px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
+          <div class="modal-header">
+            <span class="modal-title">新建策航产品</span>
+            <button class="modal-close" onclick="closeStrategyProductModal()">✕</button>
+          </div>
+          <div class="modal-body" style="overflow-y:auto;padding:20px;" id="strategyProductBody"></div>
+          <div class="modal-footer" style="padding:12px 20px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:8px;">
+            <button class="btn" onclick="closeStrategyProductModal()">取消</button>
+            <button class="btn primary" onclick="saveStrategyProduct()">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 新品策航-详情弹窗 -->
+      <div class="modal-overlay" id="strategyDetailModal" style="display:none;">
+        <div class="modal-box" style="max-width:1000px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
+          <div class="modal-header">
+            <span class="modal-title" id="strategyDetailTitle">策航详情</span>
+            <button class="modal-close" onclick="closeStrategyDetailModal()">✕</button>
+          </div>
+          <div class="modal-body" style="overflow-y:auto;padding:20px;" id="strategyDetailBody"></div>
+        </div>
+      </div>
+
       <!-- ====== 系统管理-权限配置 ====== -->
       <div class="page" id="page-system-permission">
         <div class="breadcrumb"><span>系统管理</span> / <span class="current">权限配置</span></div>
@@ -2339,12 +2429,12 @@ var autoRefreshTimer = null;
 var editingUserId = null;
 
 // ==================== 用户与角色体系 ====================
-var ADMIN_MENUS = ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','system-permission','system-account','system-log','system-config','system-ai'];
+var ADMIN_MENUS = ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','product-strategy','system-permission','system-account','system-log','system-config','system-ai'];
 
 var MENU_LABELS = {
   'home':'首页','business-data':'经营数据','operation-data':'运营数据','product-data':'商品数据',
   'commerce-data':'商务数据','target-setting':'目标制定','opinion-monitor':'舆情监控','roi-model':'ROI模型',
-  'knowledge-base':'产品知识库','system-permission':'权限配置','system-account':'账号管理',
+  'knowledge-base':'产品知识库','product-strategy':'新品策航','system-permission':'权限配置','system-account':'账号管理',
   'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
 };
 
@@ -2373,7 +2463,11 @@ var SUB_MENU_LABELS = {
   'system-ai:history': '对话历史',
   'knowledge-base:product-materials': '产品资料',
   'knowledge-base:product-qc': '产品品控',
-  'knowledge-base:product-edit': '产品修改'
+  'knowledge-base:product-edit': '产品修改',
+  'product-strategy:strategy': '策略制定',
+  'product-strategy:pricing': '价格制定',
+  'product-strategy:promotion': '推广跟踪',
+  'product-strategy:review': '结果复盘'
 };
 
 // 获取一级菜单下的二级菜单列表（动态）
@@ -3301,6 +3395,7 @@ function renderPageByRoute(route) {
     case 'opinion-monitor': renderOpinionMonitor(); break;
     case 'roi-model': renderRoiModel(); break;
     case 'knowledge-base': navigateToKb('product-materials'); break;
+    case 'product-strategy': navigateToStrategy('strategy'); break;
     case 'system-permission': renderPermissionPage(); break;
     case 'system-account': renderAccountPage(); break;
     default: break;
@@ -5673,6 +5768,380 @@ function renderTargetDetailTable(months, monthly, gmvMonthTarget, profitMonthTar
     {v:'-'}
   ];
   el.innerHTML = buildTable(headers, rows, foot);
+}
+
+// ==================== 新品策航 ====================
+var STRATEGY_PANELS = ['strategy','pricing','promotion','review'];
+var STRATEGY_PANEL_LABELS = { strategy:'策略制定', pricing:'价格制定', promotion:'推广跟踪', review:'结果复盘' };
+var psActivePanel = 'strategy';
+var strategyProducts = []; // 策航产品数据
+var editingStrategyId = null;
+
+// 导航到新品策航面板
+function navigateToStrategy(panel) {
+  if (!checkPermission('product-strategy')) {
+    showPermissionDenied('product-strategy');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-product-strategy').classList.add('active');
+  switchStrategyPanel(panel);
+  // 更新菜单高亮
+  document.querySelectorAll('.menu-item').forEach(function(m) { m.classList.remove('active'); });
+  var activeMenu = document.querySelector('.menu-item[data-route="product-strategy-' + panel + '"]');
+  if (activeMenu) activeMenu.classList.add('active');
+  // 更新面包屑和标题
+  var label = STRATEGY_PANEL_LABELS[panel] || '策略制定';
+  var bcEl = document.getElementById('ps-breadcrumb-current');
+  var titleEl = document.getElementById('ps-page-title');
+  if (bcEl) bcEl.textContent = label;
+  if (titleEl) titleEl.textContent = label;
+  // 控制"新建"按钮显示（仅策略制定面板显示）
+  var addBtn = document.getElementById('ps-add-btn');
+  if (addBtn) addBtn.style.display = panel === 'strategy' ? '' : 'none';
+  // 更新hash
+  location.hash = '#/product-strategy/' + panel;
+  // 加载数据
+  loadStrategyData();
+  document.getElementById('mainContent').scrollTop = 0;
+}
+
+function switchStrategyPanel(panel) {
+  psActivePanel = panel;
+  STRATEGY_PANELS.forEach(function(p) {
+    var el = document.getElementById('ps-panel-' + p);
+    if (el) el.classList.toggle('active', p === panel);
+  });
+  renderStrategyPanel();
+}
+
+// 加载策航数据
+function loadStrategyData() {
+  // 从localStorage读取
+  try {
+    var cached = localStorage.getItem('ps_products_cache');
+    if (cached) {
+      strategyProducts = JSON.parse(cached);
+    }
+  } catch(e) {}
+  renderStrategyPanel();
+}
+
+// 渲染当前面板
+function renderStrategyPanel() {
+  if (psActivePanel === 'strategy') renderStrategyList();
+  else if (psActivePanel === 'pricing') renderPricingTable();
+  else if (psActivePanel === 'promotion') renderPromotionTable();
+  else if (psActivePanel === 'review') renderReviewTable();
+}
+
+// 获取筛选后产品
+function getFilteredProducts() {
+  var search = ((document.getElementById('ps-search') || {}).value || '').trim().toLowerCase();
+  var stageFilter = (document.getElementById('ps-stage-filter') || {}).value || 'all';
+  return strategyProducts.filter(function(p) {
+    if (search && (p.name || '').toLowerCase().indexOf(search) === -1) return false;
+    if (stageFilter !== 'all' && p.stage !== stageFilter) return false;
+    return true;
+  });
+}
+
+// 阶段标签样式
+function stageTag(stage) {
+  var colors = { '策略制定':'background:#e6f4ff;color:#1677ff;', '价格制定':'background:#f9f0ff;color:#722ed1;', '推广中':'background:#fff7e6;color:#fa8c16;', '已复盘':'background:#f6ffed;color:#52c41a;' };
+  return '<span style="font-size:11px;padding:2px 8px;border-radius:3px;' + (colors[stage] || '') + '">' + (stage || '未开始') + '</span>';
+}
+
+// 策略制定列表
+function renderStrategyList() {
+  var list = getFilteredProducts();
+  var el = document.getElementById('ps-strategy-table');
+  if (!el) return;
+  if (list.length === 0) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);"><div style="font-size:40px;margin-bottom:8px;">🧭</div><div>暂无策航产品</div><div style="font-size:12px;margin-top:4px;">点击右上角"新建策航产品"开始</div></div>';
+    return;
+  }
+  var cols = ['产品名称','平台','品类','当前阶段','策略要点','创建时间','操作'];
+  var rows = list.map(function(p) {
+    return [
+      {v: p.name || '未命名'},
+      {v: p.platform || '-'},
+      {v: p.category || '-'},
+      {v: stageTag(p.stage)},
+      {v: (p.strategySummary || '').substring(0, 40) + ((p.strategySummary || '').length > 40 ? '...' : '-')},
+      {v: p.createdAt || '-'},
+      {v: '<button class="action-btn" onclick="showStrategyDetail(\'' + p.id + '\')">详情</button> <button class="action-btn" onclick="showEditStrategyModal(\'' + p.id + '\')">修改</button> <button class="action-btn danger" onclick="deleteStrategyProduct(\'' + p.id + '\')">删除</button>'}
+    ];
+  });
+  el.innerHTML = buildTable(cols, rows);
+}
+
+// 价格制定表
+function renderPricingTable() {
+  var el = document.getElementById('ps-pricing-table');
+  if (!el) return;
+  if (strategyProducts.length === 0) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);"><div style="font-size:40px;margin-bottom:8px;">💰</div><div>暂无价格策略数据</div></div>';
+    return;
+  }
+  var cols = ['产品名称','成本价','建议售价','利润率','价格策略','操作'];
+  var rows = strategyProducts.map(function(p) {
+    var profitRate = (p.costPrice > 0 && p.suggestPrice > 0) ? ((p.suggestPrice - p.costPrice) / p.suggestPrice * 100).toFixed(1) + '%' : '-';
+    return [
+      {v: p.name || '未命名'},
+      {v: p.costPrice ? '¥' + p.costPrice : '-'},
+      {v: p.suggestPrice ? '¥' + p.suggestPrice : '-'},
+      {v: profitRate},
+      {v: p.pricingStrategy || '-'},
+      {v: '<button class="action-btn" onclick="showStrategyDetail(\'' + p.id + '\')">详情</button> <button class="action-btn" onclick="showEditStrategyModal(\'' + p.id + '\')">修改</button>'}
+    ];
+  });
+  el.innerHTML = buildTable(cols, rows);
+}
+
+// 推广跟踪表
+function renderPromotionTable() {
+  var el = document.getElementById('ps-promotion-table');
+  if (!el) return;
+  if (strategyProducts.length === 0) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);"><div style="font-size:40px;margin-bottom:8px;">🚀</div><div>暂无推广跟踪数据</div></div>';
+    return;
+  }
+  var cols = ['产品名称','推广渠道','推广阶段','GMV目标','实际GMV','完成率','操作'];
+  var rows = strategyProducts.map(function(p) {
+    var completionRate = (p.promoGmvTarget > 0) ? (p.promoGmvActual / p.promoGmvTarget * 100).toFixed(1) + '%' : '-';
+    return [
+      {v: p.name || '未命名'},
+      {v: p.promoChannels || '-'},
+      {v: p.promoStage || '-'},
+      {v: p.promoGmvTarget ? '¥' + p.promoGmvTarget : '-'},
+      {v: p.promoGmvActual ? '¥' + p.promoGmvActual : '-'},
+      {v: completionRate},
+      {v: '<button class="action-btn" onclick="showStrategyDetail(\'' + p.id + '\')">详情</button> <button class="action-btn" onclick="showEditStrategyModal(\'' + p.id + '\')">修改</button>'}
+    ];
+  });
+  el.innerHTML = buildTable(cols, rows);
+}
+
+// 结果复盘表
+function renderReviewTable() {
+  var el = document.getElementById('ps-review-table');
+  if (!el) return;
+  if (strategyProducts.length === 0) {
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);"><div style="font-size:40px;margin-bottom:8px;">📊</div><div>暂无复盘数据</div></div>';
+    return;
+  }
+  var cols = ['产品名称','最终GMV','ROI','成功要点','复盘结论','标准体系','操作'];
+  var rows = strategyProducts.map(function(p) {
+    return [
+      {v: p.name || '未命名'},
+      {v: p.finalGmv ? '¥' + p.finalGmv : '-'},
+      {v: p.finalRoi ? p.finalRoi : '-'},
+      {v: (p.reviewHighlights || '-').substring(0, 30)},
+      {v: (p.reviewConclusion || '-').substring(0, 30)},
+      {v: p.standardSystem ? '✅ 已形成' : '❌ 未建立'},
+      {v: '<button class="action-btn" onclick="showStrategyDetail(\'' + p.id + '\')">详情</button> <button class="action-btn" onclick="showEditStrategyModal(\'' + p.id + '\')">修改</button>'}
+    ];
+  });
+  el.innerHTML = buildTable(cols, rows);
+}
+
+// 新建/修改弹窗表单
+function showStrategyProductModal() {
+  editingStrategyId = null;
+  renderStrategyForm({});
+  document.getElementById('strategyProductModal').style.display = 'flex';
+}
+
+function showEditStrategyModal(id) {
+  var p = strategyProducts.find(function(x){ return x.id === id; });
+  if (!p) return;
+  editingStrategyId = id;
+  renderStrategyForm(p);
+  document.getElementById('strategyProductModal').style.display = 'flex';
+}
+
+function renderStrategyForm(p) {
+  var body = document.getElementById('strategyProductBody');
+  var sectionStyle = 'margin-bottom:16px;';
+  var labelStyle = 'display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;';
+  var inputStyle = 'width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box;';
+  var textareaStyle = inputStyle + 'min-height:60px;resize:vertical;font-family:inherit;';
+
+  var html = '';
+  // 基础信息
+  html += '<div style="' + sectionStyle + '"><div style="font-size:14px;font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--primary);">📋 基础信息</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+  html += '<div><label style="' + labelStyle + '">产品名称</label><textarea id="psFormName" class="kb-input-area" rows="1" style="' + textareaStyle + '">' + (p.name || '') + '</textarea></div>';
+  html += '<div><label style="' + labelStyle + '">产品品类</label><input type="text" id="psFormCategory" style="' + inputStyle + '" value="' + (p.category || '') + '"></div>';
+  html += '<div><label style="' + labelStyle + '">推广平台</label><select id="psFormPlatform" style="' + inputStyle + '"><option value="douyin"' + (p.platform === 'douyin' ? ' selected' : '') + '>抖音</option><option value="kuaishou"' + (p.platform === 'kuaishou' ? ' selected' : '') + '>快手</option><option value="weixin"' + (p.platform === 'weixin' ? ' selected' : '') + '>视频号</option><option value="all"' + (p.platform === 'all' ? ' selected' : '') + '>全平台</option></select></div>';
+  html += '<div><label style="' + labelStyle + '">当前阶段</label><select id="psFormStage" style="' + inputStyle + '"><option value="策略制定"' + (p.stage === '策略制定' || !p.stage ? ' selected' : '') + '>策略制定</option><option value="价格制定"' + (p.stage === '价格制定' ? ' selected' : '') + '>价格制定</option><option value="推广中"' + (p.stage === '推广中' ? ' selected' : '') + '>推广中</option><option value="已复盘"' + (p.stage === '已复盘' ? ' selected' : '') + '>已复盘</option></select></div>';
+  html += '</div></div>';
+
+  // 策略制定
+  html += '<div style="' + sectionStyle + '"><div style="font-size:14px;font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #1677ff;">📝 策略制定</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+  html += '<div><label style="' + labelStyle + '">目标人群</label><textarea id="psFormTargetGroup" class="kb-input-area" rows="1" style="' + textareaStyle + '">' + (p.targetGroup || '') + '</textarea></div>';
+  html += '<div><label style="' + labelStyle + ">核心卖点</label><textarea id=\"psFormSellingPoints\" class=\"kb-input-area\" rows=\"1\" style=\"" + textareaStyle + '">' + (p.sellingPoints || '') + '</textarea></div>';
+  html += '</div>';
+  html += '<label style="' + labelStyle + 'margin-top:8px;">策略要点总结</label><textarea id="psFormStrategySummary" class="kb-input-area" rows="2" style="' + textareaStyle + '">' + (p.strategySummary || '') + '</textarea>';
+  html += '</div>';
+
+  // 价格制定
+  html += '<div style="' + sectionStyle + '"><div style="font-size:14px;font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #722ed1;">💰 价格制定</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">';
+  html += '<div><label style="' + labelStyle + '">成本价(元)</label><input type="number" id="psFormCostPrice" style="' + inputStyle + '" value="' + (p.costPrice || '') + '"></div>';
+  html += '<div><label style="' + labelStyle + '">建议售价(元)</label><input type="number" id="psFormSuggestPrice" style="' + inputStyle + '" value="' + (p.suggestPrice || '') + '"></div>';
+  html += '<div><label style="' + labelStyle + '">竞品参考价</label><input type="number" id="psFormCompetitorPrice" style="' + inputStyle + '" value="' + (p.competitorPrice || '') + '"></div>';
+  html += '</div>';
+  html += '<label style="' + labelStyle + 'margin-top:8px;">价格策略说明</label><textarea id="psFormPricingStrategy" class="kb-input-area" rows="2" style="' + textareaStyle + '">' + (p.pricingStrategy || '') + '</textarea>';
+  html += '</div>';
+
+  // 推广跟踪
+  html += '<div style="' + sectionStyle + '"><div style="font-size:14px;font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #fa8c16;">🚀 推广跟踪</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+  html += '<div><label style="' + labelStyle + '">推广渠道</label><input type="text" id="psFormPromoChannels" style="' + inputStyle + '" value="' + (p.promoChannels || '') + '" placeholder="如：达人直播、短视频、千川等"></div>';
+  html += '<div><label style="' + labelStyle + '">推广阶段</label><select id="psFormPromoStage" style="' + inputStyle + '"><option value="">' + (p.promoStage ? '' : '') + '</option><option value="预热期"' + (p.promoStage === '预热期' ? ' selected' : '') + '>预热期</option><option value="爆发期"' + (p.promoStage === '爆发期' ? ' selected' : '') + '>爆发期</option><option value="维持期"' + (p.promoStage === '维持期' ? ' selected' : '') + '>维持期</option><option value="已结束"' + (p.promoStage === '已结束' ? ' selected' : '') + '>已结束</option></select></div>';
+  html += '<div><label style="' + labelStyle + '">GMV目标(元)</label><input type="number" id="psFormPromoGmvTarget" style="' + inputStyle + '" value="' + (p.promoGmvTarget || '') + '"></div>';
+  html += '<div><label style="' + labelStyle + '">实际GMV(元)</label><input type="number" id="psFormPromoGmvActual" style="' + inputStyle + '" value="' + (p.promoGmvActual || '') + '"></div>';
+  html += '</div>';
+  html += '<label style="' + labelStyle + 'margin-top:8px;">推广过程记录</label><textarea id="psFormPromoNotes" class="kb-input-area" rows="2" style="' + textareaStyle + '">' + (p.promoNotes || '') + '</textarea>';
+  html += '</div>';
+
+  // 结果复盘
+  html += '<div style="' + sectionStyle + '"><div style="font-size:14px;font-weight:700;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #52c41a;">📊 结果复盘</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">';
+  html += '<div><label style="' + labelStyle + '">最终GMV(元)</label><input type="number" id="psFormFinalGmv" style="' + inputStyle + '" value="' + (p.finalGmv || '') + '"></div>';
+  html += '<div><label style="' + labelStyle + '">最终ROI</label><input type="number" id="psFormFinalRoi" style="' + inputStyle + '" step="0.01" value="' + (p.finalRoi || '') + '"></div>';
+  html += '<div><label style="' + labelStyle + '">是否形成标准</label><select id="psFormStandardSystem" style="' + inputStyle + '"><option value="false"' + (!p.standardSystem ? ' selected' : '') + '>未建立</option><option value="true"' + (p.standardSystem ? ' selected' : '') + '>已形成</option></select></div>';
+  html += '</div>';
+  html += '<label style="' + labelStyle + 'margin-top:8px;">成功要点</label><textarea id="psFormReviewHighlights" class="kb-input-area" rows="2" style="' + textareaStyle + '">' + (p.reviewHighlights || '') + '</textarea>';
+  html += '<label style="' + labelStyle + 'margin-top:8px;">复盘结论</label><textarea id="psFormReviewConclusion" class="kb-input-area" rows="2" style="' + textareaStyle + '">' + (p.reviewConclusion || '') + '</textarea>';
+  html += '<label style="' + labelStyle + 'margin-top:8px;">标准体系沉淀（方法论）</label><textarea id="psFormStandardMethod" class="kb-input-area" rows="3" style="' + textareaStyle + '" placeholder="记录该产品从0到1的完整打法，形成可复用的标准体系...">' + (p.standardMethod || '') + '</textarea>';
+  html += '</div>';
+
+  body.innerHTML = html;
+  // 自动调整textarea高度
+  body.querySelectorAll('.kb-input-area').forEach(function(el) { autoResizeTextarea(el); });
+}
+
+function closeStrategyProductModal() {
+  document.getElementById('strategyProductModal').style.display = 'none';
+  editingStrategyId = null;
+}
+
+function saveStrategyProduct() {
+  var name = val('psFormName');
+  if (!name) { alert('请输入产品名称'); return; }
+  var product = {
+    id: editingStrategyId || ('ps_' + Date.now()),
+    name: name,
+    category: val('psFormCategory'),
+    platform: val('psFormPlatform'),
+    stage: val('psFormStage'),
+    targetGroup: val('psFormTargetGroup'),
+    sellingPoints: val('psFormSellingPoints'),
+    strategySummary: val('psFormStrategySummary'),
+    costPrice: parseFloat(val('psFormCostPrice')) || 0,
+    suggestPrice: parseFloat(val('psFormSuggestPrice')) || 0,
+    competitorPrice: parseFloat(val('psFormCompetitorPrice')) || 0,
+    pricingStrategy: val('psFormPricingStrategy'),
+    promoChannels: val('psFormPromoChannels'),
+    promoStage: val('psFormPromoStage'),
+    promoGmvTarget: parseFloat(val('psFormPromoGmvTarget')) || 0,
+    promoGmvActual: parseFloat(val('psFormPromoGmvActual')) || 0,
+    promoNotes: val('psFormPromoNotes'),
+    finalGmv: parseFloat(val('psFormFinalGmv')) || 0,
+    finalRoi: parseFloat(val('psFormFinalRoi')) || 0,
+    standardSystem: val('psFormStandardSystem') === 'true',
+    reviewHighlights: val('psFormReviewHighlights'),
+    reviewConclusion: val('psFormReviewConclusion'),
+    standardMethod: val('psFormStandardMethod'),
+    createdAt: editingStrategyId ? (strategyProducts.find(function(x){ return x.id === editingStrategyId; }) || {}).createdAt || new Date().toLocaleString('zh-CN') : new Date().toLocaleString('zh-CN')
+  };
+
+  if (editingStrategyId) {
+    var idx = strategyProducts.findIndex(function(x){ return x.id === editingStrategyId; });
+    if (idx !== -1) strategyProducts[idx] = product;
+    else strategyProducts.push(product);
+  } else {
+    strategyProducts.push(product);
+  }
+
+  try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+  closeStrategyProductModal();
+  renderStrategyPanel();
+  saveStrategyToGitHub()
+    .then(function(){ showSyncToast('策航产品保存成功，已同步到服务器'); })
+    .catch(function(){ showSyncToast('数据已保存到本地，服务器同步失败'); });
+}
+
+function deleteStrategyProduct(id) {
+  if (!confirm('确认删除该策航产品？')) return;
+  strategyProducts = strategyProducts.filter(function(x){ return x.id !== id; });
+  try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+  renderStrategyPanel();
+  saveStrategyToGitHub()
+    .then(function(){ showSyncToast('已删除并同步到服务器'); })
+    .catch(function(){ showSyncToast('已删除，服务器同步失败'); });
+}
+
+// 详情弹窗
+function showStrategyDetail(id) {
+  var p = strategyProducts.find(function(x){ return x.id === id; });
+  if (!p) return;
+  document.getElementById('strategyDetailTitle').textContent = '策航详情 - ' + (p.name || '未命名');
+  var body = document.getElementById('strategyDetailBody');
+
+  var sectionCard = function(title, icon, content) {
+    return '<div style="margin-bottom:16px;border:1px solid var(--border-light);border-radius:8px;overflow:hidden;">' +
+      '<div style="background:#f9fafc;padding:8px 12px;font-weight:700;font-size:14px;border-bottom:1px solid var(--border-light);">' + icon + ' ' + title + '</div>' +
+      '<div style="padding:12px;">' + content + '</div></div>';
+  };
+  var fieldRow = function(label, value) {
+    return '<div style="display:inline-block;width:50%;padding:4px 0;"><span style="color:var(--muted);font-size:12px;">' + label + '：</span><span style="font-size:13px;font-weight:500;">' + (value || '-') + '</span></div>';
+  };
+
+  var html = '';
+  // 基本信息
+  html += sectionCard('基础信息', '📋', fieldRow('产品名称', p.name) + fieldRow('品类', p.category) + fieldRow('平台', platformLabel(p.platform)) + fieldRow('当前阶段', p.stage) + fieldRow('创建时间', p.createdAt));
+  // 策略制定
+  html += sectionCard('策略制定', '📝', fieldRow('目标人群', p.targetGroup) + fieldRow('核心卖点', p.sellingPoints) + '<div style="padding:4px 0;"><span style="color:var(--muted);font-size:12px;">策略要点：</span><span style="font-size:13px;">' + (p.strategySummary || '-') + '</span></div>');
+  // 价格制定
+  var profitRate = (p.costPrice > 0 && p.suggestPrice > 0) ? ((p.suggestPrice - p.costPrice) / p.suggestPrice * 100).toFixed(1) + '%' : '-';
+  html += sectionCard('价格制定', '💰', fieldRow('成本价', p.costPrice ? '¥' + p.costPrice : '-') + fieldRow('建议售价', p.suggestPrice ? '¥' + p.suggestPrice : '-') + fieldRow('竞品参考价', p.competitorPrice ? '¥' + p.competitorPrice : '-') + fieldRow('利润率', profitRate) + '<div style="padding:4px 0;"><span style="color:var(--muted);font-size:12px;">价格策略：</span><span style="font-size:13px;">' + (p.pricingStrategy || '-') + '</span></div>');
+  // 推广跟踪
+  var completionRate = (p.promoGmvTarget > 0) ? (p.promoGmvActual / p.promoGmvTarget * 100).toFixed(1) + '%' : '-';
+  html += sectionCard('推广跟踪', '🚀', fieldRow('推广渠道', p.promoChannels) + fieldRow('推广阶段', p.promoStage) + fieldRow('GMV目标', p.promoGmvTarget ? '¥' + p.promoGmvTarget : '-') + fieldRow('实际GMV', p.promoGmvActual ? '¥' + p.promoGmvActual : '-') + fieldRow('完成率', completionRate) + '<div style="padding:4px 0;"><span style="color:var(--muted);font-size:12px;">过程记录：</span><span style="font-size:13px;">' + (p.promoNotes || '-') + '</span></div>');
+  // 结果复盘
+  html += sectionCard('结果复盘', '📊', fieldRow('最终GMV', p.finalGmv ? '¥' + p.finalGmv : '-') + fieldRow('最终ROI', p.finalRoi) + fieldRow('标准体系', p.standardSystem ? '✅ 已形成' : '❌ 未建立') + '<div style="padding:4px 0;"><span style="color:var(--muted);font-size:12px;">成功要点：</span><span style="font-size:13px;">' + (p.reviewHighlights || '-') + '</span></div><div style="padding:4px 0;"><span style="color:var(--muted);font-size:12px;">复盘结论：</span><span style="font-size:13px;">' + (p.reviewConclusion || '-') + '</span></div>');
+  // 标准体系
+  if (p.standardMethod) {
+    html += sectionCard('标准体系沉淀', '🏆', '<div style="font-size:13px;line-height:1.8;white-space:pre-wrap;background:#f6ffed;padding:12px;border-radius:4px;">' + p.standardMethod + '</div>');
+  }
+
+  body.innerHTML = html;
+  document.getElementById('strategyDetailModal').style.display = 'flex';
+}
+
+function closeStrategyDetailModal() {
+  document.getElementById('strategyDetailModal').style.display = 'none';
+}
+
+// 保存到GitHub
+function saveStrategyToGitHub() {
+  try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+  var content = utf8ToBase64(JSON.stringify(strategyProducts, null, 2));
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/ps_products.json';
+  var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var payload = { message: '更新新品策航数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
+      if (data.sha) payload.sha = data.sha;
+      return fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    })
+    .then(function(r){ if (!r.ok) throw new Error('GitHub API ' + r.status); });
 }
 
 // ==================== 舆情监控 ====================
