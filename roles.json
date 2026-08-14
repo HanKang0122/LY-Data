@@ -21,5 +21,27 @@
       "knowledge-base:product-qc",
       "knowledge-base:product-edit"
     ]
+  },
+  {
+    "key": "role_1786691088953",
+    "text": "电商运营岗",
+    "menus": [
+      "home",
+      "business-data",
+      "business-data:overview",
+      "business-data:shops",
+      "business-data:profit",
+      "operation-data",
+      "product-data",
+      "knowledge-base",
+      "knowledge-base:product-materials",
+      "knowledge-base:product-qc",
+      "knowledge-base:product-edit",
+      "product-strategy",
+      "product-strategy:strategy",
+      "product-strategy:pricing",
+      "product-strategy:promotion",
+      "product-strategy:review"
+    ]
   }
 ]
