@@ -26,5 +26,12 @@
     "password": "rc123456",
     "role": "admin",
     "status": 1
+  },
+  {
+    "id": 5,
+    "name": "樊超飞",
+    "password": "fcf123456",
+    "role": "role_1786691088953",
+    "status": 1
   }
 ]
