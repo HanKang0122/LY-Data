@@ -7109,7 +7109,7 @@ function checkQcPerm(permKey) {
   return allowedMenus.indexOf('knowledge-base:' + permKey) !== -1;
 }
 
-// 带权限控制的下拉+新增组件
+// 带权限控制的下拉+新增组件（新增直接集成在下拉内）
 function qcDropdownWithAdd(config) {
   var selectId = config.selectId;
   var options = config.options;
@@ -7125,21 +7125,108 @@ function qcDropdownWithAdd(config) {
     return '<div style="color:var(--muted);font-size:12px;">无权限</div>';
   }
 
-  var html = '<div style="display:flex;gap:6px;align-items:center;">';
+  // 使用自定义下拉组件
+  var html = '<div class="qc-dropdown" id="' + selectId + '_wrap" style="position:relative;width:100%;">';
+  // 显示框（模拟select）
+  html += '<div class="qc-dropdown-trigger" onclick="toggleQcDropdown(\'' + selectId + '\')" style="width:100%;height:34px;padding:0 28px 0 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;line-height:34px;cursor:pointer;background:#fff;position:relative;box-sizing:border-box;">';
+  html += '<span class="qc-dropdown-label" id="' + selectId + '_label" style="color:var(--muted);">' + placeholder + '</span>';
+  html += '<span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);">▼</span>';
+  html += '</div>';
+  // 下拉列表
+  html += '<div class="qc-dropdown-list" id="' + selectId + '_list" style="display:none;position:absolute;top:35px;left:0;right:0;max-height:240px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:4px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.1);">';
   if (canSelect) {
-    html += '<select id="' + selectId + '" style="flex:1;">';
-    html += '<option value="">' + placeholder + '</option>';
     options.forEach(function(opt) {
-      html += '<option value="' + opt + '">' + opt + '</option>';
+      html += '<div class="qc-dropdown-option" onclick="selectQcOption(\'' + selectId + '\', \'' + opt.replace(/'/g, "\\'") + '\')" style="padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">' + opt + '</div>';
     });
-    html += '</select>';
   }
   if (canAdd) {
-    html += '<input type="text" id="' + selectId + '_new" placeholder="' + addPlaceholder + '" style="width:140px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;">';
-    html += '<button type="button" class="action-btn" style="white-space:nowrap;padding:4px 8px;" onclick="' + addCallback + '">＋新增</button>';
+    html += '<div class="qc-dropdown-add-option" onclick="showQcAddInput(\'' + selectId + '\', \'' + addCallback + '\')" style="padding:6px 10px;font-size:13px;cursor:pointer;color:var(--primary);border-top:1px solid var(--border-light);font-weight:600;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">＋ 新增...</div>';
   }
   html += '</div>';
+  // 新增输入区（隐藏，点击"新增"时显示）
+  html += '<div class="qc-dropdown-add-area" id="' + selectId + '_addarea" style="display:none;position:absolute;top:35px;left:0;right:0;background:#fff;border:1px solid var(--primary);border-radius:4px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.1);padding:8px;">';
+  html += '<input type="text" id="' + selectId + '_new" placeholder="' + addPlaceholder + '" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box;" onkeydown="if(event.key===\'Enter\'){event.preventDefault();' + addCallback + '}">';
+  html += '<div style="display:flex;gap:4px;margin-top:6px;">';
+  html += '<button type="button" class="action-btn" style="flex:1;padding:4px;font-size:12px;" onclick="' + addCallback + '">确认新增</button>';
+  html += '<button type="button" class="action-btn" style="flex:1;padding:4px;font-size:12px;" onclick="cancelQcAddInput(\'' + selectId + '\')">取消</button>';
+  html += '</div>';
+  html += '</div>';
+  html += '</div>';
   return html;
+}
+
+// 切换下拉显示
+function toggleQcDropdown(selectId) {
+  var list = document.getElementById(selectId + '_list');
+  var addArea = document.getElementById(selectId + '_addarea');
+  if (!list) return;
+  // 关闭其他打开的下拉
+  document.querySelectorAll('.qc-dropdown-list').forEach(function(el) {
+    if (el.id !== selectId + '_list') el.style.display = 'none';
+  });
+  document.querySelectorAll('.qc-dropdown-add-area').forEach(function(el) {
+    el.style.display = 'none';
+  });
+  list.style.display = list.style.display === 'none' ? 'block' : 'none';
+}
+
+// 选择选项
+function selectQcOption(selectId, value) {
+  var labelEl = document.getElementById(selectId + '_label');
+  if (labelEl) { labelEl.textContent = value; labelEl.style.color = 'var(--ink)'; }
+  // 存储选中值到隐藏属性
+  var wrap = document.getElementById(selectId + '_wrap');
+  if (wrap) wrap.setAttribute('data-value', value);
+  // 关闭下拉
+  document.getElementById(selectId + '_list').style.display = 'none';
+}
+
+// 显示新增输入框
+function showQcAddInput(selectId, addCallback) {
+  var list = document.getElementById(selectId + '_list');
+  var addArea = document.getElementById(selectId + '_addarea');
+  if (list) list.style.display = 'none';
+  if (addArea) { addArea.style.display = 'block'; setTimeout(function(){ var inp = document.getElementById(selectId + '_new'); if (inp) inp.focus(); }, 50); }
+}
+
+// 取消新增
+function cancelQcAddInput(selectId) {
+  var addArea = document.getElementById(selectId + '_addarea');
+  if (addArea) addArea.style.display = 'none';
+  var input = document.getElementById(selectId + '_new');
+  if (input) input.value = '';
+}
+
+// 刷新下拉列表选项
+function refreshQcDropdown(selectId, options, placeholder) {
+  var list = document.getElementById(selectId + '_list');
+  if (!list) return;
+  // 保留"新增"按钮，只更新选项部分
+  var addOption = list.querySelector('.qc-dropdown-add-option');
+  var html = '';
+  options.forEach(function(opt) {
+    html += '<div class="qc-dropdown-option" onclick="selectQcOption(\'' + selectId + '\', \'' + opt.replace(/'/g, "\\'") + '\')" style="padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">' + opt + '</div>';
+  });
+  if (addOption) {
+    list.innerHTML = html + addOption.outerHTML;
+  } else {
+    list.innerHTML = html;
+  }
+}
+
+// 点击页面其他地方关闭下拉
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.qc-dropdown')) {
+    document.querySelectorAll('.qc-dropdown-list').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.qc-dropdown-add-area').forEach(function(el) { el.style.display = 'none'; });
+  }
+});
+
+// 获取下拉选中值
+function getQcDropdownVal(selectId) {
+  var wrap = document.getElementById(selectId + '_wrap');
+  if (wrap) return wrap.getAttribute('data-value') || '';
+  return '';
 }
 
 // 新增产品到品控选项
@@ -7151,13 +7238,9 @@ function addQcProduct() {
   if (qcOptionData.products.indexOf(name) !== -1) { alert('该产品已存在'); return; }
   qcOptionData.products.push(name);
   saveQcOptionData();
-  // 刷新下拉
-  var sel = document.getElementById('qcAddProduct');
-  if (sel) {
-    sel.innerHTML = '<option value="">请选择产品</option>' + qcOptionData.products.map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
-    sel.value = name;
-  }
-  input.value = '';
+  refreshQcDropdown('qcAddProduct', qcOptionData.products, '请选择产品');
+  selectQcOption('qcAddProduct', name);
+  cancelQcAddInput('qcAddProduct');
 }
 
 // 新增问题类型
@@ -7169,12 +7252,9 @@ function addQcType() {
   if (qcOptionData.types.indexOf(name) !== -1) { alert('该类型已存在'); return; }
   qcOptionData.types.push(name);
   saveQcOptionData();
-  var sel = document.getElementById('qcAddType');
-  if (sel) {
-    sel.innerHTML = '<option value="">请选择问题类型</option>' + qcOptionData.types.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('');
-    sel.value = name;
-  }
-  input.value = '';
+  refreshQcDropdown('qcAddType', qcOptionData.types, '请选择问题类型');
+  selectQcOption('qcAddType', name);
+  cancelQcAddInput('qcAddType');
 }
 
 // 新增厂家
@@ -7186,12 +7266,9 @@ function addQcFactory() {
   if (qcOptionData.factories.indexOf(name) !== -1) { alert('该厂家已存在'); return; }
   qcOptionData.factories.push(name);
   saveQcOptionData();
-  var sel = document.getElementById('qcAddFactory');
-  if (sel) {
-    sel.innerHTML = '<option value="">请选择厂家</option>' + qcOptionData.factories.map(function(f){ return '<option value="'+f+'">'+f+'</option>'; }).join('');
-    sel.value = name;
-  }
-  input.value = '';
+  refreshQcDropdown('qcAddFactory', qcOptionData.factories, '请选择厂家');
+  selectQcOption('qcAddFactory', name);
+  cancelQcAddInput('qcAddFactory');
 }
 
 // 新增平台
@@ -7203,15 +7280,9 @@ function addQcPlatform() {
   if (qcOptionData.platforms.indexOf(name) !== -1) { alert('该平台已存在'); return; }
   qcOptionData.platforms.push(name);
   saveQcOptionData();
-  var sel = document.getElementById('qcAddPlatform');
-  if (sel) {
-    sel.innerHTML = '<option value="">请选择平台</option>' + qcOptionData.platforms.map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
-    sel.value = name;
-  }
-  input.value = '';
-  // 刷新店铺下拉（平台变化时清空店铺选择）
-  var shopSel = document.getElementById('qcAddShop');
-  if (shopSel) shopSel.value = '';
+  refreshQcDropdown('qcAddPlatform', qcOptionData.platforms, '选择平台');
+  selectQcOption('qcAddPlatform', name);
+  cancelQcAddInput('qcAddPlatform');
 }
 
 // 新增店铺
@@ -7223,12 +7294,9 @@ function addQcShop() {
   if (qcOptionData.shops.indexOf(name) !== -1) { alert('该店铺已存在'); return; }
   qcOptionData.shops.push(name);
   saveQcOptionData();
-  var sel = document.getElementById('qcAddShop');
-  if (sel) {
-    sel.innerHTML = '<option value="">请选择店铺</option>' + qcOptionData.shops.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
-    sel.value = name;
-  }
-  input.value = '';
+  refreshQcDropdown('qcAddShop', qcOptionData.shops, '选择店铺');
+  selectQcOption('qcAddShop', name);
+  cancelQcAddInput('qcAddShop');
 }
 
 function renderKbQcTable() {
@@ -7384,13 +7452,13 @@ function closeQcAddModal() { document.getElementById('qcAddModal').style.display
 
 function saveQcIssue() {
   var date = val('qcAddDate');
-  var productName = val('qcAddProduct');
-  var type = val('qcAddType');
+  var productName = getQcDropdownVal('qcAddProduct');
+  var type = getQcDropdownVal('qcAddType');
   var prodDate = val('qcAddProdDate');
   var dateUnknown = document.getElementById('qcDateUnknown') ? document.getElementById('qcDateUnknown').checked : false;
-  var factory = val('qcAddFactory');
-  var orderPlatform = val('qcAddPlatform');
-  var orderShop = val('qcAddShop');
+  var factory = getQcDropdownVal('qcAddFactory');
+  var orderPlatform = getQcDropdownVal('qcAddPlatform');
+  var orderShop = getQcDropdownVal('qcAddShop');
   var orderNo = val('qcAddOrderNo');
   var desc = val('qcAddDesc');
   if (!date || !productName || !desc) { alert('请填写登记日期、产品名称和问题描述'); return; }
