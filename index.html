@@ -7053,32 +7053,47 @@ function val(id) { var el = document.getElementById(id); return el ? el.value.tr
 // ==================== 品控下拉选项数据管理 ====================
 var QC_DEFAULT_TYPES = ['涨袋','发霉','包装','淤血','克重不符','生产日期','漏气','异味','异物','口感','物流','客服','其它'];
 var qcOptionData = { products: [], types: [], factories: [], platforms: [], shops: [] };
+var QC_OPTIONS_VERSION = 2; // 版本号，升级时递增可清除旧数据
 
 function loadQcOptionData() {
   try {
+    // 版本检查：如果版本号不匹配，清除旧缓存数据
+    var cachedVersion = localStorage.getItem('qc_options_version');
+    if (cachedVersion && parseInt(cachedVersion) !== QC_OPTIONS_VERSION) {
+      localStorage.removeItem('qc_options_cache');
+      localStorage.setItem('qc_options_version', String(QC_OPTIONS_VERSION));
+    } else if (!cachedVersion) {
+      localStorage.setItem('qc_options_version', String(QC_OPTIONS_VERSION));
+    }
+
     var cached = localStorage.getItem('qc_options_cache');
     if (cached) {
       var parsed = JSON.parse(cached);
+      // 只保留手动新增的数据，不合并测试数据
       qcOptionData.products = parsed.products || [];
       qcOptionData.types = parsed.types && parsed.types.length > 0 ? parsed.types : QC_DEFAULT_TYPES.slice();
       qcOptionData.factories = parsed.factories || [];
       qcOptionData.platforms = parsed.platforms || [];
       qcOptionData.shops = parsed.shops || [];
     } else {
+      // 首次加载：只初始化默认问题类型，其他列表为空
       qcOptionData.types = QC_DEFAULT_TYPES.slice();
+      saveQcOptionData();
     }
   } catch(e) {
     qcOptionData.types = QC_DEFAULT_TYPES.slice();
   }
-  // 合并产品知识库中的产品名
+  // 合并产品知识库中的产品名（自动同步，不持久化）
   var kbNames = kbProducts.map(function(p){ return p.name; }).filter(function(n){ return n; });
-  qcOptionData.products = uniqueArray(qcOptionData.products.concat(kbNames));
-  // 合并产品知识库中的厂家名
+  var manualProducts = qcOptionData.products.slice();
+  qcOptionData.products = uniqueArray(manualProducts.concat(kbNames));
+  // 合并产品知识库中的厂家名（自动同步，不持久化）
   var kbFactories = [];
   kbProducts.forEach(function(p){
     if (p.factories) p.factories.forEach(function(f){ if (f && f.name) kbFactories.push(f.name); });
   });
-  qcOptionData.factories = uniqueArray(qcOptionData.factories.concat(kbFactories));
+  var manualFactories = qcOptionData.factories.slice();
+  qcOptionData.factories = uniqueArray(manualFactories.concat(kbFactories));
 }
 
 function saveQcOptionData() {
@@ -7109,7 +7124,7 @@ function checkQcPerm(permKey) {
   return allowedMenus.indexOf('knowledge-base:' + permKey) !== -1;
 }
 
-// 带权限控制的下拉+新增组件（新增直接集成在下拉内）
+// 带权限控制的下拉+新增+修改+删除组件（新增直接集成在下拉内）
 function qcDropdownWithAdd(config) {
   var selectId = config.selectId;
   var options = config.options;
@@ -7118,15 +7133,17 @@ function qcDropdownWithAdd(config) {
   var selectPermKey = config.selectPermKey;
   var addPlaceholder = config.addPlaceholder || '输入新增项';
   var addCallback = config.addCallback;
+  var dataKey = config.dataKey; // 用于修改/删除时定位数据数组
   var canSelect = checkQcPerm(selectPermKey);
   var canAdd = checkQcPerm(addPermKey);
+  var canEdit = canAdd; // 有新增权限就有修改权限
 
   if (!canSelect && !canAdd) {
     return '<div style="color:var(--muted);font-size:12px;">无权限</div>';
   }
 
   // 使用自定义下拉组件
-  var html = '<div class="qc-dropdown" id="' + selectId + '_wrap" style="position:relative;width:100%;">';
+  var html = '<div class="qc-dropdown" id="' + selectId + '_wrap" data-key="' + dataKey + '" style="position:relative;width:100%;">';
   // 显示框（模拟select）
   html += '<div class="qc-dropdown-trigger" onclick="toggleQcDropdown(\'' + selectId + '\')" style="width:100%;height:34px;padding:0 28px 0 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;line-height:34px;cursor:pointer;background:#fff;position:relative;box-sizing:border-box;">';
   html += '<span class="qc-dropdown-label" id="' + selectId + '_label" style="color:var(--muted);">' + placeholder + '</span>';
@@ -7136,7 +7153,17 @@ function qcDropdownWithAdd(config) {
   html += '<div class="qc-dropdown-list" id="' + selectId + '_list" style="display:none;position:absolute;top:35px;left:0;right:0;max-height:240px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:4px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.1);">';
   if (canSelect) {
     options.forEach(function(opt) {
-      html += '<div class="qc-dropdown-option" onclick="selectQcOption(\'' + selectId + '\', \'' + opt.replace(/'/g, "\\'") + '\')" style="padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">' + opt + '</div>';
+      var safeOpt = opt.replace(/'/g, "\\'");
+      var optHtml = '<div class="qc-dropdown-option" data-value="' + safeOpt + '" style="padding:6px 10px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:4px;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">';
+      optHtml += '<span onclick="selectQcOption(\'' + selectId + '\', \'' + safeOpt + '\')" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + opt + '</span>';
+      if (canEdit) {
+        optHtml += '<span style="display:flex;gap:2px;flex-shrink:0;">';
+        optHtml += '<span onclick="event.stopPropagation();editQcOption(\'' + selectId + '\', \'' + safeOpt + '\', \'' + dataKey + '\')" style="font-size:11px;color:var(--primary);cursor:pointer;padding:0 2px;" title="修改">✎</span>';
+        optHtml += '<span onclick="event.stopPropagation();deleteQcOption(\'' + selectId + '\', \'' + safeOpt + '\', \'' + dataKey + '\')" style="font-size:11px;color:var(--danger);cursor:pointer;padding:0 2px;" title="删除">✕</span>';
+        optHtml += '</span>';
+      }
+      optHtml += '</div>';
+      html += optHtml;
     });
   }
   if (canAdd) {
@@ -7151,20 +7178,136 @@ function qcDropdownWithAdd(config) {
   html += '<button type="button" class="action-btn" style="flex:1;padding:4px;font-size:12px;" onclick="cancelQcAddInput(\'' + selectId + '\')">取消</button>';
   html += '</div>';
   html += '</div>';
+  // 修改输入区（隐藏，点击"修改"时显示）
+  html += '<div class="qc-dropdown-edit-area" id="' + selectId + '_editarea" style="display:none;position:absolute;top:35px;left:0;right:0;background:#fff;border:1px solid var(--warning);border-radius:4px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.1);padding:8px;">';
+  html += '<input type="text" id="' + selectId + '_edit" placeholder="修改为..." style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box;" onkeydown="if(event.key===\'Enter\'){event.preventDefault();confirmEditQcOption(\'' + selectId + '\', \'' + dataKey + '\')}">';
+  html += '<div style="display:flex;gap:4px;margin-top:6px;">';
+  html += '<button type="button" class="action-btn" style="flex:1;padding:4px;font-size:12px;" onclick="confirmEditQcOption(\'' + selectId + '\', \'' + dataKey + '\')">确认修改</button>';
+  html += '<button type="button" class="action-btn" style="flex:1;padding:4px;font-size:12px;" onclick="cancelEditQcOption(\'' + selectId + '\')">取消</button>';
+  html += '</div>';
+  html += '</div>';
   html += '</div>';
   return html;
+}
+
+// 修改选项：显示修改输入框
+function editQcOption(selectId, oldValue, dataKey) {
+  var list = document.getElementById(selectId + '_list');
+  var editArea = document.getElementById(selectId + '_editarea');
+  if (list) list.style.display = 'none';
+  if (editArea) {
+    editArea.style.display = 'block';
+    editArea.setAttribute('data-old-value', oldValue);
+    var input = document.getElementById(selectId + '_edit');
+    if (input) { input.value = oldValue; input.focus(); input.select(); }
+  }
+}
+
+// 确认修改选项
+function confirmEditQcOption(selectId, dataKey) {
+  var editArea = document.getElementById(selectId + '_editarea');
+  if (!editArea) return;
+  var oldValue = editArea.getAttribute('data-old-value');
+  var input = document.getElementById(selectId + '_edit');
+  if (!input) return;
+  var newValue = input.value.trim();
+  if (!newValue) { alert('请输入修改后的名称'); return; }
+  if (newValue === oldValue) { cancelEditQcOption(selectId); return; }
+  var arr = qcOptionData[dataKey] || [];
+  if (arr.indexOf(newValue) !== -1) { alert('该名称已存在'); return; }
+  var idx = arr.indexOf(oldValue);
+  if (idx !== -1) {
+    arr[idx] = newValue;
+    saveQcOptionData();
+    // 刷新下拉
+    refreshQcDropdownWithEdit(selectId, arr, getPlaceholderByKey(dataKey));
+    // 更新选中值
+    var wrap = document.getElementById(selectId + '_wrap');
+    if (wrap && wrap.getAttribute('data-value') === oldValue) {
+      selectQcOption(selectId, newValue);
+    }
+  }
+  cancelEditQcOption(selectId);
+}
+
+// 取消修改
+function cancelEditQcOption(selectId) {
+  var editArea = document.getElementById(selectId + '_editarea');
+  if (editArea) { editArea.style.display = 'none'; editArea.removeAttribute('data-old-value'); }
+  var input = document.getElementById(selectId + '_edit');
+  if (input) input.value = '';
+}
+
+// 删除选项
+function deleteQcOption(selectId, value, dataKey) {
+  if (!confirm('确认删除"' + value + '"？')) return;
+  var arr = qcOptionData[dataKey] || [];
+  var idx = arr.indexOf(value);
+  if (idx !== -1) {
+    arr.splice(idx, 1);
+    saveQcOptionData();
+    refreshQcDropdownWithEdit(selectId, arr, getPlaceholderByKey(dataKey));
+    // 如果删除的是当前选中项，清空选中
+    var wrap = document.getElementById(selectId + '_wrap');
+    if (wrap && wrap.getAttribute('data-value') === value) {
+      var labelEl = document.getElementById(selectId + '_label');
+      if (labelEl) { labelEl.textContent = getPlaceholderByKey(dataKey); labelEl.style.color = 'var(--muted)'; }
+      wrap.removeAttribute('data-value');
+    }
+  }
+}
+
+// 根据dataKey获取placeholder
+function getPlaceholderByKey(dataKey) {
+  var map = { products:'请选择产品', types:'请选择问题类型', factories:'请选择厂家', platforms:'选择平台', shops:'选择店铺' };
+  return map[dataKey] || '请选择';
+}
+
+// 刷新下拉列表选项（带修改/删除按钮）
+function refreshQcDropdownWithEdit(selectId, options, placeholder) {
+  var list = document.getElementById(selectId + '_list');
+  if (!list) return;
+  var wrap = document.getElementById(selectId + '_wrap');
+  var dataKey = wrap ? wrap.getAttribute('data-key') : '';
+  var canEdit = checkQcPerm('qc-product-add') || checkQcPerm('qc-type-add') || checkQcPerm('qc-factory-add') || checkQcPerm('qc-platform-add') || checkQcPerm('qc-shop-add');
+  // 根据dataKey判断具体的编辑权限
+  var editPermMap = { products:'qc-product-add', types:'qc-type-add', factories:'qc-factory-add', platforms:'qc-platform-add', shops:'qc-shop-add' };
+  var canEditThis = currentUser.role === 'admin' || (getRoleMenus(currentUser.role).indexOf('knowledge-base:' + (editPermMap[dataKey] || '')) !== -1);
+
+  var html = '';
+  options.forEach(function(opt) {
+    var safeOpt = opt.replace(/'/g, "\\'");
+    var optHtml = '<div class="qc-dropdown-option" data-value="' + safeOpt + '" style="padding:6px 10px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:4px;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">';
+    optHtml += '<span onclick="selectQcOption(\'' + selectId + '\', \'' + safeOpt + '\')" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + opt + '</span>';
+    if (canEditThis) {
+      optHtml += '<span style="display:flex;gap:2px;flex-shrink:0;">';
+      optHtml += '<span onclick="event.stopPropagation();editQcOption(\'' + selectId + '\', \'' + safeOpt + '\', \'' + dataKey + '\')" style="font-size:11px;color:var(--primary);cursor:pointer;padding:0 2px;" title="修改">✎</span>';
+      optHtml += '<span onclick="event.stopPropagation();deleteQcOption(\'' + selectId + '\', \'' + safeOpt + '\', \'' + dataKey + '\')" style="font-size:11px;color:var(--danger);cursor:pointer;padding:0 2px;" title="删除">✕</span>';
+      optHtml += '</span>';
+    }
+    optHtml += '</div>';
+    html += optHtml;
+  });
+  // 保留"新增"按钮
+  var addOption = list.querySelector('.qc-dropdown-add-option');
+  if (addOption) html += addOption.outerHTML;
+  list.innerHTML = html;
 }
 
 // 切换下拉显示
 function toggleQcDropdown(selectId) {
   var list = document.getElementById(selectId + '_list');
   var addArea = document.getElementById(selectId + '_addarea');
+  var editArea = document.getElementById(selectId + '_editarea');
   if (!list) return;
   // 关闭其他打开的下拉
   document.querySelectorAll('.qc-dropdown-list').forEach(function(el) {
     if (el.id !== selectId + '_list') el.style.display = 'none';
   });
   document.querySelectorAll('.qc-dropdown-add-area').forEach(function(el) {
+    el.style.display = 'none';
+  });
+  document.querySelectorAll('.qc-dropdown-edit-area').forEach(function(el) {
     el.style.display = 'none';
   });
   list.style.display = list.style.display === 'none' ? 'block' : 'none';
@@ -7197,21 +7340,9 @@ function cancelQcAddInput(selectId) {
   if (input) input.value = '';
 }
 
-// 刷新下拉列表选项
+// 刷新下拉列表选项（兼容旧调用，转调带修改/删除版本）
 function refreshQcDropdown(selectId, options, placeholder) {
-  var list = document.getElementById(selectId + '_list');
-  if (!list) return;
-  // 保留"新增"按钮，只更新选项部分
-  var addOption = list.querySelector('.qc-dropdown-add-option');
-  var html = '';
-  options.forEach(function(opt) {
-    html += '<div class="qc-dropdown-option" onclick="selectQcOption(\'' + selectId + '\', \'' + opt.replace(/'/g, "\\'") + '\')" style="padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onmouseover="this.style.background=\'#f0f5ff\'" onmouseout="this.style.background=\'#fff\'">' + opt + '</div>';
-  });
-  if (addOption) {
-    list.innerHTML = html + addOption.outerHTML;
-  } else {
-    list.innerHTML = html;
-  }
+  refreshQcDropdownWithEdit(selectId, options, placeholder);
 }
 
 // 点击页面其他地方关闭下拉
@@ -7219,6 +7350,7 @@ document.addEventListener('click', function(e) {
   if (!e.target.closest('.qc-dropdown')) {
     document.querySelectorAll('.qc-dropdown-list').forEach(function(el) { el.style.display = 'none'; });
     document.querySelectorAll('.qc-dropdown-add-area').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.qc-dropdown-edit-area').forEach(function(el) { el.style.display = 'none'; });
   }
 });
 
@@ -7368,7 +7500,8 @@ function showAddQcModal() {
     addPlaceholder: '输入新产品名',
     selectPermKey: 'qc-product-select',
     addPermKey: 'qc-product-add',
-    addCallback: 'addQcProduct()'
+    addCallback: 'addQcProduct()',
+    dataKey: 'products'
   }));
 
   // 3. 问题类型（下拉+新增，权限控制）
@@ -7379,7 +7512,8 @@ function showAddQcModal() {
     addPlaceholder: '输入新类型',
     selectPermKey: 'qc-type-select',
     addPermKey: 'qc-type-add',
-    addCallback: 'addQcType()'
+    addCallback: 'addQcType()',
+    dataKey: 'types'
   }));
 
   // 4. 生产日期（日期选择 + 无法确认勾选）
@@ -7397,7 +7531,8 @@ function showAddQcModal() {
     addPlaceholder: '输入新厂家',
     selectPermKey: 'qc-factory-select',
     addPermKey: 'qc-factory-add',
-    addCallback: 'addQcFactory()'
+    addCallback: 'addQcFactory()',
+    dataKey: 'factories'
   }));
 
   // 6. 订单信息（平台下拉+店铺下拉+订单号）
@@ -7409,7 +7544,8 @@ function showAddQcModal() {
     addPlaceholder: '新平台',
     selectPermKey: 'qc-platform-select',
     addPermKey: 'qc-platform-add',
-    addCallback: 'addQcPlatform()'
+    addCallback: 'addQcPlatform()',
+    dataKey: 'platforms'
   }) + '</div>';
   orderHtml += '<div>' + qcDropdownWithAdd({
     selectId: 'qcAddShop',
@@ -7418,7 +7554,8 @@ function showAddQcModal() {
     addPlaceholder: '新店铺',
     selectPermKey: 'qc-shop-select',
     addPermKey: 'qc-shop-add',
-    addCallback: 'addQcShop()'
+    addCallback: 'addQcShop()',
+    dataKey: 'shops'
   }) + '</div>';
   orderHtml += '<div><input type="text" id="qcAddOrderNo" placeholder="填写订单号" style="' + inputStyle + '"></div>';
   orderHtml += '</div>';
