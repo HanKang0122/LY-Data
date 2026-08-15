@@ -7535,23 +7535,13 @@ function showAddQcModal() {
     dataKey: 'factories'
   }));
 
-  // 6. 订单信息（平台下拉+店铺下拉+订单号）
-  var orderHtml = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
-  orderHtml += '<div>' + qcDropdownWithAdd({
-    selectId: 'qcAddPlatform',
-    options: qcOptionData.platforms,
-    placeholder: '选择平台',
-    addPlaceholder: '新平台',
-    selectPermKey: 'qc-platform-select',
-    addPermKey: 'qc-platform-add',
-    addCallback: 'addQcPlatform()',
-    dataKey: 'platforms'
-  }) + '</div>';
+  // 6. 订单信息（店铺下拉+订单号）
+  var orderHtml = '<div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">';
   orderHtml += '<div>' + qcDropdownWithAdd({
     selectId: 'qcAddShop',
     options: qcOptionData.shops,
     placeholder: '选择店铺',
-    addPlaceholder: '新店铺',
+    addPlaceholder: '平台-店铺',
     selectPermKey: 'qc-shop-select',
     addPermKey: 'qc-shop-add',
     addCallback: 'addQcShop()',
@@ -7594,7 +7584,6 @@ function saveQcIssue() {
   var prodDate = val('qcAddProdDate');
   var dateUnknown = document.getElementById('qcDateUnknown') ? document.getElementById('qcDateUnknown').checked : false;
   var factory = getQcDropdownVal('qcAddFactory');
-  var orderPlatform = getQcDropdownVal('qcAddPlatform');
   var orderShop = getQcDropdownVal('qcAddShop');
   var orderNo = val('qcAddOrderNo');
   var desc = val('qcAddDesc');
@@ -7605,7 +7594,6 @@ function saveQcIssue() {
     desc: desc,
     prodDate: dateUnknown ? '无法确认' : (prodDate || ''),
     factory: factory,
-    orderPlatform: orderPlatform,
     orderShop: orderShop,
     orderNo: orderNo,
     attachments: attachments,
