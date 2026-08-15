@@ -2108,7 +2108,7 @@ body {
 
       <!-- 新增品控弹窗 -->
       <div class="modal-overlay" id="qcAddModal" style="display:none;">
-        <div class="modal-box" style="max-width:800px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
+        <div class="modal-box" style="max-width:900px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
           <div class="modal-header">
             <span class="modal-title">品控问题登记</span>
             <button class="modal-close" onclick="closeQcAddModal()">✕</button>
@@ -2464,6 +2464,16 @@ var SUB_MENU_LABELS = {
   'knowledge-base:product-materials': '产品资料',
   'knowledge-base:product-qc': '产品品控',
   'knowledge-base:product-edit': '产品修改',
+  'knowledge-base:qc-product-select': '品控-产品选择',
+  'knowledge-base:qc-product-add': '品控-产品新增',
+  'knowledge-base:qc-type-select': '品控-问题类型选择',
+  'knowledge-base:qc-type-add': '品控-问题类型新增',
+  'knowledge-base:qc-factory-select': '品控-厂家选择',
+  'knowledge-base:qc-factory-add': '品控-厂家新增',
+  'knowledge-base:qc-platform-select': '品控-平台选择',
+  'knowledge-base:qc-platform-add': '品控-平台新增',
+  'knowledge-base:qc-shop-select': '品控-店铺选择',
+  'knowledge-base:qc-shop-add': '品控-店铺新增',
   'product-strategy:strategy': '策略制定',
   'product-strategy:pricing': '价格制定',
   'product-strategy:promotion': '推广跟踪',
@@ -6330,6 +6340,8 @@ function loadKbData() {
       renderKbQcTable();
     }
   } catch(e) {}
+  // 加载品控下拉选项数据
+  loadQcOptionData();
 
   // 如果刚刚保存过（2分钟内），跳过GitHub刷新，避免CDN缓存覆盖新数据
   var now = Date.now();
@@ -6653,7 +6665,7 @@ function handleKbFileUpload(input, fieldKey) {
   if (!kbTempFiles[fieldKey]) kbTempFiles[fieldKey] = [];
   var files = Array.prototype.slice.call(input.files);
   files.forEach(function(file) {
-    if (file.size > 5 * 1024 * 1024) { alert('文件 ' + file.name + ' 超过5MB限制'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('文件 ' + file.name + ' 超过10MB限制'); return; }
     var reader = new FileReader();
     reader.onload = function(e) {
       var base64 = e.target.result.split(',')[1];
@@ -7038,6 +7050,187 @@ function pushKbProductsToGitHub() {
 function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
 // ---- 产品品控 ----
+// ==================== 品控下拉选项数据管理 ====================
+var QC_DEFAULT_TYPES = ['涨袋','发霉','包装','淤血','克重不符','生产日期','漏气','异味','异物','口感','物流','客服','其它'];
+var qcOptionData = { products: [], types: [], factories: [], platforms: [], shops: [] };
+
+function loadQcOptionData() {
+  try {
+    var cached = localStorage.getItem('qc_options_cache');
+    if (cached) {
+      var parsed = JSON.parse(cached);
+      qcOptionData.products = parsed.products || [];
+      qcOptionData.types = parsed.types && parsed.types.length > 0 ? parsed.types : QC_DEFAULT_TYPES.slice();
+      qcOptionData.factories = parsed.factories || [];
+      qcOptionData.platforms = parsed.platforms || [];
+      qcOptionData.shops = parsed.shops || [];
+    } else {
+      qcOptionData.types = QC_DEFAULT_TYPES.slice();
+    }
+  } catch(e) {
+    qcOptionData.types = QC_DEFAULT_TYPES.slice();
+  }
+  // 合并产品知识库中的产品名
+  var kbNames = kbProducts.map(function(p){ return p.name; }).filter(function(n){ return n; });
+  qcOptionData.products = uniqueArray(qcOptionData.products.concat(kbNames));
+  // 合并产品知识库中的厂家名
+  var kbFactories = [];
+  kbProducts.forEach(function(p){
+    if (p.factories) p.factories.forEach(function(f){ if (f && f.name) kbFactories.push(f.name); });
+  });
+  qcOptionData.factories = uniqueArray(qcOptionData.factories.concat(kbFactories));
+}
+
+function saveQcOptionData() {
+  try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
+  // 同步到GitHub
+  var content = utf8ToBase64(JSON.stringify(qcOptionData, null, 2));
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/qc_options.json';
+  var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var payload = { message: '更新品控选项数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
+      if (data.sha) payload.sha = data.sha;
+      return fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    })
+    .catch(function(err){ console.error('[品控] 选项数据同步失败:', err); });
+}
+
+function uniqueArray(arr) {
+  var seen = {};
+  return arr.filter(function(v){ if (!v || seen[v]) return false; seen[v] = true; return true; });
+}
+
+// 品控权限检查
+function checkQcPerm(permKey) {
+  if (currentUser.role === 'admin') return true;
+  var allowedMenus = getRoleMenus(currentUser.role);
+  return allowedMenus.indexOf('knowledge-base:' + permKey) !== -1;
+}
+
+// 带权限控制的下拉+新增组件
+function qcDropdownWithAdd(config) {
+  var selectId = config.selectId;
+  var options = config.options;
+  var placeholder = config.placeholder || '请选择';
+  var addPermKey = config.addPermKey;
+  var selectPermKey = config.selectPermKey;
+  var addPlaceholder = config.addPlaceholder || '输入新增项';
+  var addCallback = config.addCallback;
+  var canSelect = checkQcPerm(selectPermKey);
+  var canAdd = checkQcPerm(addPermKey);
+
+  if (!canSelect && !canAdd) {
+    return '<div style="color:var(--muted);font-size:12px;">无权限</div>';
+  }
+
+  var html = '<div style="display:flex;gap:6px;align-items:center;">';
+  if (canSelect) {
+    html += '<select id="' + selectId + '" style="flex:1;">';
+    html += '<option value="">' + placeholder + '</option>';
+    options.forEach(function(opt) {
+      html += '<option value="' + opt + '">' + opt + '</option>';
+    });
+    html += '</select>';
+  }
+  if (canAdd) {
+    html += '<input type="text" id="' + selectId + '_new" placeholder="' + addPlaceholder + '" style="width:140px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;">';
+    html += '<button type="button" class="action-btn" style="white-space:nowrap;padding:4px 8px;" onclick="' + addCallback + '">＋新增</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+// 新增产品到品控选项
+function addQcProduct() {
+  var input = document.getElementById('qcAddProduct_new');
+  if (!input) return;
+  var name = input.value.trim();
+  if (!name) { alert('请输入产品名称'); return; }
+  if (qcOptionData.products.indexOf(name) !== -1) { alert('该产品已存在'); return; }
+  qcOptionData.products.push(name);
+  saveQcOptionData();
+  // 刷新下拉
+  var sel = document.getElementById('qcAddProduct');
+  if (sel) {
+    sel.innerHTML = '<option value="">请选择产品</option>' + qcOptionData.products.map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
+    sel.value = name;
+  }
+  input.value = '';
+}
+
+// 新增问题类型
+function addQcType() {
+  var input = document.getElementById('qcAddType_new');
+  if (!input) return;
+  var name = input.value.trim();
+  if (!name) { alert('请输入问题类型'); return; }
+  if (qcOptionData.types.indexOf(name) !== -1) { alert('该类型已存在'); return; }
+  qcOptionData.types.push(name);
+  saveQcOptionData();
+  var sel = document.getElementById('qcAddType');
+  if (sel) {
+    sel.innerHTML = '<option value="">请选择问题类型</option>' + qcOptionData.types.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('');
+    sel.value = name;
+  }
+  input.value = '';
+}
+
+// 新增厂家
+function addQcFactory() {
+  var input = document.getElementById('qcAddFactory_new');
+  if (!input) return;
+  var name = input.value.trim();
+  if (!name) { alert('请输入厂家名称'); return; }
+  if (qcOptionData.factories.indexOf(name) !== -1) { alert('该厂家已存在'); return; }
+  qcOptionData.factories.push(name);
+  saveQcOptionData();
+  var sel = document.getElementById('qcAddFactory');
+  if (sel) {
+    sel.innerHTML = '<option value="">请选择厂家</option>' + qcOptionData.factories.map(function(f){ return '<option value="'+f+'">'+f+'</option>'; }).join('');
+    sel.value = name;
+  }
+  input.value = '';
+}
+
+// 新增平台
+function addQcPlatform() {
+  var input = document.getElementById('qcAddPlatform_new');
+  if (!input) return;
+  var name = input.value.trim();
+  if (!name) { alert('请输入平台名称'); return; }
+  if (qcOptionData.platforms.indexOf(name) !== -1) { alert('该平台已存在'); return; }
+  qcOptionData.platforms.push(name);
+  saveQcOptionData();
+  var sel = document.getElementById('qcAddPlatform');
+  if (sel) {
+    sel.innerHTML = '<option value="">请选择平台</option>' + qcOptionData.platforms.map(function(p){ return '<option value="'+p+'">'+p+'</option>'; }).join('');
+    sel.value = name;
+  }
+  input.value = '';
+  // 刷新店铺下拉（平台变化时清空店铺选择）
+  var shopSel = document.getElementById('qcAddShop');
+  if (shopSel) shopSel.value = '';
+}
+
+// 新增店铺
+function addQcShop() {
+  var input = document.getElementById('qcAddShop_new');
+  if (!input) return;
+  var name = input.value.trim();
+  if (!name) { alert('请输入店铺名称'); return; }
+  if (qcOptionData.shops.indexOf(name) !== -1) { alert('该店铺已存在'); return; }
+  qcOptionData.shops.push(name);
+  saveQcOptionData();
+  var sel = document.getElementById('qcAddShop');
+  if (sel) {
+    sel.innerHTML = '<option value="">请选择店铺</option>' + qcOptionData.shops.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+    sel.value = name;
+  }
+  input.value = '';
+}
+
 function renderKbQcTable() {
   var el = document.getElementById('kb-qc-table'); if (!el) return;
   var search = (document.getElementById('kbQcSearchInput') || {}).value || '';
@@ -7050,14 +7243,10 @@ function renderKbQcTable() {
     el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px;">暂无品控问题记录</div>';
     return;
   }
-  var typeClassMap = { '质量问题':'t-quality','包装问题':'t-package','口感问题':'t-taste','物流问题':'t-logistics','客诉问题':'t-complaint','其他':'t-other' };
-  var cols = ['序号','登记日期','产品名称','问题类型','问题描述','问题数量','答疑状态','操作'];
+  var typeClassMap = { '涨袋':'t-quality','发霉':'t-quality','包装':'t-package','淤血':'t-quality','克重不符':'t-quality','生产日期':'t-package','漏气':'t-package','异味':'t-quality','异物':'t-quality','口感':'t-taste','物流':'t-logistics','客服':'t-complaint','其它':'t-other','质量问题':'t-quality','包装问题':'t-package','口感问题':'t-taste','物流问题':'t-logistics','客诉问题':'t-complaint','其他':'t-other' };
+  var cols = ['序号','登记日期','产品名称','问题类型','问题描述','生产厂家','订单信息','操作'];
   var rows = filtered.map(function(q, idx) {
     var issues = q.issues || [];
-    var answered = issues.filter(function(i){ return i.reply; }).length;
-    var replyStatus = answered === issues.length
-      ? '<span style="color:var(--success);font-weight:600;">✓ 已答疑</span>'
-      : (answered > 0 ? '<span style="color:var(--warning);font-weight:600;">◐ 部分答疑</span>' : '<span style="color:var(--danger);font-weight:600;">✗ 待答疑</span>');
     // 显示所有问题类型标签
     var typeTags = issues.map(function(i) {
       var cls = typeClassMap[i.type] || 't-other';
@@ -7065,15 +7254,24 @@ function renderKbQcTable() {
     }).join(' ');
     // 问题描述汇总
     var descSummary = issues.length === 1 ? (issues[0].desc || '-') : issues.length + '个问题';
-    if (issues.length > 1) descSummary += '（' + answered + '/' + issues.length + '已答疑）';
+    // 厂家汇总
+    var factorySummary = issues.map(function(i){ return i.factory || '-'; }).filter(function(v,i,a){ return a.indexOf(v) === i; }).join('、');
+    // 订单信息汇总
+    var orderSummary = issues.map(function(i){
+      var parts = [];
+      if (i.orderPlatform) parts.push(i.orderPlatform);
+      if (i.orderShop) parts.push(i.orderShop);
+      if (i.orderNo) parts.push(i.orderNo);
+      return parts.join('/') || '-';
+    }).join('；');
     return [
       {v: idx+1},
       {v: q.regDate || '-'},
       {v: q.productName || '-'},
       {v: typeTags},
       {v: descSummary},
-      {v: issues.length + '条'},
-      {v: replyStatus},
+      {v: factorySummary},
+      {v: orderSummary},
       {v: '<button class="action-btn" onclick="showQcDetail(\'' + q.id + '\')">查看</button> <button class="action-btn" onclick="showQcReply(\'' + q.id + '\')">答疑</button>'}
     ];
   });
@@ -7084,20 +7282,102 @@ function filterKbQcProducts() { renderKbQcTable(); }
 
 function showAddQcModal() {
   resetKbTempFiles();
+  loadQcOptionData();
   var body = document.getElementById('qcAddBody');
+  var inputStyle = 'width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box;';
+  var textareaStyle = inputStyle + 'min-height:60px;resize:vertical;font-family:inherit;';
+  var hintStyle = 'font-size:11px;color:var(--muted);margin-top:3px;';
+
   var html = '';
-  html += kbFormRow('登记日期', '<input type="date" id="qcAddDate">');
-  // 产品名称下拉（从产品资料中获取）
-  var productOpts = kbProducts.map(function(p){ return '<option value="'+p.name+'">'+p.name+'</option>'; }).join('');
-  html += kbFormRow('产品名称', '<select id="qcAddProduct"><option value="">请选择产品</option>' + productOpts + '</select>');
-  html += kbFormRow('问题类型', '<select id="qcAddType"><option value="质量问题">质量问题</option><option value="包装问题">包装问题</option><option value="口感问题">口感问题</option><option value="物流问题">物流问题</option><option value="客诉问题">客诉问题</option><option value="其他">其他</option></select>');
-  html += kbFormRow('问题描述', '<textarea id="qcAddDesc" class="kb-input-area" rows="3" placeholder="请详细描述品控问题..."></textarea>');
-  html += kbUploadRow('附件（图片或文件）', 'qcAttach');
+  // 1. 登记日期
+  html += kbFormRow('登记日期', '<input type="date" id="qcAddDate" style="' + inputStyle + '">');
+
+  // 2. 产品名称（下拉+新增，权限控制）
+  html += kbFormRow('产品名称', qcDropdownWithAdd({
+    selectId: 'qcAddProduct',
+    options: qcOptionData.products,
+    placeholder: '请选择产品',
+    addPlaceholder: '输入新产品名',
+    selectPermKey: 'qc-product-select',
+    addPermKey: 'qc-product-add',
+    addCallback: 'addQcProduct()'
+  }));
+
+  // 3. 问题类型（下拉+新增，权限控制）
+  html += kbFormRow('问题类型', qcDropdownWithAdd({
+    selectId: 'qcAddType',
+    options: qcOptionData.types,
+    placeholder: '请选择问题类型',
+    addPlaceholder: '输入新类型',
+    selectPermKey: 'qc-type-select',
+    addPermKey: 'qc-type-add',
+    addCallback: 'addQcType()'
+  }));
+
+  // 4. 生产日期（日期选择 + 无法确认勾选）
+  html += kbFormRow('生产日期', '<div style="display:flex;align-items:center;gap:8px;">' +
+    '<input type="date" id="qcAddProdDate" style="' + inputStyle + '" oninput="document.getElementById(\'qcDateUnknown\').checked=false;">' +
+    '<label style="white-space:nowrap;font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;">' +
+    '<input type="checkbox" id="qcDateUnknown" onchange="if(this.checked) document.getElementById(\'qcAddProdDate\').value=\'\';"> 无法确认' +
+    '</label></div>');
+
+  // 5. 生产厂家（下拉+新增，权限控制）
+  html += kbFormRow('生产厂家', qcDropdownWithAdd({
+    selectId: 'qcAddFactory',
+    options: qcOptionData.factories,
+    placeholder: '请选择厂家',
+    addPlaceholder: '输入新厂家',
+    selectPermKey: 'qc-factory-select',
+    addPermKey: 'qc-factory-add',
+    addCallback: 'addQcFactory()'
+  }));
+
+  // 6. 订单信息（平台下拉+店铺下拉+订单号）
+  var orderHtml = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
+  orderHtml += '<div>' + qcDropdownWithAdd({
+    selectId: 'qcAddPlatform',
+    options: qcOptionData.platforms,
+    placeholder: '选择平台',
+    addPlaceholder: '新平台',
+    selectPermKey: 'qc-platform-select',
+    addPermKey: 'qc-platform-add',
+    addCallback: 'addQcPlatform()'
+  }) + '</div>';
+  orderHtml += '<div>' + qcDropdownWithAdd({
+    selectId: 'qcAddShop',
+    options: qcOptionData.shops,
+    placeholder: '选择店铺',
+    addPlaceholder: '新店铺',
+    selectPermKey: 'qc-shop-select',
+    addPermKey: 'qc-shop-add',
+    addCallback: 'addQcShop()'
+  }) + '</div>';
+  orderHtml += '<div><input type="text" id="qcAddOrderNo" placeholder="填写订单号" style="' + inputStyle + '"></div>';
+  orderHtml += '</div>';
+  html += kbFormRow('订单信息', orderHtml);
+
+  // 7. 问题描述
+  html += kbFormRow('问题描述',
+    '<textarea id="qcAddDesc" class="kb-input-area" rows="3" style="' + textareaStyle + '" placeholder="请简洁描述问题的细节和具体数量"></textarea>');
+
+  // 8. 附件
+  html += kbFormRow('附件（图片/视频）',
+    '<div class="kb-upload-area" id="kbUpload_qcAttach">' +
+    '<label class="kb-upload-btn">＋ 选择文件' +
+    '<input type="file" multiple accept="image/*,video/*" style="display:none;" onchange="handleKbFileUpload(this,\'qcAttach\')">' +
+    '</label>' +
+    '<span id="kbUpload_qcAttach_list" style="display:flex;flex-wrap:wrap;gap:4px;"></span>' +
+    '</div>' +
+    '<div style="' + hintStyle + '">请上传清晰的问题图片或视频</div>');
+
   body.innerHTML = html;
   // 设置默认日期
   var today = new Date();
-  document.getElementById('qcAddDate').value = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  document.getElementById('qcAddDate').value = todayStr;
   document.getElementById('qcAddModal').style.display = 'flex';
+  // 自动调整textarea
+  body.querySelectorAll('.kb-input-area').forEach(function(el) { autoResizeTextarea(el); });
 }
 
 function closeQcAddModal() { document.getElementById('qcAddModal').style.display = 'none'; }
@@ -7106,12 +7386,31 @@ function saveQcIssue() {
   var date = val('qcAddDate');
   var productName = val('qcAddProduct');
   var type = val('qcAddType');
+  var prodDate = val('qcAddProdDate');
+  var dateUnknown = document.getElementById('qcDateUnknown') ? document.getElementById('qcDateUnknown').checked : false;
+  var factory = val('qcAddFactory');
+  var orderPlatform = val('qcAddPlatform');
+  var orderShop = val('qcAddShop');
+  var orderNo = val('qcAddOrderNo');
   var desc = val('qcAddDesc');
   if (!date || !productName || !desc) { alert('请填写登记日期、产品名称和问题描述'); return; }
   var attachments = getKbFiles('qcAttach');
-  var issue = { type: type, desc: desc, attachments: attachments, regTime: new Date().toLocaleString('zh-CN'), reply: '', riskAdvice: '', afterSalesAdvice: '' };
-  // 检查是否已有该产品的品控记录
-  var existing = kbQcIssues.find(function(q){ return q.productName === productName; });
+  var issue = {
+    type: type,
+    desc: desc,
+    prodDate: dateUnknown ? '无法确认' : (prodDate || ''),
+    factory: factory,
+    orderPlatform: orderPlatform,
+    orderShop: orderShop,
+    orderNo: orderNo,
+    attachments: attachments,
+    regTime: new Date().toLocaleString('zh-CN'),
+    reply: '',
+    riskAdvice: '',
+    afterSalesAdvice: ''
+  };
+  // 检查是否已有该产品当天的品控记录
+  var existing = kbQcIssues.find(function(q){ return q.productName === productName && q.regDate === date; });
   if (existing) {
     existing.issues.push(issue);
   } else {
@@ -7157,6 +7456,13 @@ function showQcDetail(qcId) {
     html += '<div class="kb-factory-block"><div class="kb-factory-title">问题 ' + (idx+1) + '：' + (issue.type || '-') + '</div>';
     html += '<div class="kb-detail-grid">';
     html += kbDetailItem('登记时间', issue.regTime);
+    html += kbDetailItem('生产日期', issue.prodDate || '-');
+    html += kbDetailItem('生产厂家', issue.factory || '-');
+    var orderInfo = [];
+    if (issue.orderPlatform) orderInfo.push(issue.orderPlatform);
+    if (issue.orderShop) orderInfo.push(issue.orderShop);
+    if (issue.orderNo) orderInfo.push(issue.orderNo);
+    html += kbDetailItem('订单信息', orderInfo.length > 0 ? orderInfo.join(' / ') : '-');
     html += kbDetailItemFull('问题描述', issue.desc);
     html += kbDetailItemFull('附件', kbAttachments(issue.attachments));
     html += '</div>';
