@@ -6343,32 +6343,38 @@ function loadKbData() {
   // 加载品控下拉选项数据
   loadQcOptionData();
 
-  // 如果刚刚保存过（2分钟内），跳过GitHub刷新，避免CDN缓存覆盖新数据
+  // 如果刚刚保存过（5分钟内），跳过GitHub刷新，避免CDN缓存覆盖新数据
   var now = Date.now();
-  if (now - kbLastSavedAt < 120000) {
+  if (now - kbLastSavedAt < 300000) {
     return;
   }
 
   // 通过GitHub API获取最新数据（绕过CDN缓存）
+  // 注意：如果localStorage中有缓存且数量更多，说明本地数据更新，不覆盖
   fetchKbFileViaApi('kb_products.json')
     .then(function(d){
-      kbProducts = d || [];
+      d = d || [];
+      // 如果本地缓存有数据但远程数据更少，说明远程还没同步，保留本地
+      if (kbProducts.length > 0 && d.length < kbProducts.length) return;
+      kbProducts = d;
       try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
       renderKbCategoryList();
       renderKbCategoryTabs();
     })
     .catch(function(){
       // API失败时保留localStorage缓存，不清空
-      if (kbProducts.length === 0) { kbProducts = []; renderKbCategoryList(); renderKbCategoryTabs(); }
     });
   fetchKbFileViaApi('kb_qc.json')
     .then(function(d){
-      kbQcIssues = d || [];
+      d = d || [];
+      // 如果本地缓存有数据但远程数据更少，说明远程还没同步，保留本地
+      if (kbQcIssues.length > 0 && d.length < kbQcIssues.length) return;
+      kbQcIssues = d;
       try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
       renderKbQcTable();
     })
     .catch(function(){
-      if (kbQcIssues.length === 0) { kbQcIssues = []; renderKbQcTable(); }
+      // API失败时保留localStorage缓存，不清空
     });
 }
 
@@ -7132,6 +7138,7 @@ function loadQcOptionData() {
 
 function saveQcOptionData() {
   try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
+  kbLastSavedAt = Date.now(); // 防止切换页面后远程数据覆盖本地
   // 同步到GitHub
   var content = utf8ToBase64(JSON.stringify(qcOptionData, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/qc_options.json';
