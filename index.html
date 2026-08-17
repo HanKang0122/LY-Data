@@ -1155,56 +1155,66 @@ body {
 .kb-add-factory-btn:hover { border-color:var(--primary); color:var(--primary); }
 
 /* ==================== ROI速算计算器 ==================== */
-.roi-calc-container { background:var(--bg-white); border-radius:8px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
-.roi-calc-toolbar { display:flex; gap:8px; margin-bottom:16px; justify-content:flex-end; }
-.roi-calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-@media (max-width:900px) { .roi-calc-grid { grid-template-columns:1fr; } }
+.roi-calc-container { background:var(--bg-white); border-radius:8px; padding:12px 16px; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+.roi-calc-toolbar { display:flex; gap:8px; margin-bottom:10px; justify-content:flex-end; }
+.roi-calc-grid { display:grid; grid-template-columns:360px 1fr; gap:14px; }
+@media (max-width:1100px) { .roi-calc-grid { grid-template-columns:1fr; } }
 
-.roi-calc-input-panel { display:flex; flex-direction:column; gap:16px; }
-.roi-calc-section { border:1px solid var(--border-light); border-radius:8px; padding:14px; background:#fafbfc; }
-.roi-calc-section-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
-.roi-calc-field { margin-bottom:10px; }
+.roi-calc-input-panel { display:flex; flex-direction:column; gap:8px; }
+.roi-calc-section { border:1px solid var(--border-light); border-radius:6px; padding:8px 10px; background:#fafbfc; }
+.roi-calc-section-title { font-size:12px; font-weight:600; color:var(--text); margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid var(--border-light); }
+.roi-calc-field { margin-bottom:6px; }
 .roi-calc-field:last-child { margin-bottom:0; }
-.roi-calc-field label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+.roi-calc-field label { display:block; font-size:11px; color:var(--muted); margin-bottom:2px; }
 .roi-calc-field .req { color:var(--danger); }
-.roi-calc-field .roi-hint { font-size:11px; color:var(--muted); margin-left:6px; }
-.roi-calc-field input { width:100%; padding:7px 10px; border:1px solid var(--border); border-radius:4px; font-size:13px; box-sizing:border-box; }
+.roi-calc-field .roi-hint { font-size:10px; color:var(--muted); margin-left:4px; }
+.roi-calc-field input { width:100%; padding:5px 8px; border:1px solid var(--border); border-radius:4px; font-size:12px; box-sizing:border-box; }
 .roi-calc-field input:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 2px rgba(64,158,255,0.1); }
 .roi-input-wrap { display:flex; align-items:center; }
-.roi-input-prefix { font-size:13px; color:var(--muted); padding:7px 0 7px 10px; border:1px solid var(--border); border-right:none; border-radius:4px 0 0 4px; background:#f5f7fa; }
+.roi-input-prefix { font-size:12px; color:var(--muted); padding:5px 0 5px 8px; border:1px solid var(--border); border-right:none; border-radius:4px 0 0 4px; background:#f5f7fa; }
 .roi-input-wrap input { border-radius:0 4px 4px 0; }
-.roi-calc-rate-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.roi-calc-rate-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; }
 .roi-calc-rate-grid .roi-calc-field { margin-bottom:0; }
-.roi-calc-rate-grid .roi-calc-field input { font-size:12px; padding:6px 8px; }
+.roi-calc-rate-grid .roi-calc-field input { font-size:11px; padding:4px 6px; }
+.roi-calc-rate-grid .roi-calc-field label { font-size:10px; }
+
+/* 紧凑的双列输入 */
+.roi-calc-two-col { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.roi-calc-three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.roi-calc-two-col .roi-calc-field, .roi-calc-three-col .roi-calc-field { margin-bottom:0; }
 
 /* 结果面板 */
-.roi-calc-result-panel { position:sticky; top:0; }
-.roi-result-placeholder { display:flex; align-items:center; justify-content:center; height:300px; color:var(--muted); font-size:14px; text-align:center; border:1px dashed var(--border); border-radius:8px; }
-.roi-result-card { border:1px solid var(--border-light); border-radius:8px; overflow:hidden; }
-.roi-result-hero { text-align:center; padding:24px 16px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
-.roi-result-hero .roi-hero-value { font-size:42px; font-weight:700; line-height:1.2; }
-.roi-result-hero .roi-hero-label { font-size:13px; opacity:0.85; margin-top:4px; }
-.roi-result-hero .roi-hero-hint { font-size:11px; opacity:0.7; margin-top:8px; }
+.roi-calc-result-panel { }
+.roi-result-placeholder { display:flex; align-items:center; justify-content:center; height:200px; color:var(--muted); font-size:13px; text-align:center; border:1px dashed var(--border); border-radius:8px; }
+.roi-result-card { border:1px solid var(--border-light); border-radius:6px; overflow:hidden; }
+.roi-result-hero { text-align:center; padding:12px 12px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
+.roi-result-hero .roi-hero-value { font-size:28px; font-weight:700; line-height:1.2; }
+.roi-result-hero .roi-hero-label { font-size:12px; opacity:0.85; margin-top:2px; }
+.roi-result-hero .roi-hero-hint { font-size:10px; opacity:0.7; margin-top:4px; }
 .roi-result-hero.profit { background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%); }
 .roi-result-hero.loss { background:linear-gradient(135deg,#eb3349 0%,#f45c43 100%); }
+.roi-result-hero.breakeven { background:linear-gradient(135deg,#f7971e 0%,#ffd200 100%); }
 
-.roi-result-body { padding:16px; }
-.roi-result-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-light); font-size:13px; }
+.roi-result-body { padding:10px 12px; }
+.roi-result-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border-light); font-size:12px; }
 .roi-result-row:last-child { border-bottom:none; }
 .roi-result-row .label { color:var(--muted); }
 .roi-result-row .value { font-weight:600; color:var(--text); }
 .roi-result-row .value.positive { color:var(--success); }
 .roi-result-row .value.negative { color:var(--danger); }
 
-.roi-result-subsection { margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light); }
-.roi-result-subsection-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px; }
-.roi-loss-box { background:#fef0f0; border:1px solid #fde2e2; border-radius:6px; padding:12px; }
+.roi-result-subsection { margin-top:6px; padding-top:6px; border-top:1px solid var(--border-light); }
+.roi-result-subsection-title { font-size:12px; font-weight:600; color:var(--text); margin-bottom:4px; }
+.roi-loss-box { background:#fef0f0; border:1px solid #fde2e2; border-radius:4px; padding:8px 10px; }
 .roi-loss-box.profit-box { background:#f0f9eb; border-color:#e1f3d8; }
-.roi-loss-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px; }
+.roi-loss-row { display:flex; justify-content:space-between; align-items:center; padding:3px 0; font-size:12px; }
 .roi-loss-row .label { color:var(--muted); }
 .roi-loss-row .value { font-weight:600; }
-.roi-loss-summary { margin-top:8px; padding-top:8px; border-top:1px dashed #e1f3d8; font-size:12px; line-height:1.8; }
+.roi-loss-summary { margin-top:4px; padding-top:4px; border-top:1px dashed #e1f3d8; font-size:11px; line-height:1.6; }
 .roi-loss-box .roi-loss-summary { border-top-color:#fde2e2; }
+
+/* 结果双列布局 */
+.roi-result-cols { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 
 /* 品控问题类型标签 */
 .kb-qc-type-tag { font-size:11px; padding:2px 6px; border-radius:3px; white-space:nowrap; }
@@ -2089,36 +2099,39 @@ body {
             <div class="roi-calc-input-panel">
               <div class="roi-calc-section">
                 <div class="roi-calc-section-title">商品基础</div>
-                <div class="roi-calc-field">
-                  <label>SKU售价 <span class="req">*</span></label>
-                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiSkuPrice" placeholder="0.00" oninput="calcRoi()"></div>
-                </div>
-                <div class="roi-calc-field">
-                  <label>产品成本 <span class="req">*</span></label>
-                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiProductCost" placeholder="0.00" oninput="calcRoi()"></div>
+                <div class="roi-calc-two-col">
+                  <div class="roi-calc-field">
+                    <label>SKU售价 <span class="req">*</span></label>
+                    <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiSkuPrice" placeholder="0.00" oninput="calcRoi()"></div>
+                  </div>
+                  <div class="roi-calc-field">
+                    <label>产品成本 <span class="req">*</span></label>
+                    <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiProductCost" placeholder="0.00" oninput="calcRoi()"></div>
+                  </div>
                 </div>
               </div>
 
               <div class="roi-calc-section">
                 <div class="roi-calc-section-title">物流成本</div>
-                <div class="roi-calc-field">
-                  <label>物流包材</label>
-                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsPack" placeholder="0.00" oninput="calcRoi()"></div>
-                </div>
-                <div class="roi-calc-field">
-                  <label>快递运费</label>
-                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiExpressFee" placeholder="0.00" oninput="calcRoi()"></div>
-                </div>
-                <div class="roi-calc-field">
-                  <label>物流操作费</label>
-                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsOp" placeholder="0.00" oninput="calcRoi()"></div>
+                <div class="roi-calc-three-col">
+                  <div class="roi-calc-field">
+                    <label>物流包材</label>
+                    <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsPack" placeholder="0.00" oninput="calcRoi()"></div>
+                  </div>
+                  <div class="roi-calc-field">
+                    <label>快递运费</label>
+                    <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiExpressFee" placeholder="0.00" oninput="calcRoi()"></div>
+                  </div>
+                  <div class="roi-calc-field">
+                    <label>物流操作费</label>
+                    <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsOp" placeholder="0.00" oninput="calcRoi()"></div>
+                  </div>
                 </div>
               </div>
 
               <div class="roi-calc-section">
-                <div class="roi-calc-section-title">目标ROI</div>
+                <div class="roi-calc-section-title">目标ROI <span class="roi-hint">低于保本即亏损</span></div>
                 <div class="roi-calc-field">
-                  <label>计划投放ROI <span class="roi-hint">低于保本即亏损</span></label>
                   <input type="number" id="roiTargetRoi" placeholder="0.00" oninput="calcRoi()" style="width:100%;">
                 </div>
               </div>
@@ -6394,18 +6407,20 @@ function calcRoi() {
   // 每100元广告亏损
   var per100AdLoss = actualAdCost > 0 ? (Math.abs(lossPerUnit) / actualAdCost * 100) : 0;
 
-  var isLoss = lossPerUnit > 0 && targetRoi > 0;
-  var heroClass = targetRoi > 0 ? (isLoss ? 'loss' : 'profit') : '';
-  var heroLabel = targetRoi > 0 ? (isLoss ? '每件亏损' : '每件盈利') : '保本ROI';
+  var isLoss = lossPerUnit > 0.001 && targetRoi > 0;
+  var isBreakeven = targetRoi > 0 && Math.abs(lossPerUnit) < 0.001;
+  var heroClass = targetRoi > 0 ? (isBreakeven ? 'breakeven' : (isLoss ? 'loss' : 'profit')) : '';
+  var heroLabel = targetRoi > 0 ? (isBreakeven ? '盈亏平衡' : (isLoss ? '每件亏损' : '每件盈利')) : '保本ROI';
 
   var html = '';
-  // Hero区域
   html += '<div class="roi-result-card">';
+  // Hero区域
   if (targetRoi > 0) {
+    var heroSign = isBreakeven ? '' : (isLoss ? '-' : '+');
     html += '<div class="roi-result-hero ' + heroClass + '">';
-    html += '<div class="roi-hero-value">' + (isLoss ? '-' : '+') + '¥' + Math.abs(actualProfit).toFixed(2) + '</div>';
+    html += '<div class="roi-hero-value">' + heroSign + '¥' + Math.abs(actualProfit).toFixed(2) + '</div>';
     html += '<div class="roi-hero-label">' + heroLabel + '</div>';
-    html += '<div class="roi-hero-hint">基于目标ROI ' + targetRoi.toFixed(2) + ' 计算</div>';
+    html += '<div class="roi-hero-hint">基于目标ROI ' + targetRoi.toFixed(2) + ' · 保本ROI ' + (breakevenRoi > 0 ? breakevenRoi.toFixed(2) : '∞') + '</div>';
     html += '</div>';
   } else {
     html += '<div class="roi-result-hero">';
@@ -6415,46 +6430,48 @@ function calcRoi() {
     html += '</div>';
   }
 
-  // 基础指标
+  // 双列结果
   html += '<div class="roi-result-body">';
+  html += '<div class="roi-result-cols">';
+  // 左列：核心指标
+  html += '<div>';
+  html += '<div class="roi-result-subsection-title">核心指标</div>';
   html += '<div class="roi-result-row"><span class="label">保本ROI</span><span class="value">' + (breakevenRoi > 0 ? breakevenRoi.toFixed(2) : '∞') + '</span></div>';
-  if (breakevenRoi > 0) {
-    html += '<div class="roi-result-row"><span class="label">广告ROI需 ≥ ' + breakevenRoi.toFixed(2) + ' 才不亏</span></div>';
-  }
   html += '<div class="roi-result-row"><span class="label">单位毛利</span><span class="value ' + (unitProfit >= 0 ? 'positive' : 'negative') + '">¥' + unitProfit.toFixed(2) + '</span></div>';
   html += '<div class="roi-result-row"><span class="label">毛利率</span><span class="value ' + (profitRate >= 0 ? 'positive' : 'negative') + '">' + profitRate.toFixed(1) + '%</span></div>';
   if (targetRoi > 0) {
     html += '<div class="roi-result-row"><span class="label">实际毛利</span><span class="value ' + (actualProfit >= 0 ? 'positive' : 'negative') + '">¥' + actualProfit.toFixed(2) + '</span></div>';
   }
-
-  // 成本明细
-  html += '<div class="roi-result-subsection">';
+  html += '</div>';
+  // 右列：成本明细
+  html += '<div>';
   html += '<div class="roi-result-subsection-title">成本明细</div>';
   html += '<div class="roi-result-row"><span class="label">产品成本</span><span class="value">¥' + productCost.toFixed(2) + '</span></div>';
   html += '<div class="roi-result-row"><span class="label">物流总成本</span><span class="value">¥' + logisticsTotal.toFixed(2) + '</span></div>';
-  html += '<div class="roi-result-row"><span class="label">费率总成本</span><span class="value">¥' + rateCost.toFixed(2) + ' (' + totalRatePct.toFixed(2) + '%)</span></div>';
+  html += '<div class="roi-result-row"><span class="label">费率成本(' + totalRatePct.toFixed(1) + '%)</span><span class="value">¥' + rateCost.toFixed(2) + '</span></div>';
   html += '<div class="roi-result-row"><span class="label">总成本</span><span class="value">¥' + totalCost.toFixed(2) + '</span></div>';
   html += '</div>';
+  html += '</div>';
 
-  // 亏损分析
+  // 亏损/盈利分析
   if (targetRoi > 0) {
     html += '<div class="roi-result-subsection">';
-    html += '<div class="roi-result-subsection-title">' + (isLoss ? '亏损分析' : '盈利分析') + '</div>';
+    html += '<div class="roi-result-subsection-title">' + (isBreakeven ? '盈亏平衡分析' : (isLoss ? '亏损分析' : '盈利分析')) + '</div>';
     var boxClass = isLoss ? '' : 'profit-box';
     html += '<div class="roi-loss-box ' + boxClass + '">';
     html += '<div class="roi-loss-row"><span class="label">保本广告费/件</span><span class="value">¥' + breakevenAdCost.toFixed(2) + '</span></div>';
     html += '<div class="roi-loss-row"><span class="label">实际广告费/件</span><span class="value ' + (isLoss ? 'negative' : 'positive') + '">¥' + actualAdCost.toFixed(2) + '</span></div>';
-    html += '<div class="roi-loss-row"><span class="label">' + (isLoss ? '每件亏损' : '每件盈利') + '</span><span class="value ' + (isLoss ? 'negative' : 'positive') + '">' + (isLoss ? '-' : '+') + '¥' + Math.abs(lossPerUnit).toFixed(2) + '</span></div>';
-    if (isLoss) {
+    if (!isBreakeven) {
+      html += '<div class="roi-loss-row"><span class="label">' + (isLoss ? '每件亏损' : '每件盈利') + '</span><span class="value ' + (isLoss ? 'negative' : 'positive') + '">' + (isLoss ? '-' : '+') + '¥' + Math.abs(lossPerUnit).toFixed(2) + '</span></div>';
       html += '<div class="roi-loss-summary">';
-      html += '<strong>亏损率（占售价）：' + lossRate.toFixed(2) + '%</strong><br>';
-      html += '每100元广告亏损：' + per100AdLoss.toFixed(2) + '元';
+      if (isLoss) {
+        html += '<strong>亏损率(占售价)：' + lossRate.toFixed(2) + '%</strong> · 每100元广告亏损' + per100AdLoss.toFixed(2) + '元';
+      } else {
+        html += '<strong>盈利率(占售价)：' + lossRate.toFixed(2) + '%</strong> · 每100元广告盈利' + per100AdLoss.toFixed(2) + '元';
+      }
       html += '</div>';
     } else {
-      html += '<div class="roi-loss-summary">';
-      html += '<strong>盈利率（占售价）：' + lossRate.toFixed(2) + '%</strong><br>';
-      html += '每100元广告盈利：' + per100AdLoss.toFixed(2) + '元';
-      html += '</div>';
+      html += '<div class="roi-loss-row"><span class="label">状态</span><span class="value">目标ROI = 保本ROI，不赚不亏</span></div>';
     }
     html += '</div>';
     html += '</div>';
