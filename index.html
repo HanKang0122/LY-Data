@@ -1155,72 +1155,80 @@ body {
 .kb-add-factory-btn:hover { border-color:var(--primary); color:var(--primary); }
 
 /* ==================== ROI速算计算器 ==================== */
-.roi-calc-container { background:var(--bg-white); border-radius:8px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.03); }
+.roi-calc-container { background:var(--bg-white); border-radius:10px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
 .roi-calc-toolbar { display:flex; gap:8px; margin-bottom:16px; justify-content:flex-end; }
-.roi-calc-grid { display:grid; grid-template-columns:380px 1fr; gap:20px; align-items:start; }
+.roi-calc-grid { display:grid; grid-template-columns:5fr 6fr; gap:24px; align-items:start; }
 @media (max-width:1100px) { .roi-calc-grid { grid-template-columns:1fr; } }
 
-.roi-calc-input-panel { display:flex; flex-direction:column; gap:12px; }
-.roi-calc-section { border:1px solid #eef0f3; border-radius:8px; padding:14px 16px; background:#fcfcfd; }
-.roi-calc-section-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:10px; }
-.roi-calc-field { margin-bottom:8px; }
-.roi-calc-field:last-child { margin-bottom:0; }
-.roi-calc-field label { display:block; font-size:12px; color:#888; margin-bottom:4px; }
+/* 输入区 */
+.roi-calc-input-panel { display:flex; flex-direction:column; gap:14px; }
+.roi-calc-section { border:1px solid #eef0f3; border-radius:8px; padding:16px; background:#fcfcfd; }
+.roi-calc-section-title { font-size:13px; font-weight:600; color:#333; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.roi-calc-section-title::before { content:''; display:inline-block; width:3px; height:14px; background:var(--primary); border-radius:2px; }
+.roi-calc-field { margin-bottom:0; }
+.roi-calc-field label { display:flex; align-items:center; gap:4px; font-size:12px; color:#666; margin-bottom:5px; }
 .roi-calc-field .req { color:var(--danger); }
-.roi-calc-field .roi-hint { font-size:11px; color:#bbb; margin-left:6px; font-weight:400; }
-.roi-calc-field input { width:100%; padding:7px 10px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; box-sizing:border-box; transition:border-color 0.15s; }
-.roi-calc-field input:focus { border-color:var(--primary); outline:none; }
-.roi-input-wrap { display:flex; align-items:center; }
-.roi-input-prefix { font-size:13px; color:#aaa; padding:7px 0 7px 10px; border:1px solid #e5e7eb; border-right:none; border-radius:6px 0 0 6px; background:#f9fafb; }
+.roi-calc-field .roi-hint { font-size:10px; color:#bbb; font-weight:400; }
+.roi-calc-field input { width:100%; padding:8px 12px; border:1px solid #e5e7eb; border-radius:6px; font-size:13px; box-sizing:border-box; transition:all 0.15s; height:36px; }
+.roi-calc-field input:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(99,102,241,0.08); }
+.roi-input-wrap { display:flex; align-items:stretch; height:36px; }
+.roi-input-prefix { font-size:13px; color:#999; display:flex; align-items:center; padding:0 10px; border:1px solid #e5e7eb; border-right:none; border-radius:6px 0 0 6px; background:#f9fafb; min-width:28px; justify-content:center; }
 .roi-input-wrap input { border-radius:0 6px 6px 0; }
-.roi-calc-rate-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-.roi-calc-rate-grid .roi-calc-field { margin-bottom:0; }
-.roi-calc-rate-grid .roi-calc-field input { font-size:12px; padding:6px 8px; }
-.roi-calc-rate-grid .roi-calc-field label { font-size:11px; }
-.roi-calc-two-col { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.roi-calc-three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-.roi-calc-two-col .roi-calc-field, .roi-calc-three-col .roi-calc-field { margin-bottom:0; }
 
-/* 结果面板 */
+/* 输入网格 */
+.roi-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.roi-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.roi-grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; }
+.roi-grid-2 .roi-calc-field, .roi-grid-3 .roi-calc-field, .roi-grid-4 .roi-calc-field { margin-bottom:0; }
+
+/* 统一所有输入框高度（含无prefix的） */
+.roi-calc-field > input { height:36px; }
+
+/* 结果区 */
 .roi-calc-result-panel { }
-.roi-result-placeholder { display:flex; align-items:center; justify-content:center; height:260px; color:#bbb; font-size:14px; border:1px dashed #e5e7eb; border-radius:8px; }
+.roi-result-placeholder { display:flex; align-items:center; justify-content:center; height:300px; color:#bbb; font-size:14px; border:1px dashed #e5e7eb; border-radius:8px; background:#fcfcfd; }
 .roi-result-card { border:1px solid #eef0f3; border-radius:8px; overflow:hidden; }
-.roi-result-hero { text-align:center; padding:20px; background:linear-gradient(135deg,#6366f1 0%,#818cf8 100%); color:#fff; }
-.roi-result-hero .roi-hero-value { font-size:34px; font-weight:700; line-height:1.2; }
-.roi-result-hero .roi-hero-label { font-size:13px; opacity:0.9; margin-top:4px; }
-.roi-result-hero .roi-hero-hint { font-size:11px; opacity:0.75; margin-top:6px; }
+
+/* Hero区域 - 紧凑 */
+.roi-result-hero { text-align:center; padding:18px 20px; background:linear-gradient(135deg,#6366f1 0%,#818cf8 100%); color:#fff; }
+.roi-result-hero .roi-hero-value { font-size:30px; font-weight:700; line-height:1.1; }
+.roi-result-hero .roi-hero-label { font-size:12px; opacity:0.9; margin-top:3px; }
+.roi-result-hero .roi-hero-hint { font-size:11px; opacity:0.7; margin-top:5px; }
 .roi-result-hero.profit { background:linear-gradient(135deg,#059669 0%,#34d399 100%); }
 .roi-result-hero.loss { background:linear-gradient(135deg,#dc2626 0%,#f87171 100%); }
 .roi-result-hero.breakeven { background:linear-gradient(135deg,#d97706 0%,#fbbf24 100%); }
 
-.roi-result-body { padding:16px; }
-.roi-result-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px; }
-.roi-result-row + .roi-result-row { border-top:1px solid #f3f4f6; }
-.roi-result-row .label { color:#888; }
-.roi-result-row .value { font-weight:600; color:var(--text); }
+.roi-result-body { padding:18px 20px; }
+.roi-result-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-size:13px; }
+.roi-result-row + .roi-result-row { border-top:1px solid #f5f5f5; }
+.roi-result-row .label { color:#999; }
+.roi-result-row .value { font-weight:600; color:#333; }
 .roi-result-row .value.positive { color:#059669; }
 .roi-result-row .value.negative { color:#dc2626; }
 .roi-result-row .value.highlight { color:var(--primary); }
 
-.roi-result-subsection { margin-top:14px; padding-top:14px; border-top:1px solid #f3f4f6; }
-.roi-result-subsection-title { font-size:12px; font-weight:600; color:#666; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
-.roi-loss-box { border-radius:6px; padding:12px 14px; background:#fef2f2; border:1px solid #fecaca; }
-.roi-loss-box.profit-box { background:#f0fdf4; border-color:#bbf7d0; }
-.roi-loss-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:13px; }
-.roi-loss-row .label { color:#888; }
-.roi-loss-row .value { font-weight:600; }
-.roi-loss-summary { margin-top:6px; padding-top:6px; border-top:1px dashed #bbf7d0; font-size:12px; line-height:1.7; color:#666; }
-.roi-loss-box .roi-loss-summary { border-top-color:#fecaca; }
+.roi-result-subsection { margin-top:16px; padding-top:16px; border-top:1px solid #f0f0f0; }
+.roi-result-subsection-title { font-size:11px; font-weight:600; color:#999; margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; }
 
-.roi-result-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+/* 双列结果 - 紧凑 */
+.roi-result-cols { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+
+/* 盈亏分析 */
+.roi-loss-box { border-radius:8px; padding:14px 16px; background:#fef2f2; border:1px solid #fecaca; }
+.roi-loss-box.profit-box { background:#f0fdf4; border-color:#bbf7d0; }
+.roi-loss-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:13px; }
+.roi-loss-row .label { color:#999; }
+.roi-loss-row .value { font-weight:600; }
+.roi-loss-summary { margin-top:8px; padding-top:8px; border-top:1px dashed #fecaca; font-size:12px; line-height:1.6; color:#666; }
+.roi-loss-box.profit-box .roi-loss-summary { border-top-color:#bbf7d0; }
 
 /* 出价倍数表 */
 .roi-bid-table { width:100%; border-collapse:collapse; font-size:12px; }
-.roi-bid-table th { background:#f9fafb; padding:6px 8px; text-align:center; font-weight:600; color:#666; border:1px solid #f3f4f6; }
-.roi-bid-table td { padding:5px 8px; text-align:center; border:1px solid #f3f4f6; color:#666; }
+.roi-bid-table th { background:#f9fafb; padding:7px 6px; text-align:center; font-weight:600; color:#999; border:1px solid #f0f0f0; }
+.roi-bid-table td { padding:6px; text-align:center; border:1px solid #f0f0f0; color:#666; }
 .roi-bid-table td.bid-val { font-weight:600; color:var(--primary); }
 .roi-bid-table tr.bid-row-breakeven { background:#fffbeb; }
-.roi-bid-note { font-size:11px; color:#bbb; margin-top:6px; line-height:1.5; }
+.roi-bid-note { font-size:11px; color:#bbb; margin-top:8px; line-height:1.5; text-align:center; }
 
 /* 品控问题类型标签 */
 .kb-qc-type-tag { font-size:11px; padding:2px 6px; border-radius:3px; white-space:nowrap; }
@@ -2105,7 +2113,7 @@ body {
             <div class="roi-calc-input-panel">
               <div class="roi-calc-section">
                 <div class="roi-calc-section-title">商品基础</div>
-                <div class="roi-calc-two-col">
+                <div class="roi-grid-2">
                   <div class="roi-calc-field">
                     <label>SKU售价 <span class="req">*</span></label>
                     <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiSkuPrice" placeholder="0.00" oninput="calcRoi()"></div>
@@ -2119,7 +2127,7 @@ body {
 
               <div class="roi-calc-section">
                 <div class="roi-calc-section-title">物流成本 <span class="roi-hint">发货后不可回收</span></div>
-                <div class="roi-calc-three-col">
+                <div class="roi-grid-3">
                   <div class="roi-calc-field">
                     <label>物流包材</label>
                     <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsPack" placeholder="0.00" oninput="calcRoi()"></div>
@@ -2137,28 +2145,28 @@ body {
 
               <div class="roi-calc-section">
                 <div class="roi-calc-section-title">投放参数</div>
-                <div class="roi-calc-two-col">
+                <div class="roi-grid-2">
                   <div class="roi-calc-field">
-                    <label>综合退货退款率 <span class="req">*</span> <span class="roi-hint">缩放收入和费率</span></label>
+                    <label>综合退货退款率 <span class="req">*</span></label>
                     <div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiRefundRate" placeholder="0" oninput="calcRoi()"></div>
                   </div>
                   <div class="roi-calc-field">
-                    <label>目标投放ROI <span class="roi-hint">低于保本即亏损</span></label>
-                    <input type="number" id="roiTargetRoi" placeholder="0.00" oninput="calcRoi()" style="width:100%;">
+                    <label>目标投放ROI</label>
+                    <div class="roi-input-wrap"><span class="roi-input-prefix">×</span><input type="number" id="roiTargetRoi" placeholder="0.00" oninput="calcRoi()"></div>
                   </div>
                 </div>
               </div>
 
               <div class="roi-calc-section">
-                <div class="roi-calc-section-title">费率成本 (%) <span class="roi-hint">按实际成交额计收</span></div>
-                <div class="roi-calc-rate-grid">
-                  <div class="roi-calc-field"><label>经营税率</label><input type="number" id="roiTaxRate" placeholder="0" oninput="calcRoi()"></div>
-                  <div class="roi-calc-field"><label>平台服务费率</label><input type="number" id="roiPlatformFee" placeholder="0" oninput="calcRoi()"></div>
-                  <div class="roi-calc-field"><label>样品成本费率</label><input type="number" id="roiSampleRate" placeholder="0" oninput="calcRoi()"></div>
-                  <div class="roi-calc-field"><label>售后货损费率</label><input type="number" id="roiAfterSalesRate" placeholder="0" oninput="calcRoi()"></div>
-                  <div class="roi-calc-field"><label>运费险费率</label><input type="number" id="roiInsuranceRate" placeholder="0" oninput="calcRoi()"></div>
-                  <div class="roi-calc-field"><label>人工成本费率</label><input type="number" id="roiLaborRate" placeholder="0" oninput="calcRoi()"></div>
-                  <div class="roi-calc-field"><label>达人佣金率</label><input type="number" id="roiCommissionRate" placeholder="0" oninput="calcRoi()"></div>
+                <div class="roi-calc-section-title">费率成本 <span class="roi-hint">%</span></div>
+                <div class="roi-grid-4">
+                  <div class="roi-calc-field"><label>经营税率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiTaxRate" placeholder="0" oninput="calcRoi()"></div></div>
+                  <div class="roi-calc-field"><label>平台服务费率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiPlatformFee" placeholder="0" oninput="calcRoi()"></div></div>
+                  <div class="roi-calc-field"><label>样品成本费率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiSampleRate" placeholder="0" oninput="calcRoi()"></div></div>
+                  <div class="roi-calc-field"><label>售后货损费率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiAfterSalesRate" placeholder="0" oninput="calcRoi()"></div></div>
+                  <div class="roi-calc-field"><label>运费险费率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiInsuranceRate" placeholder="0" oninput="calcRoi()"></div></div>
+                  <div class="roi-calc-field"><label>人工成本费率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiLaborRate" placeholder="0" oninput="calcRoi()"></div></div>
+                  <div class="roi-calc-field"><label>达人佣金率</label><div class="roi-input-wrap"><span class="roi-input-prefix">%</span><input type="number" id="roiCommissionRate" placeholder="0" oninput="calcRoi()"></div></div>
                 </div>
               </div>
             </div>
