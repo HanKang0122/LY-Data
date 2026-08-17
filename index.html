@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/png" href="favicon-v2.png">
 <title>零壹电商管理中台</title>
 <style>
@@ -1151,6 +1154,58 @@ body {
 .kb-add-factory-btn { width:100%; padding:6px; border:1px dashed var(--border); border-radius:4px; background:transparent; cursor:pointer; font-size:12px; color:var(--muted); }
 .kb-add-factory-btn:hover { border-color:var(--primary); color:var(--primary); }
 
+/* ==================== ROI速算计算器 ==================== */
+.roi-calc-container { background:var(--bg-white); border-radius:8px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+.roi-calc-toolbar { display:flex; gap:8px; margin-bottom:16px; justify-content:flex-end; }
+.roi-calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media (max-width:900px) { .roi-calc-grid { grid-template-columns:1fr; } }
+
+.roi-calc-input-panel { display:flex; flex-direction:column; gap:16px; }
+.roi-calc-section { border:1px solid var(--border-light); border-radius:8px; padding:14px; background:#fafbfc; }
+.roi-calc-section-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+.roi-calc-field { margin-bottom:10px; }
+.roi-calc-field:last-child { margin-bottom:0; }
+.roi-calc-field label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+.roi-calc-field .req { color:var(--danger); }
+.roi-calc-field .roi-hint { font-size:11px; color:var(--muted); margin-left:6px; }
+.roi-calc-field input { width:100%; padding:7px 10px; border:1px solid var(--border); border-radius:4px; font-size:13px; box-sizing:border-box; }
+.roi-calc-field input:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 2px rgba(64,158,255,0.1); }
+.roi-input-wrap { display:flex; align-items:center; }
+.roi-input-prefix { font-size:13px; color:var(--muted); padding:7px 0 7px 10px; border:1px solid var(--border); border-right:none; border-radius:4px 0 0 4px; background:#f5f7fa; }
+.roi-input-wrap input { border-radius:0 4px 4px 0; }
+.roi-calc-rate-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.roi-calc-rate-grid .roi-calc-field { margin-bottom:0; }
+.roi-calc-rate-grid .roi-calc-field input { font-size:12px; padding:6px 8px; }
+
+/* 结果面板 */
+.roi-calc-result-panel { position:sticky; top:0; }
+.roi-result-placeholder { display:flex; align-items:center; justify-content:center; height:300px; color:var(--muted); font-size:14px; text-align:center; border:1px dashed var(--border); border-radius:8px; }
+.roi-result-card { border:1px solid var(--border-light); border-radius:8px; overflow:hidden; }
+.roi-result-hero { text-align:center; padding:24px 16px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
+.roi-result-hero .roi-hero-value { font-size:42px; font-weight:700; line-height:1.2; }
+.roi-result-hero .roi-hero-label { font-size:13px; opacity:0.85; margin-top:4px; }
+.roi-result-hero .roi-hero-hint { font-size:11px; opacity:0.7; margin-top:8px; }
+.roi-result-hero.profit { background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%); }
+.roi-result-hero.loss { background:linear-gradient(135deg,#eb3349 0%,#f45c43 100%); }
+
+.roi-result-body { padding:16px; }
+.roi-result-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-light); font-size:13px; }
+.roi-result-row:last-child { border-bottom:none; }
+.roi-result-row .label { color:var(--muted); }
+.roi-result-row .value { font-weight:600; color:var(--text); }
+.roi-result-row .value.positive { color:var(--success); }
+.roi-result-row .value.negative { color:var(--danger); }
+
+.roi-result-subsection { margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light); }
+.roi-result-subsection-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px; }
+.roi-loss-box { background:#fef0f0; border:1px solid #fde2e2; border-radius:6px; padding:12px; }
+.roi-loss-box.profit-box { background:#f0f9eb; border-color:#e1f3d8; }
+.roi-loss-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:13px; }
+.roi-loss-row .label { color:var(--muted); }
+.roi-loss-row .value { font-weight:600; }
+.roi-loss-summary { margin-top:8px; padding-top:8px; border-top:1px dashed #e1f3d8; font-size:12px; line-height:1.8; }
+.roi-loss-box .roi-loss-summary { border-top-color:#fde2e2; }
+
 /* 品控问题类型标签 */
 .kb-qc-type-tag { font-size:11px; padding:2px 6px; border-radius:3px; white-space:nowrap; }
 .kb-qc-type-tag.t-quality { background:#fff1f0; color:#ff4d4f; }
@@ -2023,25 +2078,71 @@ body {
       <!-- ====== ROI模型 ====== -->
       <div class="page" id="page-roi-model">
         <div class="breadcrumb"><span>主要功能</span> / <span class="current">ROI模型</span></div>
-        <div class="page-header"><div class="page-title">ROI投资回报模型</div></div>
-        <div class="tab-bar">
-          <div class="tab-item active">投放ROI</div>
-          <div class="tab-item">商品ROI</div>
-          <div class="tab-item">达人ROI</div>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">全域投放ROI</div><div class="kpi-value" id="roi-kpi-roi">--</div><div class="kpi-sub" id="roi-kpi-roi-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">总千川消耗</div><div class="kpi-value" id="roi-kpi-qc">--</div><div class="kpi-sub" id="roi-kpi-qc-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">投放GMV</div><div class="kpi-value" id="roi-kpi-gmv">--</div><div class="kpi-sub" id="roi-kpi-gmv-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">投放利润</div><div class="kpi-value" id="roi-kpi-profit">--</div><div class="kpi-sub" id="roi-kpi-profit-sub">数据加载中…</div></div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">月度ROI趋势</div><div id="roi-trend" style="width:100%;height:300px;"></div></div>
-          <div class="chart-card"><div class="card-title">千川消耗 vs 销售额散点图</div><div id="roi-scatter" style="width:100%;height:300px;"></div></div>
-        </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">月度ROI明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-          <div class="data-table-wrap" id="roi-detail-table"></div>
+        <div class="page-header"><div class="page-title">经营ROI速算</div></div>
+        <div class="roi-calc-container" id="roiCalcContainer">
+          <div class="roi-calc-toolbar">
+            <button class="btn" onclick="resetRoiCalc()">重置</button>
+            <button class="btn" onclick="exportRoiCalcCSV()">导出CSV</button>
+          </div>
+          <div class="roi-calc-grid">
+            <!-- 左侧：输入区 -->
+            <div class="roi-calc-input-panel">
+              <div class="roi-calc-section">
+                <div class="roi-calc-section-title">商品基础</div>
+                <div class="roi-calc-field">
+                  <label>SKU售价 <span class="req">*</span></label>
+                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiSkuPrice" placeholder="0.00" oninput="calcRoi()"></div>
+                </div>
+                <div class="roi-calc-field">
+                  <label>产品成本 <span class="req">*</span></label>
+                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiProductCost" placeholder="0.00" oninput="calcRoi()"></div>
+                </div>
+              </div>
+
+              <div class="roi-calc-section">
+                <div class="roi-calc-section-title">物流成本</div>
+                <div class="roi-calc-field">
+                  <label>物流包材</label>
+                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsPack" placeholder="0.00" oninput="calcRoi()"></div>
+                </div>
+                <div class="roi-calc-field">
+                  <label>快递运费</label>
+                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiExpressFee" placeholder="0.00" oninput="calcRoi()"></div>
+                </div>
+                <div class="roi-calc-field">
+                  <label>物流操作费</label>
+                  <div class="roi-input-wrap"><span class="roi-input-prefix">¥</span><input type="number" id="roiLogisticsOp" placeholder="0.00" oninput="calcRoi()"></div>
+                </div>
+              </div>
+
+              <div class="roi-calc-section">
+                <div class="roi-calc-section-title">目标ROI</div>
+                <div class="roi-calc-field">
+                  <label>计划投放ROI <span class="roi-hint">低于保本即亏损</span></label>
+                  <input type="number" id="roiTargetRoi" placeholder="0.00" oninput="calcRoi()" style="width:100%;">
+                </div>
+              </div>
+
+              <div class="roi-calc-section">
+                <div class="roi-calc-section-title">费率成本 (%)</div>
+                <div class="roi-calc-rate-grid">
+                  <div class="roi-calc-field"><label>经营税率</label><input type="number" id="roiTaxRate" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>平台服务费率</label><input type="number" id="roiPlatformFee" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>样品成本费率</label><input type="number" id="roiSampleRate" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>退款率 <span class="req">*</span></label><input type="number" id="roiRefundRate" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>售后货损费率</label><input type="number" id="roiAfterSalesRate" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>运费险费率</label><input type="number" id="roiInsuranceRate" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>人工成本费率</label><input type="number" id="roiLaborRate" placeholder="0" oninput="calcRoi()"></div>
+                  <div class="roi-calc-field"><label>达人佣金率</label><input type="number" id="roiCommissionRate" placeholder="0" oninput="calcRoi()"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧：结果区 -->
+            <div class="roi-calc-result-panel" id="roiCalcResult">
+              <div class="roi-result-placeholder">请输入商品基础信息开始计算</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2117,6 +2218,21 @@ body {
           <div class="modal-footer">
             <button class="modal-btn" onclick="closeQcAddModal()">取消</button>
             <button class="modal-btn primary" onclick="saveQcIssue()">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 修改品控弹窗 -->
+      <div class="modal-overlay" id="qcEditModal" style="display:none;">
+        <div class="modal-box" style="max-width:900px;width:90%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;">
+          <div class="modal-header">
+            <span class="modal-title">修改品控记录</span>
+            <button class="modal-close" onclick="closeQcEditModal()">✕</button>
+          </div>
+          <div class="modal-body" id="qcEditBody" style="overflow-y:auto;flex:1;padding:20px;"></div>
+          <div class="modal-footer">
+            <button class="modal-btn" onclick="closeQcEditModal()">取消</button>
+            <button class="modal-btn primary" onclick="saveQcEdit()">保存修改</button>
           </div>
         </div>
       </div>
@@ -2452,9 +2568,7 @@ var SUB_MENU_LABELS = {
   'opinion-monitor:review': '评价分析',
   'opinion-monitor:warning': '差评预警',
   'opinion-monitor:trend': '舆情趋势',
-  'roi-model:ad-roi': '投放ROI',
-  'roi-model:product-roi': '商品ROI',
-  'roi-model:talent-roi': '达人ROI',
+  'roi-model:quick-calc': '经营ROI速算',
   'system-config:basic': '基础配置',
   'system-config:refresh': '数据刷新',
   'system-config:alert': '预警规则',
@@ -2474,6 +2588,7 @@ var SUB_MENU_LABELS = {
   'knowledge-base:qc-platform-add': '品控-平台新增',
   'knowledge-base:qc-shop-select': '品控-店铺选择',
   'knowledge-base:qc-shop-add': '品控-店铺新增',
+  'knowledge-base:qc-edit': '品控-修改登记',
   'product-strategy:strategy': '策略制定',
   'product-strategy:pricing': '价格制定',
   'product-strategy:promotion': '推广跟踪',
@@ -3777,7 +3892,7 @@ function exportCurrentTable() {
     var commTableMap = { 'talent-assets':'talent-detail-table','order-data':'order-detail-table','sales-performance':'perf-detail-table' };
     id = commTableMap[commActiveTab];
   } else {
-    var map = { 'business-data':'biz-detail-table','operation-data':'op-detail-table','product-data':'prod-monthly-table','target-setting':'target-detail-table','opinion-monitor':'opinion-detail-table','roi-model':'roi-detail-table' };
+    var map = { 'business-data':'biz-detail-table','operation-data':'op-detail-table','product-data':'prod-monthly-table','target-setting':'target-detail-table','opinion-monitor':'opinion-detail-table', };
     id = map[route];
   }
   if (!id) { alert('当前页面无可导出表格'); return; }
@@ -6221,81 +6336,197 @@ function renderOpinionDetailTable(range) {
   el.innerHTML = buildTable(headers, rows, foot);
 }
 
-// ==================== ROI模型 ====================
+// ==================== ROI模型 - 经营ROI速算 ====================
 function renderRoiModel() {
-  var range = computeDateRange();
-  var agg = aggregateData(range.start, range.end);
-  var roi = agg.千川消耗 > 0 ? (agg.销售额 / agg.千川消耗) : 0;
-  setKpi('roi-kpi-roi', roi.toFixed(2), 'roi-kpi-roi-sub', '销售额/千川消耗');
-  setKpi('roi-kpi-qc', formatMoney(agg.千川消耗), 'roi-kpi-qc-sub', '占GMV ' + formatPercent(agg.GMV>0?agg.千川消耗/agg.GMV*100:0));
-  setKpi('roi-kpi-gmv', formatMoney(agg.GMV), 'roi-kpi-gmv-sub', '销售额 ' + formatMoney(agg.销售额));
-  setKpi('roi-kpi-profit', formatMoney(agg.毛利润), 'roi-kpi-profit-sub', agg.毛利润>=0?'盈利':'亏损');
-  renderRoiTrend();
-  renderRoiScatter(range);
-  renderRoiDetailTable();
+  // 初始化计算器
+  calcRoi();
 }
-function renderRoiTrend() {
-  var chart = getChart('roi-trend'); if (!chart) return;
-  var months = (businessData.meta.periods || []).slice().sort();
-  var monthly = aggregateMonthly();
-  var xData = months;
-  var roiData = months.map(function(m){
-    var ma = monthly[m];
-    if (!ma || ma.qianchuan <= 0) return 0;
-    return Number((ma.sales / ma.qianchuan).toFixed(2));
-  });
-  chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: function(p){ return p[0].axisValue + '<br/>' + p[0].marker + ' ROI: ' + p[0].value; } }),
-    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-    xAxis: { type:'category', data:xData, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{rotate:45,fontSize:10}) },
-    yAxis: { type:'value', axisLine:axisLine(), axisLabel:axisLabel(), splitLine:splitLineStyle() },
-    series: [{ type:'line', smooth:true, data:roiData, itemStyle:{color:THEME.primary}, lineStyle:{width:3}, label:{show:true,position:'top',color:'#606266',fontSize:10} }]
-  }, true);
+
+// ROI速算计算
+function calcRoi() {
+  var skuPrice = numVal('roiSkuPrice');
+  var productCost = numVal('roiProductCost');
+  var logisticsPack = numVal('roiLogisticsPack');
+  var expressFee = numVal('roiExpressFee');
+  var logisticsOp = numVal('roiLogisticsOp');
+  var targetRoi = numVal('roiTargetRoi');
+  var taxRate = numVal('roiTaxRate');
+  var platformFee = numVal('roiPlatformFee');
+  var sampleRate = numVal('roiSampleRate');
+  var refundRate = numVal('roiRefundRate');
+  var afterSalesRate = numVal('roiAfterSalesRate');
+  var insuranceRate = numVal('roiInsuranceRate');
+  var laborRate = numVal('roiLaborRate');
+  var commissionRate = numVal('roiCommissionRate');
+
+  var resultEl = document.getElementById('roiCalcResult');
+  if (!resultEl) return;
+
+  // 必填项检查
+  if (!skuPrice || !productCost) {
+    resultEl.innerHTML = '<div class="roi-result-placeholder">请输入SKU售价和产品成本开始计算</div>';
+    return;
+  }
+
+  // 物流总成本
+  var logisticsTotal = logisticsPack + expressFee + logisticsOp;
+  // 费率总成本（按售价百分比计算）
+  var totalRatePct = taxRate + platformFee + sampleRate + refundRate + afterSalesRate + insuranceRate + laborRate + commissionRate;
+  var rateCost = skuPrice * totalRatePct / 100;
+  // 总成本 = 产品成本 + 物流成本 + 费率成本
+  var totalCost = productCost + logisticsTotal + rateCost;
+  // 单位毛利 = 售价 - 总成本
+  var unitProfit = skuPrice - totalCost;
+  // 毛利率
+  var profitRate = skuPrice > 0 ? (unitProfit / skuPrice * 100) : 0;
+  // 保本ROI = 售价 / 单位毛利（即每单广告费刚好等于毛利时的ROI）
+  var breakevenRoi = unitProfit > 0 ? (skuPrice / unitProfit) : 0;
+  // 保本广告费/件 = 单位毛利
+  var breakevenAdCost = unitProfit;
+  // 实际广告费/件 = 售价 / 目标ROI
+  var actualAdCost = targetRoi > 0 ? (skuPrice / targetRoi) : 0;
+  // 实际毛利 = 单位毛利 - 实际广告费
+  var actualProfit = unitProfit - actualAdCost;
+  // 每件亏损 = 实际广告费 - 保本广告费
+  var lossPerUnit = actualAdCost - breakevenAdCost;
+  // 亏损率（占售价）
+  var lossRate = skuPrice > 0 ? (Math.abs(lossPerUnit) / skuPrice * 100) : 0;
+  // 每100元广告亏损
+  var per100AdLoss = actualAdCost > 0 ? (Math.abs(lossPerUnit) / actualAdCost * 100) : 0;
+
+  var isLoss = lossPerUnit > 0 && targetRoi > 0;
+  var heroClass = targetRoi > 0 ? (isLoss ? 'loss' : 'profit') : '';
+  var heroLabel = targetRoi > 0 ? (isLoss ? '每件亏损' : '每件盈利') : '保本ROI';
+
+  var html = '';
+  // Hero区域
+  html += '<div class="roi-result-card">';
+  if (targetRoi > 0) {
+    html += '<div class="roi-result-hero ' + heroClass + '">';
+    html += '<div class="roi-hero-value">' + (isLoss ? '-' : '+') + '¥' + Math.abs(actualProfit).toFixed(2) + '</div>';
+    html += '<div class="roi-hero-label">' + heroLabel + '</div>';
+    html += '<div class="roi-hero-hint">基于目标ROI ' + targetRoi.toFixed(2) + ' 计算</div>';
+    html += '</div>';
+  } else {
+    html += '<div class="roi-result-hero">';
+    html += '<div class="roi-hero-value">' + (breakevenRoi > 0 ? breakevenRoi.toFixed(2) : '∞') + '</div>';
+    html += '<div class="roi-hero-label">保本ROI</div>';
+    html += '<div class="roi-hero-hint">广告ROI低于此值即亏损</div>';
+    html += '</div>';
+  }
+
+  // 基础指标
+  html += '<div class="roi-result-body">';
+  html += '<div class="roi-result-row"><span class="label">保本ROI</span><span class="value">' + (breakevenRoi > 0 ? breakevenRoi.toFixed(2) : '∞') + '</span></div>';
+  if (breakevenRoi > 0) {
+    html += '<div class="roi-result-row"><span class="label">广告ROI需 ≥ ' + breakevenRoi.toFixed(2) + ' 才不亏</span></div>';
+  }
+  html += '<div class="roi-result-row"><span class="label">单位毛利</span><span class="value ' + (unitProfit >= 0 ? 'positive' : 'negative') + '">¥' + unitProfit.toFixed(2) + '</span></div>';
+  html += '<div class="roi-result-row"><span class="label">毛利率</span><span class="value ' + (profitRate >= 0 ? 'positive' : 'negative') + '">' + profitRate.toFixed(1) + '%</span></div>';
+  if (targetRoi > 0) {
+    html += '<div class="roi-result-row"><span class="label">实际毛利</span><span class="value ' + (actualProfit >= 0 ? 'positive' : 'negative') + '">¥' + actualProfit.toFixed(2) + '</span></div>';
+  }
+
+  // 成本明细
+  html += '<div class="roi-result-subsection">';
+  html += '<div class="roi-result-subsection-title">成本明细</div>';
+  html += '<div class="roi-result-row"><span class="label">产品成本</span><span class="value">¥' + productCost.toFixed(2) + '</span></div>';
+  html += '<div class="roi-result-row"><span class="label">物流总成本</span><span class="value">¥' + logisticsTotal.toFixed(2) + '</span></div>';
+  html += '<div class="roi-result-row"><span class="label">费率总成本</span><span class="value">¥' + rateCost.toFixed(2) + ' (' + totalRatePct.toFixed(2) + '%)</span></div>';
+  html += '<div class="roi-result-row"><span class="label">总成本</span><span class="value">¥' + totalCost.toFixed(2) + '</span></div>';
+  html += '</div>';
+
+  // 亏损分析
+  if (targetRoi > 0) {
+    html += '<div class="roi-result-subsection">';
+    html += '<div class="roi-result-subsection-title">' + (isLoss ? '亏损分析' : '盈利分析') + '</div>';
+    var boxClass = isLoss ? '' : 'profit-box';
+    html += '<div class="roi-loss-box ' + boxClass + '">';
+    html += '<div class="roi-loss-row"><span class="label">保本广告费/件</span><span class="value">¥' + breakevenAdCost.toFixed(2) + '</span></div>';
+    html += '<div class="roi-loss-row"><span class="label">实际广告费/件</span><span class="value ' + (isLoss ? 'negative' : 'positive') + '">¥' + actualAdCost.toFixed(2) + '</span></div>';
+    html += '<div class="roi-loss-row"><span class="label">' + (isLoss ? '每件亏损' : '每件盈利') + '</span><span class="value ' + (isLoss ? 'negative' : 'positive') + '">' + (isLoss ? '-' : '+') + '¥' + Math.abs(lossPerUnit).toFixed(2) + '</span></div>';
+    if (isLoss) {
+      html += '<div class="roi-loss-summary">';
+      html += '<strong>亏损率（占售价）：' + lossRate.toFixed(2) + '%</strong><br>';
+      html += '每100元广告亏损：' + per100AdLoss.toFixed(2) + '元';
+      html += '</div>';
+    } else {
+      html += '<div class="roi-loss-summary">';
+      html += '<strong>盈利率（占售价）：' + lossRate.toFixed(2) + '%</strong><br>';
+      html += '每100元广告盈利：' + per100AdLoss.toFixed(2) + '元';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+  }
+
+  html += '</div></div>';
+  resultEl.innerHTML = html;
 }
-function renderRoiScatter(range) {
-  var chart = getChart('roi-scatter'); if (!chart) return;
-  var daily = aggregateDaily(range.start, range.end);
-  var data = [];
-  Object.keys(daily).forEach(function(d){
-    var t = daily[d];
-    if (t.qianchuan > 0 || t.sales > 0) data.push([Math.round(t.qianchuan), Math.round(t.sales), d]);
-  });
-  chart.setOption({
-    tooltip: Object.assign(tooltipItem(), { formatter: function(p){ return p.data[2] + '<br/>千川消耗: ' + formatMoney(p.data[0]) + '<br/>销售额: ' + formatMoney(p.data[1]); } }),
-    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
-    xAxis: { type:'value', name:'千川消耗', nameLocation:'middle', nameGap:30, axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
-    yAxis: { type:'value', name:'销售额', axisLine:axisLine(), axisLabel:Object.assign(axisLabel(),{formatter:axisMoneyFormatter}), splitLine:splitLineStyle() },
-    series: [{ type:'scatter', data:data, symbolSize:function(d){ return Math.max(6, Math.min(22, Math.sqrt(Math.abs(d[0]))/4)); }, itemStyle:{color:'rgba(64,158,255,0.6)'} }]
-  }, true);
+
+function numVal(id) {
+  var el = document.getElementById(id);
+  if (!el) return 0;
+  var v = parseFloat(el.value);
+  return isNaN(v) ? 0 : v;
 }
-function renderRoiDetailTable() {
-  var el = document.getElementById('roi-detail-table'); if (!el) return;
-  var months = (businessData.meta.periods || []).slice().sort();
-  var monthly = aggregateMonthly();
-  var headers = ['月份','GMV','销售额','千川消耗','投放ROI','毛利润','利润率'];
-  var rows = [];
-  var total = { GMV:0, sales:0, qianchuan:0, profit:0 };
-  months.forEach(function(m){
-    var ma = monthly[m] || emptyTot();
-    var roi = ma.qianchuan > 0 ? (ma.sales / ma.qianchuan) : 0;
-    var pr = ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
-    rows.push([
-      {v:m}, {v:formatMoney(ma.GMV)}, {v:formatMoney(ma.sales)}, {v:formatMoney(ma.qianchuan)},
-      {v:roi.toFixed(2), cls:roi>=1?'num-positive':'num-negative'},
-      {v:formatMoney(ma.profit), cls:ma.profit>=0?'num-positive':'num-negative'},
-      {v:formatPercent(pr), cls:pr>=0?'num-positive':'num-negative'}
-    ]);
-    total.GMV += ma.GMV; total.sales += ma.sales; total.qianchuan += ma.qianchuan; total.profit += ma.profit;
+
+function resetRoiCalc() {
+  var ids = ['roiSkuPrice','roiProductCost','roiLogisticsPack','roiExpressFee','roiLogisticsOp','roiTargetRoi','roiTaxRate','roiPlatformFee','roiSampleRate','roiRefundRate','roiAfterSalesRate','roiInsuranceRate','roiLaborRate','roiCommissionRate'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
   });
-  var troi = total.qianchuan > 0 ? (total.sales / total.qianchuan) : 0;
-  var tpr = total.sales > 0 ? (total.profit / total.sales * 100) : 0;
-  var foot = [
-    {v:'合计'}, {v:formatMoney(total.GMV)}, {v:formatMoney(total.sales)}, {v:formatMoney(total.qianchuan)},
-    {v:troi.toFixed(2), cls:troi>=1?'num-positive':'num-negative'},
-    {v:formatMoney(total.profit), cls:total.profit>=0?'num-positive':'num-negative'},
-    {v:formatPercent(tpr), cls:tpr>=0?'num-positive':'num-negative'}
+  calcRoi();
+}
+
+function exportRoiCalcCSV() {
+  var skuPrice = numVal('roiSkuPrice');
+  var productCost = numVal('roiProductCost');
+  if (!skuPrice || !productCost) { alert('请先填写基础数据'); return; }
+  var headers = ['指标', '数值'];
+  var rows = [
+    ['SKU售价', '¥' + skuPrice.toFixed(2)],
+    ['产品成本', '¥' + productCost.toFixed(2)],
+    ['物流包材', '¥' + numVal('roiLogisticsPack').toFixed(2)],
+    ['快递运费', '¥' + numVal('roiExpressFee').toFixed(2)],
+    ['物流操作费', '¥' + numVal('roiLogisticsOp').toFixed(2)],
+    ['经营税率(%)', numVal('roiTaxRate').toFixed(2) + '%'],
+    ['平台服务费率(%)', numVal('roiPlatformFee').toFixed(2) + '%'],
+    ['样品成本费率(%)', numVal('roiSampleRate').toFixed(2) + '%'],
+    ['退款率(%)', numVal('roiRefundRate').toFixed(2) + '%'],
+    ['售后货损费率(%)', numVal('roiAfterSalesRate').toFixed(2) + '%'],
+    ['运费险费率(%)', numVal('roiInsuranceRate').toFixed(2) + '%'],
+    ['人工成本费率(%)', numVal('roiLaborRate').toFixed(2) + '%'],
+    ['达人佣金率(%)', numVal('roiCommissionRate').toFixed(2) + '%'],
+    ['目标ROI', numVal('roiTargetRoi').toFixed(2)],
   ];
-  el.innerHTML = buildTable(headers, rows, foot);
+  var logisticsTotal = numVal('roiLogisticsPack') + numVal('roiExpressFee') + numVal('roiLogisticsOp');
+  var totalRatePct = numVal('roiTaxRate') + numVal('roiPlatformFee') + numVal('roiSampleRate') + numVal('roiRefundRate') + numVal('roiAfterSalesRate') + numVal('roiInsuranceRate') + numVal('roiLaborRate') + numVal('roiCommissionRate');
+  var rateCost = skuPrice * totalRatePct / 100;
+  var totalCost = productCost + logisticsTotal + rateCost;
+  var unitProfit = skuPrice - totalCost;
+  var breakevenRoi = unitProfit > 0 ? (skuPrice / unitProfit) : 0;
+  var targetRoi = numVal('roiTargetRoi');
+  var actualAdCost = targetRoi > 0 ? (skuPrice / targetRoi) : 0;
+  var actualProfit = unitProfit - actualAdCost;
+  rows.push(['物流总成本', '¥' + logisticsTotal.toFixed(2)]);
+  rows.push(['费率总成本', '¥' + rateCost.toFixed(2) + ' (' + totalRatePct.toFixed(2) + '%)']);
+  rows.push(['总成本', '¥' + totalCost.toFixed(2)]);
+  rows.push(['单位毛利', '¥' + unitProfit.toFixed(2)]);
+  rows.push(['毛利率', (skuPrice > 0 ? (unitProfit / skuPrice * 100) : 0).toFixed(1) + '%']);
+  rows.push(['保本ROI', breakevenRoi > 0 ? breakevenRoi.toFixed(2) : '∞']);
+  if (targetRoi > 0) {
+    rows.push(['实际广告费/件', '¥' + actualAdCost.toFixed(2)]);
+    rows.push(['实际毛利', '¥' + actualProfit.toFixed(2)]);
+    rows.push(['每件盈亏', (actualProfit >= 0 ? '+' : '-') + '¥' + Math.abs(actualProfit).toFixed(2)]);
+  }
+  var csv = '\uFEFF' + headers.join(',') + '\n' + rows.map(function(r){ return r.map(function(c){ return '"' + c + '"'; }).join(','); }).join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '经营ROI速算_' + new Date().toLocaleDateString('zh-CN').replace(/\//g, '') + '.csv';
+  link.click();
 }
 
 // ==================== 产品知识库 ====================
@@ -6313,13 +6544,19 @@ function fetchKbFileViaApi(filename) {
   return fetch(apiUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
     .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
     .then(function(data) {
-      if (data.content) {
-        // GitHub API返回base64编码的内容
+      if (data.content && data.encoding === 'base64') {
+        // GitHub API返回base64编码的内容（小文件）
         var decoded = atob(data.content.replace(/\n/g, ''));
         // 处理UTF-8编码
         return decodeURIComponent(escape(decoded));
       }
-      throw new Error('No content');
+      // 大文件（>1MB）GitHub API不返回content，使用download_url获取
+      if (data.download_url || data.git_url) {
+        var rawUrl = data.download_url || ('https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/git/blobs/' + data.sha);
+        return fetch(rawUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
+          .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.text(); });
+      }
+      throw new Error('No content and no download URL');
     })
     .then(function(text) { return JSON.parse(text); });
 }
@@ -6337,9 +6574,10 @@ function loadKbData() {
     var cachedQc = localStorage.getItem('kb_qc_cache');
     if (cachedQc) {
       kbQcIssues = JSON.parse(cachedQc);
-      renderKbQcTable();
     }
   } catch(e) {}
+  // 无论缓存是否存在，都先渲染一次表格（显示空状态或缓存数据）
+  renderKbQcTable();
   // 加载品控下拉选项数据
   loadQcOptionData();
 
@@ -6373,8 +6611,10 @@ function loadKbData() {
       try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
       renderKbQcTable();
     })
-    .catch(function(){
-      // API失败时保留localStorage缓存，不清空
+    .catch(function(err){
+      // API失败时保留localStorage缓存，不清空，但要确保表格已渲染
+      console.error('[知识库] 品控数据加载失败:', err);
+      renderKbQcTable();
     });
 }
 
@@ -6629,8 +6869,13 @@ function kbAttachments(files) {
   if (!files || files.length === 0) return '-';
   return files.map(function(f, idx) {
     var name = f.name || '未命名';
-    var isImg = /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(name);
-    var isVideo = /\.(mp4|webm|ogg|mov)$/i.test(name);
+    var isImg = /\.(jpg|jpeg|png|gif|webp|bmp|svg|tiff|tif|ico|heic|heif|avif|raw|cr2|nef|arw|dng|psd|ai)$/i.test(name);
+    var isVideo = /\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv|m4v|3gp|3g2|mpeg|mpg|ts|m2ts|mts|mxf|f4v|rm|rmvb|vob)$/i.test(name);
+    // 优先使用MIME类型判断
+    if (f.mime) {
+      if (f.mime.indexOf('image') === 0) isImg = true;
+      if (f.mime.indexOf('video') === 0) isVideo = true;
+    }
     var icon = isImg ? '🖼️' : (isVideo ? '🎬' : '📎');
     if (f.data) {
       var mime = f.mime || (isImg ? 'image/jpeg' : (isVideo ? 'video/mp4' : 'application/octet-stream'));
@@ -6649,6 +6894,13 @@ function previewKbAttachment(mime, base64Data, name) {
   overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:100000;display:flex;align-items:center;justify-content:center;flex-direction:column;';
   var isImg = mime.indexOf('image') === 0;
   var isVideo = mime.indexOf('video') === 0;
+  // MIME类型未识别时，通过扩展名判断
+  if (!isImg && !isVideo && name) {
+    isImg = /\.(jpg|jpeg|png|gif|webp|bmp|svg|tiff|tif|ico|heic|heif|avif|raw|cr2|nef|arw|dng|psd|ai)$/i.test(name);
+    isVideo = /\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv|m4v|3gp|3g2|mpeg|mpg|ts|m2ts|mts|mxf|f4v|rm|rmvb|vob)$/i.test(name);
+    if (isImg && (!mime || mime === 'application/octet-stream')) mime = 'image/jpeg';
+    if (isVideo && (!mime || mime === 'application/octet-stream')) mime = 'video/mp4';
+  }
   var contentHtml = '';
   if (isImg) {
     contentHtml = '<img src="data:' + mime + ';base64,' + base64Data + '" style="max-width:90vw;max-height:80vh;border-radius:4px;object-fit:contain;" />';
@@ -6722,7 +6974,15 @@ function renderKbFileList(fieldKey) {
   if (!listEl) return;
   var files = kbTempFiles[fieldKey] || [];
   listEl.innerHTML = files.map(function(f, idx) {
-    return '<span class="kb-file-tag">📎 ' + f.name + '<span class="remove" onclick="removeKbFile(\'' + fieldKey + '\',' + idx + ')">✕</span></span>';
+    var name = f.name || '未命名';
+    var isImg = /\.(jpg|jpeg|png|gif|webp|bmp|svg|tiff|tif|ico|heic|heif|avif|raw|cr2|nef|arw|dng|psd|ai)$/i.test(name);
+    var isVideo = /\.(mp4|webm|ogg|mov|avi|mkv|flv|wmv|m4v|3gp|3g2|mpeg|mpg|ts|m2ts|mts|mxf|f4v|rm|rmvb|vob)$/i.test(name);
+    if (f.mime) {
+      if (f.mime.indexOf('image') === 0) isImg = true;
+      if (f.mime.indexOf('video') === 0) isVideo = true;
+    }
+    var icon = isImg ? '🖼️' : (isVideo ? '🎬' : '📎');
+    return '<span class="kb-file-tag">' + icon + ' ' + f.name + '<span class="remove" onclick="removeKbFile(\'' + fieldKey + '\',' + idx + ')">✕</span></span>';
   }).join('');
 }
 
@@ -7513,7 +7773,7 @@ function renderKbQcTable() {
       {v: descSummary},
       {v: factorySummary},
       {v: orderSummary},
-      {v: '<button class="action-btn" onclick="showQcDetail(\'' + q.id + '\')">查看</button> <button class="action-btn" onclick="showQcReply(\'' + q.id + '\')">答疑</button>'}
+      {v: '<button class="action-btn" onclick="showQcDetail(\'' + q.id + '\')">查看</button> <button class="action-btn" onclick="editQcIssue(\'' + q.id + '\')">修改</button> <button class="action-btn" onclick="showQcReply(\'' + q.id + '\')">答疑</button>'}
     ];
   });
   el.innerHTML = buildTable(cols, rows);
@@ -7600,7 +7860,7 @@ function showAddQcModal() {
   html += kbFormRow('附件（图片/视频）',
     '<div class="kb-upload-area" id="kbUpload_qcAttach">' +
     '<label class="kb-upload-btn">＋ 选择文件' +
-    '<input type="file" multiple accept="image/*,video/*" style="display:none;" onchange="handleKbFileUpload(this,\'qcAttach\')">' +
+    '<input type="file" multiple accept="image/*,video/*,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.tiff,.tif,.ico,.heic,.heif,.avif,.raw,.cr2,.nef,.arw,.dng,.psd,.ai,.mp4,.webm,.ogg,.mov,.avi,.mkv,.flv,.wmv,.m4v,.3gp,.3g2,.mpeg,.mpg,.ts,.m2ts,.mts,.mxf,.f4v,.rm,.rmvb,.vob" style="display:none;" onchange="handleKbFileUpload(this,\'qcAttach\')">' +
     '</label>' +
     '<span id="kbUpload_qcAttach_list" style="display:flex;flex-wrap:wrap;gap:4px;"></span>' +
     '</div>' +
@@ -7656,8 +7916,277 @@ function saveQcIssue() {
   showSyncToast('品控问题登记成功，已同步到服务器');
 }
 
+// ==================== 品控修改 ====================
+var editingQcId = null;
+var editingQcIssues = [];
+
+function editQcIssue(qcId) {
+  if (!checkQcPerm('qc-edit')) { alert('您没有修改品控记录的权限'); return; }
+  var q = kbQcIssues.find(function(x){ return x.id === qcId; });
+  if (!q) return;
+  editingQcId = qcId;
+  editingQcIssues = JSON.parse(JSON.stringify(q.issues || []));
+  if (editingQcIssues.length === 0) {
+    editingQcIssues.push({ type:'', desc:'', prodDate:'', factory:'', orderShop:'', orderNo:'', attachments:[], regTime:'', reply:'', riskAdvice:'', afterSalesAdvice:'' });
+  }
+  renderQcEditModal(q);
+}
+
+function renderQcEditModal(q) {
+  resetKbTempFiles();
+  loadQcOptionData();
+  // 预加载已有附件
+  editingQcIssues.forEach(function(issue, idx) {
+    if (issue.attachments && issue.attachments.length > 0) {
+      kbTempFiles['qcEditAttach_' + idx] = JSON.parse(JSON.stringify(issue.attachments));
+    }
+  });
+
+  var inputStyle = 'width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box;';
+  var textareaStyle = inputStyle + 'min-height:60px;resize:vertical;font-family:inherit;';
+  var hintStyle = 'font-size:11px;color:var(--muted);margin-top:3px;';
+  var fileAccept = 'image/*,video/*,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.tiff,.tif,.ico,.heic,.heif,.avif,.raw,.cr2,.nef,.arw,.dng,.psd,.ai,.mp4,.webm,.ogg,.mov,.avi,.mkv,.flv,.wmv,.m4v,.3gp,.3g2,.mpeg,.mpg,.ts,.m2ts,.mts,.mxf,.f4v,.rm,.rmvb,.vob';
+
+  var html = '';
+  // 基本信息
+  html += kbFormRow('登记日期', '<input type="date" id="qcEditDate" style="' + inputStyle + '">');
+
+  // 产品名称
+  var productOpts = qcOptionData.products.map(function(p) {
+    return '<option value="' + p + '">' + p + '</option>';
+  }).join('');
+  html += kbFormRow('产品名称', '<select id="qcEditProduct" style="' + inputStyle + '"><option value="">请选择产品</option>' + productOpts + '</select>');
+
+  // 问题列表
+  html += '<div id="qcEditIssuesContainer">';
+  editingQcIssues.forEach(function(issue, idx) {
+    html += renderQcEditIssueBlock(issue, idx, inputStyle, textareaStyle, hintStyle, fileAccept);
+  });
+  html += '</div>';
+
+  // 添加问题按钮
+  html += '<div style="margin-top:12px;"><button class="action-btn" onclick="addQcEditIssue()" style="color:var(--primary);font-weight:600;">＋ 添加问题</button></div>';
+
+  var body = document.getElementById('qcEditBody');
+  body.innerHTML = html;
+
+  // 设置值
+  document.getElementById('qcEditDate').value = q.regDate || '';
+  document.getElementById('qcEditProduct').value = q.productName || '';
+  editingQcIssues.forEach(function(issue, idx) {
+    setQcEditIssueValues(issue, idx);
+    renderKbFileList('qcEditAttach_' + idx);
+  });
+
+  // 自动调整textarea
+  body.querySelectorAll('.kb-input-area').forEach(function(el) { autoResizeTextarea(el); });
+
+  document.getElementById('qcEditModal').style.display = 'flex';
+}
+
+function renderQcEditIssueBlock(issue, idx, inputStyle, textareaStyle, hintStyle, fileAccept) {
+  if (!inputStyle) inputStyle = 'width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;box-sizing:border-box;';
+  if (!textareaStyle) textareaStyle = inputStyle + 'min-height:60px;resize:vertical;font-family:inherit;';
+  if (!hintStyle) hintStyle = 'font-size:11px;color:var(--muted);margin-top:3px;';
+  if (!fileAccept) fileAccept = 'image/*,video/*,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.tiff,.tif,.ico,.heic,.heif,.avif,.raw,.cr2,.nef,.arw,.dng,.psd,.ai,.mp4,.webm,.ogg,.mov,.avi,.mkv,.flv,.wmv,.m4v,.3gp,.3g2,.mpeg,.mpg,.ts,.m2ts,.mts,.mxf,.f4v,.rm,.rmvb,.vob';
+
+  var typeOpts = qcOptionData.types.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+  var factoryOpts = qcOptionData.factories.map(function(f) { return '<option value="' + f + '">' + f + '</option>'; }).join('');
+  var shopOpts = qcOptionData.shops.map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
+
+  var prodDateVal = (issue.prodDate && issue.prodDate !== '无法确认') ? issue.prodDate : '';
+  var dateUnknownChecked = (issue.prodDate === '无法确认') ? 'checked' : '';
+
+  var html = '<div class="kb-factory-block" id="qcEditIssueBlock_' + idx + '">';
+  html += '<div class="kb-factory-title" style="display:flex;justify-content:space-between;align-items:center;">';
+  html += '<span>问题 ' + (idx+1) + '</span>';
+  if (editingQcIssues.length > 1) {
+    html += '<button class="action-btn" onclick="removeQcEditIssue(' + idx + ')" style="color:var(--danger);font-size:12px;">删除此问题</button>';
+  }
+  html += '</div>';
+
+  html += kbFormRow('问题类型', '<select id="qcEditType_' + idx + '" style="' + inputStyle + '"><option value="">请选择问题类型</option>' + typeOpts + '</select>');
+
+  html += kbFormRow('生产日期', '<div style="display:flex;align-items:center;gap:8px;">' +
+    '<input type="date" id="qcEditProdDate_' + idx + '" style="' + inputStyle + '" value="' + prodDateVal + '" oninput="document.getElementById(\'qcDateUnknown_' + idx + '\').checked=false;">' +
+    '<label style="white-space:nowrap;font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer;">' +
+    '<input type="checkbox" id="qcDateUnknown_' + idx + '" ' + dateUnknownChecked + ' onchange="if(this.checked) document.getElementById(\'qcEditProdDate_' + idx + '\').value=\'\';"> 无法确认' +
+    '</label></div>');
+
+  html += kbFormRow('生产厂家', '<select id="qcEditFactory_' + idx + '" style="' + inputStyle + '"><option value="">请选择厂家</option>' + factoryOpts + '</select>');
+
+  var orderHtml = '<div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">';
+  orderHtml += '<div><select id="qcEditShop_' + idx + '" style="' + inputStyle + '"><option value="">选择店铺</option>' + shopOpts + '</select></div>';
+  orderHtml += '<div><input type="text" id="qcEditOrderNo_' + idx + '" placeholder="填写订单号" style="' + inputStyle + '"></div>';
+  orderHtml += '</div>';
+  html += kbFormRow('订单信息', orderHtml);
+
+  html += kbFormRow('问题描述', '<textarea id="qcEditDesc_' + idx + '" class="kb-input-area" rows="3" style="' + textareaStyle + '" placeholder="请简洁描述问题的细节和具体数量"></textarea>');
+
+  html += kbFormRow('附件（图片/视频）',
+    '<div class="kb-upload-area" id="kbUpload_qcEditAttach_' + idx + '">' +
+    '<label class="kb-upload-btn">＋ 选择文件' +
+    '<input type="file" multiple accept="' + fileAccept + '" style="display:none;" onchange="handleKbFileUpload(this,\'qcEditAttach_' + idx + '\')">' +
+    '</label>' +
+    '<span id="kbUpload_qcEditAttach_' + idx + '_list" style="display:flex;flex-wrap:wrap;gap:4px;"></span>' +
+    '</div>' +
+    '<div style="' + hintStyle + '">请上传清晰的问题图片或视频</div>');
+
+  html += '</div>';
+  return html;
+}
+
+function setQcEditIssueValues(issue, idx) {
+  // 问题类型
+  var typeEl = document.getElementById('qcEditType_' + idx);
+  if (typeEl && issue.type) {
+    var found = false;
+    for (var i = 0; i < typeEl.options.length; i++) {
+      if (typeEl.options[i].value === issue.type) { typeEl.selectedIndex = i; found = true; break; }
+    }
+    if (!found) {
+      var opt = document.createElement('option');
+      opt.value = issue.type; opt.textContent = issue.type;
+      typeEl.appendChild(opt); typeEl.value = issue.type;
+    }
+  }
+  // 生产厂家
+  var factoryEl = document.getElementById('qcEditFactory_' + idx);
+  if (factoryEl && issue.factory) {
+    var foundF = false;
+    for (var i = 0; i < factoryEl.options.length; i++) {
+      if (factoryEl.options[i].value === issue.factory) { factoryEl.selectedIndex = i; foundF = true; break; }
+    }
+    if (!foundF) {
+      var optF = document.createElement('option');
+      optF.value = issue.factory; optF.textContent = issue.factory;
+      factoryEl.appendChild(optF); factoryEl.value = issue.factory;
+    }
+  }
+  // 店铺
+  var shopEl = document.getElementById('qcEditShop_' + idx);
+  if (shopEl && issue.orderShop) {
+    var foundS = false;
+    for (var i = 0; i < shopEl.options.length; i++) {
+      if (shopEl.options[i].value === issue.orderShop) { shopEl.selectedIndex = i; foundS = true; break; }
+    }
+    if (!foundS) {
+      var optS = document.createElement('option');
+      optS.value = issue.orderShop; optS.textContent = issue.orderShop;
+      shopEl.appendChild(optS); shopEl.value = issue.orderShop;
+    }
+  }
+  var orderNoEl = document.getElementById('qcEditOrderNo_' + idx);
+  if (orderNoEl) orderNoEl.value = issue.orderNo || '';
+  var descEl = document.getElementById('qcEditDesc_' + idx);
+  if (descEl) descEl.value = issue.desc || '';
+}
+
+function saveCurrentEditIssuesFromForm() {
+  editingQcIssues.forEach(function(issue, idx) {
+    var typeEl = document.getElementById('qcEditType_' + idx);
+    var prodDateEl = document.getElementById('qcEditProdDate_' + idx);
+    var dateUnknownEl = document.getElementById('qcDateUnknown_' + idx);
+    var factoryEl = document.getElementById('qcEditFactory_' + idx);
+    var shopEl = document.getElementById('qcEditShop_' + idx);
+    var orderNoEl = document.getElementById('qcEditOrderNo_' + idx);
+    var descEl = document.getElementById('qcEditDesc_' + idx);
+
+    if (typeEl) issue.type = typeEl.value;
+    if (prodDateEl && dateUnknownEl) {
+      issue.prodDate = dateUnknownEl.checked ? '无法确认' : (prodDateEl.value || '');
+    }
+    if (factoryEl) issue.factory = factoryEl.value;
+    if (shopEl) issue.orderShop = shopEl.value;
+    if (orderNoEl) issue.orderNo = orderNoEl.value;
+    if (descEl) issue.desc = descEl.value;
+    // 保存附件
+    issue.attachments = kbTempFiles['qcEditAttach_' + idx] || [];
+  });
+}
+
+function addQcEditIssue() {
+  saveCurrentEditIssuesFromForm();
+  editingQcIssues.push({
+    type: '', desc: '', prodDate: '', factory: '', orderShop: '', orderNo: '',
+    attachments: [], regTime: new Date().toLocaleString('zh-CN'),
+    reply: '', riskAdvice: '', afterSalesAdvice: ''
+  });
+  rerenderQcEditIssues();
+}
+
+function removeQcEditIssue(idx) {
+  if (editingQcIssues.length <= 1) { alert('至少保留一条问题记录'); return; }
+  saveCurrentEditIssuesFromForm();
+  // 收集附件
+  var savedAttachments = editingQcIssues.map(function(issue, i) {
+    return kbTempFiles['qcEditAttach_' + i] || [];
+  });
+  editingQcIssues.splice(idx, 1);
+  savedAttachments.splice(idx, 1);
+  // 清理旧附件键
+  Object.keys(kbTempFiles).forEach(function(key) {
+    if (key.indexOf('qcEditAttach_') === 0) delete kbTempFiles[key];
+  });
+  // 重新分配附件
+  savedAttachments.forEach(function(files, i) {
+    if (files.length > 0) kbTempFiles['qcEditAttach_' + i] = files;
+  });
+  rerenderQcEditIssues();
+}
+
+function rerenderQcEditIssues() {
+  var container = document.getElementById('qcEditIssuesContainer');
+  if (!container) return;
+  var html = '';
+  editingQcIssues.forEach(function(issue, idx) {
+    html += renderQcEditIssueBlock(issue, idx);
+  });
+  container.innerHTML = html;
+  editingQcIssues.forEach(function(issue, idx) {
+    setQcEditIssueValues(issue, idx);
+    renderKbFileList('qcEditAttach_' + idx);
+  });
+  container.querySelectorAll('.kb-input-area').forEach(function(el) { autoResizeTextarea(el); });
+}
+
+function closeQcEditModal() {
+  document.getElementById('qcEditModal').style.display = 'none';
+  editingQcId = null;
+  editingQcIssues = [];
+}
+
+function saveQcEdit() {
+  saveCurrentEditIssuesFromForm();
+  var date = val('qcEditDate');
+  var productName = document.getElementById('qcEditProduct').value;
+  if (!date || !productName) { alert('请填写登记日期和产品名称'); return; }
+  // 过滤空问题
+  var newIssues = editingQcIssues.filter(function(issue) {
+    return issue.desc && issue.desc.trim();
+  });
+  if (newIssues.length === 0) { alert('至少需要填写一条问题描述'); return; }
+  // 找到原记录
+  var q = kbQcIssues.find(function(x){ return x.id === editingQcId; });
+  if (!q) { alert('记录不存在'); return; }
+  // 更新记录
+  q.regDate = date;
+  q.productName = productName;
+  q.issues = newIssues;
+  // 检查是否需要合并到另一条记录（相同产品+日期）
+  var existingRecord = kbQcIssues.find(function(x){ return x.id !== editingQcId && x.productName === productName && x.regDate === date; });
+  if (existingRecord) {
+    existingRecord.issues = existingRecord.issues.concat(newIssues);
+    kbQcIssues = kbQcIssues.filter(function(x){ return x.id !== editingQcId; });
+  }
+  pushKbQcToGitHub();
+  closeQcEditModal();
+  renderKbQcTable();
+  showSyncToast('品控记录修改成功，已同步到服务器');
+}
+
 function pushKbQcToGitHub() {
-  try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
+  try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) { console.warn('[知识库] localStorage存储失败（可能超出容量限制），数据仍会同步到服务器', e); }
   kbLastSavedAt = Date.now();
   var content = utf8ToBase64(JSON.stringify(kbQcIssues, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_qc.json';
