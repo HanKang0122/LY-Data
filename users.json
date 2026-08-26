@@ -33,5 +33,12 @@
     "password": "fcf123456",
     "role": "role_1786691088953",
     "status": 1
+  },
+  {
+    "id": 6,
+    "name": "廖宣芬",
+    "password": "lxf123456",
+    "role": "admin",
+    "status": 1
   }
 ]
