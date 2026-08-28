@@ -1526,8 +1526,25 @@ body {
       <div class="menu-item" data-route="business-data" onclick="navigateTo('business-data')">
         <span class="menu-icon">💰</span><span class="menu-text">经营数据</span>
       </div>
-      <div class="menu-item" data-route="operation-data" onclick="navigateTo('operation-data')">
-        <span class="menu-icon">📈</span><span class="menu-text">运营数据</span>
+      <div class="menu-item" data-route="operation-data" onclick="toggleSubmenu(this, 'submenu-operation-data')">
+        <span class="menu-icon">📈</span><span class="menu-text">运营数据</span><span class="submenu-arrow">▶</span>
+      </div>
+      <div class="submenu" id="submenu-operation-data">
+        <div class="menu-item" data-route="operation-traffic" onclick="navigateTo('operation-traffic')">
+          <span class="menu-icon">🔄</span><span class="menu-text">流量转化</span>
+        </div>
+        <div class="menu-item" data-route="operation-order" onclick="navigateTo('operation-order')">
+          <span class="menu-icon">📋</span><span class="menu-text">订单结构</span>
+        </div>
+        <div class="menu-item" data-route="operation-product" onclick="navigateTo('operation-product')">
+          <span class="menu-icon">📦</span><span class="menu-text">货品结构</span>
+        </div>
+        <div class="menu-item" data-route="operation-risk" onclick="navigateTo('operation-risk')">
+          <span class="menu-icon">🛡️</span><span class="menu-text">风险管控</span>
+        </div>
+        <div class="menu-item" data-route="product-strategy-strategy" onclick="navigateToStrategy('strategy')">
+          <span class="menu-icon">🧭</span><span class="menu-text">新品策航</span>
+        </div>
       </div>
       <div class="menu-item" data-route="product-data" onclick="navigateTo('product-data')">
         <span class="menu-icon">📦</span><span class="menu-text">商品数据</span>
@@ -1553,23 +1570,6 @@ body {
         </div>
         <div class="menu-item" data-route="knowledge-base-product-qc" onclick="navigateToKb('product-qc')">
           <span class="menu-icon">🔍</span><span class="menu-text">产品品控</span>
-        </div>
-      </div>
-      <div class="menu-item" data-route="product-strategy" onclick="toggleSubmenu(this, 'submenu-product-strategy')">
-        <span class="menu-icon">🧭</span><span class="menu-text">新品策航</span><span class="submenu-arrow">▶</span>
-      </div>
-      <div class="submenu" id="submenu-product-strategy">
-        <div class="menu-item" data-route="product-strategy-strategy" onclick="navigateToStrategy('strategy')">
-          <span class="menu-icon">📝</span><span class="menu-text">策略制定</span>
-        </div>
-        <div class="menu-item" data-route="product-strategy-pricing" onclick="navigateToStrategy('pricing')">
-          <span class="menu-icon">💰</span><span class="menu-text">价格制定</span>
-        </div>
-        <div class="menu-item" data-route="product-strategy-promotion" onclick="navigateToStrategy('promotion')">
-          <span class="menu-icon">🚀</span><span class="menu-text">推广跟踪</span>
-        </div>
-        <div class="menu-item" data-route="product-strategy-review" onclick="navigateToStrategy('review')">
-          <span class="menu-icon">📊</span><span class="menu-text">结果复盘</span>
         </div>
       </div>
 
@@ -1777,30 +1777,47 @@ body {
         </div>
       </div>
 
-      <!-- ====== 运营数据 ====== -->
-      <div class="page" id="page-operation-data">
-        <div class="breadcrumb"><span>主要功能</span> / <span class="current">运营数据</span></div>
-        <div class="page-header"><div class="page-title">运营数据分析</div>
-          <div class="page-actions"><button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button></div>
+      <!-- ====== 运营数据-流量转化 ====== -->
+      <div class="page" id="page-operation-traffic">
+        <div class="breadcrumb"><span>主要功能</span> / <span>运营数据</span> / <span class="current">流量转化</span></div>
+        <div class="page-header"><div class="page-title">流量转化</div></div>
+        <div class="comm-empty-state">
+          <div class="empty-icon">🔄</div>
+          <div class="empty-text">流量转化分析模块</div>
+          <div class="empty-hint">数据内容暂未填充</div>
         </div>
-        <div class="filter-bar">
-          <div class="filter-item"><label>店铺</label><select id="op-shop-filter"><option value="all">全部店铺</option><option value="抖音-鲨鱼菲特甄选食品专卖店">抖音-鲨鱼菲特甄选食品专卖店</option><option value="抖音-小轻担食品旗舰店">抖音-小轻担食品旗舰店</option><option value="快手-鲨鱼菲特方便食品旗舰店">快手-鲨鱼菲特方便食品旗舰店</option><option value="微信-鲨鱼菲特甄选零食店">微信-鲨鱼菲特甄选零食店</option></select></div>
-          <div class="filter-item"><label>指标</label><select><option>全部指标</option><option>GMV</option><option>千川消耗</option><option>佣金</option><option>ROI</option></select></div>
-          <button class="btn primary" onclick="renderOperationData()">查询</button>
+      </div>
+
+      <!-- ====== 运营数据-订单结构 ====== -->
+      <div class="page" id="page-operation-order">
+        <div class="breadcrumb"><span>主要功能</span> / <span>运营数据</span> / <span class="current">订单结构</span></div>
+        <div class="page-header"><div class="page-title">订单结构</div></div>
+        <div class="comm-empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">订单结构分析模块</div>
+          <div class="empty-hint">数据内容暂未填充</div>
         </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">总GMV</div><div class="kpi-value" id="op-kpi-gmv">--</div><div class="kpi-sub" id="op-kpi-gmv-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">千川消耗</div><div class="kpi-value" id="op-kpi-qc">--</div><div class="kpi-sub" id="op-kpi-qc-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">佣金支出</div><div class="kpi-value" id="op-kpi-commission">--</div><div class="kpi-sub" id="op-kpi-commission-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">投放ROI</div><div class="kpi-value" id="op-kpi-roi">--</div><div class="kpi-sub" id="op-kpi-roi-sub">数据加载中…</div></div>
+      </div>
+
+      <!-- ====== 运营数据-货品结构 ====== -->
+      <div class="page" id="page-operation-product">
+        <div class="breadcrumb"><span>主要功能</span> / <span>运营数据</span> / <span class="current">货品结构</span></div>
+        <div class="page-header"><div class="page-title">货品结构</div></div>
+        <div class="comm-empty-state">
+          <div class="empty-icon">📦</div>
+          <div class="empty-text">货品结构分析模块</div>
+          <div class="empty-hint">数据内容暂未填充</div>
         </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">GMV与千川消耗双轴趋势</div><div id="op-gmv-qc-trend" style="width:100%;height:300px;"></div></div>
-          <div class="chart-card"><div class="card-title">各店铺千川消耗对比</div><div id="op-qc-compare" style="width:100%;height:300px;"></div></div>
-        </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">运营数据明细（月度GMV/千川/佣金/ROI）</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-          <div class="data-table-wrap" id="op-detail-table"></div>
+      </div>
+
+      <!-- ====== 运营数据-风险管控 ====== -->
+      <div class="page" id="page-operation-risk">
+        <div class="breadcrumb"><span>主要功能</span> / <span>运营数据</span> / <span class="current">风险管控</span></div>
+        <div class="page-header"><div class="page-title">风险管控</div></div>
+        <div class="comm-empty-state">
+          <div class="empty-icon">🛡️</div>
+          <div class="empty-text">风险管控分析模块</div>
+          <div class="empty-hint">数据内容暂未填充</div>
         </div>
       </div>
 
@@ -2578,7 +2595,7 @@ var autoRefreshTimer = null;
 var editingUserId = null;
 
 // ==================== 用户与角色体系 ====================
-var ADMIN_MENUS = ['home','business-data','operation-data','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','product-strategy','system-permission','system-account','system-log','system-config','system-ai'];
+var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','product-strategy','system-permission','system-account','system-log','system-config','system-ai'];
 
 var MENU_LABELS = {
   'home':'首页','business-data':'经营数据','operation-data':'运营数据','product-data':'商品数据',
@@ -2625,7 +2642,12 @@ var SUB_MENU_LABELS = {
   'product-strategy:strategy': '策略制定',
   'product-strategy:pricing': '价格制定',
   'product-strategy:promotion': '推广跟踪',
-  'product-strategy:review': '结果复盘'
+  'product-strategy:review': '结果复盘',
+  'operation-data:traffic': '流量转化',
+  'operation-data:order': '订单结构',
+  'operation-data:product': '货品结构',
+  'operation-data:risk': '风险管控',
+  'operation-data:strategy': '新品策航'
 };
 
 // 获取一级菜单下的二级菜单列表（动态）
@@ -2941,12 +2963,14 @@ function doLogin() {
   // 更新菜单可见性
   updateMenuVisibility();
 
-  // 默认路由（处理知识库子路由）
+  // 默认路由（处理子路由）
   var hash = location.hash.replace('#/', '') || 'home';
   var mainRoute = hash.split('/')[0];
   var subRoute = hash.split('/')[1];
   if (mainRoute === 'knowledge-base' && subRoute) {
     navigateToKb(subRoute);
+  } else if (mainRoute === 'product-strategy' && subRoute) {
+    navigateToStrategy(subRoute);
   } else {
     navigateTo(mainRoute);
   }
@@ -3032,6 +3056,9 @@ function updateSubMenuVisibility(route) {
 
 // ==================== 路由 ====================
 function navigateTo(route) {
+  // 运营数据现为父菜单，旧路由自动跳转到流量转化
+  if (route === 'operation-data') { route = 'operation-traffic'; }
+
   // 权限校验
   if (!checkPermission(route)) {
     showPermissionDenied(route);
@@ -3550,7 +3577,6 @@ function renderPageByRoute(route) {
   switch (route) {
     case 'home': renderHome(); break;
     case 'business-data': initBizFilters(); break;
-    case 'operation-data': renderOperationData(); break;
     case 'product-data': renderProductData(); break;
     case 'commerce-data': renderCommerceData(); break;
     case 'target-setting': renderTargetSetting(); break;
@@ -3925,7 +3951,7 @@ function exportCurrentTable() {
     var commTableMap = { 'talent-assets':'talent-detail-table','order-data':'order-detail-table','sales-performance':'perf-detail-table' };
     id = commTableMap[commActiveTab];
   } else {
-    var map = { 'business-data':'biz-detail-table','operation-data':'op-detail-table','product-data':'prod-monthly-table','target-setting':'target-detail-table','opinion-monitor':'opinion-detail-table', };
+    var map = { 'business-data':'biz-detail-table','product-data':'prod-monthly-table','target-setting':'target-detail-table','opinion-monitor':'opinion-detail-table', };
     id = map[route];
   }
   if (!id) { alert('当前页面无可导出表格'); return; }
