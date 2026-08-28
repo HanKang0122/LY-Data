@@ -1510,7 +1510,7 @@ body {
           <div class="user-role" id="userRoleText">超级管理员</div>
         </div>
       </div>
-      <button class="header-icon-btn" title="系统设置" onclick="navigateTo('system-config')">⚙️</button>
+      <button class="header-icon-btn" title="系统管理" onclick="navigateTo('system-permission')">⚙️</button>
       <button class="header-icon-btn" onclick="doLogout()" title="退出登录">🚪</button>
     </div>
   </div>
@@ -1573,8 +1573,7 @@ body {
         </div>
       </div>
 
-      <div class="menu-group-label">系统管理</div>
-      <div class="menu-item" data-route="system" onclick="toggleSubmenu(this)">
+      <div class="menu-item" data-route="system" onclick="toggleSubmenu(this, 'submenu-system')">
         <span class="menu-icon">⚙️</span><span class="menu-text">系统管理</span><span class="submenu-arrow">▶</span>
       </div>
       <div class="submenu" id="submenu-system">
@@ -1586,12 +1585,6 @@ body {
         </div>
         <div class="menu-item" data-route="system-log" onclick="navigateTo('system-log')">
           <span class="menu-icon">📋</span><span class="menu-text">操作日志</span>
-        </div>
-        <div class="menu-item" data-route="system-config" onclick="navigateTo('system-config')">
-          <span class="menu-icon">🔧</span><span class="menu-text">全局参数配置</span>
-        </div>
-        <div class="menu-item" data-route="system-ai" onclick="navigateTo('system-ai')">
-          <span class="menu-icon">🧠</span><span class="menu-text">AI大模型对接</span>
         </div>
       </div>
 
@@ -2320,7 +2313,7 @@ body {
 
       <!-- ====== 系统管理-权限配置 ====== -->
       <div class="page" id="page-system-permission">
-        <div class="breadcrumb"><span>系统管理</span> / <span class="current">权限配置</span></div>
+        <div class="breadcrumb"><span>团队管理</span> / <span>系统管理</span> / <span class="current">权限配置</span></div>
         <div class="page-header">
           <div class="page-title">权限配置</div>
           <div class="page-actions">
@@ -2345,7 +2338,7 @@ body {
 
       <!-- ====== 系统管理-账号管理 ====== -->
       <div class="page" id="page-system-account">
-        <div class="breadcrumb"><span>系统管理</span> / <span class="current">账号管理</span></div>
+        <div class="breadcrumb"><span>团队管理</span> / <span>系统管理</span> / <span class="current">账号管理</span></div>
         <div class="page-header">
           <div class="page-title">账号管理</div>
           <div class="page-actions">
@@ -2415,7 +2408,7 @@ body {
 
       <!-- ====== 系统管理-操作日志 ====== -->
       <div class="page" id="page-system-log">
-        <div class="breadcrumb"><span>系统管理</span> / <span class="current">操作日志</span></div>
+        <div class="breadcrumb"><span>团队管理</span> / <span>系统管理</span> / <span class="current">操作日志</span></div>
         <div class="page-header"><div class="page-title">操作日志</div></div>
         <div class="filter-bar">
           <div class="filter-item"><label>操作人</label><input type="text" placeholder="输入用户名"></div>
@@ -2426,62 +2419,6 @@ body {
         <div class="table-slot">
           <div class="table-header"><span class="table-title">日志列表</span><button class="btn">导出</button></div>
           <div class="table-placeholder">📋 数据插槽：后续接入操作日志表</div>
-        </div>
-      </div>
-
-      <!-- ====== 系统管理-全局参数 ====== -->
-      <div class="page" id="page-system-config">
-        <div class="breadcrumb"><span>系统管理</span> / <span class="current">全局参数配置</span></div>
-        <div class="page-header"><div class="page-title">全局参数配置</div></div>
-        <div class="tab-bar">
-          <div class="tab-item active">基础配置</div>
-          <div class="tab-item">数据刷新</div>
-          <div class="tab-item">预警规则</div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card">
-            <div class="card-title">数据刷新配置</div>
-            <div class="data-slot"><span class="slot-icon">🔄</span><span class="slot-label">配置插槽</span><span class="slot-hint">基础轮询：5分钟 / 高频实时：1分钟开关</span></div>
-          </div>
-          <div class="chart-card">
-            <div class="card-title">预警阈值配置</div>
-            <div class="data-slot"><span class="slot-icon">⚠️</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：预警阈值设置</span></div>
-          </div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card">
-            <div class="card-title">店铺配置</div>
-            <div class="data-slot"><span class="slot-icon">🏪</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：店铺信息管理</span></div>
-          </div>
-          <div class="chart-card">
-            <div class="card-title">平台API配置</div>
-            <div class="data-slot"><span class="slot-icon">🔌</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：抖音/快手/视频号API密钥</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ====== 系统管理-AI大模型 ====== -->
-      <div class="page" id="page-system-ai">
-        <div class="breadcrumb"><span>系统管理</span> / <span class="current">AI大模型对接配置</span></div>
-        <div class="page-header"><div class="page-title">AI大模型对接配置</div></div>
-        <div class="tab-bar">
-          <div class="tab-item active">模型配置</div>
-          <div class="tab-item">提示词模板</div>
-          <div class="tab-item">对话历史</div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card">
-            <div class="card-title">大模型接入配置</div>
-            <div class="data-slot"><span class="slot-icon">🧠</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：模型API Key / Endpoint / 温度参数</span></div>
-          </div>
-          <div class="chart-card">
-            <div class="card-title">智能问数权限</div>
-            <div class="data-slot"><span class="slot-icon">🔐</span><span class="slot-label">配置插槽</span><span class="slot-hint">后续接入：AI问数角色权限配置</span></div>
-          </div>
-        </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">提示词模板列表</span><button class="btn primary">➕ 新建模板</button></div>
-          <div class="table-placeholder">📋 数据插槽：后续接入AI提示词模板管理</div>
         </div>
       </div>
 
@@ -2538,14 +2475,14 @@ var autoRefreshTimer = null;
 var editingUserId = null;
 
 // ==================== 用户与角色体系 ====================
-var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','commerce-data','roi-model','team-business','team-function','team-product-support','team-qc-support','team-hr','product-strategy','system-permission','system-account','system-log','system-config','system-ai'];
+var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','commerce-data','roi-model','team-business','team-function','team-product-support','team-qc-support','team-hr','system','product-strategy','system-permission','system-account','system-log'];
 
 var MENU_LABELS = {
   'home':'首页','business-data':'经营数据','operation-data':'运营数据',
   'commerce-data':'商务数据','roi-model':'ROI模型',
-  'team-business':'商务运营','team-function':'职能运营',
+  'team-business':'商务运营','team-function':'职能运营','system':'系统管理',
   'product-strategy':'新品策航','system-permission':'权限配置','system-account':'账号管理',
-  'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
+  'system-log':'操作日志'
 };
 
 // 二级菜单结构定义（与页面布局自动同步）
@@ -2560,12 +2497,6 @@ var SUB_MENU_LABELS = {
   'commerce-data:sales-performance': '销售业绩',
   'commerce-data:ops-analysis': '运营分析',
   'roi-model:quick-calc': '经营ROI速算',
-  'system-config:basic': '基础配置',
-  'system-config:refresh': '数据刷新',
-  'system-config:alert': '预警规则',
-  'system-ai:model': '模型配置',
-  'system-ai:prompt': '提示词模板',
-  'system-ai:history': '对话历史',
   'product-strategy:strategy': '策略制定',
   'product-strategy:pricing': '价格制定',
   'product-strategy:promotion': '推广跟踪',
@@ -2577,7 +2508,10 @@ var SUB_MENU_LABELS = {
   'operation-data:strategy': '新品策航',
   'team-function:product-support': '产品支撑',
   'team-function:qc-support': '品控支撑',
-  'team-function:hr': '人事行政'
+  'team-function:hr': '人事行政',
+  'system:permission': '权限配置',
+  'system:account': '账号管理',
+  'system:log': '操作日志'
 };
 
 // 获取一级菜单下的二级菜单列表（动态）
@@ -2993,6 +2927,7 @@ function navigateTo(route) {
   if (route === 'product-data') { route = 'operation-product'; }
   if (route === 'target-setting' || route === 'opinion-monitor') { route = 'home'; }
   if (route === 'knowledge-base') { route = 'team-product-support'; }
+  if (route === 'system-config' || route === 'system-ai') { route = 'system-permission'; }
 
   // 权限校验
   if (!checkPermission(route)) {
