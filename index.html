@@ -322,6 +322,7 @@ body {
 }
 .submenu.visible { display: block; }
 .submenu .menu-item { height: 40px; padding-left: 52px; font-size: 12px; }
+.submenu .submenu .menu-item { padding-left: 72px; }
 
 .sidebar-toggle {
   margin-top: auto;
@@ -1546,30 +1547,29 @@ body {
           <span class="menu-icon">🧭</span><span class="menu-text">新品策航</span>
         </div>
       </div>
-      <div class="menu-item" data-route="product-data" onclick="navigateTo('product-data')">
-        <span class="menu-icon">📦</span><span class="menu-text">商品数据</span>
-      </div>
       <div class="menu-item" data-route="commerce-data" onclick="navigateTo('commerce-data')">
         <span class="menu-icon">🤝</span><span class="menu-text">商务数据</span>
-      </div>
-      <div class="menu-item" data-route="target-setting" onclick="navigateTo('target-setting')">
-        <span class="menu-icon">🎯</span><span class="menu-text">目标制定</span>
-      </div>
-      <div class="menu-item" data-route="opinion-monitor" onclick="navigateTo('opinion-monitor')">
-        <span class="menu-icon">📡</span><span class="menu-text">舆情监控</span>
       </div>
       <div class="menu-item" data-route="roi-model" onclick="navigateTo('roi-model')">
         <span class="menu-icon">📐</span><span class="menu-text">ROI模型</span>
       </div>
-      <div class="menu-item" data-route="knowledge-base" onclick="toggleSubmenu(this, 'submenu-knowledge-base')">
-        <span class="menu-icon">📚</span><span class="menu-text">产品知识库</span><span class="submenu-arrow">▶</span>
+
+      <div class="menu-group-label">团队管理</div>
+      <div class="menu-item" data-route="team-business" onclick="navigateTo('team-business')">
+        <span class="menu-icon">💼</span><span class="menu-text">商务运营</span>
       </div>
-      <div class="submenu" id="submenu-knowledge-base">
-        <div class="menu-item" data-route="knowledge-base-product-materials" onclick="navigateToKb('product-materials')">
-          <span class="menu-icon">📋</span><span class="menu-text">产品资料</span>
+      <div class="menu-item" data-route="team-function" onclick="toggleSubmenu(this, 'submenu-team-function')">
+        <span class="menu-icon">🏢</span><span class="menu-text">职能运营</span><span class="submenu-arrow">▶</span>
+      </div>
+      <div class="submenu" id="submenu-team-function">
+        <div class="menu-item" data-route="team-product-support" onclick="navigateToKb('product-materials')">
+          <span class="menu-icon">📋</span><span class="menu-text">产品支撑</span>
         </div>
-        <div class="menu-item" data-route="knowledge-base-product-qc" onclick="navigateToKb('product-qc')">
-          <span class="menu-icon">🔍</span><span class="menu-text">产品品控</span>
+        <div class="menu-item" data-route="team-qc-support" onclick="navigateToKb('product-qc')">
+          <span class="menu-icon">🔍</span><span class="menu-text">品控支撑</span>
+        </div>
+        <div class="menu-item" data-route="team-hr" onclick="navigateTo('team-hr')">
+          <span class="menu-icon">👤</span><span class="menu-text">人事行政</span>
         </div>
       </div>
 
@@ -1821,31 +1821,25 @@ body {
         </div>
       </div>
 
-      <!-- ====== 商品数据 ====== -->
-      <div class="page" id="page-product-data">
-        <div class="breadcrumb"><span>主要功能</span> / <span class="current">商品数据</span></div>
-        <div class="page-header"><div class="page-title">商品数据分析</div>
-          <div class="page-actions"><button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button></div>
+      <!-- ====== 团队管理-商务运营 ====== -->
+      <div class="page" id="page-team-business">
+        <div class="breadcrumb"><span>团队管理</span> / <span class="current">商务运营</span></div>
+        <div class="page-header"><div class="page-title">商务运营</div></div>
+        <div class="comm-empty-state">
+          <div class="empty-icon">💼</div>
+          <div class="empty-text">商务运营模块</div>
+          <div class="empty-hint">数据内容暂未填充</div>
         </div>
-        <div class="filter-bar">
-          <div class="filter-item"><label>平台</label><select id="prod-platform-filter"><option value="all">全平台</option><option value="douyin">抖音</option><option value="kuaishou">快手</option><option value="weixin">视频号</option></select></div>
-          <div class="filter-item"><label>商品分类</label><select><option>全部分类</option><option>代餐</option><option>零食</option><option>饮品</option></select></div>
-          <div class="filter-item"><label>排序</label><select><option>销量降序</option><option>GMV降序</option><option>利润率降序</option></select></div>
-          <button class="btn primary" onclick="renderProductData()">查询</button>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">全域GMV</div><div class="kpi-value" id="prod-kpi-gmv">--</div><div class="kpi-sub" id="prod-kpi-gmv-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-value" id="prod-kpi-sales">--</div><div class="kpi-sub" id="prod-kpi-sales-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">总毛利润</div><div class="kpi-value" id="prod-kpi-profit">--</div><div class="kpi-sub" id="prod-kpi-profit-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">平均利润率</div><div class="kpi-value" id="prod-kpi-profitrate">--</div><div class="kpi-sub" id="prod-kpi-profitrate-sub">数据加载中…</div></div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">月度GMV趋势</div><div id="prod-gmv-trend" style="width:100%;height:300px;"></div></div>
-          <div class="chart-card"><div class="card-title">各店铺GMV占比</div><div id="prod-shop-pie" style="width:100%;height:300px;"></div></div>
-        </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">月度经营数据汇总</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-          <div class="data-table-wrap" id="prod-monthly-table"></div>
+      </div>
+
+      <!-- ====== 团队管理-人事行政 ====== -->
+      <div class="page" id="page-team-hr">
+        <div class="breadcrumb"><span>团队管理</span> / <span>职能运营</span> / <span class="current">人事行政</span></div>
+        <div class="page-header"><div class="page-title">人事行政</div></div>
+        <div class="comm-empty-state">
+          <div class="empty-icon">👤</div>
+          <div class="empty-text">人事行政模块</div>
+          <div class="empty-hint">数据内容暂未填充</div>
         </div>
       </div>
 
@@ -2065,57 +2059,6 @@ body {
 
       </div>
 
-      <!-- ====== 目标制定 ====== -->
-      <div class="page" id="page-target-setting">
-        <div class="breadcrumb"><span>主要功能</span> / <span class="current">目标制定</span></div>
-        <div class="page-header"><div class="page-title">目标制定与达成</div></div>
-        <div class="filter-bar">
-          <div class="filter-item"><label>年度</label><select><option>2026年</option><option>2025年</option></select></div>
-          <div class="filter-item"><label>维度</label><select><option>按月</option><option>按季</option><option>按年</option></select></div>
-          <button class="btn primary">查询</button>
-          <button class="btn">📝 新建目标</button>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">年度GMV</div><div class="kpi-value" id="target-kpi-gmv">--</div><div class="kpi-sub" id="target-kpi-gmv-sub">目标 5000万</div></div>
-          <div class="kpi-card"><div class="kpi-label">年度利润</div><div class="kpi-value" id="target-kpi-profit">--</div><div class="kpi-sub" id="target-kpi-profit-sub">目标 200万</div></div>
-          <div class="kpi-card"><div class="kpi-label">GMV完成率</div><div class="kpi-value" id="target-kpi-gmv-rate">--</div><div class="kpi-sub" id="target-kpi-gmv-rate-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">利润完成率</div><div class="kpi-value" id="target-kpi-profit-rate">--</div><div class="kpi-sub" id="target-kpi-profit-rate-sub">数据加载中…</div></div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">月度GMV目标 vs 实际</div><div id="target-gmv-bar" style="width:100%;height:300px;"></div></div>
-          <div class="chart-card"><div class="card-title">月度利润率趋势</div><div id="target-profit-trend" style="width:100%;height:300px;"></div></div>
-        </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">月度目标达成明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-          <div class="data-table-wrap" id="target-detail-table"></div>
-        </div>
-      </div>
-
-      <!-- ====== 舆情监控 ====== -->
-      <div class="page" id="page-opinion-monitor">
-        <div class="breadcrumb"><span>主要功能</span> / <span class="current">舆情监控</span></div>
-        <div class="page-header"><div class="page-title">舆情监控系统</div></div>
-        <div class="tab-bar">
-          <div class="tab-item active">评价分析</div>
-          <div class="tab-item">差评预警</div>
-          <div class="tab-item">舆情趋势</div>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">总GMV</div><div class="kpi-value" id="opinion-kpi-gmv">--</div><div class="kpi-sub" id="opinion-kpi-gmv-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">总退款</div><div class="kpi-value" id="opinion-kpi-refund">--</div><div class="kpi-sub" id="opinion-kpi-refund-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">退款率</div><div class="kpi-value" id="opinion-kpi-refund-rate">--</div><div class="kpi-sub" id="opinion-kpi-refund-rate-sub">数据加载中…</div></div>
-          <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-value" id="opinion-kpi-sales">--</div><div class="kpi-sub" id="opinion-kpi-sales-sub">数据加载中…</div></div>
-        </div>
-        <div class="chart-grid cols-2">
-          <div class="chart-card"><div class="card-title">月度退款趋势</div><div id="opinion-refund-trend" style="width:100%;height:300px;"></div></div>
-          <div class="chart-card"><div class="card-title">各店铺退款率对比</div><div id="opinion-refund-rate" style="width:100%;height:300px;"></div></div>
-        </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">月度退款数据明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-          <div class="data-table-wrap" id="opinion-detail-table"></div>
-        </div>
-      </div>
-
       <!-- ====== ROI模型 ====== -->
       <div class="page" id="page-roi-model">
         <div class="breadcrumb"><span>主要功能</span> / <span class="current">ROI模型</span></div>
@@ -2198,9 +2141,9 @@ body {
 
       <!-- ====== 产品知识库 ====== -->
       <div class="page" id="page-knowledge-base">
-        <div class="breadcrumb"><span>主要功能</span> / <span>产品知识库</span> / <span class="current" id="kb-breadcrumb-current">产品资料</span></div>
+        <div class="breadcrumb"><span>团队管理</span> / <span>职能运营</span> / <span class="current" id="kb-breadcrumb-current">产品支撑</span></div>
         <div class="page-header">
-          <div class="page-title" id="kb-page-title">产品资料</div>
+          <div class="page-title" id="kb-page-title">产品支撑</div>
         </div>
 
         <!-- ====== 产品资料面板 ====== -->
@@ -2595,12 +2538,13 @@ var autoRefreshTimer = null;
 var editingUserId = null;
 
 // ==================== 用户与角色体系 ====================
-var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','product-data','commerce-data','target-setting','opinion-monitor','roi-model','knowledge-base','product-strategy','system-permission','system-account','system-log','system-config','system-ai'];
+var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','commerce-data','roi-model','team-business','team-function','team-product-support','team-qc-support','team-hr','product-strategy','system-permission','system-account','system-log','system-config','system-ai'];
 
 var MENU_LABELS = {
-  'home':'首页','business-data':'经营数据','operation-data':'运营数据','product-data':'商品数据',
-  'commerce-data':'商务数据','target-setting':'目标制定','opinion-monitor':'舆情监控','roi-model':'ROI模型',
-  'knowledge-base':'产品知识库','product-strategy':'新品策航','system-permission':'权限配置','system-account':'账号管理',
+  'home':'首页','business-data':'经营数据','operation-data':'运营数据',
+  'commerce-data':'商务数据','roi-model':'ROI模型',
+  'team-business':'商务运营','team-function':'职能运营',
+  'product-strategy':'新品策航','system-permission':'权限配置','system-account':'账号管理',
   'system-log':'操作日志','system-config':'全局参数配置','system-ai':'AI大模型对接'
 };
 
@@ -2615,9 +2559,6 @@ var SUB_MENU_LABELS = {
   'commerce-data:commission-plan': '提成方案',
   'commerce-data:sales-performance': '销售业绩',
   'commerce-data:ops-analysis': '运营分析',
-  'opinion-monitor:review': '评价分析',
-  'opinion-monitor:warning': '差评预警',
-  'opinion-monitor:trend': '舆情趋势',
   'roi-model:quick-calc': '经营ROI速算',
   'system-config:basic': '基础配置',
   'system-config:refresh': '数据刷新',
@@ -2625,20 +2566,6 @@ var SUB_MENU_LABELS = {
   'system-ai:model': '模型配置',
   'system-ai:prompt': '提示词模板',
   'system-ai:history': '对话历史',
-  'knowledge-base:product-materials': '产品资料',
-  'knowledge-base:product-qc': '产品品控',
-  'knowledge-base:product-edit': '产品修改',
-  'knowledge-base:qc-product-select': '品控-产品选择',
-  'knowledge-base:qc-product-add': '品控-产品新增',
-  'knowledge-base:qc-type-select': '品控-问题类型选择',
-  'knowledge-base:qc-type-add': '品控-问题类型新增',
-  'knowledge-base:qc-factory-select': '品控-厂家选择',
-  'knowledge-base:qc-factory-add': '品控-厂家新增',
-  'knowledge-base:qc-platform-select': '品控-平台选择',
-  'knowledge-base:qc-platform-add': '品控-平台新增',
-  'knowledge-base:qc-shop-select': '品控-店铺选择',
-  'knowledge-base:qc-shop-add': '品控-店铺新增',
-  'knowledge-base:qc-edit': '品控-修改登记',
   'product-strategy:strategy': '策略制定',
   'product-strategy:pricing': '价格制定',
   'product-strategy:promotion': '推广跟踪',
@@ -2647,7 +2574,10 @@ var SUB_MENU_LABELS = {
   'operation-data:order': '订单结构',
   'operation-data:product': '货品结构',
   'operation-data:risk': '风险管控',
-  'operation-data:strategy': '新品策航'
+  'operation-data:strategy': '新品策航',
+  'team-function:product-support': '产品支撑',
+  'team-function:qc-support': '品控支撑',
+  'team-function:hr': '人事行政'
 };
 
 // 获取一级菜单下的二级菜单列表（动态）
@@ -2969,6 +2899,8 @@ function doLogin() {
   var subRoute = hash.split('/')[1];
   if (mainRoute === 'knowledge-base' && subRoute) {
     navigateToKb(subRoute);
+  } else if ((mainRoute === 'team-product-support' || mainRoute === 'team-qc-support') && subRoute) {
+    navigateToKb(subRoute);
   } else if (mainRoute === 'product-strategy' && subRoute) {
     navigateToStrategy(subRoute);
   } else {
@@ -3056,8 +2988,11 @@ function updateSubMenuVisibility(route) {
 
 // ==================== 路由 ====================
 function navigateTo(route) {
-  // 运营数据现为父菜单，旧路由自动跳转到流量转化
+  // 旧路由兼容重定向
   if (route === 'operation-data') { route = 'operation-traffic'; }
+  if (route === 'product-data') { route = 'operation-product'; }
+  if (route === 'target-setting' || route === 'opinion-monitor') { route = 'home'; }
+  if (route === 'knowledge-base') { route = 'team-product-support'; }
 
   // 权限校验
   if (!checkPermission(route)) {
@@ -3108,9 +3043,10 @@ function checkPermission(route) {
 function checkKbPermission(permKey) {
   if (currentUser.role === 'admin') return true;
   var allowedMenus = getRoleMenus(currentUser.role);
-  // 检查是否有对应的子权限
+  // 兼容新旧权限检查
   var fullKey = 'knowledge-base:' + permKey;
-  return allowedMenus.indexOf(fullKey) !== -1 || allowedMenus.indexOf('knowledge-base') !== -1 && allowedMenus.indexOf(fullKey) !== -1;
+  var teamKey = permKey === 'product-edit' ? 'team-product-support' : 'team-qc-support';
+  return allowedMenus.indexOf(teamKey) !== -1 || allowedMenus.indexOf(fullKey) !== -1 || (allowedMenus.indexOf('knowledge-base') !== -1 && allowedMenus.indexOf(fullKey) !== -1);
 }
 
 function showPermissionDenied(route) {
@@ -3577,12 +3513,8 @@ function renderPageByRoute(route) {
   switch (route) {
     case 'home': renderHome(); break;
     case 'business-data': initBizFilters(); break;
-    case 'product-data': renderProductData(); break;
     case 'commerce-data': renderCommerceData(); break;
-    case 'target-setting': renderTargetSetting(); break;
-    case 'opinion-monitor': renderOpinionMonitor(); break;
     case 'roi-model': renderRoiModel(); break;
-    case 'knowledge-base': navigateToKb('product-materials'); break;
     case 'product-strategy': navigateToStrategy('strategy'); break;
     case 'system-permission': renderPermissionPage(); break;
     case 'system-account': renderAccountPage(); break;
@@ -3951,7 +3883,7 @@ function exportCurrentTable() {
     var commTableMap = { 'talent-assets':'talent-detail-table','order-data':'order-detail-table','sales-performance':'perf-detail-table' };
     id = commTableMap[commActiveTab];
   } else {
-    var map = { 'business-data':'biz-detail-table','product-data':'prod-monthly-table','target-setting':'target-detail-table','opinion-monitor':'opinion-detail-table', };
+    var map = { 'business-data':'biz-detail-table', };
     id = map[route];
   }
   if (!id) { alert('当前页面无可导出表格'); return; }
@@ -6780,8 +6712,10 @@ function renderKnowledgeBase() {
 
 // 侧边栏二级菜单导航
 function navigateToKb(panel) {
-  if (!checkPermission('knowledge-base')) {
-    showPermissionDenied('knowledge-base');
+  // 权限校验（兼容新旧路由）
+  var permRoute = panel === 'product-materials' ? 'team-product-support' : 'team-qc-support';
+  if (!checkPermission(permRoute) && !checkPermission('knowledge-base')) {
+    showPermissionDenied(permRoute);
     return;
   }
   // 隐藏所有页面
@@ -6792,16 +6726,17 @@ function navigateToKb(panel) {
   switchKbTab(panel);
   // 更新菜单高亮
   document.querySelectorAll('.menu-item').forEach(function(m) { m.classList.remove('active'); });
-  var activeMenu = document.querySelector('.menu-item[data-route="knowledge-base-' + panel + '"]');
+  var activeMenu = document.querySelector('.menu-item[data-route="' + permRoute + '"]') ||
+                   document.querySelector('.menu-item[data-route="knowledge-base-' + panel + '"]');
   if (activeMenu) activeMenu.classList.add('active');
   // 更新面包屑和标题
-  var label = panel === 'product-materials' ? '产品资料' : '产品品控';
+  var label = panel === 'product-materials' ? '产品支撑' : '品控支撑';
   var bcEl = document.getElementById('kb-breadcrumb-current');
   var titleEl = document.getElementById('kb-page-title');
   if (bcEl) bcEl.textContent = label;
   if (titleEl) titleEl.textContent = label;
   // 更新hash
-  location.hash = '#/knowledge-base/' + panel;
+  location.hash = '#/' + permRoute + '/' + panel;
   // 加载数据
   loadKbData();
   // 滚动到顶部
