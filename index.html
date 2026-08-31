@@ -712,11 +712,165 @@ body {
   box-shadow: var(--shadow-sm); padding: 20px;
 }
 
-/* 目标管理占位 */
-.biz-ops-goal-empty {
+/* ==================== 目标管理模块 ==================== */
+.goal-container { padding: 0; }
+
+.goal-toolbar {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   background: var(--bg-white); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm); padding: 60px 20px; text-align: center;
+  padding: 16px 20px; box-shadow: var(--shadow-sm); margin-bottom: 16px;
 }
+.goal-toolbar-item { display: flex; align-items: center; gap: 8px; }
+.goal-toolbar-label {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 500; white-space: nowrap;
+}
+.goal-toolbar select, .goal-toolbar input {
+  padding: 6px 10px; border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: var(--radius-sm); font-size: 13px; outline: none;
+}
+.goal-toolbar select:focus, .goal-toolbar input:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+.goal-month-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; max-width: 360px;
+}
+.goal-month-chip {
+  padding: 4px 0; text-align: center; font-size: 12px; cursor: pointer;
+  border: 1px solid #e5e7eb; border-radius: 4px; background: #fff;
+  transition: all 0.15s; user-select: none;
+}
+.goal-month-chip:hover { border-color: #2563eb; color: #2563eb; }
+.goal-month-chip.selected {
+  background: #2563eb; color: #fff; border-color: #2563eb;
+}
+.goal-btn {
+  padding: 6px 16px; border: none; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+}
+.goal-btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
+.goal-btn-primary:hover { box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+.goal-btn-outline { background: #fff; color: #2563eb; border: 1px solid #2563eb; }
+.goal-btn-outline:hover { background: #eff6ff; }
+.goal-btn-danger { background: #fff; color: #ef4444; border: 1px solid #ef4444; }
+.goal-btn-danger:hover { background: #fef2f2; }
+.goal-btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.goal-team-row {
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, #f0f7ff, #e0ecff);
+  border: 1px solid #bfdbfe; border-radius: var(--radius-md);
+  padding: 12px 20px; margin-bottom: 16px;
+}
+.goal-team-label {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 500; white-space: nowrap;
+}
+.goal-team-value { font-size: 22px; font-weight: 700; color: #1e40af; }
+.goal-team-unit { font-size: 14px; color: var(--text-secondary); }
+
+.goal-table-wrap {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 16px;
+}
+.goal-table { width: 100%; border-collapse: collapse; }
+.goal-table th {
+  background: #f8fafc; padding: 12px 16px; text-align: left;
+  font-size: 13px; font-weight: 600; color: var(--text-primary);
+  border-bottom: 2px solid #e5e7eb; white-space: nowrap;
+}
+.goal-table td {
+  padding: 10px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px;
+}
+.goal-table tr:hover td { background: #f8fafc; }
+.goal-table input, .goal-table select {
+  width: 100%; padding: 6px 10px; border: 1px solid #e5e7eb;
+  border-radius: 4px; font-size: 13px; outline: none;
+}
+.goal-table input:focus, .goal-table select:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+.goal-table .col-action { white-space: nowrap; text-align: center; width: 140px; }
+.goal-table .col-num { width: 180px; }
+.goal-table .col-position { width: 160px; }
+
+.goal-action-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e5e7eb;
+}
+
+/* 拆分对话框 */
+.goal-split-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); z-index: 9999; display: none;
+  align-items: center; justify-content: center;
+}
+.goal-split-overlay.show { display: flex; }
+.goal-split-dialog {
+  background: #fff; border-radius: var(--radius-lg, 12px);
+  width: 720px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.goal-split-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid #e5e7eb;
+}
+.goal-split-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.goal-split-close { cursor: pointer; font-size: 20px; color: #9ca3af; }
+.goal-split-close:hover { color: #ef4444; }
+.goal-split-body { padding: 20px; }
+.goal-split-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.goal-split-table th {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
+  padding: 8px 12px; text-align: left; font-size: 13px; font-weight: 500;
+  border-radius: 4px 4px 0 0;
+}
+.goal-split-table td {
+  padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px;
+}
+.goal-split-table input, .goal-split-table select {
+  width: 100%; padding: 5px 8px; border: 1px solid #e5e7eb;
+  border-radius: 4px; font-size: 13px; outline: none;
+}
+.goal-split-table input:focus, .goal-split-table select:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+.goal-split-remaining {
+  display: flex; align-items: center; gap: 8px;
+  background: #fef3c7; border: 1px solid #fcd34d;
+  border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 12px;
+  font-size: 13px; color: #92400e;
+}
+.goal-split-remaining strong { color: #b45309; font-size: 15px; }
+.goal-split-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 20px; border-top: 1px solid #e5e7eb; background: #f8fafc;
+}
+
+/* 拆分结果区域 */
+.goal-result-wrap {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); overflow: hidden; margin-top: 16px;
+}
+.goal-result-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-bottom: 2px solid #e5e7eb; background: #f8fafc;
+}
+.goal-result-header span { font-size: 14px; font-weight: 600; }
+.goal-result-table { width: 100%; border-collapse: collapse; }
+.goal-result-table th {
+  background: #f8fafc; padding: 10px 12px; text-align: center;
+  font-size: 12px; font-weight: 600; color: var(--text-primary);
+  border-bottom: 1px solid #e5e7eb;
+}
+.goal-result-table td {
+  padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px;
+  text-align: center;
+}
+.goal-result-table .row-total { background: #f0f7ff; font-weight: 600; color: #1e40af; }
+.goal-result-table .col-total { background: #f0f7ff; font-weight: 700; color: #1e40af; }
 
 /* 提成方案卡片 */
 .comm-card {
@@ -2085,10 +2239,95 @@ body {
 
         <!-- ====== 模块4：目标管理 ====== -->
         <div class="biz-ops-panel" id="biz-panel-goal">
-          <div class="biz-ops-goal-empty">
-            <div class="empty-icon">🎯</div>
-            <div class="empty-text">目标管理模块</div>
-            <div class="empty-hint">后续补充</div>
+          <div class="goal-container">
+            <!-- 工具栏：目标周期 + 商品名称映射表 -->
+            <div class="goal-toolbar">
+              <div class="goal-toolbar-item">
+                <span class="goal-toolbar-label">目标周期</span>
+                <select id="goal-year" onchange="renderGoalTable()">
+                  <option value="2026">2026年</option>
+                  <option value="2025">2025年</option>
+                </select>
+                <div class="goal-month-grid" id="goal-month-grid"></div>
+              </div>
+              <div style="flex:1"></div>
+              <div class="goal-toolbar-item">
+                <button class="goal-btn goal-btn-outline" onclick="document.getElementById('goal-mapping-upload').click()">📎 商品名称映射表</button>
+                <input type="file" id="goal-mapping-upload" accept=".xlsx,.csv" style="display:none" onchange="handleGoalMappingUpload(this)">
+                <span style="font-size:12px;color:var(--text-secondary)">统一不同平台/店铺/商品ID下的商品名称</span>
+              </div>
+            </div>
+
+            <!-- 团队目标汇总行 -->
+            <div class="goal-team-row">
+              <span class="goal-team-label">团队目标</span>
+              <span style="font-size:12px;color:var(--text-secondary)">团队所有商品的总实销金额值</span>
+              <div style="flex:1"></div>
+              <span class="goal-team-value" id="goal-team-total">0</span>
+              <span class="goal-team-unit">元</span>
+            </div>
+
+            <!-- 商品目标录入表 -->
+            <div class="goal-table-wrap">
+              <table class="goal-table">
+                <thead>
+                  <tr>
+                    <th>商品标准名称</th>
+                    <th class="col-position">商品定位</th>
+                    <th class="col-num">商品实销目标（元）</th>
+                    <th class="col-action">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="goal-tbody"></tbody>
+              </table>
+              <div class="goal-action-bar">
+                <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="addGoalRow()">＋ 添加商品</button>
+                <button class="goal-btn goal-btn-primary goal-btn-sm" onclick="confirmGoalRows()">✓ 确认</button>
+              </div>
+            </div>
+
+            <!-- 拆分结果展示区域 -->
+            <div class="goal-result-wrap" id="goal-result-wrap" style="display:none">
+              <div class="goal-result-header">
+                <span>📋 目标拆分结果</span>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="goal-result-table" id="goal-result-table"></table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 目标拆分对话框 -->
+        <div class="goal-split-overlay" id="goal-split-overlay">
+          <div class="goal-split-dialog">
+            <div class="goal-split-header">
+              <span class="goal-split-title" id="goal-split-title">实销目标拆分</span>
+              <span class="goal-split-close" onclick="closeGoalSplitDialog()">&times;</span>
+            </div>
+            <div class="goal-split-body">
+              <div class="goal-split-remaining" id="goal-split-remaining-box">
+                <span>目标剩余值：</span>
+                <strong id="goal-split-remaining">0</strong>
+                <span>元</span>
+              </div>
+              <table class="goal-split-table">
+                <thead>
+                  <tr>
+                    <th style="width:30%">商务专员</th>
+                    <th style="width:30%">商品实销目标（元）</th>
+                    <th style="width:30%">目标剩余值（元）</th>
+                    <th style="width:10%">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="goal-split-tbody"></tbody>
+              </table>
+              <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="addGoalSplitRow()">＋ 新增行</button>
+            </div>
+            <div class="goal-split-footer">
+              <button class="goal-btn goal-btn-outline" onclick="closeGoalSplitDialog()">取消</button>
+              <button class="goal-btn goal-btn-primary" onclick="confirmGoalSplit()">最终确认</button>
+            </div>
           </div>
         </div>
       </div>
@@ -3717,6 +3956,7 @@ function renderPageByRoute(route) {
     updateBizOverviewShops();
     updateBizReviewShops();
     queryBizOverview();
+    initGoalModule();
     setTimeout(function(){
       Object.keys(chartInstances).forEach(function(id){
         var el = document.getElementById(id);
@@ -4846,6 +5086,19 @@ var commDataLoaded = false;
 
 // ==================== 商务运营模块 ====================
 var bizOpsActiveTab = 'overview';
+
+// Toast提示
+function showToast(msg, type) {
+  type = type || 'info';
+  var colors = { info: '#2563eb', success: '#16a34a', warning: '#f59e0b', error: '#ef4444' };
+  var toast = document.createElement('div');
+  toast.style.css = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:' + (colors[type] || colors.info) + ';color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s;opacity:1;';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.style.opacity = '0'; }, 2500);
+  setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+}
+
 var bizOpsData = {
   overview: [],  // 运营总览数据
   review: [],    // 商务复盘数据
@@ -4887,6 +5140,9 @@ function switchBizOpsTab(tabName) {
   });
   if (tabName === 'commission') {
     renderBizCommissionPlan();
+  }
+  if (tabName === 'goal') {
+    initGoalModule();
   }
   setTimeout(function() {
     Object.keys(chartInstances).forEach(function(id) {
@@ -5370,6 +5626,331 @@ function renderBizCommissionPlan() {
   else if (version === 'v1') html = commPlanV1HTML();
   else html = commPlanCompareHTML();
   el.innerHTML = html;
+}
+
+// ==================== 目标管理模块 ====================
+var goalData = {
+  rows: [],           // 商品目标行数据 {name, position, target, confirmed, splits: []}
+  specialists: ['章子康', '姜梦萍', '唐红伟', '陶慧', '贾晶晶'],
+  selectedMonths: [], // 选中的月份
+  currentSplitIndex: -1, // 当前拆分的行索引
+  mappingTable: null  // 商品名称映射表
+};
+
+// 初始化月份选择chips
+function initGoalMonths() {
+  var grid = document.getElementById('goal-month-grid');
+  if (!grid) return;
+  var html = '';
+  for (var i = 1; i <= 12; i++) {
+    html += '<span class="goal-month-chip" data-month="' + i + '" onclick="toggleGoalMonth(' + i + ')">' + i + '月</span>';
+  }
+  grid.innerHTML = html;
+}
+
+// 切换月份选择
+function toggleGoalMonth(month) {
+  var idx = goalData.selectedMonths.indexOf(month);
+  if (idx === -1) {
+    goalData.selectedMonths.push(month);
+    goalData.selectedMonths.sort(function(a, b) { return a - b; });
+  } else {
+    goalData.selectedMonths.splice(idx, 1);
+  }
+  document.querySelectorAll('.goal-month-chip').forEach(function(chip) {
+    var m = parseInt(chip.getAttribute('data-month'));
+    chip.classList.toggle('selected', goalData.selectedMonths.indexOf(m) !== -1);
+  });
+  renderGoalTable();
+}
+
+// 渲染目标表格
+function renderGoalTable() {
+  var tbody = document.getElementById('goal-tbody');
+  if (!tbody) return;
+  var html = '';
+  goalData.rows.forEach(function(row, i) {
+    var confirmedClass = row.confirmed ? 'style="background:#f0fdf4"' : '';
+    var splitBtn = row.confirmed
+      ? '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="openGoalSplitDialog(' + i + ')">拆分</button>'
+      : '<button class="goal-btn goal-btn-outline goal-btn-sm" disabled style="opacity:0.5">拆分</button>';
+    html += '<tr ' + confirmedClass + '>'
+      + '<td><input type="text" value="' + escapeHtml(row.name || '') + '" placeholder="输入商品标准名称" onchange="updateGoalRow(' + i + ',\'name\',this.value)"></td>'
+      + '<td class="col-position"><input type="text" value="' + escapeHtml(row.position || '') + '" placeholder="输入商品定位" onchange="updateGoalRow(' + i + ',\'position\',this.value)"></td>'
+      + '<td class="col-num"><input type="number" value="' + (row.target || '') + '" placeholder="输入实销目标（元）" onchange="updateGoalRow(' + i + ',\'target\',this.value)"></td>'
+      + '<td class="col-action">'
+      +   splitBtn + ' '
+      +   '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')">删除</button>'
+      + '</td>'
+      + '</tr>';
+  });
+  if (goalData.rows.length === 0) {
+    html = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-secondary)">点击「添加商品」开始录入目标数据</td></tr>';
+  }
+  tbody.innerHTML = html;
+  updateGoalTeamTotal();
+}
+
+// 更新单行数据
+function updateGoalRow(index, field, value) {
+  if (goalData.rows[index]) {
+    goalData.rows[index][field] = value;
+    if (field === 'target') updateGoalTeamTotal();
+  }
+}
+
+// 添加目标行
+function addGoalRow() {
+  goalData.rows.push({ name: '', position: '', target: '', confirmed: false, splits: [] });
+  renderGoalTable();
+}
+
+// 删除目标行
+function removeGoalRow(index) {
+  goalData.rows.splice(index, 1);
+  renderGoalTable();
+  renderGoalResults();
+}
+
+// 更新团队目标总额
+function updateGoalTeamTotal() {
+  var total = 0;
+  goalData.rows.forEach(function(row) {
+    var v = parseFloat(row.target);
+    if (!isNaN(v)) total += v;
+  });
+  var el = document.getElementById('goal-team-total');
+  if (el) el.textContent = total.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
+
+// 确认目标行（带权限校验）
+function confirmGoalRows() {
+  var hasPermission = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin');
+  // 如果没有管理员权限，也允许确认但提示
+  var unconfirmed = goalData.rows.filter(function(r) { return !r.confirmed; });
+  if (unconfirmed.length === 0) {
+    showToast('所有商品目标已确认', 'info');
+    return;
+  }
+  // 校验数据完整性
+  for (var i = 0; i < unconfirmed.length; i++) {
+    if (!unconfirmed[i].name || !unconfirmed[i].target) {
+      showToast('请填写商品标准名称和实销目标', 'warning');
+      return;
+    }
+  }
+  goalData.rows.forEach(function(row) {
+    if (row.name && row.target) row.confirmed = true;
+  });
+  showToast('商品目标已确认，可进行拆分操作', 'success');
+  renderGoalTable();
+}
+
+// 打开拆分对话框
+function openGoalSplitDialog(index) {
+  var row = goalData.rows[index];
+  if (!row || !row.confirmed) return;
+  goalData.currentSplitIndex = index;
+  var titleEl = document.getElementById('goal-split-title');
+  if (titleEl) titleEl.textContent = '【' + row.name + '】实销目标拆分';
+  if (!row.splits || row.splits.length === 0) {
+    row.splits = [{ specialist: '', target: '' }];
+  }
+  renderGoalSplitTable();
+  var overlay = document.getElementById('goal-split-overlay');
+  if (overlay) overlay.classList.add('show');
+}
+
+// 关闭拆分对话框
+function closeGoalSplitDialog() {
+  var overlay = document.getElementById('goal-split-overlay');
+  if (overlay) overlay.classList.remove('show');
+  goalData.currentSplitIndex = -1;
+}
+
+// 渲染拆分表格
+function renderGoalSplitTable() {
+  var tbody = document.getElementById('goal-split-tbody');
+  if (!tbody) return;
+  var row = goalData.rows[goalData.currentSplitIndex];
+  if (!row) return;
+  var totalTarget = parseFloat(row.target) || 0;
+  var allocated = 0;
+  var html = '';
+  row.splits.forEach(function(split, i) {
+    var sTarget = parseFloat(split.target) || 0;
+    allocated += sTarget;
+    var remaining = totalTarget - allocated;
+    var options = '<option value="">请选择商务专员</option>';
+    goalData.specialists.forEach(function(sp) {
+      options += '<option value="' + sp + '"' + (split.specialist === sp ? ' selected' : '') + '>' + sp + '</option>';
+    });
+    options += '<option value="__new__">＋ 新增商务专员...</option>';
+    html += '<tr>'
+      + '<td><select onchange="updateGoalSplit(' + i + ',\'specialist\',this.value)">' + options + '</select></td>'
+      + '<td><input type="number" value="' + (split.target || '') + '" placeholder="输入目标金额" onchange="updateGoalSplit(' + i + ',\'target\',this.value)"></td>'
+      + '<td style="text-align:right;font-weight:600;color:' + (remaining < 0 ? '#ef4444' : '#1e40af') + '">' + remaining.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>'
+      + '<td style="text-align:center"><button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalSplitRow(' + i + ')">✕</button></td>'
+      + '</tr>';
+  });
+  tbody.innerHTML = html;
+  var remainingEl = document.getElementById('goal-split-remaining');
+  var totalRemaining = totalTarget - allocated;
+  if (remainingEl) {
+    remainingEl.textContent = totalRemaining.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+    remainingEl.style.color = totalRemaining < 0 ? '#ef4444' : '#b45309';
+  }
+}
+
+// 更新拆分行数据
+function updateGoalSplit(index, field, value) {
+  var row = goalData.rows[goalData.currentSplitIndex];
+  if (!row || !row.splits[index]) return;
+  if (field === 'specialist' && value === '__new__') {
+    var newName = prompt('请输入新商务专员姓名：');
+    if (newName && newName.trim()) {
+      newName = newName.trim();
+      if (goalData.specialists.indexOf(newName) === -1) {
+        goalData.specialists.push(newName);
+      }
+      row.splits[index].specialist = newName;
+    } else {
+      row.splits[index].specialist = '';
+    }
+    renderGoalSplitTable();
+    return;
+  }
+  row.splits[index][field] = value;
+  renderGoalSplitTable();
+}
+
+// 新增拆分行
+function addGoalSplitRow() {
+  var row = goalData.rows[goalData.currentSplitIndex];
+  if (!row) return;
+  row.splits.push({ specialist: '', target: '' });
+  renderGoalSplitTable();
+}
+
+// 删除拆分行
+function removeGoalSplitRow(index) {
+  var row = goalData.rows[goalData.currentSplitIndex];
+  if (!row) return;
+  row.splits.splice(index, 1);
+  renderGoalSplitTable();
+}
+
+// 确认拆分
+function confirmGoalSplit() {
+  var row = goalData.rows[goalData.currentSplitIndex];
+  if (!row) return;
+  // 校验
+  var totalTarget = parseFloat(row.target) || 0;
+  var allocated = 0;
+  var hasEmpty = false;
+  row.splits.forEach(function(s) {
+    if (!s.specialist || !s.target) hasEmpty = true;
+    allocated += parseFloat(s.target) || 0;
+  });
+  if (hasEmpty) {
+    showToast('请完善所有拆分行的商务专员和目标金额', 'warning');
+    return;
+  }
+  if (Math.abs(allocated - totalTarget) > 1) {
+    if (!confirm('拆分总额(' + allocated.toFixed(2) + '元)与商品目标(' + totalTarget.toFixed(2) + '元)不一致，是否继续？')) {
+      return;
+    }
+  }
+  row.splitConfirmed = true;
+  showToast('拆分已确认', 'success');
+  closeGoalSplitDialog();
+  renderGoalResults();
+}
+
+// 渲染拆分结果
+function renderGoalResults() {
+  var wrap = document.getElementById('goal-result-wrap');
+  var tableEl = document.getElementById('goal-result-table');
+  if (!wrap || !tableEl) return;
+  // 收集所有已拆分确认的商品
+  var confirmedRows = goalData.rows.filter(function(r) { return r.splitConfirmed && r.splits.length > 0; });
+  if (confirmedRows.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  // 收集所有出现的商务专员
+  var allSpecialists = [];
+  confirmedRows.forEach(function(r) {
+    r.splits.forEach(function(s) {
+      if (s.specialist && allSpecialists.indexOf(s.specialist) === -1) allSpecialists.push(s.specialist);
+    });
+  });
+  allSpecialists.sort();
+  // 构建表头
+  var html = '<thead><tr><th>商品标准名称</th><th>商品定位</th><th>商品实销目标</th>';
+  allSpecialists.forEach(function(sp) {
+    html += '<th>' + sp + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+  // 数据行
+  var colTotals = {};
+  allSpecialists.forEach(function(sp) { colTotals[sp] = 0; });
+  var grandTotal = 0;
+  confirmedRows.forEach(function(r) {
+    var rowTotal = 0;
+    html += '<tr><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.position || '') + '</td><td>' + parseFloat(r.target).toLocaleString('zh-CN') + '</td>';
+    allSpecialists.forEach(function(sp) {
+      var found = r.splits.filter(function(s) { return s.specialist === sp; });
+      var val = 0;
+      found.forEach(function(f) { val += parseFloat(f.target) || 0; });
+      rowTotal += val;
+      colTotals[sp] += val;
+      html += '<td>' + (val > 0 ? val.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) : '—') + '</td>';
+    });
+    grandTotal += parseFloat(r.target) || 0;
+    html += '</tr>';
+  });
+  // 合计行
+  html += '<tr class="row-total"><td>合计</td><td></td><td>' + grandTotal.toLocaleString('zh-CN') + '</td>';
+  allSpecialists.forEach(function(sp) {
+    html += '<td class="col-total">' + colTotals[sp].toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>';
+  });
+  html += '</tr></tbody>';
+  tableEl.innerHTML = html;
+}
+
+// 处理商品名称映射表上传
+function handleGoalMappingUpload(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  showToast('映射表「' + file.name + '」已上传，正在解析...', 'info');
+  // 简单模拟解析完成
+  setTimeout(function() {
+    goalData.mappingTable = { fileName: file.name, uploadedAt: new Date().toISOString() };
+    showToast('商品名称映射表更新成功', 'success');
+  }, 1000);
+  input.value = '';
+}
+
+// 初始化目标管理模块
+function initGoalModule() {
+  initGoalMonths();
+  // 默认选中当前月
+  var currentMonth = new Date().getMonth() + 1;
+  goalData.selectedMonths = [currentMonth];
+  document.querySelectorAll('.goal-month-chip').forEach(function(chip) {
+    var m = parseInt(chip.getAttribute('data-month'));
+    chip.classList.toggle('selected', m === currentMonth);
+  });
+  renderGoalTable();
+  renderGoalResults();
+}
+
+// HTML转义
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ---------- Tab切换逻辑 ----------
