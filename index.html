@@ -5668,6 +5668,38 @@ var goalData = {
   mappingTable: null
 };
 
+var GOAL_STORAGE_KEY = 'ly_goal_management_data';
+
+// 保存目标数据到localStorage
+function saveGoalToStorage() {
+  try {
+    var dataToSave = {
+      periodData: goalData.periodData,
+      specialists: goalData.specialists,
+      mappingTable: goalData.mappingTable
+    };
+    localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify(dataToSave));
+  } catch(e) {
+    console.warn('目标数据保存失败:', e);
+  }
+}
+
+// 从localStorage加载目标数据
+function loadGoalFromStorage() {
+  try {
+    var raw = localStorage.getItem(GOAL_STORAGE_KEY);
+    if (!raw) return false;
+    var saved = JSON.parse(raw);
+    if (saved.periodData) goalData.periodData = saved.periodData;
+    if (saved.specialists) goalData.specialists = saved.specialists;
+    if (saved.mappingTable) goalData.mappingTable = saved.mappingTable;
+    return true;
+  } catch(e) {
+    console.warn('目标数据加载失败:', e);
+    return false;
+  }
+}
+
 // 生成周期Key
 function goalPeriodKey() {
   return goalData.currentPeriod.year + '-' + goalData.currentPeriod.month;
@@ -5695,6 +5727,8 @@ function loadGoalPeriodData() {
 
 // 初始化目标管理模块
 function initGoalModule() {
+  // 从localStorage加载已保存的数据
+  loadGoalFromStorage();
   // 设置默认月份为当前月
   var now = new Date();
   var yearEl = document.getElementById('goal-year');
@@ -5771,6 +5805,7 @@ function updateGoalRow(index, field, value) {
   if (goalData.rows[index]) {
     goalData.rows[index][field] = value;
     if (field === 'target') updateGoalTeamTotal();
+    saveGoalToStorage();
   }
 }
 
@@ -5783,6 +5818,7 @@ function addGoalRow() {
   }
   goalData.rows.push({ name: '', position: '', target: '', confirmed: false, splits: [] });
   renderGoalTable();
+  saveGoalToStorage();
 }
 
 // 删除目标行
@@ -5790,6 +5826,7 @@ function removeGoalRow(index) {
   goalData.rows.splice(index, 1);
   renderGoalTable();
   renderGoalResults();
+  saveGoalToStorage();
 }
 
 // 更新团队目标总额
@@ -5814,6 +5851,7 @@ function confirmGoalRow(index) {
   row.confirmed = true;
   showToast('商品「' + row.name + '」已确认，可进行拆分', 'success');
   renderGoalTable();
+  saveGoalToStorage();
 }
 
 // 单行修改（取消确认，重新编辑）
@@ -5826,6 +5864,7 @@ function editGoalRow(index) {
   showToast('已解锁「' + row.name + '」可重新编辑', 'info');
   renderGoalTable();
   renderGoalResults();
+  saveGoalToStorage();
 }
 
 // 确认提交（锁定当月目标）
@@ -5855,6 +5894,7 @@ function confirmGoalSubmit() {
   showToast('目标已提交并锁定', 'success');
   renderGoalTable();
   renderGoalResults();
+  saveGoalToStorage();
 }
 
 // 修改（解锁当月目标）
@@ -5868,6 +5908,7 @@ function unlockGoalMonth() {
     goalData.periodData[key].locked = false;
     showToast('已解锁，可进行修改', 'info');
     renderGoalTable();
+    saveGoalToStorage();
   }
 }
 
@@ -5942,10 +5983,12 @@ function updateGoalSplit(index, field, value) {
       row.splits[index].specialist = '';
     }
     renderGoalSplitTable();
+    saveGoalToStorage();
     return;
   }
   row.splits[index][field] = value;
   renderGoalSplitTable();
+  saveGoalToStorage();
 }
 
 // 新增拆分行
@@ -5988,6 +6031,7 @@ function confirmGoalSplit() {
   showToast('拆分已确认', 'success');
   closeGoalSplitDialog();
   renderGoalResults();
+  saveGoalToStorage();
 }
 
 // 渲染拆分结果
@@ -6093,6 +6137,7 @@ function handleGoalMappingUpload(input) {
   setTimeout(function() {
     goalData.mappingTable = { fileName: file.name, uploadedAt: new Date().toISOString() };
     showToast('商品名称映射表更新成功', 'success');
+    saveGoalToStorage();
   }, 1000);
   input.value = '';
 }
