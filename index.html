@@ -2862,15 +2862,13 @@ body {
           <div class="kpi-card"><div class="kpi-label">启用账号</div><div class="kpi-value" id="perm-kpi-active">--</div></div>
           <div class="kpi-card"><div class="kpi-label">禁用账号</div><div class="kpi-value" id="perm-kpi-disabled">--</div></div>
         </div>
-        <div style="display:flex;gap:16px;align-items:flex-start;">
-          <div class="table-slot" style="flex:1;min-width:0;">
-            <div class="table-header"><span class="table-title">角色权限配置</span></div>
-            <div class="data-table-wrap" id="perm-role-table"></div>
-          </div>
-          <div class="table-slot" style="flex:1.2;min-width:0;">
-            <div class="table-header"><span class="table-title">菜单权限说明</span></div>
-            <div class="data-table-wrap" id="perm-menu-table"></div>
-          </div>
+        <div class="table-slot">
+          <div class="table-header"><span class="table-title">角色权限配置</span></div>
+          <div class="data-table-wrap" id="perm-role-table"></div>
+        </div>
+        <div class="table-slot" style="margin-top:16px;">
+          <div class="table-header"><span class="table-title">菜单权限说明</span></div>
+          <div class="data-table-wrap" id="perm-menu-table"></div>
         </div>
       </div>
 
@@ -2925,16 +2923,21 @@ body {
 
       <!-- 新建/编辑角色弹窗 -->
       <div class="modal-overlay" id="roleModal" style="display:none;">
-        <div class="modal-box" style="max-width:780px;">
+        <div class="modal-box" style="max-width:960px;">
           <div class="modal-header">
             <span class="modal-title" id="roleModalTitle">新建角色</span>
             <button class="modal-close" onclick="closeRoleModal()">✕</button>
           </div>
           <div class="modal-body">
-            <div class="form-row"><label>角色名称</label><input type="text" id="roleModalName" placeholder="请输入角色名称（如：运营经理）"></div>
-            <div class="form-row" style="align-items:flex-start;">
-              <label>可访问菜单</label>
-              <div id="roleModalMenus" style="flex:1;max-height:560px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
+            <div style="display:flex;gap:20px;align-items:flex-start;">
+              <div style="min-width:200px;flex-shrink:0;">
+                <div class="form-row" style="margin-bottom:0;"><label style="margin-bottom:0;">角色名称</label></div>
+                <input type="text" id="roleModalName" placeholder="请输入角色名称" style="width:100%;margin-top:8px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;">
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14px;font-weight:600;margin-bottom:8px;">可访问菜单及功能权限</div>
+                <div id="roleModalMenus" style="max-height:520px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -4156,7 +4159,7 @@ function renderRoleMenuCheckboxes(selectedMenus, selectedFeatures) {
     
     // 二级菜单行
     if (node.subs.length > 0) {
-      html += '<div style="margin-left:24px;margin-top:4px;display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;">';
+      html += '<div style="margin-left:24px;margin-top:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px 12px;">';
       node.subs.forEach(function(sub) {
         var subChecked = selectedMenus.indexOf(sub.fullKey) !== -1 || parentChecked;
         html += '<div style="grid-column:span 1;">';
@@ -4166,9 +4169,9 @@ function renderRoleMenuCheckboxes(selectedMenus, selectedFeatures) {
         
         // 在"目标管理"子菜单下嵌套功能权限
         if (sub.fullKey === 'team-business:goal' || sub.label === '目标管理') {
-          html += '<div style="margin-left:24px;margin-top:4px;padding-left:8px;border-left:2px solid #dbeafe;">';
+          html += '<div style="margin-left:20px;margin-top:4px;padding-left:8px;border-left:2px solid #dbeafe;">';
           html += '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">功能权限</div>';
-          html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:3px 8px;">';
+          html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px 8px;">';
           FEATURE_PERMISSIONS.forEach(function(f) {
             var fChecked = selectedFeatures.indexOf(f.key) !== -1 ? ' checked' : '';
             html += '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;color:#64748b;">';
