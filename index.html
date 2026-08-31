@@ -733,18 +733,14 @@ body {
 .goal-toolbar select:focus, .goal-toolbar input:focus {
   border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
 }
-.goal-month-grid {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; max-width: 360px;
+.goal-toolbar select { min-width: 80px; }
+.goal-position-select {
+  width: 100%; padding: 6px 10px; border: 1px solid #e5e7eb;
+  border-radius: 4px; font-size: 13px; outline: none; background: #fff;
 }
-.goal-month-chip {
-  padding: 4px 0; text-align: center; font-size: 12px; cursor: pointer;
-  border: 1px solid #e5e7eb; border-radius: 4px; background: #fff;
-  transition: all 0.15s; user-select: none;
-}
-.goal-month-chip:hover { border-color: #2563eb; color: #2563eb; }
-.goal-month-chip.selected {
-  background: #2563eb; color: #fff; border-color: #2563eb;
-}
+.goal-row-confirmed { background: #f0fdf4 !important; }
+.goal-row-locked { opacity: 0.85; }
+.goal-row-locked input, .goal-row-locked select { pointer-events: none; background: #f9fafb; }
 .goal-btn {
   padding: 6px 16px; border: none; border-radius: var(--radius-sm);
   font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
@@ -792,9 +788,10 @@ body {
 .goal-table input:focus, .goal-table select:focus {
   border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
 }
-.goal-table .col-action { white-space: nowrap; text-align: center; width: 140px; }
-.goal-table .col-num { width: 180px; }
-.goal-table .col-position { width: 160px; }
+.goal-table .col-action { white-space: nowrap; text-align: center; width: 150px; }
+.goal-table .col-num { width: 25%; }
+.goal-table .col-position { width: 25%; }
+.goal-table .col-name { width: 25%; }
 
 .goal-action-bar {
   display: flex; justify-content: space-between; align-items: center;
@@ -2244,17 +2241,29 @@ body {
             <div class="goal-toolbar">
               <div class="goal-toolbar-item">
                 <span class="goal-toolbar-label">目标周期</span>
-                <select id="goal-year" onchange="renderGoalTable()">
+                <select id="goal-year" onchange="onGoalPeriodChange()">
                   <option value="2026">2026年</option>
                   <option value="2025">2025年</option>
                 </select>
-                <div class="goal-month-grid" id="goal-month-grid"></div>
+                <select id="goal-month" onchange="onGoalPeriodChange()">
+                  <option value="1">1月</option>
+                  <option value="2">2月</option>
+                  <option value="3">3月</option>
+                  <option value="4">4月</option>
+                  <option value="5">5月</option>
+                  <option value="6">6月</option>
+                  <option value="7">7月</option>
+                  <option value="8">8月</option>
+                  <option value="9">9月</option>
+                  <option value="10">10月</option>
+                  <option value="11">11月</option>
+                  <option value="12">12月</option>
+                </select>
               </div>
-              <div style="flex:1"></div>
-              <div class="goal-toolbar-item">
+              <div class="goal-toolbar-item" style="margin-left:12px">
                 <button class="goal-btn goal-btn-outline" onclick="document.getElementById('goal-mapping-upload').click()">📎 商品名称映射表</button>
                 <input type="file" id="goal-mapping-upload" accept=".xlsx,.csv" style="display:none" onchange="handleGoalMappingUpload(this)">
-                <span style="font-size:12px;color:var(--text-secondary)">统一不同平台/店铺/商品ID下的商品名称</span>
+                <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="viewGoalMapping()">查看</button>
               </div>
             </div>
 
@@ -2272,7 +2281,7 @@ body {
               <table class="goal-table">
                 <thead>
                   <tr>
-                    <th>商品标准名称</th>
+                    <th class="col-name">商品标准名称</th>
                     <th class="col-position">商品定位</th>
                     <th class="col-num">商品实销目标（元）</th>
                     <th class="col-action">操作</th>
@@ -2282,7 +2291,10 @@ body {
               </table>
               <div class="goal-action-bar">
                 <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="addGoalRow()">＋ 添加商品</button>
-                <button class="goal-btn goal-btn-primary goal-btn-sm" onclick="confirmGoalRows()">✓ 确认</button>
+                <div style="display:flex;gap:8px">
+                  <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="unlockGoalMonth()">修改</button>
+                  <button class="goal-btn goal-btn-primary goal-btn-sm" onclick="confirmGoalSubmit()">确认提交</button>
+                </div>
               </div>
             </div>
 
@@ -2314,10 +2326,9 @@ body {
               <table class="goal-split-table">
                 <thead>
                   <tr>
-                    <th style="width:30%">商务专员</th>
-                    <th style="width:30%">商品实销目标（元）</th>
-                    <th style="width:30%">目标剩余值（元）</th>
-                    <th style="width:10%">操作</th>
+                    <th style="width:40%">商务专员</th>
+                    <th style="width:40%">商品实销目标（元）</th>
+                    <th style="width:20%">操作</th>
                   </tr>
                 </thead>
                 <tbody id="goal-split-tbody"></tbody>
@@ -5632,56 +5643,82 @@ function renderBizCommissionPlan() {
 var goalData = {
   rows: [],           // 商品目标行数据 {name, position, target, confirmed, splits: []}
   specialists: ['章子康', '姜梦萍', '唐红伟', '陶慧', '贾晶晶'],
-  selectedMonths: [], // 选中的月份
-  currentSplitIndex: -1, // 当前拆分的行索引
-  mappingTable: null  // 商品名称映射表
+  positions: ['常规', '主推', '上新', '引流', '清仓', '利润款', '战略款'],
+  currentPeriod: { year: '2026', month: 1 }, // 当前选中的周期
+  periodData: {},     // 按月存储数据 { '2026-1': { rows: [], locked: false } }
+  currentSplitIndex: -1,
+  mappingTable: null
 };
 
-// 初始化月份选择chips
-function initGoalMonths() {
-  var grid = document.getElementById('goal-month-grid');
-  if (!grid) return;
-  var html = '';
-  for (var i = 1; i <= 12; i++) {
-    html += '<span class="goal-month-chip" data-month="' + i + '" onclick="toggleGoalMonth(' + i + ')">' + i + '月</span>';
-  }
-  grid.innerHTML = html;
+// 生成周期Key
+function goalPeriodKey() {
+  return goalData.currentPeriod.year + '-' + goalData.currentPeriod.month;
 }
 
-// 切换月份选择
-function toggleGoalMonth(month) {
-  var idx = goalData.selectedMonths.indexOf(month);
-  if (idx === -1) {
-    goalData.selectedMonths.push(month);
-    goalData.selectedMonths.sort(function(a, b) { return a - b; });
-  } else {
-    goalData.selectedMonths.splice(idx, 1);
-  }
-  document.querySelectorAll('.goal-month-chip').forEach(function(chip) {
-    var m = parseInt(chip.getAttribute('data-month'));
-    chip.classList.toggle('selected', goalData.selectedMonths.indexOf(m) !== -1);
-  });
+// 周期切换
+function onGoalPeriodChange() {
+  var yearEl = document.getElementById('goal-year');
+  var monthEl = document.getElementById('goal-month');
+  if (yearEl) goalData.currentPeriod.year = yearEl.value;
+  if (monthEl) goalData.currentPeriod.month = parseInt(monthEl.value);
+  loadGoalPeriodData();
   renderGoalTable();
+  renderGoalResults();
+}
+
+// 加载当前周期数据
+function loadGoalPeriodData() {
+  var key = goalPeriodKey();
+  if (!goalData.periodData[key]) {
+    goalData.periodData[key] = { rows: [], locked: false };
+  }
+  goalData.rows = goalData.periodData[key].rows;
+}
+
+// 初始化目标管理模块
+function initGoalModule() {
+  // 设置默认月份为当前月
+  var now = new Date();
+  var yearEl = document.getElementById('goal-year');
+  var monthEl = document.getElementById('goal-month');
+  if (yearEl) yearEl.value = String(now.getFullYear());
+  if (monthEl) monthEl.value = String(now.getMonth() + 1);
+  goalData.currentPeriod = { year: String(now.getFullYear()), month: now.getMonth() + 1 };
+  loadGoalPeriodData();
+  renderGoalTable();
+  renderGoalResults();
 }
 
 // 渲染目标表格
 function renderGoalTable() {
   var tbody = document.getElementById('goal-tbody');
   if (!tbody) return;
+  var key = goalPeriodKey();
+  var periodInfo = goalData.periodData[key] || { rows: [], locked: false };
+  var isLocked = periodInfo.locked;
   var html = '';
   goalData.rows.forEach(function(row, i) {
-    var confirmedClass = row.confirmed ? 'style="background:#f0fdf4"' : '';
-    var splitBtn = row.confirmed
-      ? '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="openGoalSplitDialog(' + i + ')">拆分</button>'
-      : '<button class="goal-btn goal-btn-outline goal-btn-sm" disabled style="opacity:0.5">拆分</button>';
-    html += '<tr ' + confirmedClass + '>'
-      + '<td><input type="text" value="' + escapeHtml(row.name || '') + '" placeholder="输入商品标准名称" onchange="updateGoalRow(' + i + ',\'name\',this.value)"></td>'
-      + '<td class="col-position"><input type="text" value="' + escapeHtml(row.position || '') + '" placeholder="输入商品定位" onchange="updateGoalRow(' + i + ',\'position\',this.value)"></td>'
-      + '<td class="col-num"><input type="number" value="' + (row.target || '') + '" placeholder="输入实销目标（元）" onchange="updateGoalRow(' + i + ',\'target\',this.value)"></td>'
-      + '<td class="col-action">'
-      +   splitBtn + ' '
-      +   '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')">删除</button>'
-      + '</td>'
+    var rowClass = isLocked ? 'goal-row-locked' : (row.confirmed ? 'goal-row-confirmed' : '');
+    // 商品定位下拉
+    var posOptions = '<option value="">请选择</option>';
+    goalData.positions.forEach(function(p) {
+      posOptions += '<option value="' + p + '"' + (row.position === p ? ' selected' : '') + '>' + p + '</option>';
+    });
+    // 操作按钮
+    var actions = '';
+    if (!row.confirmed) {
+      actions = '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="confirmGoalRow(' + i + ')">确认</button> '
+        + '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')">删除</button>';
+    } else {
+      var splitDisabled = isLocked ? 'disabled style="opacity:0.5"' : '';
+      actions = '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="openGoalSplitDialog(' + i + ')" ' + splitDisabled + '>拆分</button> '
+        + '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')" ' + splitDisabled + '>删除</button>';
+    }
+    html += '<tr class="' + rowClass + '">'
+      + '<td class="col-name"><input type="text" value="' + escapeHtml(row.name || '') + '" placeholder="输入商品标准名称" onchange="updateGoalRow(' + i + ',\'name\',this.value)"' + (row.confirmed ? ' disabled' : '') + '></td>'
+      + '<td class="col-position"><select class="goal-position-select" onchange="updateGoalRow(' + i + ',\'position\',this.value)"' + (row.confirmed ? ' disabled' : '') + '>' + posOptions + '</select></td>'
+      + '<td class="col-num"><input type="number" value="' + (row.target || '') + '" placeholder="输入实销目标" onchange="updateGoalRow(' + i + ',\'target\',this.value)"' + (row.confirmed ? ' disabled' : '') + '></td>'
+      + '<td class="col-action">' + actions + '</td>'
       + '</tr>';
   });
   if (goalData.rows.length === 0) {
@@ -5689,6 +5726,25 @@ function renderGoalTable() {
   }
   tbody.innerHTML = html;
   updateGoalTeamTotal();
+  updateGoalLockUI();
+}
+
+// 更新锁定状态UI
+function updateGoalLockUI() {
+  var key = goalPeriodKey();
+  var periodInfo = goalData.periodData[key] || {};
+  var submitBtn = document.querySelector('.goal-action-bar .goal-btn-primary');
+  if (submitBtn) {
+    if (periodInfo.locked) {
+      submitBtn.textContent = '已锁定';
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
+    } else {
+      submitBtn.textContent = '确认提交';
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+    }
+  }
 }
 
 // 更新单行数据
@@ -5701,6 +5757,11 @@ function updateGoalRow(index, field, value) {
 
 // 添加目标行
 function addGoalRow() {
+  var key = goalPeriodKey();
+  if (goalData.periodData[key] && goalData.periodData[key].locked) {
+    showToast('当前月份目标已锁定，请点击「修改」解锁', 'warning');
+    return;
+  }
   goalData.rows.push({ name: '', position: '', target: '', confirmed: false, splits: [] });
   renderGoalTable();
 }
@@ -5723,27 +5784,60 @@ function updateGoalTeamTotal() {
   if (el) el.textContent = total.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
 }
 
-// 确认目标行（带权限校验）
-function confirmGoalRows() {
-  var hasPermission = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin');
-  // 如果没有管理员权限，也允许确认但提示
-  var unconfirmed = goalData.rows.filter(function(r) { return !r.confirmed; });
-  if (unconfirmed.length === 0) {
-    showToast('所有商品目标已确认', 'info');
+// 单行确认
+function confirmGoalRow(index) {
+  var row = goalData.rows[index];
+  if (!row) return;
+  if (!row.name || !row.target) {
+    showToast('请填写商品标准名称和实销目标', 'warning');
     return;
   }
-  // 校验数据完整性
-  for (var i = 0; i < unconfirmed.length; i++) {
-    if (!unconfirmed[i].name || !unconfirmed[i].target) {
-      showToast('请填写商品标准名称和实销目标', 'warning');
-      return;
-    }
-  }
-  goalData.rows.forEach(function(row) {
-    if (row.name && row.target) row.confirmed = true;
-  });
-  showToast('商品目标已确认，可进行拆分操作', 'success');
+  row.confirmed = true;
+  showToast('商品「' + row.name + '」已确认，可进行拆分', 'success');
   renderGoalTable();
+}
+
+// 确认提交（锁定当月目标）
+function confirmGoalSubmit() {
+  var key = goalPeriodKey();
+  if (goalData.periodData[key] && goalData.periodData[key].locked) {
+    showToast('当前月份目标已锁定', 'info');
+    return;
+  }
+  // 校验：所有行必须已确认且已拆分
+  var unconfirmed = goalData.rows.filter(function(r) { return !r.confirmed; });
+  if (unconfirmed.length > 0) {
+    showToast('还有 ' + unconfirmed.length + ' 个商品未确认', 'warning');
+    return;
+  }
+  var unsplitted = goalData.rows.filter(function(r) { return !r.splitConfirmed; });
+  if (unsplitted.length > 0) {
+    showToast('还有 ' + unsplitted.length + ' 个商品未完成拆分', 'warning');
+    return;
+  }
+  if (goalData.rows.length === 0) {
+    showToast('请先添加商品目标', 'warning');
+    return;
+  }
+  if (!confirm('确认提交后将锁定' + goalData.currentPeriod.year + '年' + goalData.currentPeriod.month + '月的目标，锁定后需点击「修改」才能调整。是否继续？')) return;
+  goalData.periodData[key].locked = true;
+  showToast('目标已提交并锁定', 'success');
+  renderGoalTable();
+  renderGoalResults();
+}
+
+// 修改（解锁当月目标）
+function unlockGoalMonth() {
+  var key = goalPeriodKey();
+  if (!goalData.periodData[key] || !goalData.periodData[key].locked) {
+    showToast('当前月份目标未锁定', 'info');
+    return;
+  }
+  if (confirm('确定要修改' + goalData.currentPeriod.year + '年' + goalData.currentPeriod.month + '月的目标吗？')) {
+    goalData.periodData[key].locked = false;
+    showToast('已解锁，可进行修改', 'info');
+    renderGoalTable();
+  }
 }
 
 // 打开拆分对话框
@@ -5780,7 +5874,6 @@ function renderGoalSplitTable() {
   row.splits.forEach(function(split, i) {
     var sTarget = parseFloat(split.target) || 0;
     allocated += sTarget;
-    var remaining = totalTarget - allocated;
     var options = '<option value="">请选择商务专员</option>';
     goalData.specialists.forEach(function(sp) {
       options += '<option value="' + sp + '"' + (split.specialist === sp ? ' selected' : '') + '>' + sp + '</option>';
@@ -5789,11 +5882,11 @@ function renderGoalSplitTable() {
     html += '<tr>'
       + '<td><select onchange="updateGoalSplit(' + i + ',\'specialist\',this.value)">' + options + '</select></td>'
       + '<td><input type="number" value="' + (split.target || '') + '" placeholder="输入目标金额" onchange="updateGoalSplit(' + i + ',\'target\',this.value)"></td>'
-      + '<td style="text-align:right;font-weight:600;color:' + (remaining < 0 ? '#ef4444' : '#1e40af') + '">' + remaining.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>'
       + '<td style="text-align:center"><button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalSplitRow(' + i + ')">✕</button></td>'
       + '</tr>';
   });
   tbody.innerHTML = html;
+  // 更新顶部剩余值
   var remainingEl = document.getElementById('goal-split-remaining');
   var totalRemaining = totalTarget - allocated;
   if (remainingEl) {
@@ -5844,7 +5937,6 @@ function removeGoalSplitRow(index) {
 function confirmGoalSplit() {
   var row = goalData.rows[goalData.currentSplitIndex];
   if (!row) return;
-  // 校验
   var totalTarget = parseFloat(row.target) || 0;
   var allocated = 0;
   var hasEmpty = false;
@@ -5872,14 +5964,12 @@ function renderGoalResults() {
   var wrap = document.getElementById('goal-result-wrap');
   var tableEl = document.getElementById('goal-result-table');
   if (!wrap || !tableEl) return;
-  // 收集所有已拆分确认的商品
   var confirmedRows = goalData.rows.filter(function(r) { return r.splitConfirmed && r.splits.length > 0; });
   if (confirmedRows.length === 0) {
     wrap.style.display = 'none';
     return;
   }
   wrap.style.display = 'block';
-  // 收集所有出现的商务专员
   var allSpecialists = [];
   confirmedRows.forEach(function(r) {
     r.splits.forEach(function(s) {
@@ -5887,31 +5977,26 @@ function renderGoalResults() {
     });
   });
   allSpecialists.sort();
-  // 构建表头
   var html = '<thead><tr><th>商品标准名称</th><th>商品定位</th><th>商品实销目标</th>';
   allSpecialists.forEach(function(sp) {
     html += '<th>' + sp + '</th>';
   });
   html += '</tr></thead><tbody>';
-  // 数据行
   var colTotals = {};
   allSpecialists.forEach(function(sp) { colTotals[sp] = 0; });
   var grandTotal = 0;
   confirmedRows.forEach(function(r) {
-    var rowTotal = 0;
     html += '<tr><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.position || '') + '</td><td>' + parseFloat(r.target).toLocaleString('zh-CN') + '</td>';
     allSpecialists.forEach(function(sp) {
       var found = r.splits.filter(function(s) { return s.specialist === sp; });
       var val = 0;
       found.forEach(function(f) { val += parseFloat(f.target) || 0; });
-      rowTotal += val;
       colTotals[sp] += val;
       html += '<td>' + (val > 0 ? val.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) : '—') + '</td>';
     });
     grandTotal += parseFloat(r.target) || 0;
     html += '</tr>';
   });
-  // 合计行
   html += '<tr class="row-total"><td>合计</td><td></td><td>' + grandTotal.toLocaleString('zh-CN') + '</td>';
   allSpecialists.forEach(function(sp) {
     html += '<td class="col-total">' + colTotals[sp].toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>';
@@ -5925,7 +6010,6 @@ function handleGoalMappingUpload(input) {
   if (!input.files || !input.files[0]) return;
   var file = input.files[0];
   showToast('映射表「' + file.name + '」已上传，正在解析...', 'info');
-  // 简单模拟解析完成
   setTimeout(function() {
     goalData.mappingTable = { fileName: file.name, uploadedAt: new Date().toISOString() };
     showToast('商品名称映射表更新成功', 'success');
@@ -5933,18 +6017,13 @@ function handleGoalMappingUpload(input) {
   input.value = '';
 }
 
-// 初始化目标管理模块
-function initGoalModule() {
-  initGoalMonths();
-  // 默认选中当前月
-  var currentMonth = new Date().getMonth() + 1;
-  goalData.selectedMonths = [currentMonth];
-  document.querySelectorAll('.goal-month-chip').forEach(function(chip) {
-    var m = parseInt(chip.getAttribute('data-month'));
-    chip.classList.toggle('selected', m === currentMonth);
-  });
-  renderGoalTable();
-  renderGoalResults();
+// 查看商品映射表
+function viewGoalMapping() {
+  if (!goalData.mappingTable) {
+    showToast('暂未上传商品名称映射表', 'info');
+    return;
+  }
+  alert('商品名称映射表\n\n文件名：' + goalData.mappingTable.fileName + '\n上传时间：' + new Date(goalData.mappingTable.uploadedAt).toLocaleString('zh-CN'));
 }
 
 // HTML转义
