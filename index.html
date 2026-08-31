@@ -2923,20 +2923,28 @@ body {
 
       <!-- 新建/编辑角色弹窗 -->
       <div class="modal-overlay" id="roleModal" style="display:none;">
-        <div class="modal-box" style="max-width:960px;">
+        <div class="modal-box" style="max-width:1400px;width:94vw;">
           <div class="modal-header">
             <span class="modal-title" id="roleModalTitle">新建角色</span>
             <button class="modal-close" onclick="closeRoleModal()">✕</button>
           </div>
-          <div class="modal-body">
-            <div style="display:flex;gap:20px;align-items:flex-start;">
-              <div style="min-width:200px;flex-shrink:0;">
-                <div class="form-row" style="margin-bottom:0;"><label style="margin-bottom:0;">角色名称</label></div>
-                <input type="text" id="roleModalName" placeholder="请输入角色名称" style="width:100%;margin-top:8px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;">
+          <div class="modal-body" style="padding:20px 24px;">
+            <div style="display:flex;gap:24px;align-items:flex-start;">
+              <div style="min-width:240px;flex-shrink:0;">
+                <label style="font-size:14px;font-weight:600;display:block;margin-bottom:8px;">角色名称</label>
+                <input type="text" id="roleModalName" placeholder="请输入角色名称" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;">
+                <div style="margin-top:16px;padding:12px;background:#f8fafc;border-radius:6px;border:1px solid #e5e7eb;">
+                  <div style="font-size:12px;color:#64748b;line-height:1.8;">
+                    <div style="font-weight:600;margin-bottom:4px;">操作说明</div>
+                    勾选一级菜单可全选其下所有二级菜单。<br>
+                    目标管理下的功能权限可单独勾选。<br>
+                    系统内置角色默认拥有全部权限。
+                  </div>
+                </div>
               </div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:14px;font-weight:600;margin-bottom:8px;">可访问菜单及功能权限</div>
-                <div id="roleModalMenus" style="max-height:520px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
+                <div id="roleModalMenus" style="max-height:70vh;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:16px;"></div>
               </div>
             </div>
           </div>
@@ -4152,26 +4160,26 @@ function renderRoleMenuCheckboxes(selectedMenus, selectedFeatures) {
     var allSubsChecked = subKeys.length > 0 && subKeys.every(function(sk){ return selectedMenus.indexOf(sk) !== -1; });
     
     // 一级菜单行
-    html += '<div style="margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f0f0f0;">';
-    html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;">';
-    html += '<input type="checkbox" value="' + node.key + '"' + (parentChecked || allSubsChecked ? ' checked' : '') + ' style="width:16px;height:16px;" onchange="onParentMenuToggle(this,\'' + node.key + '\')">';
+    html += '<div style="margin-bottom:8px;padding:8px 0;border-bottom:1px solid #f0f0f0;">';
+    html += '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;font-weight:600;">';
+    html += '<input type="checkbox" value="' + node.key + '"' + (parentChecked || allSubsChecked ? ' checked' : '') + ' style="width:18px;height:18px;" onchange="onParentMenuToggle(this,\'' + node.key + '\')">';
     html += '<span>' + node.label + '</span></label>';
     
     // 二级菜单行
     if (node.subs.length > 0) {
-      html += '<div style="margin-left:24px;margin-top:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px 12px;">';
+      html += '<div style="margin-left:28px;margin-top:6px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px 16px;">';
       node.subs.forEach(function(sub) {
         var subChecked = selectedMenus.indexOf(sub.fullKey) !== -1 || parentChecked;
         html += '<div style="grid-column:span 1;">';
-        html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#555;">';
-        html += '<input type="checkbox" value="' + sub.fullKey + '"' + (subChecked ? ' checked' : '') + ' style="width:14px;height:14px;" data-parent="' + node.key + '">';
+        html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;color:#555;">';
+        html += '<input type="checkbox" value="' + sub.fullKey + '"' + (subChecked ? ' checked' : '') + ' style="width:15px;height:15px;" data-parent="' + node.key + '">';
         html += '<span>' + sub.label + '</span></label>';
         
         // 在"目标管理"子菜单下嵌套功能权限
         if (sub.fullKey === 'team-business:goal' || sub.label === '目标管理') {
-          html += '<div style="margin-left:20px;margin-top:4px;padding-left:8px;border-left:2px solid #dbeafe;">';
-          html += '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">功能权限</div>';
-          html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px 8px;">';
+          html += '<div style="margin-left:24px;margin-top:6px;padding-left:10px;border-left:2px solid #dbeafe;">';
+          html += '<div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">功能权限</div>';
+          html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px 12px;">';
           FEATURE_PERMISSIONS.forEach(function(f) {
             var fChecked = selectedFeatures.indexOf(f.key) !== -1 ? ' checked' : '';
             html += '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;color:#64748b;">';
