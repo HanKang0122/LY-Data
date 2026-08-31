@@ -2862,13 +2862,15 @@ body {
           <div class="kpi-card"><div class="kpi-label">启用账号</div><div class="kpi-value" id="perm-kpi-active">--</div></div>
           <div class="kpi-card"><div class="kpi-label">禁用账号</div><div class="kpi-value" id="perm-kpi-disabled">--</div></div>
         </div>
-        <div class="table-slot">
-          <div class="table-header"><span class="table-title">角色权限配置</span></div>
-          <div class="data-table-wrap" id="perm-role-table"></div>
-        </div>
-        <div class="table-slot" style="margin-top:16px;">
-          <div class="table-header"><span class="table-title">菜单权限说明</span></div>
-          <div class="data-table-wrap" id="perm-menu-table"></div>
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div class="table-slot" style="flex:1;min-width:0;">
+            <div class="table-header"><span class="table-title">角色权限配置</span></div>
+            <div class="data-table-wrap" id="perm-role-table"></div>
+          </div>
+          <div class="table-slot" style="flex:1.2;min-width:0;">
+            <div class="table-header"><span class="table-title">菜单权限说明</span></div>
+            <div class="data-table-wrap" id="perm-menu-table"></div>
+          </div>
         </div>
       </div>
 
@@ -2932,11 +2934,7 @@ body {
             <div class="form-row"><label>角色名称</label><input type="text" id="roleModalName" placeholder="请输入角色名称（如：运营经理）"></div>
             <div class="form-row" style="align-items:flex-start;">
               <label>可访问菜单</label>
-              <div id="roleModalMenus" style="flex:1;max-height:480px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
-            </div>
-            <div class="form-row" style="align-items:flex-start;margin-top:12px;">
-              <label>功能权限</label>
-              <div id="roleModalFeatures" style="flex:1;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
+              <div id="roleModalMenus" style="flex:1;max-height:560px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -4120,8 +4118,7 @@ function showAddRoleModal() {
   editingRoleKey = null;
   document.getElementById('roleModalTitle').textContent = '新建角色';
   document.getElementById('roleModalName').value = '';
-  renderRoleMenuCheckboxes([]);
-  renderRoleFeatureCheckboxes([]);
+  renderRoleMenuCheckboxes([], []);
   document.getElementById('roleModal').style.display = 'flex';
 }
 
@@ -4131,8 +4128,7 @@ function showEditRoleModal(roleKey) {
   editingRoleKey = roleKey;
   document.getElementById('roleModalTitle').textContent = '编辑角色';
   document.getElementById('roleModalName').value = rc.text;
-  renderRoleMenuCheckboxes(rc.menus);
-  renderRoleFeatureCheckboxes(rc.features || []);
+  renderRoleMenuCheckboxes(rc.menus, rc.features || []);
   document.getElementById('roleModal').style.display = 'flex';
 }
 
@@ -4141,7 +4137,8 @@ function closeRoleModal() {
   editingRoleKey = null;
 }
 
-function renderRoleMenuCheckboxes(selectedMenus) {
+function renderRoleMenuCheckboxes(selectedMenus, selectedFeatures) {
+  selectedFeatures = selectedFeatures || [];
   var container = document.getElementById('roleModalMenus');
   if (!container) return;
   var tree = getFullMenuTree();
@@ -4150,7 +4147,6 @@ function renderRoleMenuCheckboxes(selectedMenus) {
     var parentChecked = selectedMenus.indexOf(node.key) !== -1;
     var subKeys = node.subs.map(function(s){ return s.fullKey; });
     var allSubsChecked = subKeys.length > 0 && subKeys.every(function(sk){ return selectedMenus.indexOf(sk) !== -1; });
-    var someSubsChecked = subKeys.some(function(sk){ return selectedMenus.indexOf(sk) !== -1; });
     
     // 一级菜单行
     html += '<div style="margin-bottom:6px;padding:6px 0;border-bottom:1px solid #f0f0f0;">';
@@ -4163,37 +4159,29 @@ function renderRoleMenuCheckboxes(selectedMenus) {
       html += '<div style="margin-left:24px;margin-top:4px;display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;">';
       node.subs.forEach(function(sub) {
         var subChecked = selectedMenus.indexOf(sub.fullKey) !== -1 || parentChecked;
+        html += '<div style="grid-column:span 1;">';
         html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#555;">';
         html += '<input type="checkbox" value="' + sub.fullKey + '"' + (subChecked ? ' checked' : '') + ' style="width:14px;height:14px;" data-parent="' + node.key + '">';
         html += '<span>' + sub.label + '</span></label>';
+        
+        // 在"目标管理"子菜单下嵌套功能权限
+        if (sub.fullKey === 'team-business:goal' || sub.label === '目标管理') {
+          html += '<div style="margin-left:24px;margin-top:4px;padding-left:8px;border-left:2px solid #dbeafe;">';
+          html += '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">功能权限</div>';
+          html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:3px 8px;">';
+          FEATURE_PERMISSIONS.forEach(function(f) {
+            var fChecked = selectedFeatures.indexOf(f.key) !== -1 ? ' checked' : '';
+            html += '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;color:#64748b;">';
+            html += '<input type="checkbox" value="' + f.key + '"' + fChecked + ' style="width:13px;height:13px;" class="feature-cb">';
+            html += '<span>' + f.label + '</span></label>';
+          });
+          html += '</div></div>';
+        }
+        html += '</div>';
       });
       html += '</div>';
     }
     html += '</div>';
-  });
-  container.innerHTML = html;
-}
-
-// 渲染功能权限复选框
-function renderRoleFeatureCheckboxes(selectedFeatures) {
-  var container = document.getElementById('roleModalFeatures');
-  if (!container) return;
-  var html = '';
-  var groups = {};
-  FEATURE_PERMISSIONS.forEach(function(f) {
-    if (!groups[f.group]) groups[f.group] = [];
-    groups[f.group].push(f);
-  });
-  Object.keys(groups).forEach(function(g) {
-    html += '<div style="margin-bottom:8px;"><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;">' + g + '</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px 12px;margin-left:8px;">';
-    groups[g].forEach(function(f) {
-      var checked = selectedFeatures.indexOf(f.key) !== -1 ? ' checked' : '';
-      html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#555;">';
-      html += '<input type="checkbox" value="' + f.key + '"' + checked + ' style="width:14px;height:14px;" class="feature-cb">';
-      html += '<span>' + f.label + '</span></label>';
-    });
-    html += '</div></div>';
   });
   container.innerHTML = html;
 }
@@ -4220,13 +4208,13 @@ function saveRole() {
   });
   if (nameExists) { alert('角色名称「' + name + '」已存在，请使用其他名称'); return; }
 
-  // 收集选中的菜单
-  var checked = document.querySelectorAll('#roleModalMenus input[type=checkbox]:checked');
+  // 收集选中的菜单（排除feature-cb类的功能权限复选框）
+  var checked = document.querySelectorAll('#roleModalMenus input[type=checkbox]:checked:not(.feature-cb)');
   var menus = [];
   checked.forEach(function(cb) { menus.push(cb.value); });
 
-  // 收集选中的功能权限
-  var featureCbs = document.querySelectorAll('#roleModalFeatures input[type=checkbox]:checked');
+  // 收集选中的功能权限（嵌套在菜单树中的feature-cb复选框）
+  var featureCbs = document.querySelectorAll('#roleModalMenus input.feature-cb:checked');
   var features = [];
   featureCbs.forEach(function(cb) { features.push(cb.value); });
 
