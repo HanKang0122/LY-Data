@@ -620,6 +620,104 @@ body {
 }
 .comm-ai-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(109,40,217,0.3); }
 
+/* ==================== 商务运营模块 ==================== */
+.biz-ops-tab-bar {
+  display: flex; gap: 4px; margin-bottom: 20px;
+  background: var(--bg-white); border-radius: var(--radius-md);
+  padding: 6px; box-shadow: var(--shadow-sm);
+}
+.biz-ops-tab-item {
+  flex: 1; padding: 12px 20px; text-align: center; cursor: pointer;
+  border-radius: var(--radius-sm); font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); transition: all 0.2s;
+}
+.biz-ops-tab-item:hover { background: var(--bg-gray); color: var(--text-primary); }
+.biz-ops-tab-item.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+}
+.biz-ops-tab-icon { margin-right: 6px; }
+
+.biz-ops-panel { display: none; }
+.biz-ops-panel.active { display: block; }
+
+/* 筛选栏 */
+.biz-ops-filter-bar {
+  display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;
+  background: var(--bg-white); border-radius: var(--radius-md);
+  padding: 16px 20px; box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.biz-ops-filter-item { display: flex; flex-direction: column; gap: 6px; min-width: 160px; }
+.biz-ops-filter-item label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.biz-ops-filter-item select, .biz-ops-filter-item input[type="date"] {
+  height: 36px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 0 12px; font-size: 13px; background: var(--bg-white);
+  color: var(--text-primary); outline: none; transition: border-color 0.2s;
+}
+.biz-ops-filter-item select:focus, .biz-ops-filter-item input[type="date"]:focus {
+  border-color: var(--primary);
+}
+.biz-ops-filter-date-range { display: flex; gap: 8px; align-items: center; }
+.biz-ops-filter-date-range input[type="date"] { flex: 1; }
+.biz-ops-filter-date-sep { color: var(--text-muted); font-size: 13px; }
+.biz-ops-filter-btn {
+  height: 36px; padding: 0 24px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s;
+}
+.biz-ops-filter-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+
+/* KPI 卡片 */
+.biz-ops-kpi-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1200px) { .biz-ops-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.biz-ops-kpi-card {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  padding: 20px; box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--primary);
+}
+.biz-ops-kpi-card.green { border-left-color: #059669; }
+.biz-ops-kpi-card.orange { border-left-color: #ea580c; }
+.biz-ops-kpi-card.purple { border-left-color: #6d28d9; }
+.biz-ops-kpi-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+.biz-ops-kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.biz-ops-kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+/* 图表区域 */
+.biz-ops-chart-grid {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1100px) { .biz-ops-chart-grid { grid-template-columns: 1fr; } }
+
+/* 数据表格 */
+.biz-ops-table {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.biz-ops-table-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; border-bottom: 1px solid var(--border-light);
+}
+.biz-ops-table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+/* 提成方案模块 */
+.biz-ops-commission-wrap {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); padding: 20px;
+}
+
+/* 目标管理占位 */
+.biz-ops-goal-empty {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); padding: 60px 20px; text-align: center;
+}
+
 /* 提成方案卡片 */
 .comm-card {
   background: var(--bg-white); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
@@ -1818,10 +1916,180 @@ body {
       <div class="page" id="page-team-business">
         <div class="breadcrumb"><span>团队管理</span> / <span class="current">商务运营</span></div>
         <div class="page-header"><div class="page-title">商务运营</div></div>
-        <div class="comm-empty-state">
-          <div class="empty-icon">💼</div>
-          <div class="empty-text">商务运营模块</div>
-          <div class="empty-hint">数据内容暂未填充</div>
+
+        <!-- 横向Tab栏 -->
+        <div class="biz-ops-tab-bar">
+          <div class="biz-ops-tab-item active" data-biz-tab="overview" onclick="switchBizOpsTab('overview')">
+            <span class="biz-ops-tab-icon">📊</span>运营总览
+          </div>
+          <div class="biz-ops-tab-item" data-biz-tab="review" onclick="switchBizOpsTab('review')">
+            <span class="biz-ops-tab-icon">📈</span>商务复盘
+          </div>
+          <div class="biz-ops-tab-item" data-biz-tab="commission" onclick="switchBizOpsTab('commission')">
+            <span class="biz-ops-tab-icon">💰</span>提成方案
+          </div>
+          <div class="biz-ops-tab-item" data-biz-tab="goal" onclick="switchBizOpsTab('goal')">
+            <span class="biz-ops-tab-icon">🎯</span>目标管理
+          </div>
+        </div>
+
+        <!-- ====== 模块1：运营总览 ====== -->
+        <div class="biz-ops-panel active" id="biz-panel-overview">
+          <div class="biz-ops-filter-bar">
+            <div class="biz-ops-filter-item">
+              <label>日期</label>
+              <div class="biz-ops-filter-date-range">
+                <input type="date" id="biz-overview-start-date" value="">
+                <span class="biz-ops-filter-date-sep">至</span>
+                <input type="date" id="biz-overview-end-date" value="">
+              </div>
+            </div>
+            <div class="biz-ops-filter-item">
+              <label>平台</label>
+              <select id="biz-overview-platform" onchange="updateBizOverviewShops()">
+                <option value="all">全部平台</option>
+                <option value="douyin">抖音平台</option>
+                <option value="kuaishou">快手平台</option>
+                <option value="weixin">微信平台</option>
+              </select>
+            </div>
+            <div class="biz-ops-filter-item">
+              <label>店铺</label>
+              <select id="biz-overview-shop">
+                <option value="all">全部店铺</option>
+              </select>
+            </div>
+            <button class="biz-ops-filter-btn" onclick="queryBizOverview()">🔍 查询</button>
+          </div>
+          <div class="biz-ops-kpi-grid">
+            <div class="biz-ops-kpi-card">
+              <div class="biz-ops-kpi-label">总GMV</div>
+              <div class="biz-ops-kpi-value" id="biz-ov-kpi-gmv">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-ov-kpi-gmv-sub">待查询数据</div>
+            </div>
+            <div class="biz-ops-kpi-card green">
+              <div class="biz-ops-kpi-label">订单数</div>
+              <div class="biz-ops-kpi-value" id="biz-ov-kpi-orders">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-ov-kpi-orders-sub">待查询数据</div>
+            </div>
+            <div class="biz-ops-kpi-card orange">
+              <div class="biz-ops-kpi-label">退款金额</div>
+              <div class="biz-ops-kpi-value" id="biz-ov-kpi-refund">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-ov-kpi-refund-sub">待查询数据</div>
+            </div>
+            <div class="biz-ops-kpi-card purple">
+              <div class="biz-ops-kpi-label">客单价</div>
+              <div class="biz-ops-kpi-value" id="biz-ov-kpi-avg">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-ov-kpi-avg-sub">待查询数据</div>
+            </div>
+          </div>
+          <div class="biz-ops-chart-grid">
+            <div class="chart-card"><div class="card-title">日度GMV趋势</div><div id="biz-ov-gmv-trend" style="width:100%;height:320px;"></div></div>
+            <div class="chart-card"><div class="card-title">各店铺GMV占比</div><div id="biz-ov-shop-pie" style="width:100%;height:320px;"></div></div>
+          </div>
+          <div class="biz-ops-table">
+            <div class="biz-ops-table-header">
+              <span class="biz-ops-table-title">运营数据明细</span>
+              <button class="btn" onclick="exportBizOverviewTable()">导出</button>
+            </div>
+            <div class="data-table-wrap" id="biz-ov-detail-table"></div>
+          </div>
+        </div>
+
+        <!-- ====== 模块2：商务复盘 ====== -->
+        <div class="biz-ops-panel" id="biz-panel-review">
+          <div class="biz-ops-filter-bar">
+            <div class="biz-ops-filter-item">
+              <label>日期</label>
+              <div class="biz-ops-filter-date-range">
+                <input type="date" id="biz-review-start-date" value="">
+                <span class="biz-ops-filter-date-sep">至</span>
+                <input type="date" id="biz-review-end-date" value="">
+              </div>
+            </div>
+            <div class="biz-ops-filter-item">
+              <label>平台</label>
+              <select id="biz-review-platform" onchange="updateBizReviewShops()">
+                <option value="all">全部平台</option>
+                <option value="douyin">抖音平台</option>
+                <option value="kuaishou">快手平台</option>
+                <option value="weixin">微信平台</option>
+              </select>
+            </div>
+            <div class="biz-ops-filter-item">
+              <label>店铺</label>
+              <select id="biz-review-shop">
+                <option value="all">全部店铺</option>
+              </select>
+            </div>
+            <div class="biz-ops-filter-item">
+              <label>跟进人</label>
+              <select id="biz-review-follower">
+                <option value="all">全部跟进人</option>
+              </select>
+            </div>
+            <button class="biz-ops-filter-btn" onclick="queryBizReview()">🔍 查询</button>
+          </div>
+          <div class="biz-ops-kpi-grid">
+            <div class="biz-ops-kpi-card">
+              <div class="biz-ops-kpi-label">总GMV</div>
+              <div class="biz-ops-kpi-value" id="biz-rv-kpi-gmv">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-gmv-sub">待查询数据</div>
+            </div>
+            <div class="biz-ops-kpi-card green">
+              <div class="biz-ops-kpi-label">完成订单</div>
+              <div class="biz-ops-kpi-value" id="biz-rv-kpi-orders">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-orders-sub">待查询数据</div>
+            </div>
+            <div class="biz-ops-kpi-card orange">
+              <div class="biz-ops-kpi-label">退款率</div>
+              <div class="biz-ops-kpi-value" id="biz-rv-kpi-refund-rate">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-refund-rate-sub">待查询数据</div>
+            </div>
+            <div class="biz-ops-kpi-card purple">
+              <div class="biz-ops-kpi-label">毛利</div>
+              <div class="biz-ops-kpi-value" id="biz-rv-kpi-profit">--</div>
+              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-profit-sub">待查询数据</div>
+            </div>
+          </div>
+          <div class="biz-ops-chart-grid">
+            <div class="chart-card"><div class="card-title">跟进人GMV排名</div><div id="biz-rv-follower-chart" style="width:100%;height:320px;"></div></div>
+            <div class="chart-card"><div class="card-title">各平台GMV对比</div><div id="biz-rv-platform-chart" style="width:100%;height:320px;"></div></div>
+          </div>
+          <div class="biz-ops-table">
+            <div class="biz-ops-table-header">
+              <span class="biz-ops-table-title">商务复盘明细</span>
+              <button class="btn" onclick="exportBizReviewTable()">导出</button>
+            </div>
+            <div class="data-table-wrap" id="biz-rv-detail-table"></div>
+          </div>
+        </div>
+
+        <!-- ====== 模块3：提成方案 ====== -->
+        <div class="biz-ops-panel" id="biz-panel-commission">
+          <div class="biz-ops-commission-wrap">
+            <div class="comm-filter-bar">
+              <div class="comm-filter-item">
+                <label>方案版本</label>
+                <select id="biz-commission-version-filter" onchange="renderBizCommissionPlan()">
+                  <option value="v3">第三版 · 打品驱动型（2026年8月起）</option>
+                  <option value="v2">第二版 · 双轨提成（2026年5-7月）</option>
+                  <option value="v1">第一版 · 奖金激励（2026年1-4月）</option>
+                  <option value="cmp">版本对比</option>
+                </select>
+              </div>
+            </div>
+            <div id="biz-commission-plan-content" style="min-height:400px;"></div>
+          </div>
+        </div>
+
+        <!-- ====== 模块4：目标管理 ====== -->
+        <div class="biz-ops-panel" id="biz-panel-goal">
+          <div class="biz-ops-goal-empty">
+            <div class="empty-icon">🎯</div>
+            <div class="empty-text">目标管理模块</div>
+            <div class="empty-hint">后续补充</div>
+          </div>
         </div>
       </div>
 
@@ -3443,6 +3711,20 @@ function loadBusinessData() {
 // ---------- 路由渲染分发 ----------
 function renderPageByRoute(route) {
   appState.currentRoute = route;
+  // 商务运营模块使用独立数据，不依赖 businessData
+  if (route === 'team-business') {
+    initBizOpsDefaultDates();
+    updateBizOverviewShops();
+    updateBizReviewShops();
+    queryBizOverview();
+    setTimeout(function(){
+      Object.keys(chartInstances).forEach(function(id){
+        var el = document.getElementById(id);
+        if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
+      });
+    }, 80);
+    return;
+  }
   if (!businessData || !businessData.daily_data) return;
   computeDateRange();
   switch (route) {
@@ -4561,6 +4843,534 @@ var talentAssetsData = [];
 var orderDataStore = [];
 var commActiveTab = 'talent-assets';
 var commDataLoaded = false;
+
+// ==================== 商务运营模块 ====================
+var bizOpsActiveTab = 'overview';
+var bizOpsData = {
+  overview: [],  // 运营总览数据
+  review: [],    // 商务复盘数据
+  shops: [],     // 店铺列表
+  followers: []  // 跟进人列表
+};
+
+// 平台与店铺映射（默认值，上传数据后自动更新）
+var platformShopMap = {
+  'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-小轻担食品旗舰店'],
+  'kuaishou': ['快手-鲨鱼菲特方便食品旗舰店'],
+  'weixin': ['微信-鲨鱼菲特甄选零食店']
+};
+
+// 初始化默认日期范围（最近30天）
+function initBizOpsDefaultDates() {
+  var today = new Date();
+  var endDate = today.toISOString().split('T')[0];
+  var startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  var s1 = document.getElementById('biz-overview-start-date');
+  var e1 = document.getElementById('biz-overview-end-date');
+  var s2 = document.getElementById('biz-review-start-date');
+  var e2 = document.getElementById('biz-review-end-date');
+  if (s1) s1.value = startDate;
+  if (e1) e1.value = endDate;
+  if (s2) s2.value = startDate;
+  if (e2) e2.value = endDate;
+}
+
+// Tab切换
+function switchBizOpsTab(tabName) {
+  bizOpsActiveTab = tabName;
+  document.querySelectorAll('.biz-ops-tab-item').forEach(function(t) {
+    t.classList.toggle('active', t.getAttribute('data-biz-tab') === tabName);
+  });
+  document.querySelectorAll('.biz-ops-panel').forEach(function(p) {
+    p.classList.toggle('active', p.id === 'biz-panel-' + tabName);
+  });
+  if (tabName === 'commission') {
+    renderBizCommissionPlan();
+  }
+  setTimeout(function() {
+    Object.keys(chartInstances).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
+    });
+  }, 50);
+}
+
+// ---------- 运营总览 ----------
+
+// 根据平台筛选更新店铺下拉
+function updateBizOverviewShops() {
+  var platform = document.getElementById('biz-overview-platform').value;
+  var shopSelect = document.getElementById('biz-overview-shop');
+  shopSelect.innerHTML = '<option value="all">全部店铺</option>';
+
+  var shops = [];
+  if (platform === 'all') {
+    // 取所有平台的店铺
+    Object.keys(platformShopMap).forEach(function(p) {
+      shops = shops.concat(platformShopMap[p]);
+    });
+  } else {
+    shops = platformShopMap[platform] || [];
+  }
+
+  shops.forEach(function(shop) {
+    var opt = document.createElement('option');
+    opt.value = shop;
+    opt.textContent = shop;
+    shopSelect.appendChild(opt);
+  });
+}
+
+// 根据筛选条件过滤数据
+function filterBizData(data, startDate, endDate, platform, shop) {
+  return data.filter(function(item) {
+    // 日期筛选
+    if (startDate && item.date && item.date < startDate) return false;
+    if (endDate && item.date && item.date > endDate) return false;
+    // 平台筛选
+    if (platform && platform !== 'all' && item.platform !== platform) return false;
+    // 店铺筛选
+    if (shop && shop !== 'all' && item.shop !== shop) return false;
+    return true;
+  });
+}
+
+// 查询运营总览
+function queryBizOverview() {
+  var startDate = document.getElementById('biz-overview-start-date').value;
+  var endDate = document.getElementById('biz-overview-end-date').value;
+  var platform = document.getElementById('biz-overview-platform').value;
+  var shop = document.getElementById('biz-overview-shop').value;
+
+  if (bizOpsData.overview.length === 0) {
+    generateMockBizOverviewData();
+  }
+
+  var filtered = filterBizData(bizOpsData.overview, startDate, endDate, platform, shop);
+  renderBizOverviewKPIs(filtered);
+  renderBizOverviewChart(filtered);
+  renderBizOverviewTable(filtered);
+}
+
+// 生成模拟运营总览数据
+function generateMockBizOverviewData() {
+  var data = [];
+  var platforms = ['douyin', 'kuaishou', 'weixin'];
+  var shopNames = {
+    'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-小轻担食品旗舰店'],
+    'kuaishou': ['快手-鲨鱼菲特方便食品旗舰店'],
+    'weixin': ['微信-鲨鱼菲特甄选零食店']
+  };
+
+  var today = new Date();
+  for (var d = 29; d >= 0; d--) {
+    var date = new Date(today.getTime() - d * 24 * 60 * 60 * 1000);
+    var dateStr = date.toISOString().split('T')[0];
+
+    platforms.forEach(function(pf) {
+      shopNames[pf].forEach(function(shop) {
+        var baseGmv = pf === 'douyin' ? 80000 : (pf === 'kuaishou' ? 50000 : 30000);
+        var gmv = Math.round(baseGmv * (0.8 + Math.random() * 0.6));
+        var orders = Math.round(gmv / (50 + Math.random() * 30));
+        var refund = Math.round(gmv * (0.05 + Math.random() * 0.08));
+
+        data.push({
+          date: dateStr,
+          platform: pf,
+          shop: shop,
+          gmv: gmv,
+          orders: orders,
+          refund: refund,
+          avgPrice: orders > 0 ? Math.round(gmv / orders * 100) / 100 : 0
+        });
+      });
+    });
+  }
+  bizOpsData.overview = data;
+}
+
+// 渲染运营总览KPI
+function renderBizOverviewKPIs(data) {
+  var totalGmv = 0, totalOrders = 0, totalRefund = 0;
+  data.forEach(function(item) {
+    totalGmv += item.gmv;
+    totalOrders += item.orders;
+    totalRefund += item.refund;
+  });
+  var avgPrice = totalOrders > 0 ? Math.round(totalGmv / totalOrders * 100) / 100 : 0;
+
+  document.getElementById('biz-ov-kpi-gmv').textContent = formatMoney(totalGmv);
+  document.getElementById('biz-ov-kpi-gmv-sub').textContent = '共 ' + data.length + ' 条记录';
+  document.getElementById('biz-ov-kpi-orders').textContent = totalOrders.toLocaleString();
+  document.getElementById('biz-ov-kpi-orders-sub').textContent = '订单总数';
+  document.getElementById('biz-ov-kpi-refund').textContent = formatMoney(totalRefund);
+  document.getElementById('biz-ov-kpi-refund-sub').textContent =
+    totalGmv > 0 ? '退款率 ' + (Math.round(totalRefund / totalGmv * 10000) / 100).toFixed(2) + '%' : '';
+  document.getElementById('biz-ov-kpi-avg').textContent = '¥' + avgPrice;
+  document.getElementById('biz-ov-kpi-avg-sub').textContent = '平均客单价';
+}
+
+// 渲染运营总览图表
+function renderBizOverviewChart(data) {
+  // 日度GMV趋势
+  var dateMap = {};
+  data.forEach(function(item) {
+    if (!dateMap[item.date]) dateMap[item.date] = 0;
+    dateMap[item.date] += item.gmv;
+  });
+  var dates = Object.keys(dateMap).sort();
+  var gmvValues = dates.map(function(d) { return dateMap[d]; });
+
+  var trendChart = chartInstances['biz-ov-gmv-trend'];
+  if (trendChart) trendChart.dispose();
+  trendChart = echarts.init(document.getElementById('biz-ov-gmv-trend'));
+  trendChart.setOption({
+    tooltip: { trigger: 'axis', formatter: function(p) { return p[0].name + '<br/>GMV: ¥' + p[0].value.toLocaleString(); } },
+    grid: { left: 60, right: 20, top: 20, bottom: 40 },
+    xAxis: { type: 'category', data: dates, axisLabel: { fontSize: 10, rotate: dates.length > 15 ? 45 : 0 } },
+    yAxis: { type: 'value', axisLabel: { formatter: function(v) { return (v/10000).toFixed(1) + '万'; } } },
+    series: [{
+      type: 'line', data: gmvValues, smooth: true,
+      areaStyle: { color: 'rgba(37,99,235,0.1)' },
+      lineStyle: { color: '#2563eb', width: 2 },
+      itemStyle: { color: '#2563eb' }
+    }]
+  });
+  chartInstances['biz-ov-gmv-trend'] = trendChart;
+
+  // 各店铺GMV占比
+  var shopMap = {};
+  data.forEach(function(item) {
+    if (!shopMap[item.shop]) shopMap[item.shop] = 0;
+    shopMap[item.shop] += item.gmv;
+  });
+  var pieData = Object.keys(shopMap).map(function(s) { return { name: s, value: shopMap[s] }; });
+
+  var pieChart = chartInstances['biz-ov-shop-pie'];
+  if (pieChart) pieChart.dispose();
+  pieChart = echarts.init(document.getElementById('biz-ov-shop-pie'));
+  pieChart.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}<br/>GMV: ¥{c}<br/>占比: {d}%' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
+    series: [{
+      type: 'pie', radius: ['45%', '70%'], center: ['35%', '50%'],
+      data: pieData,
+      label: { show: false }
+    }]
+  });
+  chartInstances['biz-ov-shop-pie'] = pieChart;
+}
+
+// 渲染运营总览表格
+function renderBizOverviewTable(data) {
+  var tableEl = document.getElementById('biz-ov-detail-table');
+  if (!tableEl) return;
+
+  if (data.length === 0) {
+    tableEl.innerHTML = '<div class="table-placeholder">暂无数据</div>';
+    return;
+  }
+
+  // 按日期+店铺汇总
+  var summaryMap = {};
+  data.forEach(function(item) {
+    var key = item.date + '|' + item.shop;
+    if (!summaryMap[key]) {
+      summaryMap[key] = { date: item.date, shop: item.shop, platform: item.platform, gmv: 0, orders: 0, refund: 0 };
+    }
+    summaryMap[key].gmv += item.gmv;
+    summaryMap[key].orders += item.orders;
+    summaryMap[key].refund += item.refund;
+  });
+
+  var rows = Object.values(summaryMap).sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+  var html = buildTable(
+    ['日期', '店铺', 'GMV', '订单数', '退款金额', '客单价', '退款率'],
+    rows.map(function(r) {
+      return [
+        { v: r.date },
+        { v: r.shop },
+        { v: '¥' + r.gmv.toLocaleString() },
+        { v: r.orders.toLocaleString() },
+        { v: '¥' + r.refund.toLocaleString() },
+        { v: '¥' + (r.orders > 0 ? Math.round(r.gmv / r.orders * 100) / 100 : 0) },
+        { v: r.gmv > 0 ? (Math.round(r.refund / r.gmv * 10000) / 100).toFixed(2) + '%' : '0%' }
+      ];
+    })
+  );
+  tableEl.innerHTML = html;
+}
+
+// 导出运营总览表格
+function exportBizOverviewTable() {
+  var startDate = document.getElementById('biz-overview-start-date').value;
+  var endDate = document.getElementById('biz-overview-end-date').value;
+  var platform = document.getElementById('biz-overview-platform').value;
+  var shop = document.getElementById('biz-overview-shop').value;
+  var filtered = filterBizData(bizOpsData.overview, startDate, endDate, platform, shop);
+
+  if (filtered.length === 0) { showToast('暂无数据可导出', 'warning'); return; }
+
+  var csv = '日期,店铺,平台,GMV,订单数,退款金额,客单价,退款率\n';
+  filtered.forEach(function(item) {
+    csv += [item.date, item.shop, item.platform, item.gmv, item.orders, item.refund,
+      item.avgPrice, item.gmv > 0 ? (item.refund / item.gmv * 100).toFixed(2) + '%' : '0%'].join(',') + '\n';
+  });
+  downloadCSV(csv, '运营总览数据.csv');
+}
+
+// ---------- 商务复盘 ----------
+
+// 根据平台更新复盘模块店铺
+function updateBizReviewShops() {
+  var platform = document.getElementById('biz-review-platform').value;
+  var shopSelect = document.getElementById('biz-review-shop');
+  shopSelect.innerHTML = '<option value="all">全部店铺</option>';
+
+  var shops = [];
+  if (platform === 'all') {
+    Object.keys(platformShopMap).forEach(function(p) {
+      shops = shops.concat(platformShopMap[p]);
+    });
+  } else {
+    shops = platformShopMap[platform] || [];
+  }
+
+  shops.forEach(function(shop) {
+    var opt = document.createElement('option');
+    opt.value = shop;
+    opt.textContent = shop;
+    shopSelect.appendChild(opt);
+  });
+}
+
+// 更新跟进人下拉
+function updateBizReviewFollowers() {
+  var followerSelect = document.getElementById('biz-review-follower');
+  if (!followerSelect) return;
+  followerSelect.innerHTML = '<option value="all">全部跟进人</option>';
+  bizOpsData.followers.forEach(function(f) {
+    var opt = document.createElement('option');
+    opt.value = f;
+    opt.textContent = f;
+    followerSelect.appendChild(opt);
+  });
+}
+
+// 查询商务复盘
+function queryBizReview() {
+  var startDate = document.getElementById('biz-review-start-date').value;
+  var endDate = document.getElementById('biz-review-end-date').value;
+  var platform = document.getElementById('biz-review-platform').value;
+  var shop = document.getElementById('biz-review-shop').value;
+  var follower = document.getElementById('biz-review-follower').value;
+
+  if (bizOpsData.review.length === 0) {
+    generateMockBizReviewData();
+    updateBizReviewFollowers();
+  }
+
+  var filtered = filterBizData(bizOpsData.review, startDate, endDate, platform, shop);
+  if (follower && follower !== 'all') {
+    filtered = filtered.filter(function(item) { return item.follower === follower; });
+  }
+
+  renderBizReviewKPIs(filtered);
+  renderBizReviewChart(filtered);
+  renderBizReviewTable(filtered);
+}
+
+// 生成模拟商务复盘数据
+function generateMockBizReviewData() {
+  var data = [];
+  var followers = ['张三', '李四', '王五', '赵六', '陈七'];
+  bizOpsData.followers = followers;
+
+  var platforms = ['douyin', 'kuaishou', 'weixin'];
+  var shopNames = {
+    'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-小轻担食品旗舰店'],
+    'kuaishou': ['快手-鲨鱼菲特方便食品旗舰店'],
+    'weixin': ['微信-鲨鱼菲特甄选零食店']
+  };
+
+  var today = new Date();
+  for (var d = 29; d >= 0; d--) {
+    var date = new Date(today.getTime() - d * 24 * 60 * 60 * 1000);
+    var dateStr = date.toISOString().split('T')[0];
+
+    platforms.forEach(function(pf) {
+      shopNames[pf].forEach(function(shop) {
+        followers.forEach(function(follower) {
+          if (Math.random() > 0.6) return; // 随机分布
+          var baseGmv = pf === 'douyin' ? 20000 : (pf === 'kuaishou' ? 12000 : 8000);
+          var gmv = Math.round(baseGmv * (0.5 + Math.random()));
+          var orders = Math.round(gmv / (50 + Math.random() * 30));
+          var refundRate = 0.05 + Math.random() * 0.1;
+          var refund = Math.round(gmv * refundRate);
+          var profit = Math.round(gmv * (0.2 + Math.random() * 0.15));
+
+          data.push({
+            date: dateStr,
+            platform: pf,
+            shop: shop,
+            follower: follower,
+            gmv: gmv,
+            orders: orders,
+            refund: refund,
+            refundRate: Math.round(refundRate * 10000) / 100,
+            profit: profit
+          });
+        });
+      });
+    });
+  }
+  bizOpsData.review = data;
+}
+
+// 渲染商务复盘KPI
+function renderBizReviewKPIs(data) {
+  var totalGmv = 0, totalOrders = 0, totalRefund = 0, totalProfit = 0;
+  data.forEach(function(item) {
+    totalGmv += item.gmv;
+    totalOrders += item.orders;
+    totalRefund += item.refund;
+    totalProfit += item.profit;
+  });
+  var refundRate = totalGmv > 0 ? Math.round(totalRefund / totalGmv * 10000) / 100 : 0;
+
+  document.getElementById('biz-rv-kpi-gmv').textContent = formatMoney(totalGmv);
+  document.getElementById('biz-rv-kpi-gmv-sub').textContent = '共 ' + data.length + ' 条记录';
+  document.getElementById('biz-rv-kpi-orders').textContent = totalOrders.toLocaleString();
+  document.getElementById('biz-rv-kpi-orders-sub').textContent = '完成订单数';
+  document.getElementById('biz-rv-kpi-refund-rate').textContent = refundRate.toFixed(2) + '%';
+  document.getElementById('biz-rv-kpi-refund-rate-sub').textContent = '整体退款率';
+  document.getElementById('biz-rv-kpi-profit').textContent = formatMoney(totalProfit);
+  document.getElementById('biz-rv-kpi-profit-sub').textContent = '总毛利';
+}
+
+// 渲染商务复盘图表
+function renderBizReviewChart(data) {
+  // 跟进人GMV排名
+  var followerMap = {};
+  data.forEach(function(item) {
+    if (!followerMap[item.follower]) followerMap[item.follower] = 0;
+    followerMap[item.follower] += item.gmv;
+  });
+  var sorted = Object.keys(followerMap).sort(function(a, b) { return followerMap[b] - followerMap[a]; });
+  var followerNames = sorted;
+  var followerGmvs = sorted.map(function(f) { return followerMap[f]; });
+
+  var barChart = chartInstances['biz-rv-follower-chart'];
+  if (barChart) barChart.dispose();
+  barChart = echarts.init(document.getElementById('biz-rv-follower-chart'));
+  barChart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: function(p) { return p[0].name + '<br/>GMV: ¥' + p[0].value.toLocaleString(); } },
+    grid: { left: 80, right: 20, top: 20, bottom: 30 },
+    xAxis: { type: 'value', axisLabel: { formatter: function(v) { return (v/10000).toFixed(1) + '万'; } } },
+    yAxis: { type: 'category', data: followerNames, axisLabel: { fontSize: 11 } },
+    series: [{
+      type: 'bar', data: followerGmvs, barWidth: '50%',
+      itemStyle: { color: function(params) {
+        var colors = ['#2563eb', '#059669', '#ea580c', '#6d28d9', '#db2777'];
+        return colors[params.dataIndex % colors.length];
+      }, borderRadius: [0, 4, 4, 0] }
+    }]
+  });
+  chartInstances['biz-rv-follower-chart'] = barChart;
+
+  // 各平台GMV对比
+  var platformMap = {};
+  data.forEach(function(item) {
+    if (!platformMap[item.platform]) platformMap[item.platform] = 0;
+    platformMap[item.platform] += item.gmv;
+  });
+  var platformLabels = { 'douyin': '抖音', 'kuaishou': '快手', 'weixin': '微信' };
+  var platData = Object.keys(platformMap).map(function(p) {
+    return { name: platformLabels[p] || p, value: platformMap[p] };
+  });
+
+  var pieChart = chartInstances['biz-rv-platform-chart'];
+  if (pieChart) pieChart.dispose();
+  pieChart = echarts.init(document.getElementById('biz-rv-platform-chart'));
+  pieChart.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}<br/>GMV: ¥{c}<br/>占比: {d}%' },
+    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
+    series: [{
+      type: 'pie', radius: ['45%', '70%'], center: ['35%', '50%'],
+      data: platData,
+      label: { show: false }
+    }]
+  });
+  chartInstances['biz-rv-platform-chart'] = pieChart;
+}
+
+// 渲染商务复盘表格
+function renderBizReviewTable(data) {
+  var tableEl = document.getElementById('biz-rv-detail-table');
+  if (!tableEl) return;
+
+  if (data.length === 0) {
+    tableEl.innerHTML = '<div class="table-placeholder">暂无数据</div>';
+    return;
+  }
+
+  var rows = data.sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+  var html = buildTable(
+    ['日期', '店铺', '跟进人', 'GMV', '订单数', '退款率', '毛利'],
+    rows.map(function(r) {
+      return [
+        { v: r.date },
+        { v: r.shop },
+        { v: r.follower },
+        { v: '¥' + r.gmv.toLocaleString() },
+        { v: r.orders.toLocaleString() },
+        { v: r.refundRate.toFixed(2) + '%' },
+        { v: '¥' + r.profit.toLocaleString() }
+      ];
+    })
+  );
+  tableEl.innerHTML = html;
+}
+
+// 导出商务复盘表格
+function exportBizReviewTable() {
+  var startDate = document.getElementById('biz-review-start-date').value;
+  var endDate = document.getElementById('biz-review-end-date').value;
+  var platform = document.getElementById('biz-review-platform').value;
+  var shop = document.getElementById('biz-review-shop').value;
+  var follower = document.getElementById('biz-review-follower').value;
+
+  var filtered = filterBizData(bizOpsData.review, startDate, endDate, platform, shop);
+  if (follower && follower !== 'all') {
+    filtered = filtered.filter(function(item) { return item.follower === follower; });
+  }
+
+  if (filtered.length === 0) { showToast('暂无数据可导出', 'warning'); return; }
+
+  var csv = '日期,店铺,平台,跟进人,GMV,订单数,退款金额,退款率,毛利\n';
+  filtered.forEach(function(item) {
+    csv += [item.date, item.shop, item.platform, item.follower,
+      item.gmv, item.orders, item.refund, item.refundRate + '%', item.profit].join(',') + '\n';
+  });
+  downloadCSV(csv, '商务复盘数据.csv');
+}
+
+// ---------- 提成方案 ----------
+function renderBizCommissionPlan() {
+  var el = document.getElementById('biz-commission-plan-content');
+  if (!el) return;
+  var version = (document.getElementById('biz-commission-version-filter') || {}).value || 'v3';
+  var html = '';
+  if (version === 'v3') html = commPlanV3HTML();
+  else if (version === 'v2') html = commPlanV2HTML();
+  else if (version === 'v1') html = commPlanV1HTML();
+  else html = commPlanCompareHTML();
+  el.innerHTML = html;
+}
 
 // ---------- Tab切换逻辑 ----------
 function switchCommTab(tabName) {
