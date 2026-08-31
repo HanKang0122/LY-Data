@@ -2923,7 +2923,7 @@ body {
 
       <!-- 新建/编辑角色弹窗 -->
       <div class="modal-overlay" id="roleModal" style="display:none;">
-        <div class="modal-box" style="max-width:520px;">
+        <div class="modal-box" style="max-width:780px;">
           <div class="modal-header">
             <span class="modal-title" id="roleModalTitle">新建角色</span>
             <button class="modal-close" onclick="closeRoleModal()">✕</button>
@@ -2932,7 +2932,11 @@ body {
             <div class="form-row"><label>角色名称</label><input type="text" id="roleModalName" placeholder="请输入角色名称（如：运营经理）"></div>
             <div class="form-row" style="align-items:flex-start;">
               <label>可访问菜单</label>
-              <div id="roleModalMenus" style="flex:1;max-height:400px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
+              <div id="roleModalMenus" style="flex:1;max-height:480px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
+            </div>
+            <div class="form-row" style="align-items:flex-start;margin-top:12px;">
+              <label>功能权限</label>
+              <div id="roleModalFeatures" style="flex:1;border:1px solid #eee;border-radius:6px;padding:12px;"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -4033,7 +4037,7 @@ function renderPermissionPage() {
   setKpi('perm-kpi-disabled', disabledCount);
 
   // 角色权限表
-  var roleCols = ['角色名称','可访问菜单数','可访问菜单','账号数','操作'];
+  var roleCols = ['角色名称','可访问菜单数','可访问菜单','功能权限','账号数','操作'];
   var roleRows = roleKeys.map(function(roleKey) {
     var rc = ROLE_CONFIG[roleKey];
     var menuTexts = rc.menus.filter(function(m){ return m.indexOf(':') === -1; }).map(function(m){
@@ -4047,6 +4051,13 @@ function renderPermissionPage() {
       }
       return label;
     }).join('、');
+    // 功能权限摘要
+    var features = rc.features || (rc.fixed ? FEATURE_PERMISSIONS.map(function(f){ return f.key; }) : []);
+    var featureTexts = features.map(function(fk) {
+      var found = FEATURE_PERMISSIONS.filter(function(f){ return f.key === fk; });
+      return found.length > 0 ? found[0].label : fk;
+    }).join('、');
+    if (!featureTexts) featureTexts = '—';
     var userCount = users.filter(function(u){ return u.role === roleKey; }).length;
     var actions = '';
     if (rc.fixed) {
@@ -4059,6 +4070,7 @@ function renderPermissionPage() {
       {v: rc.text},
       {v: rc.menus.length + '个'},
       {v: menuTexts},
+      {v: featureTexts},
       {v: userCount + '人'},
       {v: actions}
     ];
@@ -4093,11 +4105,23 @@ function renderPermissionPage() {
 // ==================== 角色管理（新建/编辑/删除） ====================
 var editingRoleKey = null;
 
+// 功能权限定义
+var FEATURE_PERMISSIONS = [
+  { key: 'goal:mapping', label: '商品名称映射表（上传/查看）', group: '目标管理' },
+  { key: 'goal:add', label: '添加商品', group: '目标管理' },
+  { key: 'goal:confirm', label: '确认商品行', group: '目标管理' },
+  { key: 'goal:edit', label: '修改商品行', group: '目标管理' },
+  { key: 'goal:delete', label: '删除商品行', group: '目标管理' },
+  { key: 'goal:split', label: '目标拆分', group: '目标管理' },
+  { key: 'goal:submit', label: '确认提交/修改', group: '目标管理' }
+];
+
 function showAddRoleModal() {
   editingRoleKey = null;
   document.getElementById('roleModalTitle').textContent = '新建角色';
   document.getElementById('roleModalName').value = '';
   renderRoleMenuCheckboxes([]);
+  renderRoleFeatureCheckboxes([]);
   document.getElementById('roleModal').style.display = 'flex';
 }
 
@@ -4108,6 +4132,7 @@ function showEditRoleModal(roleKey) {
   document.getElementById('roleModalTitle').textContent = '编辑角色';
   document.getElementById('roleModalName').value = rc.text;
   renderRoleMenuCheckboxes(rc.menus);
+  renderRoleFeatureCheckboxes(rc.features || []);
   document.getElementById('roleModal').style.display = 'flex';
 }
 
@@ -4149,6 +4174,30 @@ function renderRoleMenuCheckboxes(selectedMenus) {
   container.innerHTML = html;
 }
 
+// 渲染功能权限复选框
+function renderRoleFeatureCheckboxes(selectedFeatures) {
+  var container = document.getElementById('roleModalFeatures');
+  if (!container) return;
+  var html = '';
+  var groups = {};
+  FEATURE_PERMISSIONS.forEach(function(f) {
+    if (!groups[f.group]) groups[f.group] = [];
+    groups[f.group].push(f);
+  });
+  Object.keys(groups).forEach(function(g) {
+    html += '<div style="margin-bottom:8px;"><div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;">' + g + '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px 12px;margin-left:8px;">';
+    groups[g].forEach(function(f) {
+      var checked = selectedFeatures.indexOf(f.key) !== -1 ? ' checked' : '';
+      html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:#555;">';
+      html += '<input type="checkbox" value="' + f.key + '"' + checked + ' style="width:14px;height:14px;" class="feature-cb">';
+      html += '<span>' + f.label + '</span></label>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
 // 一级菜单全选/取消全选二级菜单
 function onParentMenuToggle(checkbox, parentKey) {
   var container = document.getElementById('roleModalMenus');
@@ -4175,6 +4224,12 @@ function saveRole() {
   var checked = document.querySelectorAll('#roleModalMenus input[type=checkbox]:checked');
   var menus = [];
   checked.forEach(function(cb) { menus.push(cb.value); });
+
+  // 收集选中的功能权限
+  var featureCbs = document.querySelectorAll('#roleModalFeatures input[type=checkbox]:checked');
+  var features = [];
+  featureCbs.forEach(function(cb) { features.push(cb.value); });
+
   if (menus.length === 0) {
     if (!confirm('未选择任何菜单，该角色将无法访问任何页面。确定要保存吗？')) return;
   }
@@ -4182,11 +4237,12 @@ function saveRole() {
   if (editingRoleKey === null) {
     // 新建角色
     var roleKey = 'role_' + Date.now();
-    ROLE_CONFIG[roleKey] = { text: name, menus: menus, fixed: false };
+    ROLE_CONFIG[roleKey] = { text: name, menus: menus, features: features, fixed: false };
   } else {
     // 编辑角色
     ROLE_CONFIG[editingRoleKey].text = name;
     ROLE_CONFIG[editingRoleKey].menus = menus;
+    ROLE_CONFIG[editingRoleKey].features = features;
   }
 
   saveCustomRolesToGitHub();
@@ -5688,11 +5744,47 @@ function saveGoalToStorage() {
 function loadGoalFromStorage() {
   try {
     var raw = localStorage.getItem(GOAL_STORAGE_KEY);
-    if (!raw) return false;
-    var saved = JSON.parse(raw);
-    if (saved.periodData) goalData.periodData = saved.periodData;
-    if (saved.specialists) goalData.specialists = saved.specialists;
-    if (saved.mappingTable) goalData.mappingTable = saved.mappingTable;
+    if (raw) {
+      var saved = JSON.parse(raw);
+      if (saved.periodData) goalData.periodData = saved.periodData;
+      if (saved.specialists) goalData.specialists = saved.specialists;
+      if (saved.mappingTable) goalData.mappingTable = saved.mappingTable;
+    }
+    // 如果没有2026-8月的数据，恢复预设的8月目标数据
+    var augKey = '2026-8';
+    if (!goalData.periodData[augKey]) {
+      goalData.periodData[augKey] = {
+        rows: [
+          {
+            name: '鲨鱼菲特去皮鸭腿110g',
+            position: '爆款品',
+            target: '5000000',
+            confirmed: true,
+            splitConfirmed: true,
+            splits: [
+              { specialist: '唐红伟', target: '1000000' },
+              { specialist: '姜梦萍', target: '2000000' },
+              { specialist: '姜子豪', target: '1500000' },
+              { specialist: '贾晶晶', target: '200000' },
+              { specialist: '陶慧', target: '300000' }
+            ]
+          },
+          {
+            name: '每日杂粮包700g',
+            position: '常规品',
+            target: '200000',
+            confirmed: true,
+            splitConfirmed: true,
+            splits: [
+              { specialist: '姜子豪', target: '100000' },
+              { specialist: '陶慧', target: '100000' }
+            ]
+          }
+        ],
+        locked: false
+      };
+      saveGoalToStorage();
+    }
     return true;
   } catch(e) {
     console.warn('目标数据加载失败:', e);
