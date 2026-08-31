@@ -788,7 +788,7 @@ body {
 .goal-table input:focus, .goal-table select:focus {
   border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
 }
-.goal-table .col-action { white-space: nowrap; text-align: center; width: 150px; }
+.goal-table .col-action { white-space: nowrap; text-align: center; width: 220px; }
 .goal-table .col-num { width: 25%; }
 .goal-table .col-position { width: 25%; }
 .goal-table .col-name { width: 25%; }
@@ -868,6 +868,20 @@ body {
 }
 .goal-result-table .row-total { background: #f0f7ff; font-weight: 600; color: #1e40af; }
 .goal-result-table .col-total { background: #f0f7ff; font-weight: 700; color: #1e40af; }
+.goal-result-table .group-odd { background: #f8fafc; }
+.goal-result-table .group-even { background: #eff6ff; }
+.goal-result-table .group-border-top { border-top: 2px solid #2563eb; }
+.goal-result-table .specialist-cell { font-weight: 700; font-size: 14px; color: #1e40af; text-align: center; vertical-align: middle; }
+.goal-result-table .total-cell { font-weight: 700; color: #b45309; text-align: center; vertical-align: middle; font-size: 14px; }
+.goal-result-filter {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb; background: #f8fafc;
+}
+.goal-result-filter label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.goal-result-filter select {
+  padding: 5px 10px; border: 1px solid #e5e7eb; border-radius: 4px;
+  font-size: 13px; outline: none; min-width: 120px;
+}
 
 /* 提成方案卡片 */
 .comm-card {
@@ -2272,8 +2286,6 @@ body {
               <span class="goal-team-label">团队目标</span>
               <span class="goal-team-value" id="goal-team-total">0</span>
               <span class="goal-team-unit">元</span>
-              <div style="flex:1"></div>
-              <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="unlockGoalMonth()">修改</button>
             </div>
 
             <!-- 商品目标录入表 -->
@@ -2302,6 +2314,12 @@ body {
             <div class="goal-result-wrap" id="goal-result-wrap" style="display:none">
               <div class="goal-result-header">
                 <span>📋 目标拆分结果</span>
+              </div>
+              <div class="goal-result-filter">
+                <label>筛选商务专员</label>
+                <select id="goal-specialist-filter" onchange="renderGoalResults()">
+                  <option value="">全部商务专员</option>
+                </select>
               </div>
               <div style="overflow-x:auto">
                 <table class="goal-result-table" id="goal-result-table"></table>
@@ -5710,9 +5728,10 @@ function renderGoalTable() {
       actions = '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="confirmGoalRow(' + i + ')">确认</button> '
         + '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')">删除</button>';
     } else {
-      var splitDisabled = isLocked ? 'disabled style="opacity:0.5"' : '';
-      actions = '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="openGoalSplitDialog(' + i + ')" ' + splitDisabled + '>拆分</button> '
-        + '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')" ' + splitDisabled + '>删除</button>';
+      var editDisabled = isLocked ? 'disabled style="opacity:0.5"' : '';
+      actions = '<button class="goal-btn goal-btn-primary goal-btn-sm" onclick="openGoalSplitDialog(' + i + ')" ' + editDisabled + '>拆分</button> '
+        + '<button class="goal-btn goal-btn-outline goal-btn-sm" onclick="editGoalRow(' + i + ')" ' + editDisabled + '>修改</button> '
+        + '<button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalRow(' + i + ')" ' + editDisabled + '>删除</button>';
     }
     html += '<tr class="' + rowClass + '">'
       + '<td class="col-name"><input type="text" value="' + escapeHtml(row.name || '') + '" placeholder="输入商品标准名称" onchange="updateGoalRow(' + i + ',\'name\',this.value)"' + (row.confirmed ? ' disabled' : '') + '></td>'
@@ -5795,6 +5814,18 @@ function confirmGoalRow(index) {
   row.confirmed = true;
   showToast('商品「' + row.name + '」已确认，可进行拆分', 'success');
   renderGoalTable();
+}
+
+// 单行修改（取消确认，重新编辑）
+function editGoalRow(index) {
+  var row = goalData.rows[index];
+  if (!row) return;
+  row.confirmed = false;
+  row.splitConfirmed = false;
+  row.splits = [];
+  showToast('已解锁「' + row.name + '」可重新编辑', 'info');
+  renderGoalTable();
+  renderGoalResults();
 }
 
 // 确认提交（锁定当月目标）
@@ -5970,7 +6001,8 @@ function renderGoalResults() {
     return;
   }
   wrap.style.display = 'block';
-  // 收集所有出现的商务专员
+
+  // 收集所有商务专员
   var allSpecialists = [];
   confirmedRows.forEach(function(r) {
     r.splits.forEach(function(s) {
@@ -5979,12 +6011,33 @@ function renderGoalResults() {
   });
   allSpecialists.sort();
 
-  // 构建表头：商务专员 | 商品标准名称 | 商品定位 | 商品实销目标 | 合计
-  var html = '<thead><tr><th>商务专员</th><th>商品标准名称</th><th>商品定位</th><th>商品实销目标</th><th>合计</th></tr></thead><tbody>';
+  // 更新筛选下拉
+  var filterEl = document.getElementById('goal-specialist-filter');
+  if (filterEl) {
+    var currentFilter = filterEl.value;
+    var filterHtml = '<option value="">全部商务专员</option>';
+    allSpecialists.forEach(function(sp) {
+      filterHtml += '<option value="' + sp + '"' + (currentFilter === sp ? ' selected' : '') + '>' + sp + '</option>';
+    });
+    filterEl.innerHTML = filterHtml;
+  }
+  var selectedFilter = filterEl ? filterEl.value : '';
 
-  // 每个商务专员一块，展示其所有商品目标明细
+  // 按筛选条件过滤专员
+  var displaySpecialists = selectedFilter ? [selectedFilter] : allSpecialists;
+
+  // 构建表头
+  var html = '<thead><tr>'
+    + '<th style="width:15%">商务专员</th>'
+    + '<th style="width:30%">商品标准名称</th>'
+    + '<th style="width:15%">商品定位</th>'
+    + '<th style="width:20%">商品实销目标</th>'
+    + '<th style="width:20%">合计</th>'
+    + '</tr></thead><tbody>';
+
   var grandTotal = 0;
-  allSpecialists.forEach(function(sp) {
+
+  displaySpecialists.forEach(function(sp, spIdx) {
     var specialistTotal = 0;
     var specialistRows = [];
     confirmedRows.forEach(function(r) {
@@ -5996,19 +6049,33 @@ function renderGoalResults() {
         specialistTotal += val;
       }
     });
-    specialistRows.forEach(function(sr, idx) {
-      var specialistClass = idx === 0 ? 'style="font-weight:600;color:#1e40af"' : '';
-      var totalCell = idx === specialistRows.length - 1
-        ? '<td class="row-total">' + specialistTotal.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>'
-        : '<td></td>';
-      html += '<tr>'
-        + '<td ' + specialistClass + '>' + (idx === 0 ? sp : '') + '</td>'
-        + '<td>' + escapeHtml(sr.name) + '</td>'
-        + '<td>' + escapeHtml(sr.position || '') + '</td>'
-        + '<td>' + sr.target.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>'
-        + totalCell
-        + '</tr>';
+
+    if (specialistRows.length === 0) return;
+
+    var groupClass = spIdx % 2 === 0 ? 'group-odd' : 'group-even';
+    var rowspan = specialistRows.length;
+    var borderClass = spIdx > 0 ? 'group-border-top' : '';
+
+    specialistRows.forEach(function(sr, rowIdx) {
+      html += '<tr class="' + groupClass + ' ' + (rowIdx === 0 && spIdx > 0 ? borderClass : '') + '">';
+
+      // 商务专员列 - rowspan合并
+      if (rowIdx === 0) {
+        html += '<td class="specialist-cell" rowspan="' + rowspan + '">' + sp + '</td>';
+      }
+
+      html += '<td>' + escapeHtml(sr.name) + '</td>';
+      html += '<td>' + escapeHtml(sr.position || '') + '</td>';
+      html += '<td style="text-align:right">' + sr.target.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>';
+
+      // 合计列 - rowspan合并
+      if (rowIdx === 0) {
+        html += '<td class="total-cell" rowspan="' + rowspan + '">' + specialistTotal.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>';
+      }
+
+      html += '</tr>';
     });
+
     grandTotal += specialistTotal;
   });
 
