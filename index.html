@@ -2270,10 +2270,10 @@ body {
             <!-- 团队目标汇总行 -->
             <div class="goal-team-row">
               <span class="goal-team-label">团队目标</span>
-              <span style="font-size:12px;color:var(--text-secondary)">团队所有商品的总实销金额值</span>
-              <div style="flex:1"></div>
               <span class="goal-team-value" id="goal-team-total">0</span>
               <span class="goal-team-unit">元</span>
+              <div style="flex:1"></div>
+              <button class="goal-btn goal-btn-outline goal-btn-sm" onclick="unlockGoalMonth()">修改</button>
             </div>
 
             <!-- 商品目标录入表 -->
@@ -5643,7 +5643,7 @@ function renderBizCommissionPlan() {
 var goalData = {
   rows: [],           // 商品目标行数据 {name, position, target, confirmed, splits: []}
   specialists: ['章子康', '姜梦萍', '唐红伟', '陶慧', '贾晶晶'],
-  positions: ['常规', '主推', '上新', '引流', '清仓', '利润款', '战略款'],
+  positions: ['新发品', '爆款品', '常规品'],
   currentPeriod: { year: '2026', month: 1 }, // 当前选中的周期
   periodData: {},     // 按月存储数据 { '2026-1': { rows: [], locked: false } }
   currentSplitIndex: -1,
@@ -5970,6 +5970,7 @@ function renderGoalResults() {
     return;
   }
   wrap.style.display = 'block';
+  // 收集所有出现的商务专员
   var allSpecialists = [];
   confirmedRows.forEach(function(r) {
     r.splits.forEach(function(s) {
@@ -5977,31 +5978,43 @@ function renderGoalResults() {
     });
   });
   allSpecialists.sort();
-  var html = '<thead><tr><th>商品标准名称</th><th>商品定位</th><th>商品实销目标</th>';
-  allSpecialists.forEach(function(sp) {
-    html += '<th>' + sp + '</th>';
-  });
-  html += '</tr></thead><tbody>';
-  var colTotals = {};
-  allSpecialists.forEach(function(sp) { colTotals[sp] = 0; });
+
+  // 构建表头：商务专员 | 商品标准名称 | 商品定位 | 商品实销目标 | 合计
+  var html = '<thead><tr><th>商务专员</th><th>商品标准名称</th><th>商品定位</th><th>商品实销目标</th><th>合计</th></tr></thead><tbody>';
+
+  // 每个商务专员一块，展示其所有商品目标明细
   var grandTotal = 0;
-  confirmedRows.forEach(function(r) {
-    html += '<tr><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.position || '') + '</td><td>' + parseFloat(r.target).toLocaleString('zh-CN') + '</td>';
-    allSpecialists.forEach(function(sp) {
+  allSpecialists.forEach(function(sp) {
+    var specialistTotal = 0;
+    var specialistRows = [];
+    confirmedRows.forEach(function(r) {
       var found = r.splits.filter(function(s) { return s.specialist === sp; });
       var val = 0;
       found.forEach(function(f) { val += parseFloat(f.target) || 0; });
-      colTotals[sp] += val;
-      html += '<td>' + (val > 0 ? val.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) : '—') + '</td>';
+      if (val > 0) {
+        specialistRows.push({ name: r.name, position: r.position, target: val });
+        specialistTotal += val;
+      }
     });
-    grandTotal += parseFloat(r.target) || 0;
-    html += '</tr>';
+    specialistRows.forEach(function(sr, idx) {
+      var specialistClass = idx === 0 ? 'style="font-weight:600;color:#1e40af"' : '';
+      var totalCell = idx === specialistRows.length - 1
+        ? '<td class="row-total">' + specialistTotal.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>'
+        : '<td></td>';
+      html += '<tr>'
+        + '<td ' + specialistClass + '>' + (idx === 0 ? sp : '') + '</td>'
+        + '<td>' + escapeHtml(sr.name) + '</td>'
+        + '<td>' + escapeHtml(sr.position || '') + '</td>'
+        + '<td>' + sr.target.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>'
+        + totalCell
+        + '</tr>';
+    });
+    grandTotal += specialistTotal;
   });
-  html += '<tr class="row-total"><td>合计</td><td></td><td>' + grandTotal.toLocaleString('zh-CN') + '</td>';
-  allSpecialists.forEach(function(sp) {
-    html += '<td class="col-total">' + colTotals[sp].toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td>';
-  });
-  html += '</tr></tbody>';
+
+  // 合计行
+  html += '<tr class="row-total"><td colspan="4">合计</td><td class="col-total">' + grandTotal.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + '</td></tr>';
+  html += '</tbody>';
   tableEl.innerHTML = html;
 }
 
