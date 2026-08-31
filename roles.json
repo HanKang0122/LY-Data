@@ -43,5 +43,18 @@
       "product-strategy:promotion",
       "product-strategy:review"
     ]
+  },
+  {
+    "key": "role_1788156527001",
+    "text": "商务组长",
+    "menus": [
+      "team-business",
+      "team-business:overview",
+      "team-business:review",
+      "team-business:commission",
+      "team-business:goal",
+      "team-function:product-support",
+      "team-function:qc-support"
+    ]
   }
 ]
