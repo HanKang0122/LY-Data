@@ -52,6 +52,7 @@
       "team-business:overview",
       "team-business:review",
       "team-business:commission",
+      "team-business:goal",
       "team-function:product-support",
       "team-function:qc-support"
     ]
