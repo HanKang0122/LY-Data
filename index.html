@@ -3512,6 +3512,10 @@ function navigateTo(route) {
   // 滚动到顶部
   document.getElementById('mainContent').scrollTop = 0;
 
+  // 持久化当前路由
+  appState.currentRoute = route;
+  persistAppStateLocal();
+
   // 路由切换后触发对应页面的图表渲染
   if (typeof renderPageByRoute === 'function') {
     setTimeout(function() { renderPageByRoute(route); }, 50);
@@ -3592,6 +3596,7 @@ document.querySelectorAll('.tab-bar').forEach(function(bar) {
       var bizTab = tab.getAttribute('data-biz-tab');
       if (bizTab) {
         appState.bizTab = bizTab;
+        persistAppStateLocal();
         var shopCards = document.getElementById('bizShopCards');
         var kpiGrid = document.getElementById('bizKpiGrid');
         var trendChart = document.getElementById('biz-trend-chart').closest('.chart-card');
@@ -3870,6 +3875,7 @@ function computeDateRange() {
 }
 function onGlobalFilterChange() {
   readGlobalFilters();
+  persistAppStateLocal();
   if (appState.timeRange === 'custom') {
     var def = (appState.startDate || getMinDate()) + ' ~ ' + (appState.endDate || getMaxDate());
     var r = prompt('请输入自定义日期范围，格式：YYYY-MM-DD ~ YYYY-MM-DD', def);
@@ -4426,7 +4432,7 @@ function showSyncToast(msg) {
   setTimeout(function() { toast.style.opacity = '0'; }, 2500);
 }
 
-function setHomeTrendGran(g) { appState.homeTrendGran = g; renderHomeGmvTrend(); }
+function setHomeTrendGran(g) { appState.homeTrendGran = g; renderHomeGmvTrend(); persistAppStateLocal(); }
 function exportCurrentTable() {
   var route = appState.currentRoute;
   var id;
@@ -4582,6 +4588,7 @@ function onBizFilterChange() {
   }
 
   renderBusinessData();
+  persistAppStateLocal();
 }
 
 function computeBizDateRange() {
@@ -5244,10 +5251,10 @@ function switchBizOpsTab(tabName) {
       if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
     });
   }, 50);
+  persistAppStateLocal();
 }
 
 // ---------- 运营总览 ----------
-
 // 根据平台筛选更新店铺下拉
 function updateBizOverviewShops() {
   var platform = document.getElementById('biz-overview-platform').value;
@@ -5338,6 +5345,7 @@ function generateMockBizOverviewData() {
     });
   }
   bizOpsData.overview = data;
+  persistAppStateLocal();
 }
 
 // 渲染运营总览KPI
@@ -5577,6 +5585,7 @@ function generateMockBizReviewData() {
     });
   }
   bizOpsData.review = data;
+  persistAppStateLocal();
 }
 
 // 渲染商务复盘KPI
@@ -5740,37 +5749,68 @@ var APP_STATE_KEY = 'ly_app_state'; // 全局应用状态存储key
 // 保存所有应用状态到localStorage（即时本地备份）
 function persistAppState() {
   try {
-    var state = {
-      // 自定义角色（不含admin）
-      customRoles: [],
-      // 用户列表
-      users: usersCache ? JSON.parse(JSON.stringify(usersCache)) : [],
-      // 目标管理数据
-      goalData: {
-        periodData: goalData.periodData,
-        specialists: goalData.specialists,
-        mappingTable: goalData.mappingTable
-      },
-      // 保存时间戳
-      savedAt: new Date().toISOString()
-    };
-    // 收集自定义角色
-    Object.keys(ROLE_CONFIG).forEach(function(key) {
-      if (key !== 'admin') {
-        state.customRoles.push({
-          key: key,
-          text: ROLE_CONFIG[key].text,
-          menus: ROLE_CONFIG[key].menus,
-          features: ROLE_CONFIG[key].features || []
-        });
-      }
-    });
+    var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
-    // 显示自动保存提示（轻量级，不打扰用户）
     showAutoSaveIndicator();
   } catch(e) {
     console.warn('[持久化] 应用状态保存失败:', e);
   }
+}
+
+// 构建持久化状态对象（包含所有模块数据）
+function buildPersistState() {
+  var state = {
+    // --- 用户与角色模块 ---
+    customRoles: [],
+    users: usersCache ? JSON.parse(JSON.stringify(usersCache)) : [],
+    editingUserId: editingUserId,
+    editingRoleKey: editingRoleKey,
+    // --- 首页/经营数据模块 ---
+    appState: JSON.parse(JSON.stringify(appState)),
+    bizState: JSON.parse(JSON.stringify(bizState)),
+    // --- 商务运营模块 ---
+    bizOpsData: JSON.parse(JSON.stringify(bizOpsData)),
+    bizOpsActiveTab: bizOpsActiveTab,
+    platformShopMap: JSON.parse(JSON.stringify(platformShopMap)),
+    // --- 商务数据模块 ---
+    commActiveTab: commActiveTab,
+    commDataLoaded: commDataLoaded,
+    talentAssetsData: JSON.parse(JSON.stringify(talentAssetsData)),
+    orderDataStore: JSON.parse(JSON.stringify(orderDataStore)),
+    // --- 目标管理模块 ---
+    goalData: {
+      periodData: goalData.periodData,
+      specialists: goalData.specialists,
+      mappingTable: goalData.mappingTable,
+      currentPeriod: goalData.currentPeriod,
+      currentSplitIndex: goalData.currentSplitIndex
+    },
+    // --- 新品策航模块 ---
+    psActivePanel: psActivePanel,
+    strategyProducts: JSON.parse(JSON.stringify(strategyProducts)),
+    // --- 产品支持/知识库模块 ---
+    kbActiveTab: kbActiveTab,
+    kbActiveCategory: kbActiveCategory,
+    kbExpandedCats: JSON.parse(JSON.stringify(kbExpandedCats)),
+    kbProducts: JSON.parse(JSON.stringify(kbProducts)),
+    kbQcIssues: JSON.parse(JSON.stringify(kbQcIssues)),
+    // --- 质控支持模块 ---
+    qcOptionData: JSON.parse(JSON.stringify(qcOptionData)),
+    // --- 保存时间戳 ---
+    savedAt: new Date().toISOString()
+  };
+  // 收集自定义角色
+  Object.keys(ROLE_CONFIG).forEach(function(key) {
+    if (key !== 'admin') {
+      state.customRoles.push({
+        key: key,
+        text: ROLE_CONFIG[key].text,
+        menus: ROLE_CONFIG[key].menus,
+        features: ROLE_CONFIG[key].features || []
+      });
+    }
+  });
+  return state;
 }
 
 // 从localStorage恢复所有应用状态
@@ -5798,12 +5838,69 @@ function loadAppState() {
       usersCache = state.users;
       console.log('[持久化] 恢复 ' + state.users.length + ' 个用户账号');
     }
+    // 恢复首页/经营数据状态
+    if (state.appState) {
+      Object.keys(state.appState).forEach(function(k) { appState[k] = state.appState[k]; });
+      console.log('[持久化] 恢复首页/经营数据状态');
+    }
+    if (state.bizState) {
+      Object.keys(state.bizState).forEach(function(k) { bizState[k] = state.bizState[k]; });
+      console.log('[持久化] 恢复经营数据筛选状态');
+    }
+    // 恢复商务运营模块数据
+    if (state.bizOpsData) {
+      bizOpsData.overview = state.bizOpsData.overview || [];
+      bizOpsData.review = state.bizOpsData.review || [];
+      bizOpsData.shops = state.bizOpsData.shops || [];
+      bizOpsData.followers = state.bizOpsData.followers || [];
+      console.log('[持久化] 恢复商务运营数据 (' + bizOpsData.overview.length + '条总览, ' + bizOpsData.review.length + '条复盘)');
+    }
+    if (state.bizOpsActiveTab) bizOpsActiveTab = state.bizOpsActiveTab;
+    if (state.platformShopMap) {
+      Object.keys(state.platformShopMap).forEach(function(k) { platformShopMap[k] = state.platformShopMap[k]; });
+      console.log('[持久化] 恢复平台店铺映射');
+    }
+    // 恢复商务数据模块
+    if (state.commActiveTab) commActiveTab = state.commActiveTab;
+    if (typeof state.commDataLoaded !== 'undefined') commDataLoaded = state.commDataLoaded;
+    if (state.talentAssetsData) talentAssetsData = state.talentAssetsData;
+    if (state.orderDataStore) orderDataStore = state.orderDataStore;
+    if (state.talentAssetsData || state.orderDataStore) console.log('[持久化] 恢复商务数据模块');
     // 恢复目标管理数据
     if (state.goalData) {
       if (state.goalData.periodData) goalData.periodData = state.goalData.periodData;
       if (state.goalData.specialists) goalData.specialists = state.goalData.specialists;
       if (state.goalData.mappingTable) goalData.mappingTable = state.goalData.mappingTable;
+      if (state.goalData.currentPeriod) goalData.currentPeriod = state.goalData.currentPeriod;
+      if (typeof state.goalData.currentSplitIndex !== 'undefined') goalData.currentSplitIndex = state.goalData.currentSplitIndex;
       console.log('[持久化] 恢复目标管理数据');
+    }
+    // 恢复新品策航模块
+    if (state.psActivePanel) psActivePanel = state.psActivePanel;
+    if (state.strategyProducts && state.strategyProducts.length > 0) {
+      strategyProducts = state.strategyProducts;
+      console.log('[持久化] 恢复新品策航数据 (' + strategyProducts.length + '条产品)');
+    }
+    // 恢复产品支持/知识库模块
+    if (state.kbActiveTab) kbActiveTab = state.kbActiveTab;
+    if (state.kbActiveCategory) kbActiveCategory = state.kbActiveCategory;
+    if (state.kbExpandedCats) kbExpandedCats = state.kbExpandedCats;
+    if (state.kbProducts && state.kbProducts.length > 0) {
+      kbProducts = state.kbProducts;
+      console.log('[持久化] 恢复产品资料数据 (' + kbProducts.length + '条)');
+    }
+    if (state.kbQcIssues) {
+      kbQcIssues = state.kbQcIssues;
+      console.log('[持久化] 恢复品控问题数据 (' + kbQcIssues.length + '条)');
+    }
+    // 恢复质控支持模块
+    if (state.qcOptionData) {
+      qcOptionData.products = state.qcOptionData.products || [];
+      qcOptionData.types = state.qcOptionData.types && state.qcOptionData.types.length > 0 ? state.qcOptionData.types : QC_DEFAULT_TYPES.slice();
+      qcOptionData.factories = state.qcOptionData.factories || [];
+      qcOptionData.platforms = state.qcOptionData.platforms || [];
+      qcOptionData.shops = state.qcOptionData.shops || [];
+      console.log('[持久化] 恢复质控选项数据');
     }
     if (state.savedAt) {
       console.log('[持久化] 上次保存时间: ' + new Date(state.savedAt).toLocaleString('zh-CN'));
@@ -5836,6 +5933,13 @@ window.addEventListener('beforeunload', function() {
   persistAppState();
 });
 
+// 页面可见性变化时保存（切到其他标签页时立即保存）
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden') {
+    persistAppStateLocal();
+  }
+});
+
 // 定期自动保存（每30秒）
 setInterval(function() {
   persistAppState();
@@ -5860,26 +5964,7 @@ function saveGoalToStorage() {
 // 仅保存到localStorage全局key的轻量版本（避免递归调用showAutoSaveIndicator）
 function persistAppStateLocal() {
   try {
-    var state = {
-      customRoles: [],
-      users: usersCache ? JSON.parse(JSON.stringify(usersCache)) : [],
-      goalData: {
-        periodData: goalData.periodData,
-        specialists: goalData.specialists,
-        mappingTable: goalData.mappingTable
-      },
-      savedAt: new Date().toISOString()
-    };
-    Object.keys(ROLE_CONFIG).forEach(function(key) {
-      if (key !== 'admin') {
-        state.customRoles.push({
-          key: key,
-          text: ROLE_CONFIG[key].text,
-          menus: ROLE_CONFIG[key].menus,
-          features: ROLE_CONFIG[key].features || []
-        });
-      }
-    });
+    var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
   } catch(e) {
     console.warn('[持久化] 本地保存失败:', e);
@@ -5952,6 +6037,7 @@ function onGoalPeriodChange() {
   loadGoalPeriodData();
   renderGoalTable();
   renderGoalResults();
+  persistAppStateLocal();
 }
 
 // 加载当前周期数据
@@ -6235,6 +6321,7 @@ function addGoalSplitRow() {
   if (!row) return;
   row.splits.push({ specialist: '', target: '' });
   renderGoalSplitTable();
+  saveGoalToStorage();
 }
 
 // 删除拆分行
@@ -6243,6 +6330,7 @@ function removeGoalSplitRow(index) {
   if (!row) return;
   row.splits.splice(index, 1);
   renderGoalSplitTable();
+  saveGoalToStorage();
 }
 
 // 确认拆分
@@ -6398,6 +6486,7 @@ function escapeHtml(str) {
 // ---------- Tab切换逻辑 ----------
 function switchCommTab(tabName) {
   commActiveTab = tabName;
+  persistAppStateLocal();
   document.querySelectorAll('.comm-tab-item').forEach(function(t) {
     t.classList.toggle('active', t.getAttribute('data-comm-tab') === tabName);
   });
@@ -6532,6 +6621,7 @@ function loadTalentAssetsFromGitHub() {
           talentAssetsData = json;
           updateTalentStaffFilter();
           if (commActiveTab === 'talent-assets') renderTalentAssets();
+          persistAppStateLocal();
           console.log('[商务数据] 达人资产加载成功，共 ' + talentAssetsData.length + ' 条');
         }
       }
@@ -6549,6 +6639,7 @@ function loadOrderDataFromGitHub() {
         if (Array.isArray(json)) {
           orderDataStore = json;
           if (commActiveTab === 'order-data') renderOrderData();
+          persistAppStateLocal();
           console.log('[商务数据] 订单数据加载成功，共 ' + orderDataStore.length + ' 条');
         }
       }
@@ -7689,6 +7780,9 @@ function navigateToStrategy(panel) {
   if (addBtn) addBtn.style.display = panel === 'strategy' ? '' : 'none';
   // 更新hash
   location.hash = '#/product-strategy/' + panel;
+  // 持久化当前路由
+  appState.currentRoute = 'product-strategy';
+  persistAppStateLocal();
   // 加载数据
   loadStrategyData();
   document.getElementById('mainContent').scrollTop = 0;
@@ -7696,6 +7790,7 @@ function navigateToStrategy(panel) {
 
 function switchStrategyPanel(panel) {
   psActivePanel = panel;
+  persistAppStateLocal();
   STRATEGY_PANELS.forEach(function(p) {
     var el = document.getElementById('ps-panel-' + p);
     if (el) el.classList.toggle('active', p === panel);
@@ -7957,6 +8052,7 @@ function saveStrategyProduct() {
   }
 
   try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+  persistAppStateLocal();
   closeStrategyProductModal();
   renderStrategyPanel();
   saveStrategyToGitHub()
@@ -7968,6 +8064,7 @@ function deleteStrategyProduct(id) {
   if (!confirm('确认删除该策航产品？')) return;
   strategyProducts = strategyProducts.filter(function(x){ return x.id !== id; });
   try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+  persistAppStateLocal();
   renderStrategyPanel();
   saveStrategyToGitHub()
     .then(function(){ showSyncToast('已删除并同步到服务器'); })
@@ -8505,6 +8602,9 @@ function navigateToKb(panel) {
   if (titleEl) titleEl.textContent = label;
   // 更新hash
   location.hash = '#/' + permRoute + '/' + panel;
+  // 持久化当前路由
+  appState.currentRoute = permRoute;
+  persistAppStateLocal();
   // 加载数据
   loadKbData();
   // 滚动到顶部
@@ -8513,6 +8613,7 @@ function navigateToKb(panel) {
 
 function switchKbTab(tabName) {
   kbActiveTab = tabName;
+  persistAppStateLocal();
   document.querySelectorAll('.kb-tab-panel').forEach(function(p){ p.classList.remove('active'); });
   var panel = document.getElementById('kb-panel-' + tabName);
   if (panel) panel.classList.add('active');
@@ -8605,6 +8706,7 @@ function renderKbProductRows(products) {
 
 function toggleKbCategory(cat) {
   kbExpandedCats[cat] = !kbExpandedCats[cat];
+  persistAppStateLocal();
   renderKbCategoryList();
 }
 
@@ -9178,6 +9280,7 @@ function saveProduct() {
   closeProductAddModal();
   renderKbCategoryTabs();
   renderKbCategoryList();
+  persistAppStateLocal();
   showSyncToast('正在保存到服务器...');
   pushKbProductsToGitHub()
     .then(function(){ showSyncToast(isEdit ? '产品修改成功，已同步到服务器' : '产品创建成功，已同步到服务器'); })
@@ -9187,6 +9290,7 @@ function saveProduct() {
 function pushKbProductsToGitHub() {
   // 先保存到localStorage作为缓存
   try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
+  persistAppStateLocal();
   // 记录保存时间，防止切换页面后CDN缓存覆盖新数据
   kbLastSavedAt = Date.now();
   var content = utf8ToBase64(JSON.stringify(kbProducts, null, 2));
@@ -9257,6 +9361,7 @@ function loadQcOptionData() {
 
 function saveQcOptionData() {
   try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
+  persistAppStateLocal();
   kbLastSavedAt = Date.now(); // 防止切换页面后远程数据覆盖本地
   // 同步到GitHub
   var content = utf8ToBase64(JSON.stringify(qcOptionData, null, 2));
@@ -9772,6 +9877,7 @@ function saveQcIssue() {
   pushKbQcToGitHub();
   closeQcAddModal();
   renderKbQcTable();
+  persistAppStateLocal();
   showSyncToast('品控问题登记成功，已同步到服务器');
 }
 
@@ -10041,11 +10147,13 @@ function saveQcEdit() {
   pushKbQcToGitHub();
   closeQcEditModal();
   renderKbQcTable();
+  persistAppStateLocal();
   showSyncToast('品控记录修改成功，已同步到服务器');
 }
 
 function pushKbQcToGitHub() {
   try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) { console.warn('[知识库] localStorage存储失败（可能超出容量限制），数据仍会同步到服务器', e); }
+  persistAppStateLocal();
   kbLastSavedAt = Date.now();
   var content = utf8ToBase64(JSON.stringify(kbQcIssues, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_qc.json';
@@ -10141,6 +10249,7 @@ function saveQcReply() {
   pushKbQcToGitHub();
   closeQcReplyModal();
   renderKbQcTable();
+  persistAppStateLocal();
   showSyncToast('答疑维护成功，已同步到服务器');
 }
 
