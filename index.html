@@ -577,23 +577,7 @@ body {
 .filter-bar .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
 .filter-bar .btn.primary:hover { background: var(--primary-light); }
 
-/* ====== 商务数据子模块 ====== */
-.comm-tab-bar {
-  display: flex; gap: 0; background: var(--bg-white);
-  border-radius: var(--radius-md); padding: 4px; margin-bottom: 16px;
-  box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
-}
-.comm-tab-item {
-  flex: 1; padding: 10px 16px; border: none; background: transparent;
-  border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; font-weight: 600;
-  color: var(--muted); transition: all 0.25s; text-align: center; white-space: nowrap;
-}
-.comm-tab-item:hover:not(.active) { background: var(--bg-light); color: var(--ink); }
-.comm-tab-item.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(0,82,217,0.2); }
-.comm-tab-panel { display: none; }
-.comm-tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
-
+/* 通用筛选栏（多模块共用） */
 .comm-filter-bar {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   background: var(--bg-white); border-radius: var(--radius-md);
@@ -607,18 +591,6 @@ body {
   border-radius: 4px; font-size: 13px; outline: none; background: #fff; color: var(--ink);
 }
 .comm-filter-item select:focus, .comm-filter-item input:focus { border-color: var(--primary); }
-.comm-upload-btn {
-  height: 32px; padding: 0 14px; border: 1px dashed var(--primary);
-  border-radius: 4px; font-size: 13px; cursor: pointer; background: #f0f5ff;
-  color: var(--primary); transition: all 0.2s; white-space: nowrap; font-weight: 500;
-}
-.comm-upload-btn:hover { background: var(--primary); color: #fff; }
-.comm-ai-btn {
-  height: 32px; padding: 0 16px; border: none; border-radius: 4px;
-  font-size: 13px; cursor: pointer; background: linear-gradient(135deg, #6d28d9, #2563eb);
-  color: #fff; font-weight: 600; transition: all 0.2s; white-space: nowrap;
-}
-.comm-ai-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(109,40,217,0.3); }
 
 /* ==================== 商务运营模块 ==================== */
 .biz-ops-tab-bar {
@@ -1055,32 +1027,6 @@ body {
 
 /* 提成方案 - 类型盒双列网格 */
 .comm-type-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
-
-/* AI分析面板 */
-.ai-analysis-panel {
-  background: var(--bg-white); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-top: 16px; overflow: hidden;
-}
-.ai-panel-header {
-  display: flex; align-items: center; gap: 10px; padding: 14px 20px;
-  background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);
-  border-bottom: 1px solid var(--border);
-}
-.ai-panel-header .ai-icon { font-size: 22px; }
-.ai-panel-header .ai-title { font-size: 15px; font-weight: 700; color: var(--ink); flex: 1; }
-.ai-panel-header .ai-status {
-  font-size: 12px; padding: 3px 10px; border-radius: 10px;
-  background: #e0e7ff; color: #4f46e5; font-weight: 600;
-}
-.ai-panel-header .ai-status.running { background: #fef3c7; color: #d97706; }
-.ai-panel-header .ai-status.done { background: #d1fae5; color: #059669; }
-.ai-panel-body { padding: 20px; min-height: 120px; }
-.ai-placeholder { color: var(--muted); font-size: 14px; text-align: center; padding: 30px 0; line-height: 1.8; }
-.ai-result-section { margin-bottom: 16px; }
-.ai-result-section h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--ink); display: flex; align-items: center; gap: 6px; }
-.ai-result-section p { font-size: 13px; color: var(--ink2); line-height: 1.8; padding-left: 24px; }
-.ai-result-section ul { padding-left: 44px; margin: 4px 0; }
-.ai-result-section li { font-size: 13px; color: var(--ink2); line-height: 1.8; margin-bottom: 4px; }
 
 /* 空数据提示 */
 .comm-empty-state {
@@ -1810,9 +1756,6 @@ body {
           <span class="menu-icon">🧭</span><span class="menu-text">新品策航</span>
         </div>
       </div>
-      <div class="menu-item" data-route="commerce-data" onclick="navigateTo('commerce-data')">
-        <span class="menu-icon">🤝</span><span class="menu-text">商务数据</span>
-      </div>
       <div class="menu-item" data-route="roi-model" onclick="navigateTo('roi-model')">
         <span class="menu-icon">📐</span><span class="menu-text">ROI模型</span>
       </div>
@@ -2373,221 +2316,6 @@ body {
         </div>
       </div>
 
-      <!-- ====== 商务数据 ====== -->
-      <div class="page" id="page-commerce-data">
-        <div class="breadcrumb"><span>主要功能</span> / <span class="current">商务数据</span></div>
-        <div class="page-header"><div class="page-title">商务数据中心</div>
-          <div class="page-actions"><button class="filter-bar btn primary" onclick="refreshCurrentPage()">🔄 刷新数据</button></div>
-        </div>
-
-        <!-- 商务数据子Tab栏 -->
-        <div class="comm-tab-bar" id="commTabBar">
-          <div class="comm-tab-item active" data-comm-tab="talent-assets" onclick="switchCommTab('talent-assets')">📊 达人资产</div>
-          <div class="comm-tab-item" data-comm-tab="order-data" onclick="switchCommTab('order-data')">📋 订单数据</div>
-          <div class="comm-tab-item" data-comm-tab="commission-plan" onclick="switchCommTab('commission-plan')">💰 提成方案</div>
-          <div class="comm-tab-item" data-comm-tab="sales-performance" onclick="switchCommTab('sales-performance')">📈 销售业绩</div>
-          <div class="comm-tab-item" data-comm-tab="ops-analysis" onclick="switchCommTab('ops-analysis')">🤖 运营分析</div>
-        </div>
-
-        <!-- ====== 子模块：达人资产 ====== -->
-        <div class="comm-tab-panel active" id="comm-panel-talent-assets">
-          <div class="comm-filter-bar">
-            <div class="comm-filter-item">
-              <label>平台</label>
-              <select id="talent-platform-filter" onchange="renderTalentAssets()">
-                <option value="all">全平台</option>
-                <option value="douyin">抖音</option>
-                <option value="kuaishou">快手</option>
-                <option value="weixin">视频号</option>
-              </select>
-            </div>
-            <div class="comm-filter-item">
-              <label>商务专员</label>
-              <select id="talent-staff-filter" onchange="renderTalentAssets()">
-                <option value="all">全部商务</option>
-              </select>
-            </div>
-            <div class="comm-filter-item">
-              <label>合作状态</label>
-              <select id="talent-status-filter" onchange="renderTalentAssets()">
-                <option value="all">全部</option>
-                <option value="active">合作中</option>
-                <option value="inactive">已停止</option>
-              </select>
-            </div>
-            <button class="comm-upload-btn" onclick="document.getElementById('talentFileInput').click()">📤 上传达人资产表</button>
-            <input type="file" id="talentFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleTalentUpload(event)">
-          </div>
-          <div class="kpi-grid" id="talent-kpi-grid">
-            <div class="kpi-card"><div class="kpi-label">达人总数</div><div class="kpi-value" id="talent-kpi-total">--</div><div class="kpi-sub">待上传数据</div></div>
-            <div class="kpi-card"><div class="kpi-label">合作中达人</div><div class="kpi-value" id="talent-kpi-active">--</div><div class="kpi-sub">活跃合作</div></div>
-            <div class="kpi-card"><div class="kpi-label">总GMV</div><div class="kpi-value" id="talent-kpi-gmv">--</div><div class="kpi-sub">所有达人贡献</div></div>
-            <div class="kpi-card"><div class="kpi-label">平均合作效果</div><div class="kpi-value" id="talent-kpi-avg">--</div><div class="kpi-sub">人均GMV</div></div>
-          </div>
-          <div class="chart-grid cols-2">
-            <div class="chart-card"><div class="card-title">各平台达人分布</div><div id="talent-platform-chart" style="width:100%;height:280px;"></div></div>
-            <div class="chart-card"><div class="card-title">达人GMV TOP10</div><div id="talent-top-chart" style="width:100%;height:280px;"></div></div>
-          </div>
-          <div class="table-slot">
-            <div class="table-header"><span class="table-title">达人资产明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-            <div class="data-table-wrap" id="talent-detail-table"></div>
-          </div>
-        </div>
-
-        <!-- ====== 子模块：订单数据 ====== -->
-        <div class="comm-tab-panel" id="comm-panel-order-data">
-          <div class="comm-filter-bar">
-            <div class="comm-filter-item">
-              <label>平台</label>
-              <select id="order-platform-filter" onchange="renderOrderData()">
-                <option value="all">全平台</option>
-                <option value="douyin">抖音</option>
-                <option value="kuaishou">快手</option>
-                <option value="weixin">视频号</option>
-              </select>
-            </div>
-            <div class="comm-filter-item">
-              <label>日期范围</label>
-              <input type="date" id="order-start-date" onchange="renderOrderData()">
-              <span style="color:var(--muted);">至</span>
-              <input type="date" id="order-end-date" onchange="renderOrderData()">
-            </div>
-            <button class="comm-upload-btn" onclick="document.getElementById('orderFileInput').click()">📤 上传订单数据</button>
-            <input type="file" id="orderFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleOrderUpload(event)">
-          </div>
-          <div class="kpi-grid" id="order-kpi-grid">
-            <div class="kpi-card"><div class="kpi-label">订单总数</div><div class="kpi-value" id="order-kpi-total">--</div><div class="kpi-sub">待上传数据</div></div>
-            <div class="kpi-card"><div class="kpi-label">订单金额</div><div class="kpi-value" id="order-kpi-amount">--</div><div class="kpi-sub">总金额</div></div>
-            <div class="kpi-card"><div class="kpi-label">平均客单价</div><div class="kpi-value" id="order-kpi-avg">--</div><div class="kpi-sub">金额/订单数</div></div>
-            <div class="kpi-card"><div class="kpi-label">退款金额</div><div class="kpi-value" id="order-kpi-refund">--</div><div class="kpi-sub">退款总额</div></div>
-          </div>
-          <div class="chart-grid cols-2">
-            <div class="chart-card"><div class="card-title">订单金额日趋势</div><div id="order-trend-chart" style="width:100%;height:280px;"></div></div>
-            <div class="chart-card"><div class="card-title">各平台订单占比</div><div id="order-platform-chart" style="width:100%;height:280px;"></div></div>
-          </div>
-          <div class="table-slot">
-            <div class="table-header">
-              <span class="table-title">订单数据明细</span>
-              <div style="display:flex;gap:8px;">
-                <button class="btn" onclick="exportCurrentTable()">导出</button>
-                <button class="btn" onclick="downloadOrderSource()">📥 下载源数据</button>
-              </div>
-            </div>
-            <div class="data-table-wrap" id="order-detail-table"></div>
-          </div>
-        </div>
-
-        <!-- ====== 子模块：提成方案 ====== -->
-        <div class="comm-tab-panel" id="comm-panel-commission-plan">
-          <div class="comm-filter-bar">
-            <div class="comm-filter-item">
-              <label>方案版本</label>
-              <select id="commission-version-filter" onchange="renderCommissionPlan()">
-                <option value="v3">第三版 · 打品驱动型（2026年8月起）</option>
-                <option value="v2">第二版 · 双轨提成（2026年5-7月）</option>
-                <option value="v1">第一版 · 奖金激励（2026年1-4月）</option>
-                <option value="cmp">版本对比</option>
-              </select>
-            </div>
-          </div>
-          <div id="commission-plan-content" style="min-height:400px;"></div>
-        </div>
-
-        <!-- ====== 子模块：销售业绩 ====== -->
-        <div class="comm-tab-panel" id="comm-panel-sales-performance">
-          <div class="comm-filter-bar">
-            <div class="comm-filter-item">
-              <label>分析维度</label>
-              <select id="perf-dimension" onchange="renderSalesPerformance()">
-                <option value="staff">商务专员业绩</option>
-                <option value="talent">达人业绩</option>
-                <option value="product">商品业绩</option>
-                <option value="cross">交叉对比</option>
-              </select>
-            </div>
-            <div class="comm-filter-item">
-              <label>周期</label>
-              <select id="perf-period" onchange="renderSalesPerformance()">
-                <option value="daily">按日</option>
-                <option value="weekly">按周</option>
-                <option value="monthly" selected>按月</option>
-              </select>
-            </div>
-            <div class="comm-filter-item">
-              <label>商务专员</label>
-              <select id="perf-staff-filter" onchange="renderSalesPerformance()">
-                <option value="all">全部商务</option>
-              </select>
-            </div>
-          </div>
-          <div class="kpi-grid" id="perf-kpi-grid">
-            <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-value" id="perf-kpi-sales">--</div><div class="kpi-sub">待上传数据</div></div>
-            <div class="kpi-card"><div class="kpi-label">总提成</div><div class="kpi-value" id="perf-kpi-commission">--</div><div class="kpi-sub">预估提成</div></div>
-            <div class="kpi-card"><div class="kpi-label">活跃商务数</div><div class="kpi-value" id="perf-kpi-staff">--</div><div class="kpi-sub">有业绩商务</div></div>
-            <div class="kpi-card"><div class="kpi-label">合作达人数</div><div class="kpi-value" id="perf-kpi-talent">--</div><div class="kpi-sub">活跃达人</div></div>
-          </div>
-          <div class="chart-grid cols-2">
-            <div class="chart-card"><div class="card-title">商务专员业绩排名</div><div id="perf-staff-chart" style="width:100%;height:280px;"></div></div>
-            <div class="chart-card"><div class="card-title">达人贡献TOP10</div><div id="perf-talent-chart" style="width:100%;height:280px;"></div></div>
-          </div>
-          <div class="table-slot">
-            <div class="table-header"><span class="table-title" id="perf-table-title">业绩明细</span><button class="btn" onclick="exportCurrentTable()">导出</button></div>
-            <div class="data-table-wrap" id="perf-detail-table"></div>
-          </div>
-        </div>
-
-        <!-- ====== 子模块：运营分析 ====== -->
-        <div class="comm-tab-panel" id="comm-panel-ops-analysis">
-          <div class="comm-filter-bar">
-            <div class="comm-filter-item">
-              <label>分析周期</label>
-              <select id="ops-period" onchange="renderOpsAnalysis()">
-                <option value="daily">日度</option>
-                <option value="weekly">周度</option>
-                <option value="monthly" selected>月度</option>
-                <option value="custom">自定义</option>
-              </select>
-            </div>
-            <div class="comm-filter-item" id="ops-custom-range" style="display:none;">
-              <input type="date" id="ops-start-date">
-              <span style="color:var(--muted);">至</span>
-              <input type="date" id="ops-end-date">
-            </div>
-            <div class="comm-filter-item">
-              <label>分析维度</label>
-              <select id="ops-dimension" onchange="renderOpsAnalysis()">
-                <option value="overview">综合概览</option>
-                <option value="talent">达人分析</option>
-                <option value="product">商品分析</option>
-                <option value="staff">商务分析</option>
-              </select>
-            </div>
-            <button class="comm-ai-btn" onclick="runAIAnalysis()">🤖 AI智能分析</button>
-          </div>
-          <div class="kpi-grid" id="ops-kpi-grid">
-            <div class="kpi-card"><div class="kpi-label">分析周期GMV</div><div class="kpi-value" id="ops-kpi-gmv">--</div><div class="kpi-sub">选定周期</div></div>
-            <div class="kpi-card"><div class="kpi-label">环比变化</div><div class="kpi-value" id="ops-kpi-mom">--</div><div class="kpi-sub">对比上期</div></div>
-            <div class="kpi-card"><div class="kpi-label">达人活跃度</div><div class="kpi-value" id="ops-kpi-talent">--</div><div class="kpi-sub">活跃达人占比</div></div>
-            <div class="kpi-card"><div class="kpi-label">商品动销率</div><div class="kpi-value" id="ops-kpi-product">--</div><div class="kpi-sub">有动销商品占比</div></div>
-          </div>
-          <div class="chart-grid cols-2">
-            <div class="chart-card"><div class="card-title">GMV趋势分析</div><div id="ops-gmv-trend" style="width:100%;height:280px;"></div></div>
-            <div class="chart-card"><div class="card-title">达人效能分布</div><div id="ops-talent-scatter" style="width:100%;height:280px;"></div></div>
-          </div>
-          <!-- AI分析面板 -->
-          <div class="ai-analysis-panel" id="aiAnalysisPanel">
-            <div class="ai-panel-header">
-              <span class="ai-icon">🤖</span>
-              <span class="ai-title">AI运营分析助手</span>
-              <span class="ai-status" id="aiStatus">就绪</span>
-            </div>
-            <div class="ai-panel-body" id="aiPanelBody">
-              <div class="ai-placeholder">点击上方"AI智能分析"按钮，系统将基于达人资产、订单数据、销售业绩等多维度数据进行智能分析，生成运营建议。</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
 
       <!-- ====== ROI模型 ====== -->
       <div class="page" id="page-roi-model">
@@ -3025,11 +2753,11 @@ var autoRefreshTimer = null;
 var editingUserId = null;
 
 // ==================== 用户与角色体系 ====================
-var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','commerce-data','roi-model','team-business','team-function','team-product-support','team-qc-support','team-hr','system','product-strategy','system-permission','system-account','system-log'];
+var ADMIN_MENUS = ['home','business-data','operation-data','operation-traffic','operation-order','operation-product','operation-risk','roi-model','team-business','team-function','team-product-support','team-qc-support','team-hr','system','product-strategy','system-permission','system-account','system-log'];
 
 var MENU_LABELS = {
   'home':'首页','business-data':'经营数据','operation-data':'运营数据',
-  'commerce-data':'商务数据','roi-model':'ROI模型',
+  'roi-model':'ROI模型',
   'team-business':'商务运营','team-function':'职能运营','system':'系统管理',
   'product-strategy':'新品策航','system-permission':'权限配置','system-account':'账号管理',
   'system-log':'操作日志'
@@ -3041,11 +2769,6 @@ var SUB_MENU_LABELS = {
   'business-data:overview': '经营总览',
   'business-data:shops': '店铺对比',
   'business-data:profit': '利润分析',
-  'commerce-data:talent-assets': '达人资产',
-  'commerce-data:order-data': '订单数据',
-  'commerce-data:commission-plan': '提成方案',
-  'commerce-data:sales-performance': '销售业绩',
-  'commerce-data:ops-analysis': '运营分析',
   'roi-model:quick-calc': '经营ROI速算',
   'product-strategy:strategy': '策略制定',
   'product-strategy:pricing': '价格制定',
@@ -3698,6 +3421,10 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     }
   } catch(e) {}
+  // 从GitHub加载所有模块的最新数据（跨用户同步，异步执行不阻塞页面）
+  setTimeout(function() {
+    loadAllDataFromGitHub();
+  }, 1500);
 });
 </script>
 
@@ -4024,7 +3751,6 @@ function renderPageByRoute(route) {
   switch (route) {
     case 'home': renderHome(); break;
     case 'business-data': initBizFilters(); break;
-    case 'commerce-data': renderCommerceData(); break;
     case 'roi-model': renderRoiModel(); break;
     case 'product-strategy': navigateToStrategy('strategy'); break;
     case 'system-permission': renderPermissionPage(); break;
@@ -4437,13 +4163,8 @@ function setHomeTrendGran(g) { appState.homeTrendGran = g; renderHomeGmvTrend();
 function exportCurrentTable() {
   var route = appState.currentRoute;
   var id;
-  if (route === 'commerce-data') {
-    var commTableMap = { 'talent-assets':'talent-detail-table','order-data':'order-detail-table','sales-performance':'perf-detail-table' };
-    id = commTableMap[commActiveTab];
-  } else {
-    var map = { 'business-data':'biz-detail-table', };
-    id = map[route];
-  }
+  var map = { 'business-data':'biz-detail-table' };
+  id = map[route];
   if (!id) { alert('当前页面无可导出表格'); return; }
   var el = document.getElementById(id);
   if (!el) return;
@@ -5178,14 +4899,6 @@ function renderProdMonthlyTable(range) {
   el.innerHTML = buildTable(headers, rows, foot);
 }
 
-// ==================== 商务数据 ====================
-
-// ---------- 全局数据存储 ----------
-var talentAssetsData = [];
-var orderDataStore = [];
-var commActiveTab = 'talent-assets';
-var commDataLoaded = false;
-
 // ==================== 商务运营模块 ====================
 var bizOpsActiveTab = 'overview';
 
@@ -5347,6 +5060,7 @@ function generateMockBizOverviewData() {
   }
   bizOpsData.overview = data;
   persistAppStateLocal();
+  pushBizOpsToGitHub();
 }
 
 // 渲染运营总览KPI
@@ -5546,6 +5260,7 @@ function generateMockBizReviewData() {
   var data = [];
   var followers = ['张三', '李四', '王五', '赵六', '陈七'];
   bizOpsData.followers = followers;
+  pushBizOpsToGitHub();
 
   var platforms = ['douyin', 'kuaishou', 'weixin'];
   var shopNames = {
@@ -5587,6 +5302,7 @@ function generateMockBizReviewData() {
   }
   bizOpsData.review = data;
   persistAppStateLocal();
+  pushBizOpsToGitHub();
 }
 
 // 渲染商务复盘KPI
@@ -5748,12 +5464,14 @@ var APP_STATE_KEY = 'ly_app_state'; // 全局应用状态存储key
 var goalLastSavedAt = 0; // 记录目标数据最后保存时间，防止CDN缓存覆盖新数据
 
 // ==================== 全局实时持久化层 ====================
-// 保存所有应用状态到localStorage（即时本地备份）
+// 保存所有应用状态到localStorage（即时本地备份）+ 同步到GitHub（跨用户共享）
 function persistAppState() {
   try {
     var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
     showAutoSaveIndicator();
+    // 同步到GitHub服务器（防抖，确保跨用户数据一致）
+    pushAppStateToGitHub();
   } catch(e) {
     console.warn('[持久化] 应用状态保存失败:', e);
   }
@@ -5774,11 +5492,6 @@ function buildPersistState() {
     bizOpsData: JSON.parse(JSON.stringify(bizOpsData)),
     bizOpsActiveTab: bizOpsActiveTab,
     platformShopMap: JSON.parse(JSON.stringify(platformShopMap)),
-    // --- 商务数据模块 ---
-    commActiveTab: commActiveTab,
-    commDataLoaded: commDataLoaded,
-    talentAssetsData: JSON.parse(JSON.stringify(talentAssetsData)),
-    orderDataStore: JSON.parse(JSON.stringify(orderDataStore)),
     // --- 目标管理模块 ---
     goalData: {
       periodData: goalData.periodData,
@@ -5862,12 +5575,6 @@ function loadAppState() {
       Object.keys(state.platformShopMap).forEach(function(k) { platformShopMap[k] = state.platformShopMap[k]; });
       console.log('[持久化] 恢复平台店铺映射');
     }
-    // 恢复商务数据模块
-    if (state.commActiveTab) commActiveTab = state.commActiveTab;
-    if (typeof state.commDataLoaded !== 'undefined') commDataLoaded = state.commDataLoaded;
-    if (state.talentAssetsData) talentAssetsData = state.talentAssetsData;
-    if (state.orderDataStore) orderDataStore = state.orderDataStore;
-    if (state.talentAssetsData || state.orderDataStore) console.log('[持久化] 恢复商务数据模块');
     // 恢复目标管理数据
     if (state.goalData) {
       if (state.goalData.periodData) goalData.periodData = state.goalData.periodData;
@@ -5930,22 +5637,36 @@ function showAutoSaveIndicator() {
   autoSaveTimer = setTimeout(function() { el.style.opacity = '0'; }, 1500);
 }
 
-// 页面卸载前强制保存（防止关闭/刷新丢失数据）
+// 页面卸载前强制保存（防止关闭/刷新丢失数据）+ 同步到GitHub
 window.addEventListener('beforeunload', function() {
   persistAppState();
+  // 强制立即同步到GitHub（不等防抖）
+  if (_githubSyncTimer) clearTimeout(_githubSyncTimer);
+  _doPushAppStateToGitHub();
 });
 
 // 页面可见性变化时保存（切到其他标签页时立即保存）
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'hidden') {
     persistAppStateLocal();
+    // 切到后台时也同步到GitHub
+    pushAppStateToGitHub();
   }
 });
 
-// 定期自动保存（每30秒）
+// 定期自动保存（每30秒）+ 同步到GitHub
 setInterval(function() {
   persistAppState();
 }, 30000);
+
+// 定期从GitHub拉取最新数据（每60秒，确保看到其他人的更新）
+setInterval(function() {
+  fetchAppStateFromGitHub().then(function(remoteState) {
+    if (remoteState) {
+      applyRemoteState(remoteState);
+    }
+  });
+}, 60000);
 
 // 保存目标数据到localStorage
 // 将目标数据同步到GitHub服务器（跨用户共享数据）
@@ -6007,13 +5728,327 @@ function saveGoalToStorage() {
 }
 
 // 仅保存到localStorage全局key的轻量版本（避免递归调用showAutoSaveIndicator）
+// 同时触发GitHub同步（防抖），确保所有数据变更都跨用户共享
 function persistAppStateLocal() {
   try {
     var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+    // 同步到GitHub服务器（防抖，确保跨用户数据一致）
+    pushAppStateToGitHub();
   } catch(e) {
     console.warn('[持久化] 本地保存失败:', e);
   }
+}
+
+// ==================== 全局GitHub统一同步层 ====================
+// 确保整个管理中台所有模块的数据实时同步到GitHub，跨用户共享
+var _githubSyncTimer = null;
+var _githubSyncInProgress = false;
+var _lastGitHubSyncAt = 0;
+var _githubFetchDone = false;
+
+// 将完整应用状态同步到GitHub（统一备份，确保所有数据都有远程副本）
+function pushAppStateToGitHub() {
+  // 防抖：避免频繁API调用，800ms内只执行一次
+  if (_githubSyncTimer) clearTimeout(_githubSyncTimer);
+  _githubSyncTimer = setTimeout(function() {
+    _doPushAppStateToGitHub();
+  }, 800);
+}
+
+function _doPushAppStateToGitHub() {
+  if (_githubSyncInProgress) return;
+  _githubSyncInProgress = true;
+  _lastGitHubSyncAt = Date.now();
+
+  var state = buildPersistState();
+  // 移除不需要同步的临时编辑状态
+  delete state.editingUserId;
+  delete state.editingRoleKey;
+
+  var content;
+  try {
+    content = utf8ToBase64(JSON.stringify(state));
+  } catch(e) {
+    console.error('[全局同步] 数据序列化失败:', e);
+    _githubSyncInProgress = false;
+    return;
+  }
+
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/app_state.json';
+  var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
+
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(r) {
+      if (r.status === 404) return { sha: null };
+      return r.json();
+    })
+    .then(function(data) {
+      var payload = {
+        message: '同步全部应用状态 ' + new Date().toLocaleString('zh-CN'),
+        content: content,
+        branch: GITHUB_USERS_CONFIG.branch
+      };
+      if (data && data.sha) payload.sha = data.sha;
+      return fetch(apiUrl, {
+        method: 'PUT',
+        headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('GitHub API ' + r.status);
+      console.log('[全局同步] 应用状态已同步到GitHub');
+    })
+    .catch(function(err) {
+      console.error('[全局同步] 同步失败:', err);
+    })
+    .then(function() {
+      _githubSyncInProgress = false;
+    });
+}
+
+// 从GitHub获取最新完整应用状态
+function fetchAppStateFromGitHub() {
+  return fetchKbFileViaApi('app_state.json')
+    .then(function(data) {
+      if (!data) return null;
+      console.log('[全局同步] 从GitHub加载最新应用状态');
+      return data;
+    })
+    .catch(function(err) {
+      console.log('[全局同步] GitHub无应用状态或加载失败:', err.message);
+      return null;
+    });
+}
+
+// 将商务运营数据同步到GitHub（独立文件，便于模块化管理）
+function pushBizOpsToGitHub() {
+  var dataToSave = {
+    overview: bizOpsData.overview,
+    review: bizOpsData.review,
+    shops: bizOpsData.shops,
+    followers: bizOpsData.followers,
+    platformShopMap: platformShopMap
+  };
+  var content = utf8ToBase64(JSON.stringify(dataToSave, null, 2));
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/biz_ops_data.json';
+  var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(r) {
+      if (r.status === 404) return { sha: null };
+      return r.json();
+    })
+    .then(function(data) {
+      var payload = { message: '更新商务运营数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
+      if (data && data.sha) payload.sha = data.sha;
+      return fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('GitHub API ' + r.status);
+      console.log('[商务运营] 数据已同步到GitHub');
+    })
+    .catch(function(err) {
+      console.error('[商务运营] 数据同步失败:', err);
+    });
+}
+
+// 从GitHub获取商务运营数据
+function fetchBizOpsFromGitHub() {
+  return fetchKbFileViaApi('biz_ops_data.json')
+    .then(function(data) {
+      if (!data) return null;
+      console.log('[商务运营] 从GitHub加载最新数据');
+      return data;
+    })
+    .catch(function(err) {
+      console.log('[商务运营] GitHub无数据或加载失败:', err.message);
+      return null;
+    });
+}
+
+// 从GitHub获取新品策航数据
+function fetchStrategyFromGitHub() {
+  return fetchKbFileViaApi('ps_products.json')
+    .then(function(data) {
+      if (!data) return null;
+      console.log('[新品策航] 从GitHub加载最新数据');
+      return data;
+    })
+    .catch(function(err) {
+      console.log('[新品策航] GitHub无数据或加载失败:', err.message);
+      return null;
+    });
+}
+
+// 从GitHub获取品控选项数据
+function fetchQcOptionsFromGitHub() {
+  return fetchKbFileViaApi('qc_options.json')
+    .then(function(data) {
+      if (!data) return null;
+      console.log('[品控选项] 从GitHub加载最新数据');
+      return data;
+    })
+    .catch(function(err) {
+      console.log('[品控选项] GitHub无数据或加载失败:', err.message);
+      return null;
+    });
+}
+
+// 从远程数据恢复所有模块状态（智能合并：远程数据为准，但不覆盖本地更新的数据）
+function applyRemoteState(remoteState) {
+  if (!remoteState) return;
+  try {
+    // 恢复自定义角色
+    if (remoteState.customRoles && remoteState.customRoles.length > 0) {
+      remoteState.customRoles.forEach(function(r) {
+        if (r.key && r.key !== 'admin') {
+          ROLE_CONFIG[r.key] = {
+            text: r.text,
+            menus: r.menus || ['home'],
+            features: r.features || [],
+            fixed: false
+          };
+        }
+      });
+      console.log('[全局同步] 恢复 ' + remoteState.customRoles.length + ' 个自定义角色');
+    }
+    // 恢复用户列表
+    if (remoteState.users && remoteState.users.length > 0) {
+      usersCache = remoteState.users;
+      console.log('[全局同步] 恢复 ' + remoteState.users.length + ' 个用户账号');
+    }
+    // 恢复商务运营数据
+    if (remoteState.bizOpsData) {
+      if (remoteState.bizOpsData.overview && remoteState.bizOpsData.overview.length > 0) {
+        bizOpsData.overview = remoteState.bizOpsData.overview;
+      }
+      if (remoteState.bizOpsData.review && remoteState.bizOpsData.review.length > 0) {
+        bizOpsData.review = remoteState.bizOpsData.review;
+      }
+      if (remoteState.bizOpsData.shops && remoteState.bizOpsData.shops.length > 0) {
+        bizOpsData.shops = remoteState.bizOpsData.shops;
+      }
+      if (remoteState.bizOpsData.followers && remoteState.bizOpsData.followers.length > 0) {
+        bizOpsData.followers = remoteState.bizOpsData.followers;
+      }
+    }
+    if (remoteState.platformShopMap) {
+      Object.keys(remoteState.platformShopMap).forEach(function(k) {
+        if (remoteState.platformShopMap[k] && remoteState.platformShopMap[k].length > 0) {
+          platformShopMap[k] = remoteState.platformShopMap[k];
+        }
+      });
+    }
+    // 恢复目标管理数据（智能合并）
+    if (remoteState.goalData) {
+      if (remoteState.goalData.periodData) {
+        Object.keys(remoteState.goalData.periodData).forEach(function(key) {
+          var remotePeriod = remoteState.goalData.periodData[key];
+          var localPeriod = goalData.periodData[key];
+          if (!localPeriod || (remotePeriod.rows && remotePeriod.rows.length > 0 && (!localPeriod.rows || localPeriod.rows.length === 0))) {
+            goalData.periodData[key] = remotePeriod;
+          } else if (remotePeriod.rows && localPeriod.rows && remotePeriod.rows.length >= localPeriod.rows.length) {
+            goalData.periodData[key] = remotePeriod;
+          }
+        });
+      }
+      if (remoteState.goalData.specialists && remoteState.goalData.specialists.length > 0) {
+        goalData.specialists = remoteState.goalData.specialists;
+      }
+      if (remoteState.goalData.mappingTable) {
+        goalData.mappingTable = remoteState.goalData.mappingTable;
+      }
+    }
+    // 恢复新品策航数据
+    if (remoteState.strategyProducts && remoteState.strategyProducts.length > 0) {
+      if (strategyProducts.length === 0 || remoteState.strategyProducts.length >= strategyProducts.length) {
+        strategyProducts = remoteState.strategyProducts;
+        try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+      }
+    }
+    // 恢复质控选项数据
+    if (remoteState.qcOptionData) {
+      if (remoteState.qcOptionData.products && remoteState.qcOptionData.products.length > 0)
+        qcOptionData.products = remoteState.qcOptionData.products;
+      if (remoteState.qcOptionData.types && remoteState.qcOptionData.types.length > 0)
+        qcOptionData.types = remoteState.qcOptionData.types;
+      if (remoteState.qcOptionData.factories && remoteState.qcOptionData.factories.length > 0)
+        qcOptionData.factories = remoteState.qcOptionData.factories;
+      if (remoteState.qcOptionData.platforms && remoteState.qcOptionData.platforms.length > 0)
+        qcOptionData.platforms = remoteState.qcOptionData.platforms;
+      if (remoteState.qcOptionData.shops && remoteState.qcOptionData.shops.length > 0)
+        qcOptionData.shops = remoteState.qcOptionData.shops;
+    }
+    // 恢复首页状态
+    if (remoteState.appState) {
+      Object.keys(remoteState.appState).forEach(function(k) { appState[k] = remoteState.appState[k]; });
+    }
+    if (remoteState.bizState) {
+      Object.keys(remoteState.bizState).forEach(function(k) { bizState[k] = remoteState.bizState[k]; });
+    }
+    // 恢复Tab状态
+    if (remoteState.bizOpsActiveTab) bizOpsActiveTab = remoteState.bizOpsActiveTab;
+    if (remoteState.psActivePanel) psActivePanel = remoteState.psActivePanel;
+    if (remoteState.kbActiveTab) kbActiveTab = remoteState.kbActiveTab;
+    if (remoteState.kbActiveCategory) kbActiveCategory = remoteState.kbActiveCategory;
+    // 保存到localStorage
+    persistAppStateLocal();
+    console.log('[全局同步] 远程数据已恢复到本地');
+  } catch(e) {
+    console.error('[全局同步] 恢复远程数据失败:', e);
+  }
+}
+
+// 从GitHub加载所有模块的最新数据（页面初始化时调用）
+function loadAllDataFromGitHub() {
+  if (_githubFetchDone) return;
+  _githubFetchDone = true;
+
+  // 1. 从统一app_state.json加载所有状态
+  fetchAppStateFromGitHub().then(function(remoteState) {
+    if (remoteState) {
+      applyRemoteState(remoteState);
+    }
+    // 2. 同时从各独立文件加载（确保最新数据）
+    fetchBizOpsFromGitHub().then(function(bizData) {
+      if (bizData) {
+        if (bizData.overview && bizData.overview.length > 0) bizOpsData.overview = bizData.overview;
+        if (bizData.review && bizData.review.length > 0) bizOpsData.review = bizData.review;
+        if (bizData.shops && bizData.shops.length > 0) bizOpsData.shops = bizData.shops;
+        if (bizData.followers && bizData.followers.length > 0) bizOpsData.followers = bizData.followers;
+        if (bizData.platformShopMap) {
+          Object.keys(bizData.platformShopMap).forEach(function(k) {
+            if (bizData.platformShopMap[k] && bizData.platformShopMap[k].length > 0) {
+              platformShopMap[k] = bizData.platformShopMap[k];
+            }
+          });
+        }
+        persistAppStateLocal();
+        console.log('[商务运营] 远程数据已恢复');
+      }
+    });
+    fetchStrategyFromGitHub().then(function(stratData) {
+      if (stratData && stratData.length > 0) {
+        if (strategyProducts.length === 0 || stratData.length >= strategyProducts.length) {
+          strategyProducts = stratData;
+          try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+          // 如果当前在策航页面，重新渲染
+          if (appState.currentRoute === 'product-strategy') renderStrategyPanel();
+        }
+      }
+    });
+    fetchQcOptionsFromGitHub().then(function(qcData) {
+      if (qcData) {
+        if (qcData.products && qcData.products.length > 0) qcOptionData.products = qcData.products;
+        if (qcData.types && qcData.types.length > 0) qcOptionData.types = qcData.types;
+        if (qcData.factories && qcData.factories.length > 0) qcOptionData.factories = qcData.factories;
+        if (qcData.platforms && qcData.platforms.length > 0) qcOptionData.platforms = qcData.platforms;
+        if (qcData.shops && qcData.shops.length > 0) qcOptionData.shops = qcData.shops;
+        try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
+      }
+    });
+  });
 }
 
 // 从localStorage加载目标数据
@@ -6597,39 +6632,6 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// ---------- Tab切换逻辑 ----------
-function switchCommTab(tabName) {
-  commActiveTab = tabName;
-  persistAppStateLocal();
-  document.querySelectorAll('.comm-tab-item').forEach(function(t) {
-    t.classList.toggle('active', t.getAttribute('data-comm-tab') === tabName);
-  });
-  document.querySelectorAll('.comm-tab-panel').forEach(function(p) {
-    p.classList.toggle('active', p.id === 'comm-panel-' + tabName);
-  });
-  switch (tabName) {
-    case 'talent-assets': renderTalentAssets(); break;
-    case 'order-data': renderOrderData(); break;
-    case 'commission-plan': renderCommissionPlan(); break;
-    case 'sales-performance': renderSalesPerformance(); break;
-    case 'ops-analysis': renderOpsAnalysis(); break;
-  }
-  setTimeout(function() {
-    Object.keys(chartInstances).forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el && el.offsetParent !== null && chartInstances[id]) chartInstances[id].resize();
-    });
-  }, 80);
-}
-
-function renderCommerceData() {
-  if (!commDataLoaded) {
-    commDataLoaded = true;
-    loadTalentAssetsFromGitHub();
-    loadOrderDataFromGitHub();
-  }
-  switchCommTab(commActiveTab || 'talent-assets');
-}
 
 // ---------- CSV/GitHub 工具 ----------
 function parseCSV(text) {
@@ -6701,65 +6703,6 @@ function base64ToUtf8(b64) {
   return new TextDecoder().decode(bytes);
 }
 
-function saveCommDataToGitHub(fileName, data, label) {
-  var content = utf8ToBase64(JSON.stringify(data, null, 2));
-  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/' + fileName;
-  var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
-    .then(function(resp) { return resp.json(); })
-    .then(function(fileData) {
-      var payload = {
-        message: '更新' + (label || fileName) + ' ' + new Date().toLocaleString('zh-CN'),
-        content: content, branch: GITHUB_USERS_CONFIG.branch
-      };
-      if (fileData.sha) payload.sha = fileData.sha;
-      return fetch(apiUrl, {
-        method: 'PUT',
-        headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    })
-    .then(function(resp) { return resp.json(); })
-    .then(function() { console.log('[商务数据] ' + fileName + ' 已同步到GitHub'); })
-    .catch(function(err) { console.error('[商务数据] 同步失败:', err); });
-}
-
-function loadTalentAssetsFromGitHub() {
-  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/talent_assets.json?ref=' + GITHUB_USERS_CONFIG.branch;
-  fetch(apiUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
-    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
-    .then(function(data) {
-      if (data.content) {
-        var json = JSON.parse(base64ToUtf8(data.content));
-        if (Array.isArray(json)) {
-          talentAssetsData = json;
-          updateTalentStaffFilter();
-          if (commActiveTab === 'talent-assets') renderTalentAssets();
-          persistAppStateLocal();
-          console.log('[商务数据] 达人资产加载成功，共 ' + talentAssetsData.length + ' 条');
-        }
-      }
-    })
-    .catch(function(err) { console.log('[商务数据] 达人资产未加载:', err.message); });
-}
-
-function loadOrderDataFromGitHub() {
-  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/order_data.json?ref=' + GITHUB_USERS_CONFIG.branch;
-  fetch(apiUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
-    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
-    .then(function(data) {
-      if (data.content) {
-        var json = JSON.parse(base64ToUtf8(data.content));
-        if (Array.isArray(json)) {
-          orderDataStore = json;
-          if (commActiveTab === 'order-data') renderOrderData();
-          persistAppStateLocal();
-          console.log('[商务数据] 订单数据加载成功，共 ' + orderDataStore.length + ' 条');
-        }
-      }
-    })
-    .catch(function(err) { console.log('[商务数据] 订单数据未加载:', err.message); });
-}
 
 // ---------- 通用工具 ----------
 function normPlatform(val) {
@@ -6777,341 +6720,7 @@ function normStatus(val) {
 function platformLabel(p) { return PLATFORM_LABELS[p] || p || '未知'; }
 function statusLabel(s) { return s === 'active' ? '合作中' : '已停止'; }
 
-// ==================== 达人资产模块 ====================
-function handleTalentUpload(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var name = file.name.toLowerCase();
-  if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
-    alert('仅支持 .xlsx、.xls 或 .csv 格式文件');
-    event.target.value = '';
-    return;
-  }
-  parseUploadedFile(file, function(parsed, err) {
-    if (err || !parsed) {
-      alert('文件解析失败：' + (err ? err.message : '未知错误'));
-      event.target.value = '';
-      return;
-    }
-    try {
-      var headers = parsed.headers.map(function(h) { return h.trim(); });
-      var findIdx = function(keywords) {
-        for (var i = 0; i < headers.length; i++) {
-          var h = headers[i].toLowerCase();
-          for (var j = 0; j < keywords.length; j++) {
-            if (h.indexOf(keywords[j].toLowerCase()) !== -1) return i;
-          }
-        }
-        return -1;
-      };
-      var idxName = findIdx(['达人', '名称', '昵称']);
-      var idxPlatform = findIdx(['平台']);
-      var idxStaff = findIdx(['商务', '专员', '负责人']);
-      var idxStatus = findIdx(['状态', '合作']);
-      var idxFans = findIdx(['粉丝']);
-      var idxGMV = findIdx(['gmv', '销售额', '销售']);
-      var idxOrders = findIdx(['订单', '单量']);
-      var idxScore = findIdx(['评分', '效果', '打分']);
-      talentAssetsData = parsed.rows.map(function(r) {
-        var gmv = idxGMV >= 0 ? parseFloat(String(r[idxGMV]).replace(/[,，]/g, '')) || 0 : 0;
-        var orders = idxOrders >= 0 ? parseInt(String(r[idxOrders]).replace(/[,，]/g, '')) || 0 : 0;
-        return {
-          name: idxName >= 0 ? r[idxName] : '',
-          platform: idxPlatform >= 0 ? normPlatform(r[idxPlatform]) : 'douyin',
-          staff: idxStaff >= 0 ? r[idxStaff] : '',
-          status: idxStatus >= 0 ? normStatus(r[idxStatus]) : 'active',
-          fans: idxFans >= 0 ? parseInt(String(r[idxFans]).replace(/[,，]/g, '')) || 0 : 0,
-          gmv: gmv, orders: orders,
-          unitPrice: orders > 0 ? gmv / orders : 0,
-          score: idxScore >= 0 ? parseFloat(r[idxScore]) || 0 : 0
-        };
-      });
-      updateTalentStaffFilter();
-      renderTalentAssets();
-      saveCommDataToGitHub('talent_assets.json', talentAssetsData, '达人资产数据');
-      alert('成功导入 ' + talentAssetsData.length + ' 条达人数据');
-    } catch (e) {
-      console.error(e);
-      alert('数据处理失败：' + e.message);
-    }
-    event.target.value = '';
-  });
-}
 
-function renderTalentAssets() {
-  var el = document.getElementById('talent-detail-table');
-  var platformFilter = (document.getElementById('talent-platform-filter') || {}).value || 'all';
-  var staffFilter = (document.getElementById('talent-staff-filter') || {}).value || 'all';
-  var statusFilter = (document.getElementById('talent-status-filter') || {}).value || 'all';
-
-  if (!talentAssetsData || talentAssetsData.length === 0) {
-    setKpi('talent-kpi-total', '0', 'talent-kpi-total-sub', '请上传达人资产表');
-    setKpi('talent-kpi-active', '0', 'talent-kpi-active-sub', '无数据');
-    setKpi('talent-kpi-gmv', '--', 'talent-kpi-gmv-sub', '无数据');
-    setKpi('talent-kpi-avg', '--', 'talent-kpi-avg-sub', '无数据');
-    var c1 = getChart('talent-platform-chart'); if (c1) c1.clear();
-    var c2 = getChart('talent-top-chart'); if (c2) c2.clear();
-    if (el) el.innerHTML = '<div class="comm-empty-state"><div class="empty-icon">📊</div><div class="empty-text">暂无达人资产数据</div><div class="empty-hint">请点击"上传达人资产表"导入Excel/CSV文件</div></div>';
-    return;
-  }
-
-  var filtered = talentAssetsData.filter(function(d) {
-    if (platformFilter !== 'all' && d.platform !== platformFilter) return false;
-    if (staffFilter !== 'all' && d.staff !== staffFilter) return false;
-    if (statusFilter !== 'all' && d.status !== statusFilter) return false;
-    return true;
-  });
-
-  var totalGMV = filtered.reduce(function(s, d) { return s + (d.gmv || 0); }, 0);
-  var activeCount = filtered.filter(function(d) { return d.status === 'active'; }).length;
-  var avgGMV = filtered.length > 0 ? totalGMV / filtered.length : 0;
-  setKpi('talent-kpi-total', filtered.length + ' 人', 'talent-kpi-total-sub', '已导入数据');
-  setKpi('talent-kpi-active', activeCount + ' 人', 'talent-kpi-active-sub', '活跃合作');
-  setKpi('talent-kpi-gmv', formatMoney(totalGMV), 'talent-kpi-gmv-sub', '所有达人贡献');
-  setKpi('talent-kpi-avg', formatMoney(avgGMV), 'talent-kpi-avg-sub', '人均GMV');
-
-  renderTalentPlatformChart(filtered);
-  renderTalentTopChart(filtered);
-
-  if (el) {
-    var headers = ['达人名称', '平台', '商务专员', '合作状态', '粉丝数', 'GMV', '订单数', '客单价', '合作效果评分'];
-    var rows = filtered.map(function(d) {
-      return [
-        { v: d.name }, { v: platformLabel(d.platform) }, { v: d.staff },
-        { v: statusLabel(d.status), cls: d.status === 'active' ? 'num-positive' : 'num-negative' },
-        { v: (d.fans || 0).toLocaleString() }, { v: formatMoney(d.gmv) }, { v: d.orders || 0 },
-        { v: formatMoney(d.unitPrice) }, { v: d.score > 0 ? d.score.toFixed(1) : '--' }
-      ];
-    });
-    var foot = [
-      { v: '合计' }, { v: '-' }, { v: '-' }, { v: activeCount + ' 合作中' },
-      { v: filtered.reduce(function(s, d) { return s + (d.fans || 0); }, 0).toLocaleString() },
-      { v: formatMoney(totalGMV) },
-      { v: filtered.reduce(function(s, d) { return s + (d.orders || 0); }, 0) },
-      { v: '-' }, { v: '-' }
-    ];
-    el.innerHTML = buildTable(headers, rows, foot);
-  }
-}
-
-function renderTalentPlatformChart(data) {
-  var chart = getChart('talent-platform-chart'); if (!chart) return;
-  var platMap = {};
-  data.forEach(function(d) { var p = platformLabel(d.platform); platMap[p] = (platMap[p] || 0) + 1; });
-  var pieData = Object.keys(platMap).map(function(k) { return { name: k, value: platMap[k] }; });
-  chart.setOption({
-    tooltip: Object.assign(tooltipItem(), { formatter: '{b}: {c}人 ({d}%)' }),
-    legend: { bottom: 0, textStyle: { color: '#606266' } },
-    series: [{
-      type: 'pie', radius: ['40%', '65%'], center: ['50%', '45%'], data: pieData,
-      itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
-      label: { formatter: '{b}\n{d}%', color: '#606266', fontSize: 11 }
-    }],
-    color: ['#409eff', '#67c23a', '#e6a23c', '#b37feb']
-  }, true);
-}
-
-function renderTalentTopChart(data) {
-  var chart = getChart('talent-top-chart'); if (!chart) return;
-  var sorted = data.slice().sort(function(a, b) { return (a.gmv || 0) - (b.gmv || 0); }).slice(-10);
-  var xData = sorted.map(function(d) { return d.name || '-'; });
-  var yData = sorted.map(function(d) { return Math.round(d.gmv || 0); });
-  chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: function(p) { return p[0].axisValue + ': ' + formatMoney(p[0].value) + ' 元'; } }),
-    grid: { left: '3%', right: '8%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'value', axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    yAxis: { type: 'category', data: xData, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { fontSize: 11 }) },
-    series: [{ type: 'bar', data: yData, itemStyle: { color: THEME.primary }, barMaxWidth: 22, label: { show: true, position: 'right', formatter: function(p) { return formatMoney(p.value); }, color: '#606266', fontSize: 10 } }]
-  }, true);
-}
-
-function updateTalentStaffFilter() {
-  var sel = document.getElementById('talent-staff-filter');
-  if (!sel) return;
-  var staffs = {};
-  talentAssetsData.forEach(function(d) { if (d.staff) staffs[d.staff] = true; });
-  var list = Object.keys(staffs).sort();
-  var cur = sel.value || 'all';
-  sel.innerHTML = '<option value="all">全部商务</option>' + list.map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
-  sel.value = cur;
-}
-
-// ==================== 订单数据模块 ====================
-function handleOrderUpload(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var name = file.name.toLowerCase();
-  if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
-    alert('仅支持 .xlsx、.xls 或 .csv 格式文件');
-    event.target.value = '';
-    return;
-  }
-  parseUploadedFile(file, function(parsed, err) {
-    if (err || !parsed) {
-      alert('文件解析失败：' + (err ? err.message : '未知错误'));
-      event.target.value = '';
-      return;
-    }
-    try {
-      var headers = parsed.headers.map(function(h) { return h.trim(); });
-      var findIdx = function(keywords) {
-        for (var i = 0; i < headers.length; i++) {
-          var h = headers[i].toLowerCase();
-          for (var j = 0; j < keywords.length; j++) {
-            if (h.indexOf(keywords[j].toLowerCase()) !== -1) return i;
-          }
-        }
-        return -1;
-      };
-      var idxOrderNo = findIdx(['订单号', '单号', 'order']);
-      var idxDate = findIdx(['日期', '时间', 'date']);
-      var idxPlatform = findIdx(['平台']);
-      var idxTalent = findIdx(['达人', '主播']);
-      var idxProduct = findIdx(['商品', '产品']);
-      var idxQty = findIdx(['数量', '件数', 'qty']);
-      var idxAmount = findIdx(['金额', '实付', 'amount']);
-      var idxRefund = findIdx(['退款', 'refund']);
-      orderDataStore = parsed.rows.map(function(r) {
-        return {
-          orderNo: idxOrderNo >= 0 ? r[idxOrderNo] : '',
-          date: idxDate >= 0 ? r[idxDate] : '',
-          platform: idxPlatform >= 0 ? normPlatform(r[idxPlatform]) : 'douyin',
-          talent: idxTalent >= 0 ? r[idxTalent] : '',
-          product: idxProduct >= 0 ? r[idxProduct] : '',
-          quantity: idxQty >= 0 ? parseInt(String(r[idxQty]).replace(/[,，]/g, '')) || 0 : 0,
-          amount: idxAmount >= 0 ? parseFloat(String(r[idxAmount]).replace(/[,，]/g, '')) || 0 : 0,
-          refund: idxRefund >= 0 ? parseFloat(String(r[idxRefund]).replace(/[,，]/g, '')) || 0 : 0
-        };
-      });
-      renderOrderData();
-      saveCommDataToGitHub('order_data.json', orderDataStore, '订单数据');
-      alert('成功导入 ' + orderDataStore.length + ' 条订单数据');
-    } catch (e) {
-      console.error(e);
-      alert('数据处理失败：' + e.message);
-    }
-    event.target.value = '';
-  });
-}
-
-function renderOrderData() {
-  var el = document.getElementById('order-detail-table');
-  var platformFilter = (document.getElementById('order-platform-filter') || {}).value || 'all';
-  var startDate = (document.getElementById('order-start-date') || {}).value || '';
-  var endDate = (document.getElementById('order-end-date') || {}).value || '';
-
-  if (!orderDataStore || orderDataStore.length === 0) {
-    setKpi('order-kpi-total', '0', 'order-kpi-total-sub', '请上传订单数据');
-    setKpi('order-kpi-amount', '--', 'order-kpi-amount-sub', '无数据');
-    setKpi('order-kpi-avg', '--', 'order-kpi-avg-sub', '无数据');
-    setKpi('order-kpi-refund', '--', 'order-kpi-refund-sub', '无数据');
-    var c1 = getChart('order-trend-chart'); if (c1) c1.clear();
-    var c2 = getChart('order-platform-chart'); if (c2) c2.clear();
-    if (el) el.innerHTML = '<div class="comm-empty-state"><div class="empty-icon">📋</div><div class="empty-text">暂无订单数据</div><div class="empty-hint">请点击"上传订单数据"导入CSV文件</div></div>';
-    return;
-  }
-
-  var filtered = orderDataStore.filter(function(d) {
-    if (platformFilter !== 'all' && d.platform !== platformFilter) return false;
-    if (startDate && d.date && d.date < startDate) return false;
-    if (endDate && d.date && d.date > endDate) return false;
-    return true;
-  });
-
-  var totalAmount = filtered.reduce(function(s, d) { return s + (d.amount || 0); }, 0);
-  var totalRefund = filtered.reduce(function(s, d) { return s + (d.refund || 0); }, 0);
-  var avgPrice = filtered.length > 0 ? totalAmount / filtered.length : 0;
-  setKpi('order-kpi-total', filtered.length + ' 单', 'order-kpi-total-sub', '已导入数据');
-  setKpi('order-kpi-amount', formatMoney(totalAmount), 'order-kpi-amount-sub', '总金额');
-  setKpi('order-kpi-avg', formatMoney(avgPrice), 'order-kpi-avg-sub', '金额/订单数');
-  setKpi('order-kpi-refund', formatMoney(totalRefund), 'order-kpi-refund-sub', '退款总额');
-
-  renderOrderTrendChart(filtered);
-  renderOrderPlatformChart(filtered);
-
-  if (el) {
-    var headers = ['订单号', '日期', '平台', '达人', '商品', '数量', '金额', '退款金额'];
-    var rows = filtered.map(function(d) {
-      return [
-        { v: d.orderNo }, { v: d.date }, { v: platformLabel(d.platform) },
-        { v: d.talent }, { v: d.product }, { v: d.quantity || 0 },
-        { v: formatMoney(d.amount) }, { v: formatMoney(d.refund), cls: d.refund > 0 ? 'num-negative' : '' }
-      ];
-    });
-    var foot = [
-      { v: '合计' }, { v: '-' }, { v: '-' }, { v: '-' }, { v: '-' },
-      { v: filtered.reduce(function(s, d) { return s + (d.quantity || 0); }, 0) },
-      { v: formatMoney(totalAmount) }, { v: formatMoney(totalRefund) }
-    ];
-    el.innerHTML = buildTable(headers, rows, foot);
-  }
-}
-
-function renderOrderTrendChart(data) {
-  var chart = getChart('order-trend-chart'); if (!chart) return;
-  var dayMap = {};
-  data.forEach(function(d) { var key = d.date || '未知'; dayMap[key] = (dayMap[key] || 0) + (d.amount || 0); });
-  var days = Object.keys(dayMap).sort();
-  var amounts = days.map(function(d) { return Math.round(dayMap[d]); });
-  chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: function(p) { return p[0].axisValue + '<br/>' + p[0].marker + ' 金额: ' + formatMoney(p[0].value) + ' 元'; } }),
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: days, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { rotate: 30, fontSize: 10 }) },
-    yAxis: { type: 'value', axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    series: [{ type: 'line', smooth: true, data: amounts, itemStyle: { color: THEME.success }, areaStyle: { color: 'rgba(103,194,58,0.12)' } }]
-  }, true);
-}
-
-function renderOrderPlatformChart(data) {
-  var chart = getChart('order-platform-chart'); if (!chart) return;
-  var platMap = {};
-  data.forEach(function(d) { var p = platformLabel(d.platform); platMap[p] = (platMap[p] || 0) + (d.amount || 0); });
-  var pieData = Object.keys(platMap).map(function(k) { return { name: k, value: Math.round(platMap[k]) }; });
-  chart.setOption({
-    tooltip: Object.assign(tooltipItem(), { formatter: function(p) { return p.name + ': ' + formatMoney(p.value) + ' 元 (' + p.percent + '%)'; } }),
-    legend: { bottom: 0, textStyle: { color: '#606266' } },
-    series: [{
-      type: 'pie', radius: ['40%', '65%'], center: ['50%', '45%'], data: pieData,
-      itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
-      label: { formatter: '{b}\n{d}%', color: '#606266', fontSize: 11 }
-    }],
-    color: ['#409eff', '#67c23a', '#e6a23c', '#b37feb']
-  }, true);
-}
-
-function downloadOrderSource() {
-  if (!orderDataStore || orderDataStore.length === 0) { alert('暂无订单数据可下载'); return; }
-  var headers = ['订单号', '日期', '平台', '达人', '商品', '数量', '金额', '退款金额'];
-  var lines = [headers.join(',')];
-  orderDataStore.forEach(function(d) {
-    lines.push([
-      '"' + (d.orderNo || '') + '"', '"' + (d.date || '') + '"', '"' + platformLabel(d.platform) + '"',
-      '"' + (d.talent || '') + '"', '"' + (d.product || '') + '"',
-      d.quantity || 0, d.amount || 0, d.refund || 0
-    ].join(','));
-  });
-  var csv = '\uFEFF' + lines.join('\n');
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  var link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'order_data_' + new Date().toISOString().slice(0, 10) + '.csv';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-// ==================== 提成方案模块 ====================
-function renderCommissionPlan() {
-  var el = document.getElementById('commission-plan-content');
-  if (!el) return;
-  var version = (document.getElementById('commission-version-filter') || {}).value || 'v3';
-  var html = '';
-  if (version === 'v3') html = commPlanV3HTML();
-  else if (version === 'v2') html = commPlanV2HTML();
-  else if (version === 'v1') html = commPlanV1HTML();
-  else html = commPlanCompareHTML();
-  el.innerHTML = html;
-}
 
 function commPlanV3HTML() {
   var h = '';
@@ -7432,349 +7041,6 @@ function commPlanCompareHTML() {
   return h;
 }
 
-// ==================== 销售业绩模块 ====================
-function renderSalesPerformance() {
-  var dimension = (document.getElementById('perf-dimension') || {}).value || 'staff';
-  var tableTitle = document.getElementById('perf-table-title');
-  var range = computeDateRange();
-  var agg = aggregateData(range.start, range.end);
-  var shops = aggregateShops(range.start, range.end, appState.platform);
-  var shopList = Object.keys(shops).map(function(k) { return shops[k]; });
-
-  setKpi('perf-kpi-sales', formatMoney(agg.销售额), 'perf-kpi-sales-sub', '基于现有业务数据');
-  setKpi('perf-kpi-commission', formatMoney(agg.佣金), 'perf-kpi-commission-sub', '基于现有业务数据');
-  setKpi('perf-kpi-staff', shopList.length + ' 个', 'perf-kpi-staff-sub', '在营店铺/商务');
-  setKpi('perf-kpi-talent', talentAssetsData.length + ' 人', 'perf-kpi-talent-sub', talentAssetsData.length > 0 ? '已录入达人' : '待上传达人数据');
-
-  var el = document.getElementById('perf-detail-table');
-
-  if (dimension === 'staff') {
-    if (tableTitle) tableTitle.textContent = '商务专员业绩明细';
-    renderPerfStaffBar(shopList);
-    renderPerfTalentPie(shopList);
-    if (el) {
-      var sorted = shopList.slice().sort(function(a, b) { return b.GMV - a.GMV; });
-      var headers = ['排名', '店铺/商务', '平台', 'GMV', '销售额', '佣金', '利润'];
-      var rows = sorted.map(function(s, i) {
-        return [
-          { v: i + 1 }, { v: shortName(s.name) }, { v: platformLabel(s.platform) },
-          { v: formatMoney(s.GMV) }, { v: formatMoney(s.sales) }, { v: formatMoney(s.commission) },
-          { v: formatMoney(s.profit), cls: s.profit >= 0 ? 'num-positive' : 'num-negative' }
-        ];
-      });
-      var foot = [
-        { v: '合计' }, { v: '-' }, { v: '-' }, { v: formatMoney(agg.GMV) },
-        { v: formatMoney(agg.销售额) }, { v: formatMoney(agg.佣金) },
-        { v: formatMoney(agg.毛利润), cls: agg.毛利润 >= 0 ? 'num-positive' : 'num-negative' }
-      ];
-      el.innerHTML = buildTable(headers, rows, foot);
-    }
-  } else if (dimension === 'talent') {
-    if (tableTitle) tableTitle.textContent = '达人贡献明细';
-    if (talentAssetsData.length > 0) {
-      var sortedTal = talentAssetsData.slice().sort(function(a, b) { return (b.gmv || 0) - (a.gmv || 0); });
-      renderPerfStaffBar(sortedTal.slice(0, 10).map(function(d) { return { name: d.name, GMV: d.gmv || 0, platform: d.platform }; }));
-      renderPerfTalentPie(talentAssetsData.map(function(d) { return { platform: d.platform, GMV: d.gmv || 0 }; }));
-      if (el) {
-        var headers = ['排名', '达人名称', '平台', '商务专员', 'GMV', '订单数', '客单价', '效果评分'];
-        var rows = sortedTal.map(function(d, i) {
-          return [
-            { v: i + 1 }, { v: d.name }, { v: platformLabel(d.platform) }, { v: d.staff },
-            { v: formatMoney(d.gmv) }, { v: d.orders || 0 }, { v: formatMoney(d.unitPrice) },
-            { v: d.score > 0 ? d.score.toFixed(1) : '--' }
-          ];
-        });
-        el.innerHTML = buildTable(headers, rows);
-      }
-    } else {
-      var c1 = getChart('perf-staff-chart'); if (c1) c1.clear();
-      var c2 = getChart('perf-talent-chart'); if (c2) c2.clear();
-      if (el) el.innerHTML = '<div class="comm-empty-state"><div class="empty-icon">📈</div><div class="empty-text">暂无达人业绩数据</div><div class="empty-hint">请前往"达人资产"模块上传达人数据</div></div>';
-    }
-  } else if (dimension === 'product') {
-    if (tableTitle) tableTitle.textContent = '商品销量排行';
-    renderPerfProductView();
-  } else if (dimension === 'cross') {
-    if (tableTitle) tableTitle.textContent = '商务×月份交叉对比';
-    renderPerfCrossView(shopList);
-  }
-}
-
-function renderPerfStaffBar(list) {
-  var chart = getChart('perf-staff-chart'); if (!chart) return;
-  var sorted = list.slice().sort(function(a, b) { return (b.GMV || 0) - (a.GMV || 0); }).slice(0, 10);
-  var xData = sorted.map(function(s) { return s.name ? shortName(s.name) : (s.name || '-'); });
-  var yData = sorted.map(function(s) { return Math.round(s.GMV || 0); });
-  chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: function(p) { return p[0].axisValue + ': ' + formatMoney(p[0].value) + ' 元'; } }),
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: xData, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { rotate: 30, fontSize: 10 }) },
-    yAxis: { type: 'value', axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    series: [{ type: 'bar', data: yData, itemStyle: { color: THEME.primary }, barMaxWidth: 36 }]
-  }, true);
-}
-
-function renderPerfTalentPie(list) {
-  var chart = getChart('perf-talent-chart'); if (!chart) return;
-  var map = {};
-  list.forEach(function(s) { var p = s.platform ? platformLabel(s.platform) : '未知'; map[p] = (map[p] || 0) + (s.GMV || 0); });
-  var pieData = Object.keys(map).map(function(k) { return { name: k, value: Math.round(map[k]) }; });
-  chart.setOption({
-    tooltip: Object.assign(tooltipItem(), { formatter: function(p) { return p.name + ': ' + formatMoney(p.value) + ' 元 (' + p.percent + '%)'; } }),
-    legend: { bottom: 0, textStyle: { color: '#606266' } },
-    series: [{ type: 'pie', radius: ['40%', '65%'], center: ['50%', '45%'], data: pieData, itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 }, label: { formatter: '{b}\n{d}%', color: '#606266', fontSize: 11 } }],
-    color: ['#409eff', '#67c23a', '#e6a23c', '#b37feb']
-  }, true);
-}
-
-function renderPerfProductView() {
-  var chart = getChart('perf-staff-chart'); if (!chart) return;
-  var months = (businessData.meta.periods || []).slice().sort();
-  var monthly = aggregateMonthly();
-  var xData = months;
-  var gmvData = months.map(function(m) { return monthly[m] ? Math.round(monthly[m].GMV) : 0; });
-  var salesData = months.map(function(m) { return monthly[m] ? Math.round(monthly[m].sales) : 0; });
-  chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
-    legend: { data: ['GMV', '销售额'], textStyle: { color: '#606266' }, top: 0 },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: xData, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { rotate: 45, fontSize: 10 }) },
-    yAxis: { type: 'value', axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    series: [
-      { name: 'GMV', type: 'bar', data: gmvData, itemStyle: { color: THEME.primary }, barMaxWidth: 30 },
-      { name: '销售额', type: 'bar', data: salesData, itemStyle: { color: THEME.success }, barMaxWidth: 30 }
-    ]
-  }, true);
-  var c2 = getChart('perf-talent-chart'); if (c2) c2.clear();
-  var el = document.getElementById('perf-detail-table');
-  if (el) {
-    var headers = ['月份', 'GMV', '销售额', '退款', '佣金', '利润', '利润率'];
-    var rows = months.map(function(m) {
-      var ma = monthly[m] || emptyTot();
-      var pr = ma.sales > 0 ? (ma.profit / ma.sales * 100) : 0;
-      return [{ v: m }, { v: formatMoney(ma.GMV) }, { v: formatMoney(ma.sales) }, { v: formatMoney(ma.refund) }, { v: formatMoney(ma.commission) }, { v: formatMoney(ma.profit), cls: ma.profit >= 0 ? 'num-positive' : 'num-negative' }, { v: formatPercent(pr), cls: pr >= 0 ? 'num-positive' : 'num-negative' }];
-    });
-    el.innerHTML = buildTable(headers, rows);
-  }
-}
-
-function getShopMonthGMV(shopName, month) {
-  var monthData = businessData.daily_data[month];
-  if (!monthData) return 0;
-  var gmv = 0;
-  Object.keys(monthData).forEach(function(dateStr) {
-    monthData[dateStr].shops.forEach(function(shop) { if (shop.name === shopName) gmv += shop.GMV; });
-  });
-  return gmv;
-}
-
-function renderPerfCrossView(shopList) {
-  var chart = getChart('perf-staff-chart'); if (!chart) return;
-  var months = (businessData.meta.periods || []).slice().sort().slice(-6);
-  var topShops = shopList.slice().sort(function(a, b) { return b.GMV - a.GMV; }).slice(0, 8);
-  var data = [], maxVal = 0;
-  topShops.forEach(function(s, yi) {
-    months.forEach(function(m, xi) {
-      var val = Math.round(getShopMonthGMV(s.name, m));
-      data.push([xi, yi, val]);
-      if (val > maxVal) maxVal = val;
-    });
-  });
-  chart.setOption({
-    tooltip: { position: 'top', formatter: function(p) { return months[p.value[0]] + ' / ' + shortName(topShops[p.value[1]].name) + '<br/>GMV: ' + formatMoney(p.value[2]); } },
-    grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-    xAxis: { type: 'category', data: months, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { rotate: 30, fontSize: 10 }), splitArea: { show: true } },
-    yAxis: { type: 'category', data: topShops.map(function(s) { return shortName(s.name); }), axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { fontSize: 11 }), splitArea: { show: true } },
-    visualMap: { min: 0, max: maxVal || 1, calculable: true, orient: 'horizontal', left: 'center', bottom: 0, textStyle: { color: '#606266' }, inRange: { color: ['#e0e7ff', '#409eff', '#6d28d9'] } },
-    series: [{ name: 'GMV', type: 'heatmap', data: data, label: { show: false }, emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' } } }]
-  }, true);
-  var c2 = getChart('perf-talent-chart'); if (c2) c2.clear();
-  var el = document.getElementById('perf-detail-table');
-  if (el) {
-    var headers = ['店铺/商务'].concat(months).concat(['合计']);
-    var rows = topShops.map(function(s) {
-      var row = [{ v: shortName(s.name) }];
-      var total = 0;
-      months.forEach(function(m) { var val = getShopMonthGMV(s.name, m); row.push({ v: formatMoney(val) }); total += val; });
-      row.push({ v: formatMoney(total), cls: 'num-positive' });
-      return row;
-    });
-    el.innerHTML = buildTable(headers, rows);
-  }
-}
-
-// ==================== 运营分析模块 ====================
-function renderOpsAnalysis() {
-  var period = (document.getElementById('ops-period') || {}).value || 'monthly';
-  var customRange = document.getElementById('ops-custom-range');
-  if (customRange) customRange.style.display = period === 'custom' ? 'flex' : 'none';
-
-  var range = computeDateRange();
-  var agg = aggregateData(range.start, range.end);
-  var months = (businessData.meta.periods || []).slice().sort();
-  var monthly = aggregateMonthly();
-  var shops = aggregateShops(range.start, range.end, appState.platform);
-
-  setKpi('ops-kpi-gmv', formatMoney(agg.GMV), 'ops-kpi-gmv-sub', '当前周期');
-  var momVal = '--';
-  if (months.length >= 2) {
-    var lastM = monthly[months[months.length - 1]];
-    var prevM = monthly[months[months.length - 2]];
-    if (lastM && prevM && prevM.GMV > 0) {
-      var mom = (lastM.GMV - prevM.GMV) / prevM.GMV * 100;
-      momVal = (mom >= 0 ? '+' : '') + mom.toFixed(1) + '%';
-    }
-  }
-  setKpi('ops-kpi-mom', momVal, 'ops-kpi-mom-sub', '最近两月对比');
-
-  var activeTalent = talentAssetsData.filter(function(d) { return d.status === 'active'; }).length;
-  var talentRate = talentAssetsData.length > 0 ? (activeTalent / talentAssetsData.length * 100) : 0;
-  setKpi('ops-kpi-talent', formatPercent(talentRate), 'ops-kpi-talent-sub', activeTalent + '/' + talentAssetsData.length + ' 活跃');
-
-  var shopKeys = Object.keys(shops);
-  var activeShops = shopKeys.filter(function(k) { return shops[k].GMV > 0; }).length;
-  var shopRate = shopKeys.length > 0 ? (activeShops / shopKeys.length * 100) : 0;
-  setKpi('ops-kpi-product', formatPercent(shopRate), 'ops-kpi-product-sub', activeShops + '/' + shopKeys.length + ' 有动销');
-
-  renderOpsGmvTrend(months, monthly);
-  renderOpsTalentScatter(talentAssetsData, shops);
-}
-
-function renderOpsGmvTrend(months, monthly) {
-  var chart = getChart('ops-gmv-trend'); if (!chart) return;
-  var xData = months;
-  var gmvData = months.map(function(m) { return monthly[m] ? Math.round(monthly[m].GMV) : 0; });
-  var salesData = months.map(function(m) { return monthly[m] ? Math.round(monthly[m].sales) : 0; });
-  chart.setOption({
-    tooltip: Object.assign(tooltipAxis(), { formatter: moneyTooltipFormatter }),
-    legend: { data: ['GMV', '销售额'], textStyle: { color: '#606266' }, top: 0 },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: xData, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { rotate: 45, fontSize: 10 }) },
-    yAxis: { type: 'value', axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    series: [
-      { name: 'GMV', type: 'line', smooth: true, data: gmvData, itemStyle: { color: THEME.primary }, areaStyle: { color: 'rgba(64,158,255,0.12)' } },
-      { name: '销售额', type: 'line', smooth: true, data: salesData, itemStyle: { color: THEME.success }, areaStyle: { color: 'rgba(103,194,58,0.12)' } }
-    ]
-  }, true);
-}
-
-function renderOpsTalentScatter(talentData, shops) {
-  var chart = getChart('ops-talent-scatter'); if (!chart) return;
-  var data = [], hasTalent = talentData && talentData.length > 0;
-  if (hasTalent) {
-    data = talentData.map(function(d) { return [d.fans || 0, d.gmv || 0, d.name || '', platformLabel(d.platform)]; });
-  } else {
-    Object.keys(shops).forEach(function(k) {
-      var s = shops[k];
-      data.push([Math.round(s.commission || 0), Math.round(s.GMV || 0), shortName(s.name), platformLabel(s.platform)]);
-    });
-  }
-  chart.setOption({
-    tooltip: {
-      formatter: function(p) {
-        var xLabel = hasTalent ? '粉丝数' : '佣金';
-        return p.data[2] + '<br/>' + xLabel + ': ' + (hasTalent ? (p.data[0] || 0).toLocaleString() : formatMoney(p.data[0])) + '<br/>GMV: ' + formatMoney(p.data[1]) + '<br/>平台: ' + p.data[3];
-      }
-    },
-    grid: { left: '3%', right: '5%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'value', name: hasTalent ? '粉丝数' : '佣金(元)', nameTextStyle: { color: '#909399', fontSize: 11 }, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    yAxis: { type: 'value', name: 'GMV(元)', nameTextStyle: { color: '#909399', fontSize: 11 }, axisLine: axisLine(), axisLabel: Object.assign(axisLabel(), { formatter: axisMoneyFormatter }), splitLine: splitLineStyle() },
-    series: [{ type: 'scatter', data: data, symbolSize: function(d) { return Math.max(8, Math.min(40, Math.sqrt(d[1] || 1) / 10)); }, itemStyle: { color: THEME.purple, opacity: 0.7 } }]
-  }, true);
-}
-
-function runAIAnalysis() {
-  var statusEl = document.getElementById('aiStatus');
-  var bodyEl = document.getElementById('aiPanelBody');
-  if (!statusEl || !bodyEl) return;
-  statusEl.textContent = '分析中...';
-  statusEl.className = 'ai-status running';
-  bodyEl.innerHTML = '<div class="ai-placeholder">🤖 正在进行多维度数据分析，请稍候...</div>';
-
-  setTimeout(function() {
-    var range = computeDateRange();
-    var agg = aggregateData(range.start, range.end);
-    var months = (businessData.meta.periods || []).slice().sort();
-    var monthly = aggregateMonthly();
-    var shops = aggregateShops(range.start, range.end, appState.platform);
-    var shopList = Object.keys(shops).map(function(k) { return shops[k]; }).sort(function(a, b) { return b.GMV - a.GMV; });
-    var html = '';
-
-    html += '<div class="ai-result-section"><h4>📊 总体运营概览</h4><p>';
-    html += '当前周期GMV为 <b>' + formatMoney(agg.GMV) + '</b>，净销售额 <b>' + formatMoney(agg.销售额) + '</b>，';
-    html += '佣金收入 <b>' + formatMoney(agg.佣金) + '</b>，毛利润 <b>' + formatMoney(agg.毛利润) + '</b>。';
-    var profitRate = agg.销售额 > 0 ? (agg.毛利润 / agg.销售额 * 100) : 0;
-    html += '整体利润率为 <b>' + formatPercent(profitRate) + '</b>' + (profitRate >= 0 ? '，处于盈利状态。' : '，当前处于亏损状态，需重点关注成本控制。');
-    html += '</p></div>';
-
-    html += '<div class="ai-result-section"><h4>📈 GMV趋势分析</h4><ul>';
-    if (months.length >= 2) {
-      var lastM = monthly[months[months.length - 1]];
-      var prevM = monthly[months[months.length - 2]];
-      if (lastM && prevM) {
-        var momGmv = prevM.GMV > 0 ? ((lastM.GMV - prevM.GMV) / prevM.GMV * 100) : 0;
-        html += '<li>最近月份GMV环比' + (momGmv >= 0 ? '增长' : '下降') + ' <b>' + Math.abs(momGmv).toFixed(1) + '%</b>，' + (momGmv >= 0 ? '增长势头良好。' : '需关注下滑原因。') + '</li>';
-      }
-    }
-    var maxMonth = months[0], maxGmv = 0;
-    months.forEach(function(m) { if (monthly[m] && monthly[m].GMV > maxGmv) { maxGmv = monthly[m].GMV; maxMonth = m; } });
-    html += '<li>GMV峰值出现在 <b>' + maxMonth + '</b>，达 <b>' + formatMoney(maxGmv) + '</b>。</li>';
-    var avgGmv = agg.GMV / Math.max(1, months.length);
-    html += '<li>月均GMV约 <b>' + formatMoney(avgGmv) + '</b>，当前周期覆盖 ' + months.length + ' 个月。</li>';
-    html += '</ul></div>';
-
-    html += '<div class="ai-result-section"><h4>🤝 达人资产分析</h4><ul>';
-    if (talentAssetsData.length > 0) {
-      var activeTalents = talentAssetsData.filter(function(d) { return d.status === 'active'; });
-      var totalTalentGmv = talentAssetsData.reduce(function(s, d) { return s + (d.gmv || 0); }, 0);
-      var topTalent = talentAssetsData.slice().sort(function(a, b) { return (b.gmv || 0) - (a.gmv || 0); })[0];
-      html += '<li>共录入达人 <b>' + talentAssetsData.length + '</b> 人，其中合作中 <b>' + activeTalents.length + '</b> 人。</li>';
-      html += '<li>达人总贡献GMV <b>' + formatMoney(totalTalentGmv) + '</b>，头部达人 <b>' + (topTalent ? topTalent.name : '-') + '</b> 贡献最高。</li>';
-      var talRate = activeTalents.length / talentAssetsData.length * 100;
-      html += '<li>达人活跃度为 <b>' + formatPercent(talRate) + '</b>。' + (talRate > 70 ? '活跃度良好。' : '建议激活更多休眠达人。') + '</li>';
-    } else {
-      html += '<li>暂无达人资产数据，建议尽快上传达人资产表以进行深度分析。</li>';
-    }
-    html += '</ul></div>';
-
-    html += '<div class="ai-result-section"><h4>🏪 店铺/商务分析</h4><ul>';
-    if (shopList.length > 0) {
-      var topShop = shopList[0];
-      var shopGmvSum = shopList.reduce(function(s, sh) { return s + sh.GMV; }, 0);
-      var topShare = shopGmvSum > 0 ? (topShop.GMV / shopGmvSum * 100) : 0;
-      html += '<li>当前周期在营店铺 <b>' + shopList.length + '</b> 个，头部店铺 <b>' + shortName(topShop.name) + '</b> GMV占比 <b>' + topShare.toFixed(1) + '%</b>。</li>';
-      if (topShare > 50) html += '<li>头部店铺集中度过高（>50%），建议拓展更多店铺分散风险。</li>';
-      var lossShops = shopList.filter(function(s) { return s.profit < 0; });
-      if (lossShops.length > 0) html += '<li>有 <b>' + lossShops.length + '</b> 个店铺处于亏损状态，建议复盘亏损店铺的成本结构。</li>';
-    }
-    html += '</ul></div>';
-
-    html += '<div class="ai-result-section"><h4>📋 订单数据分析</h4><ul>';
-    if (orderDataStore.length > 0) {
-      var totalAmount = orderDataStore.reduce(function(s, d) { return s + (d.amount || 0); }, 0);
-      var totalRefund = orderDataStore.reduce(function(s, d) { return s + (d.refund || 0); }, 0);
-      var refundRate = totalAmount > 0 ? (totalRefund / totalAmount * 100) : 0;
-      html += '<li>共录入订单 <b>' + orderDataStore.length + '</b> 笔，总金额 <b>' + formatMoney(totalAmount) + '</b>。</li>';
-      html += '<li>退款金额 <b>' + formatMoney(totalRefund) + '</b>，退款率 <b>' + refundRate.toFixed(2) + '%</b>。' + (refundRate > 10 ? '退款率偏高，需关注商品质量与售后。' : '退款率处于正常水平。') + '</li>';
-    } else {
-      html += '<li>暂无订单明细数据，建议上传订单数据以进行退款率与客单价深度分析。</li>';
-    }
-    html += '</ul></div>';
-
-    html += '<div class="ai-result-section"><h4>💡 运营建议</h4><ul>';
-    if (profitRate < 0) html += '<li>当前利润率为负，建议优先优化成本结构，控制千川投放与商品成本。</li>';
-    if (talentAssetsData.length === 0) html += '<li>建议尽快上传达人资产数据，建立达人资源库，优化达人合作策略。</li>';
-    if (orderDataStore.length === 0) html += '<li>建议上传订单明细数据，实现退款率监控与客单价优化。</li>';
-    if (shopList.length > 0 && shopList[0].GMV / Math.max(1, shopList.reduce(function(s, sh) { return s + sh.GMV; }, 0)) > 0.5) html += '<li>头部店铺集中度过高，建议培育更多腰部店铺，降低单店依赖风险。</li>';
-    html += '<li>建议结合"打品驱动型"提成方案（V3），重点推动新发品打品，利用打品期1.5%提成加持快速起量。</li>';
-    html += '<li>定期复盘达人合作效果评分，淘汰低效达人，重点资源向高评分达人倾斜。</li>';
-    html += '</ul></div>';
-
-    bodyEl.innerHTML = html;
-    statusEl.textContent = '分析完成';
-    statusEl.className = 'ai-status done';
-  }, 1200);
-}
 
 // ==================== 目标制定 ====================
 var ANNUAL_GMV_TARGET = 50000000;   // 5000万
@@ -7922,6 +7188,17 @@ function loadStrategyData() {
     }
   } catch(e) {}
   renderStrategyPanel();
+  // 从GitHub获取最新数据（跨用户同步）
+  fetchStrategyFromGitHub().then(function(remoteData) {
+    if (remoteData && remoteData.length > 0) {
+      if (strategyProducts.length === 0 || remoteData.length >= strategyProducts.length) {
+        strategyProducts = remoteData;
+        try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+        renderStrategyPanel();
+        console.log('[新品策航] 已从GitHub同步 ' + strategyProducts.length + ' 条产品');
+      }
+    }
+  });
 }
 
 // 渲染当前面板
@@ -9471,6 +8748,36 @@ function loadQcOptionData() {
   });
   var manualFactories = qcOptionData.factories.slice();
   qcOptionData.factories = uniqueArray(manualFactories.concat(kbFactories));
+  // 从GitHub获取最新品控选项数据（跨用户同步）
+  fetchQcOptionsFromGitHub().then(function(remoteData) {
+    if (remoteData) {
+      var needRefresh = false;
+      if (remoteData.products && remoteData.products.length > qcOptionData.products.length) {
+        qcOptionData.products = remoteData.products;
+        needRefresh = true;
+      }
+      if (remoteData.types && remoteData.types.length > 0) {
+        qcOptionData.types = remoteData.types;
+        needRefresh = true;
+      }
+      if (remoteData.factories && remoteData.factories.length > qcOptionData.factories.length) {
+        qcOptionData.factories = remoteData.factories;
+        needRefresh = true;
+      }
+      if (remoteData.platforms && remoteData.platforms.length > 0) {
+        qcOptionData.platforms = remoteData.platforms;
+        needRefresh = true;
+      }
+      if (remoteData.shops && remoteData.shops.length > 0) {
+        qcOptionData.shops = remoteData.shops;
+        needRefresh = true;
+      }
+      if (needRefresh) {
+        try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
+        console.log('[品控选项] 已从GitHub同步最新数据');
+      }
+    }
+  });
 }
 
 function saveQcOptionData() {
