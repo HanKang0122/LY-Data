@@ -162,7 +162,13 @@
           "position": "爆款品",
           "target": "4500000",
           "confirmed": true,
-          "splits": [],
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "",
+              "position": ""
+            }
+          ],
           "splitConfirmed": false
         },
         {
