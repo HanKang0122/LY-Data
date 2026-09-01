@@ -56,5 +56,16 @@
       "team-function:product-support",
       "team-function:qc-support"
     ]
+  },
+  {
+    "key": "role_1788231341385",
+    "text": "商务专员",
+    "menus": [
+      "team-business",
+      "team-business:overview",
+      "team-business:review",
+      "team-business:commission",
+      "team-business:goal"
+    ]
   }
 ]
