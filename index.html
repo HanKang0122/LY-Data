@@ -807,7 +807,7 @@ body {
 .goal-split-overlay.show { display: flex; }
 .goal-split-dialog {
   background: #fff; border-radius: var(--radius-lg, 12px);
-  width: 720px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
+  width: 860px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
 .goal-split-header {
@@ -2344,9 +2344,10 @@ body {
               <table class="goal-split-table">
                 <thead>
                   <tr>
-                    <th style="width:40%">商务专员</th>
-                    <th style="width:40%">商品实销目标（元）</th>
-                    <th style="width:20%">操作</th>
+                    <th style="width:30%">商务专员</th>
+                    <th style="width:30%">商品实销目标（元）</th>
+                    <th style="width:25%">商品定位</th>
+                    <th style="width:15%">操作</th>
                   </tr>
                 </thead>
                 <tbody id="goal-split-tbody"></tbody>
@@ -5993,11 +5994,11 @@ function loadGoalFromStorage() {
             confirmed: true,
             splitConfirmed: true,
             splits: [
-              { specialist: '唐红伟', target: '1000000' },
-              { specialist: '姜梦萍', target: '2000000' },
-              { specialist: '姜子豪', target: '1500000' },
-              { specialist: '贾晶晶', target: '200000' },
-              { specialist: '陶慧', target: '300000' }
+              { specialist: '唐红伟', target: '1000000', position: '常规品' },
+              { specialist: '姜梦萍', target: '2000000', position: '爆款品' },
+              { specialist: '姜子豪', target: '1500000', position: '新发品' },
+              { specialist: '贾晶晶', target: '200000', position: '常规品' },
+              { specialist: '陶慧', target: '300000', position: '常规品' }
             ]
           },
           {
@@ -6007,8 +6008,8 @@ function loadGoalFromStorage() {
             confirmed: true,
             splitConfirmed: true,
             splits: [
-              { specialist: '姜子豪', target: '100000' },
-              { specialist: '陶慧', target: '100000' }
+              { specialist: '姜子豪', target: '100000', position: '新发品' },
+              { specialist: '陶慧', target: '100000', position: '常规品' }
             ]
           }
         ],
@@ -6244,7 +6245,7 @@ function openGoalSplitDialog(index) {
   var titleEl = document.getElementById('goal-split-title');
   if (titleEl) titleEl.textContent = '【' + row.name + '】实销目标拆分';
   if (!row.splits || row.splits.length === 0) {
-    row.splits = [{ specialist: '', target: '' }];
+    row.splits = [{ specialist: '', target: '', position: '' }];
   }
   renderGoalSplitTable();
   var overlay = document.getElementById('goal-split-overlay');
@@ -6267,6 +6268,7 @@ function renderGoalSplitTable() {
   var totalTarget = parseFloat(row.target) || 0;
   var allocated = 0;
   var html = '';
+  var positions = ['新发品', '爆款品', '常规品'];
   row.splits.forEach(function(split, i) {
     var sTarget = parseFloat(split.target) || 0;
     allocated += sTarget;
@@ -6275,9 +6277,14 @@ function renderGoalSplitTable() {
       options += '<option value="' + sp + '"' + (split.specialist === sp ? ' selected' : '') + '>' + sp + '</option>';
     });
     options += '<option value="__new__">＋ 新增商务专员...</option>';
+    var posOptions = '<option value="">请选择</option>';
+    positions.forEach(function(p) {
+      posOptions += '<option value="' + p + '"' + (split.position === p ? ' selected' : '') + '>' + p + '</option>';
+    });
     html += '<tr>'
       + '<td><select onchange="updateGoalSplit(' + i + ',\'specialist\',this.value)">' + options + '</select></td>'
       + '<td><input type="number" value="' + (split.target || '') + '" placeholder="输入目标金额" onchange="updateGoalSplit(' + i + ',\'target\',this.value)"></td>'
+      + '<td><select onchange="updateGoalSplit(' + i + ',\'position\',this.value)">' + posOptions + '</select></td>'
       + '<td style="text-align:center"><button class="goal-btn goal-btn-danger goal-btn-sm" onclick="removeGoalSplitRow(' + i + ')">✕</button></td>'
       + '</tr>';
   });
@@ -6319,7 +6326,7 @@ function updateGoalSplit(index, field, value) {
 function addGoalSplitRow() {
   var row = goalData.rows[goalData.currentSplitIndex];
   if (!row) return;
-  row.splits.push({ specialist: '', target: '' });
+  row.splits.push({ specialist: '', target: '', position: '' });
   renderGoalSplitTable();
   saveGoalToStorage();
 }
@@ -6341,11 +6348,11 @@ function confirmGoalSplit() {
   var allocated = 0;
   var hasEmpty = false;
   row.splits.forEach(function(s) {
-    if (!s.specialist || !s.target) hasEmpty = true;
+    if (!s.specialist || !s.target || !s.position) hasEmpty = true;
     allocated += parseFloat(s.target) || 0;
   });
   if (hasEmpty) {
-    showToast('请完善所有拆分行的商务专员和目标金额', 'warning');
+    showToast('请完善所有拆分行的商务专员、目标金额和商品定位', 'warning');
     return;
   }
   if (Math.abs(allocated - totalTarget) > 1) {
@@ -6412,12 +6419,19 @@ function renderGoalResults() {
     var specialistRows = [];
     confirmedRows.forEach(function(r) {
       var found = r.splits.filter(function(s) { return s.specialist === sp; });
-      var val = 0;
-      found.forEach(function(f) { val += parseFloat(f.target) || 0; });
-      if (val > 0) {
-        specialistRows.push({ name: r.name, position: r.position, target: val });
-        specialistTotal += val;
-      }
+      // 按商品定位分组（定位来自拆分数据）
+      var posMap = {};
+      found.forEach(function(f) {
+        var pos = f.position || '';
+        if (!posMap[pos]) posMap[pos] = 0;
+        posMap[pos] += parseFloat(f.target) || 0;
+      });
+      Object.keys(posMap).forEach(function(pos) {
+        if (posMap[pos] > 0) {
+          specialistRows.push({ name: r.name, position: pos, target: posMap[pos] });
+          specialistTotal += posMap[pos];
+        }
+      });
     });
 
     if (specialistRows.length === 0) return;
