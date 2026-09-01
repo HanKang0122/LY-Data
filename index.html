@@ -5745,6 +5745,7 @@ var goalData = {
 
 var GOAL_STORAGE_KEY = 'ly_goal_management_data';
 var APP_STATE_KEY = 'ly_app_state'; // 全局应用状态存储key
+var goalLastSavedAt = 0; // 记录目标数据最后保存时间，防止CDN缓存覆盖新数据
 
 // ==================== 全局实时持久化层 ====================
 // 保存所有应用状态到localStorage（即时本地备份）
@@ -5947,6 +5948,47 @@ setInterval(function() {
 }, 30000);
 
 // 保存目标数据到localStorage
+// 将目标数据同步到GitHub服务器（跨用户共享数据）
+function pushGoalToGitHub() {
+  goalLastSavedAt = Date.now();
+  var dataToSave = {
+    periodData: goalData.periodData,
+    specialists: goalData.specialists,
+    mappingTable: goalData.mappingTable
+  };
+  var content = utf8ToBase64(JSON.stringify(dataToSave, null, 2));
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/goal_data.json';
+  var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var payload = { message: '更新目标管理数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
+      if (data.sha) payload.sha = data.sha;
+      return fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('GitHub API ' + r.status);
+      console.log('[目标管理] 数据已同步到服务器');
+    })
+    .catch(function(err) {
+      console.error('[目标管理] 数据同步失败:', err);
+    });
+}
+
+// 从GitHub API获取最新目标数据（绕过CDN缓存）
+function fetchGoalFromGitHub() {
+  return fetchKbFileViaApi('goal_data.json')
+    .then(function(data) {
+      if (!data) return null;
+      console.log('[目标管理] 从服务器加载最新数据');
+      return data;
+    })
+    .catch(function(err) {
+      console.log('[目标管理] 服务器无数据或加载失败，使用本地数据:', err.message);
+      return null;
+    });
+}
+
 function saveGoalToStorage() {
   try {
     var dataToSave = {
@@ -5957,6 +5999,8 @@ function saveGoalToStorage() {
     localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify(dataToSave));
     // 同时触发全局应用状态持久化（保存角色、用户、目标数据到统一key）
     persistAppStateLocal();
+    // 同步到GitHub服务器（跨用户共享数据）
+    pushGoalToGitHub();
   } catch(e) {
     console.warn('目标数据保存失败:', e);
   }
@@ -6052,7 +6096,7 @@ function loadGoalPeriodData() {
 
 // 初始化目标管理模块
 function initGoalModule() {
-  // 从localStorage加载已保存的数据
+  // 先从localStorage加载缓存数据（立即渲染，不等服务器）
   loadGoalFromStorage();
   // 设置默认月份为当前月
   var now = new Date();
@@ -6064,6 +6108,62 @@ function initGoalModule() {
   loadGoalPeriodData();
   renderGoalTable();
   renderGoalResults();
+
+  // 如果刚刚保存过（5分钟内），跳过GitHub刷新，避免CDN缓存覆盖新数据
+  if (Date.now() - goalLastSavedAt < 300000) {
+    console.log('[目标管理] 5分钟内刚保存过，跳过服务器刷新');
+    return;
+  }
+
+  // 从GitHub服务器获取最新数据（绕过CDN缓存，确保跨用户数据同步）
+  fetchGoalFromGitHub().then(function(remoteData) {
+    if (!remoteData) return;
+    // 合并远程数据（远程数据为准，但保留本地可能新增的数据）
+    var localPeriodKeys = Object.keys(goalData.periodData);
+    var remotePeriodKeys = Object.keys(remoteData.periodData || {});
+    var merged = false;
+
+    // 用远程数据覆盖本地
+    if (remoteData.periodData) {
+      remotePeriodKeys.forEach(function(key) {
+        var remotePeriod = remoteData.periodData[key];
+        var localPeriod = goalData.periodData[key];
+        // 如果远程有而本地没有，或者远程数据更新（有更多行），用远程数据
+        if (!localPeriod || (remotePeriod.rows && remotePeriod.rows.length > 0 && (!localPeriod.rows || localPeriod.rows.length === 0))) {
+          goalData.periodData[key] = remotePeriod;
+          merged = true;
+        } else if (remotePeriod.rows && remotePeriod.rows.length >= (localPeriod.rows ? localPeriod.rows.length : 0)) {
+          // 远程数据行数更多或相等，使用远程数据
+          goalData.periodData[key] = remotePeriod;
+          merged = true;
+        }
+      });
+    }
+    if (remoteData.specialists && remoteData.specialists.length > 0) {
+      goalData.specialists = remoteData.specialists;
+      merged = true;
+    }
+    if (remoteData.mappingTable) {
+      goalData.mappingTable = remoteData.mappingTable;
+      merged = true;
+    }
+
+    if (merged) {
+      // 保存合并后的数据到localStorage
+      try {
+        localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify({
+          periodData: goalData.periodData,
+          specialists: goalData.specialists,
+          mappingTable: goalData.mappingTable
+        }));
+      } catch(e) {}
+      // 重新渲染
+      loadGoalPeriodData();
+      renderGoalTable();
+      renderGoalResults();
+      console.log('[目标管理] 已从服务器加载最新数据并刷新页面');
+    }
+  });
 }
 
 // 渲染目标表格
