@@ -1083,7 +1083,13 @@
   ],
   "review": [],
   "shops": [],
-  "followers": [],
+  "followers": [
+    "张三",
+    "李四",
+    "王五",
+    "赵六",
+    "陈七"
+  ],
   "platformShopMap": {
     "douyin": [
       "抖音-鲨鱼菲特甄选食品专卖店",
