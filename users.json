@@ -47,5 +47,12 @@
     "password": "hlz123456",
     "role": "role_1788156527001",
     "status": 1
+  },
+  {
+    "id": 8,
+    "name": "章子康",
+    "password": "zzk123456",
+    "role": "role_1788231341385",
+    "status": 1
   }
 ]
