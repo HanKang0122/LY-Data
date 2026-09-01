@@ -2895,7 +2895,7 @@ function saveCustomRolesToGitHub() {
     'Accept': 'application/vnd.github+json'
   };
 
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(resp) { return resp.json(); })
     .then(function(data) {
       var payload = {
@@ -3009,7 +3009,7 @@ function pushUsersToGitHub(users) {
   };
 
   // 先获取当前文件的SHA（用于更新而非新建）
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(resp) { return resp.json(); })
     .then(function(data) {
       var payload = {
@@ -5671,27 +5671,219 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// 定期自动保存到localStorage（每30秒，不推送GitHub，防止覆盖他人数据）
+// ==================== 统一30秒同步循环 ====================
+// 合并推送和拉取为一个循环，避免竞态冲突
+// 流程：先拉取远程最新数据 → 应用到本地 → 如果用户有修改再推送
 setInterval(function() {
+  // 1. 先保存到localStorage（无论是否有网络）
   try {
     var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
   } catch(e) {}
-  // 仅在用户有修改时才推送到GitHub
-  if (_userMadeChanges) {
-    pushAppStateToGitHub();
-    _userMadeChanges = false;
-  }
-}, 30000);
 
-// 定期从GitHub拉取最新数据（每60秒，确保看到其他人的更新）
-setInterval(function() {
-  fetchAppStateFromGitHub().then(function(remoteState) {
-    if (remoteState) {
-      applyRemoteState(remoteState);
+  // 2. 拉取所有远程数据（确保看到其他人的操作）
+  var fetchPromises = [];
+
+  // 2a. 从app_state.json获取全局状态（包含所有模块数据）
+  fetchPromises.push(
+    fetchAppStateFromGitHub().then(function(remoteState) {
+      if (remoteState) {
+        applyRemoteState(remoteState);
+      }
+    }).catch(function(e) {
+      console.log('[全局同步] 拉取app_state失败:', e.message);
+    })
+  );
+
+  // 2b. 独立获取goal_data.json（目标管理数据，确保最新）
+  fetchPromises.push(
+    fetchGoalFromGitHub().then(function(goalRemote) {
+      if (goalRemote && goalRemote.periodData) {
+        var changed = false;
+        Object.keys(goalRemote.periodData).forEach(function(key) {
+          var remotePeriod = goalRemote.periodData[key];
+          if (remotePeriod) {
+            var localPeriod = goalData.periodData[key];
+            if (!localPeriod || JSON.stringify(localPeriod) !== JSON.stringify(remotePeriod)) {
+              goalData.periodData[key] = remotePeriod;
+              changed = true;
+            }
+          }
+        });
+        if (Array.isArray(goalRemote.specialists)) {
+          if (JSON.stringify(goalData.specialists) !== JSON.stringify(goalRemote.specialists)) {
+            goalData.specialists = goalRemote.specialists;
+            changed = true;
+          }
+        }
+        if (goalRemote.mappingTable) {
+          if (JSON.stringify(goalData.mappingTable) !== JSON.stringify(goalRemote.mappingTable)) {
+            goalData.mappingTable = goalRemote.mappingTable;
+            changed = true;
+          }
+        }
+        if (changed) {
+          try {
+            localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify({
+              periodData: goalData.periodData,
+              specialists: goalData.specialists,
+              mappingTable: goalData.mappingTable
+            }));
+          } catch(e) {}
+          saveLocalOnly();
+          try {
+            if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+              renderPageByRoute(appState.currentRoute);
+              console.log('[目标管理] 定时同步检测到数据变化，已更新页面');
+            }
+          } catch(e) {}
+        }
+      }
+    }).catch(function(e) {
+      console.log('[目标管理] 拉取失败:', e.message);
+    })
+  );
+
+  // 2c. 独立获取biz_ops_data.json（商务运营数据，确保最新）
+  fetchPromises.push(
+    fetchBizOpsFromGitHub().then(function(bizData) {
+      if (bizData) {
+        var changed = false;
+        if (Array.isArray(bizData.overview) && JSON.stringify(bizOpsData.overview) !== JSON.stringify(bizData.overview)) {
+          bizOpsData.overview = bizData.overview; changed = true;
+        }
+        if (Array.isArray(bizData.review) && JSON.stringify(bizOpsData.review) !== JSON.stringify(bizData.review)) {
+          bizOpsData.review = bizData.review; changed = true;
+        }
+        if (Array.isArray(bizData.shops) && JSON.stringify(bizOpsData.shops) !== JSON.stringify(bizData.shops)) {
+          bizOpsData.shops = bizData.shops; changed = true;
+        }
+        if (Array.isArray(bizData.followers) && JSON.stringify(bizOpsData.followers) !== JSON.stringify(bizData.followers)) {
+          bizOpsData.followers = bizData.followers; changed = true;
+        }
+        if (bizData.platformShopMap) {
+          Object.keys(bizData.platformShopMap).forEach(function(k) {
+            if (Array.isArray(bizData.platformShopMap[k]) && JSON.stringify(platformShopMap[k]) !== JSON.stringify(bizData.platformShopMap[k])) {
+              platformShopMap[k] = bizData.platformShopMap[k]; changed = true;
+            }
+          });
+        }
+        if (changed) {
+          saveLocalOnly();
+          try {
+            if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+              renderPageByRoute(appState.currentRoute);
+              console.log('[商务运营] 定时同步检测到数据变化，已更新页面');
+            }
+          } catch(e) {}
+        }
+      }
+    }).catch(function(e) {
+      console.log('[商务运营] 拉取失败:', e.message);
+    })
+  );
+
+  // 2d. 独立获取ps_products.json（新品策航数据）
+  fetchPromises.push(
+    fetchStrategyFromGitHub().then(function(stratData) {
+      if (Array.isArray(stratData) && JSON.stringify(strategyProducts) !== JSON.stringify(stratData)) {
+        strategyProducts = stratData;
+        try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+        saveLocalOnly();
+        try {
+          if (typeof renderPageByRoute === 'function' && appState.currentRoute === 'product-strategy') {
+            renderPageByRoute(appState.currentRoute);
+            console.log('[新品策航] 定时同步检测到数据变化，已更新页面');
+          }
+        } catch(e) {}
+      }
+    }).catch(function(e) {
+      console.log('[新品策航] 拉取失败:', e.message);
+    })
+  );
+
+  // 2e. 独立获取qc_options.json（品控选项数据）
+  fetchPromises.push(
+    fetchQcOptionsFromGitHub().then(function(qcData) {
+      if (qcData) {
+        var changed = false;
+        if (Array.isArray(qcData.products) && JSON.stringify(qcOptionData.products) !== JSON.stringify(qcData.products)) {
+          qcOptionData.products = qcData.products; changed = true;
+        }
+        if (Array.isArray(qcData.types) && JSON.stringify(qcOptionData.types) !== JSON.stringify(qcData.types)) {
+          qcOptionData.types = qcData.types; changed = true;
+        }
+        if (Array.isArray(qcData.factories) && JSON.stringify(qcOptionData.factories) !== JSON.stringify(qcData.factories)) {
+          qcOptionData.factories = qcData.factories; changed = true;
+        }
+        if (Array.isArray(qcData.platforms) && JSON.stringify(qcOptionData.platforms) !== JSON.stringify(qcData.platforms)) {
+          qcOptionData.platforms = qcData.platforms; changed = true;
+        }
+        if (Array.isArray(qcData.shops) && JSON.stringify(qcOptionData.shops) !== JSON.stringify(qcData.shops)) {
+          qcOptionData.shops = qcData.shops; changed = true;
+        }
+        if (changed) {
+          try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
+          saveLocalOnly();
+          try {
+            if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+              renderPageByRoute(appState.currentRoute);
+              console.log('[品控选项] 定时同步检测到数据变化，已更新页面');
+            }
+          } catch(e) {}
+        }
+      }
+    }).catch(function(e) {
+      console.log('[品控选项] 拉取失败:', e.message);
+    })
+  );
+
+  // 2f. 独立获取kb_products.json（产品知识库数据）
+  fetchPromises.push(
+    fetchKbFileViaApi('kb_products.json').then(function(kbData) {
+      if (Array.isArray(kbData) && JSON.stringify(kbProducts) !== JSON.stringify(kbData)) {
+        kbProducts = kbData;
+        try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
+        saveLocalOnly();
+        try {
+          if (typeof renderPageByRoute === 'function' && (appState.currentRoute === 'kb-products' || appState.currentRoute === 'kb')) {
+            renderPageByRoute(appState.currentRoute);
+            console.log('[知识库] 定时同步检测到产品数据变化，已更新页面');
+          }
+        } catch(e) {}
+      }
+    }).catch(function(e) {
+      console.log('[知识库] 拉取产品数据失败:', e.message);
+    })
+  );
+
+  // 2g. 独立获取kb_qc.json（品控问题数据）
+  fetchPromises.push(
+    fetchKbFileViaApi('kb_qc.json').then(function(qcData) {
+      if (Array.isArray(qcData) && JSON.stringify(kbQcIssues) !== JSON.stringify(qcData)) {
+        kbQcIssues = qcData;
+        try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
+        saveLocalOnly();
+        try {
+          if (typeof renderPageByRoute === 'function' && appState.currentRoute === 'kb-qc') {
+            renderPageByRoute(appState.currentRoute);
+            console.log('[知识库] 定时同步检测到品控数据变化，已更新页面');
+          }
+        } catch(e) {}
+      }
+    }).catch(function(e) {
+      console.log('[知识库] 拉取品控数据失败:', e.message);
+    })
+  );
+
+  // 3. 等待所有拉取完成后，如果用户有修改，再推送（确保推送的是最新数据+用户修改）
+  Promise.all(fetchPromises).then(function() {
+    if (_userMadeChanges) {
+      pushAppStateToGitHub();
+      _userMadeChanges = false;
     }
   });
-}, 60000);
+}, 30000);
 
 // 保存目标数据到localStorage
 // 将目标数据同步到GitHub服务器（跨用户共享数据）
@@ -5705,7 +5897,7 @@ function pushGoalToGitHub() {
   var content = utf8ToBase64(JSON.stringify(dataToSave, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/goal_data.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新目标管理数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
@@ -5818,7 +6010,7 @@ function _doPushAppStateToGitHub() {
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/app_state.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
 
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r) {
       if (r.status === 404) return { sha: null };
       return r.json();
@@ -5874,7 +6066,7 @@ function pushBizOpsToGitHub() {
   var content = utf8ToBase64(JSON.stringify(dataToSave, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/biz_ops_data.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r) {
       if (r.status === 404) return { sha: null };
       return r.json();
@@ -5958,65 +6150,79 @@ function applyRemoteState(remoteState) {
       usersCache = remoteState.users;
       console.log('[全局同步] 恢复 ' + remoteState.users.length + ' 个用户账号');
     }
-    // 恢复商务运营数据
+    // 恢复商务运营数据（直接覆盖，确保看到其他人的增删改）
     if (remoteState.bizOpsData) {
-      if (remoteState.bizOpsData.overview && remoteState.bizOpsData.overview.length > 0) {
+      if (Array.isArray(remoteState.bizOpsData.overview))
         bizOpsData.overview = remoteState.bizOpsData.overview;
-      }
-      if (remoteState.bizOpsData.review && remoteState.bizOpsData.review.length > 0) {
+      if (Array.isArray(remoteState.bizOpsData.review))
         bizOpsData.review = remoteState.bizOpsData.review;
-      }
-      if (remoteState.bizOpsData.shops && remoteState.bizOpsData.shops.length > 0) {
+      if (Array.isArray(remoteState.bizOpsData.shops))
         bizOpsData.shops = remoteState.bizOpsData.shops;
-      }
-      if (remoteState.bizOpsData.followers && remoteState.bizOpsData.followers.length > 0) {
+      if (Array.isArray(remoteState.bizOpsData.followers))
         bizOpsData.followers = remoteState.bizOpsData.followers;
-      }
     }
     if (remoteState.platformShopMap) {
       Object.keys(remoteState.platformShopMap).forEach(function(k) {
-        if (remoteState.platformShopMap[k] && remoteState.platformShopMap[k].length > 0) {
+        if (Array.isArray(remoteState.platformShopMap[k])) {
           platformShopMap[k] = remoteState.platformShopMap[k];
         }
       });
     }
-    // 恢复目标管理数据（管理员操作的数据为准，直接覆盖本地）
+    // 恢复目标管理数据（直接覆盖本地，确保看到其他人的操作）
     if (remoteState.goalData) {
       if (remoteState.goalData.periodData) {
         Object.keys(remoteState.goalData.periodData).forEach(function(key) {
           var remotePeriod = remoteState.goalData.periodData[key];
-          // 只要远程有数据就用远程的（管理员操作的数据为准）
-          if (remotePeriod && remotePeriod.rows && remotePeriod.rows.length > 0) {
+          if (remotePeriod) {
             goalData.periodData[key] = remotePeriod;
           }
         });
       }
-      if (remoteState.goalData.specialists && remoteState.goalData.specialists.length > 0) {
+      if (Array.isArray(remoteState.goalData.specialists)) {
         goalData.specialists = remoteState.goalData.specialists;
       }
       if (remoteState.goalData.mappingTable) {
         goalData.mappingTable = remoteState.goalData.mappingTable;
       }
     }
-    // 恢复新品策航数据
-    if (remoteState.strategyProducts && remoteState.strategyProducts.length > 0) {
-      if (strategyProducts.length === 0 || remoteState.strategyProducts.length >= strategyProducts.length) {
-        strategyProducts = remoteState.strategyProducts;
-        try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
-      }
+    // 恢复新品策航数据（直接覆盖，确保看到其他人的增删改）
+    if (Array.isArray(remoteState.strategyProducts)) {
+      strategyProducts = remoteState.strategyProducts;
+      try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
     }
-    // 恢复质控选项数据
+    // 恢复质控选项数据（直接覆盖，确保看到其他人的增删改）
     if (remoteState.qcOptionData) {
-      if (remoteState.qcOptionData.products && remoteState.qcOptionData.products.length > 0)
+      if (remoteState.qcOptionData.products)
         qcOptionData.products = remoteState.qcOptionData.products;
-      if (remoteState.qcOptionData.types && remoteState.qcOptionData.types.length > 0)
+      if (remoteState.qcOptionData.types)
         qcOptionData.types = remoteState.qcOptionData.types;
-      if (remoteState.qcOptionData.factories && remoteState.qcOptionData.factories.length > 0)
+      if (remoteState.qcOptionData.factories)
         qcOptionData.factories = remoteState.qcOptionData.factories;
-      if (remoteState.qcOptionData.platforms && remoteState.qcOptionData.platforms.length > 0)
+      if (remoteState.qcOptionData.platforms)
         qcOptionData.platforms = remoteState.qcOptionData.platforms;
-      if (remoteState.qcOptionData.shops && remoteState.qcOptionData.shops.length > 0)
+      if (remoteState.qcOptionData.shops)
         qcOptionData.shops = remoteState.qcOptionData.shops;
+    }
+    // 恢复知识库产品数据（之前缺失，导致看不到其他人的知识库操作）
+    if (remoteState.kbProducts) {
+      kbProducts = remoteState.kbProducts;
+      try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
+    }
+    // 恢复品控问题数据
+    if (remoteState.kbQcIssues) {
+      kbQcIssues = remoteState.kbQcIssues;
+      try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
+    }
+    // 恢复知识库展开状态
+    if (remoteState.kbExpandedCats) {
+      kbExpandedCats = remoteState.kbExpandedCats;
+    }
+    // 恢复目标管理的当前周期和分拆索引
+    if (remoteState.goalData) {
+      if (remoteState.goalData.currentPeriod !== undefined)
+        goalData.currentPeriod = remoteState.goalData.currentPeriod;
+      if (remoteState.goalData.currentSplitIndex !== undefined)
+        goalData.currentSplitIndex = remoteState.goalData.currentSplitIndex;
     }
     // 恢复首页状态
     if (remoteState.appState) {
@@ -6060,13 +6266,13 @@ function loadAllDataFromGitHub() {
     // 2. 同时从各独立文件加载（确保最新数据）
     fetchBizOpsFromGitHub().then(function(bizData) {
       if (bizData) {
-        if (bizData.overview && bizData.overview.length > 0) bizOpsData.overview = bizData.overview;
-        if (bizData.review && bizData.review.length > 0) bizOpsData.review = bizData.review;
-        if (bizData.shops && bizData.shops.length > 0) bizOpsData.shops = bizData.shops;
-        if (bizData.followers && bizData.followers.length > 0) bizOpsData.followers = bizData.followers;
+        if (Array.isArray(bizData.overview)) bizOpsData.overview = bizData.overview;
+        if (Array.isArray(bizData.review)) bizOpsData.review = bizData.review;
+        if (Array.isArray(bizData.shops)) bizOpsData.shops = bizData.shops;
+        if (Array.isArray(bizData.followers)) bizOpsData.followers = bizData.followers;
         if (bizData.platformShopMap) {
           Object.keys(bizData.platformShopMap).forEach(function(k) {
-            if (bizData.platformShopMap[k] && bizData.platformShopMap[k].length > 0) {
+            if (Array.isArray(bizData.platformShopMap[k])) {
               platformShopMap[k] = bizData.platformShopMap[k];
             }
           });
@@ -6076,36 +6282,34 @@ function loadAllDataFromGitHub() {
       }
     });
     fetchStrategyFromGitHub().then(function(stratData) {
-      if (stratData && stratData.length > 0) {
-        if (strategyProducts.length === 0 || stratData.length >= strategyProducts.length) {
-          strategyProducts = stratData;
-          try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
-          // 如果当前在策航页面，重新渲染
-          if (appState.currentRoute === 'product-strategy') renderStrategyPanel();
-        }
+      if (Array.isArray(stratData)) {
+        strategyProducts = stratData;
+        try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
+        // 如果当前在策航页面，重新渲染
+        if (appState.currentRoute === 'product-strategy') renderStrategyPanel();
       }
     });
     fetchQcOptionsFromGitHub().then(function(qcData) {
       if (qcData) {
-        if (qcData.products && qcData.products.length > 0) qcOptionData.products = qcData.products;
-        if (qcData.types && qcData.types.length > 0) qcOptionData.types = qcData.types;
-        if (qcData.factories && qcData.factories.length > 0) qcOptionData.factories = qcData.factories;
-        if (qcData.platforms && qcData.platforms.length > 0) qcOptionData.platforms = qcData.platforms;
-        if (qcData.shops && qcData.shops.length > 0) qcOptionData.shops = qcData.shops;
+        if (Array.isArray(qcData.products)) qcOptionData.products = qcData.products;
+        if (Array.isArray(qcData.types)) qcOptionData.types = qcData.types;
+        if (Array.isArray(qcData.factories)) qcOptionData.factories = qcData.factories;
+        if (Array.isArray(qcData.platforms)) qcOptionData.platforms = qcData.platforms;
+        if (Array.isArray(qcData.shops)) qcOptionData.shops = qcData.shops;
         try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
       }
     });
     // 3. 单独获取goal_data.json（确保目标管理数据是最新的）
     fetchGoalFromGitHub().then(function(goalRemote) {
       if (goalRemote && goalRemote.periodData) {
-        // 直接用远程数据覆盖本地（管理员操作的数据为准）
+        // 直接用远程数据覆盖本地
         Object.keys(goalRemote.periodData).forEach(function(key) {
           var remotePeriod = goalRemote.periodData[key];
-          if (remotePeriod && remotePeriod.rows && remotePeriod.rows.length > 0) {
+          if (remotePeriod) {
             goalData.periodData[key] = remotePeriod;
           }
         });
-        if (goalRemote.specialists && goalRemote.specialists.length > 0) {
+        if (Array.isArray(goalRemote.specialists)) {
           goalData.specialists = goalRemote.specialists;
         }
         if (goalRemote.mappingTable) {
@@ -6129,6 +6333,31 @@ function loadAllDataFromGitHub() {
         } catch(e) {}
       }
     });
+    // 4. 获取知识库产品数据
+    fetchKbFileViaApi('kb_products.json').then(function(kbData) {
+      if (Array.isArray(kbData)) {
+        kbProducts = kbData;
+        try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
+        saveLocalOnly();
+      }
+    }).catch(function() {});
+    // 5. 获取品控问题数据
+    fetchKbFileViaApi('kb_qc.json').then(function(qcData) {
+      if (Array.isArray(qcData)) {
+        kbQcIssues = qcData;
+        try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
+        saveLocalOnly();
+      }
+    }).catch(function() {});
+    // 6. 所有独立文件加载完成后重新渲染页面（延迟2秒确保异步请求都完成）
+    setTimeout(function() {
+      try {
+        if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+          renderPageByRoute(appState.currentRoute);
+          console.log('[全局同步] 初始化数据加载完成，已重新渲染页面');
+        }
+      } catch(e) {}
+    }, 2000);
   });
 }
 
@@ -7237,8 +7466,8 @@ function loadStrategyData() {
   renderStrategyPanel();
   // 从GitHub获取最新数据（跨用户同步）
   fetchStrategyFromGitHub().then(function(remoteData) {
-    if (remoteData && remoteData.length > 0) {
-      if (strategyProducts.length === 0 || remoteData.length >= strategyProducts.length) {
+    if (Array.isArray(remoteData)) {
+      if (JSON.stringify(strategyProducts) !== JSON.stringify(remoteData)) {
         strategyProducts = remoteData;
         try { localStorage.setItem('ps_products_cache', JSON.stringify(strategyProducts)); } catch(e) {}
         renderStrategyPanel();
@@ -7557,7 +7786,7 @@ function saveStrategyToGitHub() {
   var content = utf8ToBase64(JSON.stringify(strategyProducts, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/ps_products.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新新品策航数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
@@ -7931,8 +8160,8 @@ var kbLastSavedAt = 0; // 上次保存时间戳（防止CDN缓存覆盖新数据
 
 // 通过GitHub API获取文件内容（绕过CDN缓存）
 function fetchKbFileViaApi(filename) {
-  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/' + filename + '?ref=' + GITHUB_USERS_CONFIG.branch;
-  return fetch(apiUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
+  var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/' + filename + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now();
+  return fetch(apiUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' }, cache: 'no-store' })
     .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
     .then(function(data) {
       if (data.content && data.encoding === 'base64') {
@@ -7944,7 +8173,9 @@ function fetchKbFileViaApi(filename) {
       // 大文件（>1MB）GitHub API不返回content，使用download_url获取
       if (data.download_url || data.git_url) {
         var rawUrl = data.download_url || ('https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/git/blobs/' + data.sha);
-        return fetch(rawUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' } })
+        // 添加时间戳防缓存，并使用no-store
+        var sep = rawUrl.indexOf('?') >= 0 ? '&' : '?';
+        return fetch(rawUrl + sep + 't=' + Date.now(), { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' }, cache: 'no-store' })
           .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.text(); });
       }
       throw new Error('No content and no download URL');
@@ -7979,12 +8210,11 @@ function loadKbData() {
   }
 
   // 通过GitHub API获取最新数据（绕过CDN缓存）
-  // 注意：如果localStorage中有缓存且数量更多，说明本地数据更新，不覆盖
   fetchKbFileViaApi('kb_products.json')
     .then(function(d){
       d = d || [];
-      // 如果本地缓存有数据但远程数据更少，说明远程还没同步，保留本地
-      if (kbProducts.length > 0 && d.length < kbProducts.length) return;
+      // 使用内容比较，确保看到其他人的增删改
+      if (JSON.stringify(kbProducts) === JSON.stringify(d)) return;
       kbProducts = d;
       try { localStorage.setItem('kb_products_cache', JSON.stringify(kbProducts)); } catch(e) {}
       renderKbCategoryList();
@@ -7996,8 +8226,8 @@ function loadKbData() {
   fetchKbFileViaApi('kb_qc.json')
     .then(function(d){
       d = d || [];
-      // 如果本地缓存有数据但远程数据更少，说明远程还没同步，保留本地
-      if (kbQcIssues.length > 0 && d.length < kbQcIssues.length) return;
+      // 使用内容比较，确保看到其他人的增删改
+      if (JSON.stringify(kbQcIssues) === JSON.stringify(d)) return;
       kbQcIssues = d;
       try { localStorage.setItem('kb_qc_cache', JSON.stringify(kbQcIssues)); } catch(e) {}
       renderKbQcTable();
@@ -8734,7 +8964,7 @@ function pushKbProductsToGitHub() {
   var content = utf8ToBase64(JSON.stringify(kbProducts, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_products.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新产品资料 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
@@ -8799,23 +9029,23 @@ function loadQcOptionData() {
   fetchQcOptionsFromGitHub().then(function(remoteData) {
     if (remoteData) {
       var needRefresh = false;
-      if (remoteData.products && remoteData.products.length > qcOptionData.products.length) {
+      if (Array.isArray(remoteData.products) && JSON.stringify(qcOptionData.products) !== JSON.stringify(remoteData.products)) {
         qcOptionData.products = remoteData.products;
         needRefresh = true;
       }
-      if (remoteData.types && remoteData.types.length > 0) {
+      if (Array.isArray(remoteData.types) && JSON.stringify(qcOptionData.types) !== JSON.stringify(remoteData.types)) {
         qcOptionData.types = remoteData.types;
         needRefresh = true;
       }
-      if (remoteData.factories && remoteData.factories.length > qcOptionData.factories.length) {
+      if (Array.isArray(remoteData.factories) && JSON.stringify(qcOptionData.factories) !== JSON.stringify(remoteData.factories)) {
         qcOptionData.factories = remoteData.factories;
         needRefresh = true;
       }
-      if (remoteData.platforms && remoteData.platforms.length > 0) {
+      if (Array.isArray(remoteData.platforms) && JSON.stringify(qcOptionData.platforms) !== JSON.stringify(remoteData.platforms)) {
         qcOptionData.platforms = remoteData.platforms;
         needRefresh = true;
       }
-      if (remoteData.shops && remoteData.shops.length > 0) {
+      if (Array.isArray(remoteData.shops) && JSON.stringify(qcOptionData.shops) !== JSON.stringify(remoteData.shops)) {
         qcOptionData.shops = remoteData.shops;
         needRefresh = true;
       }
@@ -8835,7 +9065,7 @@ function saveQcOptionData() {
   var content = utf8ToBase64(JSON.stringify(qcOptionData, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/qc_options.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新品控选项数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
@@ -9626,7 +9856,7 @@ function pushKbQcToGitHub() {
   var content = utf8ToBase64(JSON.stringify(kbQcIssues, null, 2));
   var apiUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/contents/kb_qc.json';
   var headers = { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' };
-  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch, { headers: headers })
+  return fetch(apiUrl + '?ref=' + GITHUB_USERS_CONFIG.branch + '&t=' + Date.now(), { headers: headers, cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(data) {
       var payload = { message: '更新品控数据 ' + new Date().toLocaleString('zh-CN'), content: content, branch: GITHUB_USERS_CONFIG.branch };
