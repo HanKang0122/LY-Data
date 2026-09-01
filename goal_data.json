@@ -161,7 +161,7 @@
           "name": "鲨鱼菲特去皮鸭腿110g",
           "position": "爆款品",
           "target": "4500000",
-          "confirmed": false,
+          "confirmed": true,
           "splits": [],
           "splitConfirmed": false
         },
