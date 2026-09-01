@@ -3424,7 +3424,7 @@ window.addEventListener('DOMContentLoaded', function() {
   // 从GitHub加载所有模块的最新数据（跨用户同步，异步执行不阻塞页面）
   setTimeout(function() {
     loadAllDataFromGitHub();
-  }, 1500);
+  }, 500);
 });
 </script>
 
@@ -5465,12 +5465,15 @@ var goalLastSavedAt = 0; // 记录目标数据最后保存时间，防止CDN缓�
 
 // ==================== 全局实时持久化层 ====================
 // 保存所有应用状态到localStorage（即时本地备份）+ 同步到GitHub（跨用户共享）
+// 仅在用户操作时调用，会标记_userMadeChanges=true
 function persistAppState() {
   try {
     var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
     showAutoSaveIndicator();
-    // 同步到GitHub服务器（防抖，确保跨用户数据一致）
+    // 标记用户做了修改，定时器会在下次推送时同步到GitHub
+    _userMadeChanges = true;
+    // 立即触发GitHub同步（防抖）
     pushAppStateToGitHub();
   } catch(e) {
     console.warn('[持久化] 应用状态保存失败:', e);
@@ -5637,26 +5640,48 @@ function showAutoSaveIndicator() {
   autoSaveTimer = setTimeout(function() { el.style.opacity = '0'; }, 1500);
 }
 
-// 页面卸载前强制保存（防止关闭/刷新丢失数据）+ 同步到GitHub
+// 页面卸载前强制保存（防止关闭/刷新丢失数据）+ 仅在有修改时同步到GitHub
 window.addEventListener('beforeunload', function() {
-  persistAppState();
-  // 强制立即同步到GitHub（不等防抖）
-  if (_githubSyncTimer) clearTimeout(_githubSyncTimer);
-  _doPushAppStateToGitHub();
+  // 始终保存到localStorage
+  try {
+    var state = buildPersistState();
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+  } catch(e) {}
+  // 仅在用户有修改时才推送到GitHub（防止覆盖其他人的数据）
+  if (_userMadeChanges) {
+    if (_githubSyncTimer) clearTimeout(_githubSyncTimer);
+    _doPushAppStateToGitHub();
+    _userMadeChanges = false;
+  }
 });
 
 // 页面可见性变化时保存（切到其他标签页时立即保存）
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'hidden') {
-    persistAppStateLocal();
-    // 切到后台时也同步到GitHub
-    pushAppStateToGitHub();
+    // 始终保存到localStorage
+    try {
+      var state = buildPersistState();
+      localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+    } catch(e) {}
+    // 仅在用户有修改时才推送到GitHub
+    if (_userMadeChanges) {
+      pushAppStateToGitHub();
+      _userMadeChanges = false;
+    }
   }
 });
 
-// 定期自动保存（每30秒）+ 同步到GitHub
+// 定期自动保存到localStorage（每30秒，不推送GitHub，防止覆盖他人数据）
 setInterval(function() {
-  persistAppState();
+  try {
+    var state = buildPersistState();
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+  } catch(e) {}
+  // 仅在用户有修改时才推送到GitHub
+  if (_userMadeChanges) {
+    pushAppStateToGitHub();
+    _userMadeChanges = false;
+  }
 }, 30000);
 
 // 定期从GitHub拉取最新数据（每60秒，确保看到其他人的更新）
@@ -5729,12 +5754,26 @@ function saveGoalToStorage() {
 
 // 仅保存到localStorage全局key的轻量版本（避免递归调用showAutoSaveIndicator）
 // 同时触发GitHub同步（防抖），确保所有数据变更都跨用户共享
+// 仅在用户操作时调用，会标记_userMadeChanges=true
 function persistAppStateLocal() {
   try {
     var state = buildPersistState();
     localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+    // 标记用户做了修改
+    _userMadeChanges = true;
     // 同步到GitHub服务器（防抖，确保跨用户数据一致）
     pushAppStateToGitHub();
+  } catch(e) {
+    console.warn('[持久化] 本地保存失败:', e);
+  }
+}
+
+// 仅保存到localStorage（不触发GitHub推送，不标记修改）
+// 用于从GitHub加载远程数据时保存到本地
+function saveLocalOnly() {
+  try {
+    var state = buildPersistState();
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
   } catch(e) {
     console.warn('[持久化] 本地保存失败:', e);
   }
@@ -5746,6 +5785,7 @@ var _githubSyncTimer = null;
 var _githubSyncInProgress = false;
 var _lastGitHubSyncAt = 0;
 var _githubFetchDone = false;
+var _userMadeChanges = false; // 标记用户是否做了修改，只有修改了才推送GitHub
 
 // 将完整应用状态同步到GitHub（统一备份，确保所有数据都有远程副本）
 function pushAppStateToGitHub() {
@@ -5940,15 +5980,13 @@ function applyRemoteState(remoteState) {
         }
       });
     }
-    // 恢复目标管理数据（智能合并）
+    // 恢复目标管理数据（管理员操作的数据为准，直接覆盖本地）
     if (remoteState.goalData) {
       if (remoteState.goalData.periodData) {
         Object.keys(remoteState.goalData.periodData).forEach(function(key) {
           var remotePeriod = remoteState.goalData.periodData[key];
-          var localPeriod = goalData.periodData[key];
-          if (!localPeriod || (remotePeriod.rows && remotePeriod.rows.length > 0 && (!localPeriod.rows || localPeriod.rows.length === 0))) {
-            goalData.periodData[key] = remotePeriod;
-          } else if (remotePeriod.rows && localPeriod.rows && remotePeriod.rows.length >= localPeriod.rows.length) {
+          // 只要远程有数据就用远程的（管理员操作的数据为准）
+          if (remotePeriod && remotePeriod.rows && remotePeriod.rows.length > 0) {
             goalData.periodData[key] = remotePeriod;
           }
         });
@@ -5992,9 +6030,18 @@ function applyRemoteState(remoteState) {
     if (remoteState.psActivePanel) psActivePanel = remoteState.psActivePanel;
     if (remoteState.kbActiveTab) kbActiveTab = remoteState.kbActiveTab;
     if (remoteState.kbActiveCategory) kbActiveCategory = remoteState.kbActiveCategory;
-    // 保存到localStorage
-    persistAppStateLocal();
+    // 保存到localStorage（不推送GitHub，防止回写覆盖远程数据）
+    saveLocalOnly();
     console.log('[全局同步] 远程数据已恢复到本地');
+    // 重新渲染当前页面，确保用户看到最新数据
+    try {
+      if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+        renderPageByRoute(appState.currentRoute);
+        console.log('[全局同步] 已重新渲染页面: ' + appState.currentRoute);
+      }
+    } catch(e) {
+      console.warn('[全局同步] 重新渲染页面失败:', e);
+    }
   } catch(e) {
     console.error('[全局同步] 恢复远程数据失败:', e);
   }
@@ -6024,7 +6071,7 @@ function loadAllDataFromGitHub() {
             }
           });
         }
-        persistAppStateLocal();
+        saveLocalOnly();
         console.log('[商务运营] 远程数据已恢复');
       }
     });
@@ -6048,10 +6095,44 @@ function loadAllDataFromGitHub() {
         try { localStorage.setItem('qc_options_cache', JSON.stringify(qcOptionData)); } catch(e) {}
       }
     });
+    // 3. 单独获取goal_data.json（确保目标管理数据是最新的）
+    fetchGoalFromGitHub().then(function(goalRemote) {
+      if (goalRemote && goalRemote.periodData) {
+        // 直接用远程数据覆盖本地（管理员操作的数据为准）
+        Object.keys(goalRemote.periodData).forEach(function(key) {
+          var remotePeriod = goalRemote.periodData[key];
+          if (remotePeriod && remotePeriod.rows && remotePeriod.rows.length > 0) {
+            goalData.periodData[key] = remotePeriod;
+          }
+        });
+        if (goalRemote.specialists && goalRemote.specialists.length > 0) {
+          goalData.specialists = goalRemote.specialists;
+        }
+        if (goalRemote.mappingTable) {
+          goalData.mappingTable = goalRemote.mappingTable;
+        }
+        // 保存到localStorage
+        try {
+          localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify({
+            periodData: goalData.periodData,
+            specialists: goalData.specialists,
+            mappingTable: goalData.mappingTable
+          }));
+        } catch(e) {}
+        saveLocalOnly();
+        // 重新渲染当前页面
+        try {
+          if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+            renderPageByRoute(appState.currentRoute);
+            console.log('[目标管理] 已从GitHub同步最新数据并重新渲染');
+          }
+        } catch(e) {}
+      }
+    });
   });
 }
 
-// 从localStorage加载目标数据
+// 从localStorage加载目标数据（不再插入硬编码预设数据，数据统一从GitHub获取）
 function loadGoalFromStorage() {
   try {
     var raw = localStorage.getItem(GOAL_STORAGE_KEY);
@@ -6061,41 +6142,7 @@ function loadGoalFromStorage() {
       if (saved.specialists) goalData.specialists = saved.specialists;
       if (saved.mappingTable) goalData.mappingTable = saved.mappingTable;
     }
-    // 如果没有2026-8月的数据，恢复预设的8月目标数据
-    var augKey = '2026-8';
-    if (!goalData.periodData[augKey]) {
-      goalData.periodData[augKey] = {
-        rows: [
-          {
-            name: '鲨鱼菲特去皮鸭腿110g',
-            position: '爆款品',
-            target: '5000000',
-            confirmed: true,
-            splitConfirmed: true,
-            splits: [
-              { specialist: '唐红伟', target: '1000000', position: '常规品' },
-              { specialist: '姜梦萍', target: '2000000', position: '爆款品' },
-              { specialist: '姜子豪', target: '1500000', position: '新发品' },
-              { specialist: '贾晶晶', target: '200000', position: '常规品' },
-              { specialist: '陶慧', target: '300000', position: '常规品' }
-            ]
-          },
-          {
-            name: '每日杂粮包700g',
-            position: '常规品',
-            target: '200000',
-            confirmed: true,
-            splitConfirmed: true,
-            splits: [
-              { specialist: '姜子豪', target: '100000', position: '新发品' },
-              { specialist: '陶慧', target: '100000', position: '常规品' }
-            ]
-          }
-        ],
-        locked: false
-      };
-      saveGoalToStorage();
-    }
+    // 不再插入硬编码预设数据，数据由 loadAllDataFromGitHub() 从GitHub获取
     return true;
   } catch(e) {
     console.warn('目标数据加载失败:', e);
