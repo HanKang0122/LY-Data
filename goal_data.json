@@ -1,0 +1,212 @@
+{
+  "periodData": {
+    "2026-8": {
+      "rows": [
+        {
+          "name": "鲨鱼菲特去皮鸭腿110g",
+          "position": "爆款品",
+          "target": "5600000",
+          "confirmed": true,
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "1200000",
+              "position": "爆款品"
+            },
+            {
+              "specialist": "姜梦萍",
+              "target": "1500000",
+              "position": "爆款品"
+            },
+            {
+              "specialist": "唐红伟",
+              "target": "1100000",
+              "position": "爆款品"
+            },
+            {
+              "specialist": "陶慧",
+              "target": "500000",
+              "position": "爆款品"
+            },
+            {
+              "specialist": "贾晶晶",
+              "target": "120000",
+              "position": "爆款品"
+            }
+          ],
+          "splitConfirmed": true
+        },
+        {
+          "name": "每日杂粮包700g",
+          "position": "新发品",
+          "target": "500000",
+          "confirmed": true,
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "100000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "姜梦萍",
+              "target": "100000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "唐红伟",
+              "target": "100000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "陶慧",
+              "target": "100000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "贾晶晶",
+              "target": "100000",
+              "position": "新发品"
+            }
+          ],
+          "splitConfirmed": true
+        },
+        {
+          "name": "鲨鱼菲特燕麦肉包蛋60g",
+          "position": "新发品",
+          "target": "200000",
+          "confirmed": true,
+          "splits": [
+            {
+              "specialist": "姜梦萍",
+              "target": "70000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "唐红伟",
+              "target": "70000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "贾晶晶",
+              "target": "60000",
+              "position": "新发品"
+            }
+          ],
+          "splitConfirmed": true
+        },
+        {
+          "name": "风干鸭翅根150g",
+          "position": "新发品",
+          "target": "100000",
+          "confirmed": true,
+          "splits": [
+            {
+              "specialist": "唐红伟",
+              "target": "40000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "陶慧",
+              "target": "30000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "贾晶晶",
+              "target": "30000",
+              "position": "新发品"
+            }
+          ],
+          "splitConfirmed": true
+        },
+        {
+          "name": "鲨鱼菲特芝士玉米午餐肉50g",
+          "position": "新发品",
+          "target": "100000",
+          "confirmed": true,
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "20000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "姜梦萍",
+              "target": "20000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "唐红伟",
+              "target": "20000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "陶慧",
+              "target": "20000",
+              "position": "新发品"
+            },
+            {
+              "specialist": "贾晶晶",
+              "target": "20000",
+              "position": "新发品"
+            }
+          ],
+          "splitConfirmed": true
+        }
+      ],
+      "locked": true
+    },
+    "2026-9": {
+      "rows": [
+        {
+          "name": "鲨鱼菲特去皮鸭腿110g",
+          "position": "爆款品",
+          "target": "4500000",
+          "confirmed": true,
+          "splits": [],
+          "splitConfirmed": false
+        },
+        {
+          "name": "每日杂粮包700g",
+          "position": "常规品",
+          "target": "300000",
+          "confirmed": true,
+          "splits": [],
+          "splitConfirmed": false
+        },
+        {
+          "name": "鲨鱼菲特燕麦肉包蛋60g",
+          "position": "常规品",
+          "target": "300000",
+          "confirmed": true,
+          "splits": [],
+          "splitConfirmed": false
+        },
+        {
+          "name": "风干鸭翅根150g",
+          "position": "新发品",
+          "target": "100000",
+          "confirmed": true,
+          "splits": [],
+          "splitConfirmed": false
+        },
+        {
+          "name": "鲨鱼菲特芝士玉米午餐肉50g",
+          "position": "常规品",
+          "target": "100000",
+          "confirmed": true,
+          "splits": [],
+          "splitConfirmed": false
+        }
+      ],
+      "locked": false
+    }
+  },
+  "specialists": [
+    "章子康",
+    "姜梦萍",
+    "唐红伟",
+    "陶慧",
+    "贾晶晶"
+  ],
+  "mappingTable": null
+}
