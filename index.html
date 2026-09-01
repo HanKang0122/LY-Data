@@ -3317,6 +3317,7 @@ function pushUsersToGitHub(users) {
 
 function saveUsers(users) {
   usersCache = users; // 立即更新本地缓存，保证页面响应
+  persistAppStateLocal(); // 立即保存到localStorage本地备份
   pushUsersToGitHub(users); // 异步推送到GitHub，实现全局同步
 }
 
@@ -3676,6 +3677,10 @@ function stopAutoRefresh() {
 
 // ==================== 初始化 ====================
 window.addEventListener('DOMContentLoaded', function() {
+  // 优先从localStorage恢复全部应用状态（即时可用，不等待网络）
+  loadAppState();
+  // 恢复目标管理数据（从专用key恢复，兼容旧版本）
+  loadGoalFromStorage();
   // 恢复侧边栏折叠状态
   try {
     if (localStorage.getItem('sidebarCollapsed') === '1') {
@@ -4245,6 +4250,7 @@ function saveRole() {
   }
 
   saveCustomRolesToGitHub();
+  persistAppState();
   closeRoleModal();
   renderPermissionPage();
   showSyncToast(editingRoleKey === null ? '角色创建成功，已同步到服务器' : '角色修改成功，已同步到服务器');
@@ -4261,6 +4267,7 @@ function deleteRole(roleKey) {
   if (!confirm(msg)) return;
   delete ROLE_CONFIG[roleKey];
   saveCustomRolesToGitHub();
+  persistAppState();
   renderPermissionPage();
   showSyncToast('角色已删除，已同步到服务器');
 }
@@ -4372,6 +4379,7 @@ function saveUser() {
     }
   }
   saveUsers(users);
+  persistAppState();
   closeUserModal();
   renderAccountPage();
   renderPermissionPage();
@@ -4384,6 +4392,7 @@ function toggleUserStatus(id) {
   if (idx !== -1) {
     users[idx].status = users[idx].status === 1 ? 0 : 1;
     saveUsers(users);
+    persistAppState();
     renderAccountPage();
     renderPermissionPage();
     showSyncToast(users[idx].status === 1 ? '账号已启用，已同步到服务器' : '账号已禁用，已同步到服务器');
@@ -4397,6 +4406,7 @@ function deleteUser(id) {
   if (!confirm('确定要删除账号「' + user.name + '」吗？')) return;
   users = users.filter(function(u){ return u.id !== id; });
   saveUsers(users);
+  persistAppState();
   renderAccountPage();
   renderPermissionPage();
   showSyncToast('账号已删除，已同步到服务器');
@@ -5724,6 +5734,112 @@ var goalData = {
 };
 
 var GOAL_STORAGE_KEY = 'ly_goal_management_data';
+var APP_STATE_KEY = 'ly_app_state'; // 全局应用状态存储key
+
+// ==================== 全局实时持久化层 ====================
+// 保存所有应用状态到localStorage（即时本地备份）
+function persistAppState() {
+  try {
+    var state = {
+      // 自定义角色（不含admin）
+      customRoles: [],
+      // 用户列表
+      users: usersCache ? JSON.parse(JSON.stringify(usersCache)) : [],
+      // 目标管理数据
+      goalData: {
+        periodData: goalData.periodData,
+        specialists: goalData.specialists,
+        mappingTable: goalData.mappingTable
+      },
+      // 保存时间戳
+      savedAt: new Date().toISOString()
+    };
+    // 收集自定义角色
+    Object.keys(ROLE_CONFIG).forEach(function(key) {
+      if (key !== 'admin') {
+        state.customRoles.push({
+          key: key,
+          text: ROLE_CONFIG[key].text,
+          menus: ROLE_CONFIG[key].menus,
+          features: ROLE_CONFIG[key].features || []
+        });
+      }
+    });
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+    // 显示自动保存提示（轻量级，不打扰用户）
+    showAutoSaveIndicator();
+  } catch(e) {
+    console.warn('[持久化] 应用状态保存失败:', e);
+  }
+}
+
+// 从localStorage恢复所有应用状态
+function loadAppState() {
+  try {
+    var raw = localStorage.getItem(APP_STATE_KEY);
+    if (!raw) return false;
+    var state = JSON.parse(raw);
+    // 恢复自定义角色
+    if (state.customRoles && state.customRoles.length > 0) {
+      state.customRoles.forEach(function(r) {
+        if (r.key && r.key !== 'admin') {
+          ROLE_CONFIG[r.key] = {
+            text: r.text,
+            menus: r.menus || ['home'],
+            features: r.features || [],
+            fixed: false
+          };
+        }
+      });
+      console.log('[持久化] 恢复 ' + state.customRoles.length + ' 个自定义角色');
+    }
+    // 恢复用户列表（仅当GitHub数据未加载时作为本地备份）
+    if (state.users && state.users.length > 0 && (!usersCache || usersCache.length === 0)) {
+      usersCache = state.users;
+      console.log('[持久化] 恢复 ' + state.users.length + ' 个用户账号');
+    }
+    // 恢复目标管理数据
+    if (state.goalData) {
+      if (state.goalData.periodData) goalData.periodData = state.goalData.periodData;
+      if (state.goalData.specialists) goalData.specialists = state.goalData.specialists;
+      if (state.goalData.mappingTable) goalData.mappingTable = state.goalData.mappingTable;
+      console.log('[持久化] 恢复目标管理数据');
+    }
+    if (state.savedAt) {
+      console.log('[持久化] 上次保存时间: ' + new Date(state.savedAt).toLocaleString('zh-CN'));
+    }
+    return true;
+  } catch(e) {
+    console.warn('[持久化] 应用状态加载失败:', e);
+    return false;
+  }
+}
+
+// 轻量级自动保存指示器
+var autoSaveTimer = null;
+function showAutoSaveIndicator() {
+  var el = document.getElementById('autoSaveIndicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'autoSaveIndicator';
+    el.style.cssText = 'position:fixed;bottom:20px;left:20px;background:rgba(34,197,94,0.9);color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.1);opacity:0;transition:opacity 0.3s;pointer-events:none;';
+    el.innerHTML = '<span style="display:inline-block;width:6px;height:6px;background:#fff;border-radius:50%;margin-right:6px;vertical-align:middle;"></span>已自动保存';
+    document.body.appendChild(el);
+  }
+  el.style.opacity = '1';
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(function() { el.style.opacity = '0'; }, 1500);
+}
+
+// 页面卸载前强制保存（防止关闭/刷新丢失数据）
+window.addEventListener('beforeunload', function() {
+  persistAppState();
+});
+
+// 定期自动保存（每30秒）
+setInterval(function() {
+  persistAppState();
+}, 30000);
 
 // 保存目标数据到localStorage
 function saveGoalToStorage() {
@@ -5734,8 +5850,39 @@ function saveGoalToStorage() {
       mappingTable: goalData.mappingTable
     };
     localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify(dataToSave));
+    // 同时触发全局应用状态持久化（保存角色、用户、目标数据到统一key）
+    persistAppStateLocal();
   } catch(e) {
     console.warn('目标数据保存失败:', e);
+  }
+}
+
+// 仅保存到localStorage全局key的轻量版本（避免递归调用showAutoSaveIndicator）
+function persistAppStateLocal() {
+  try {
+    var state = {
+      customRoles: [],
+      users: usersCache ? JSON.parse(JSON.stringify(usersCache)) : [],
+      goalData: {
+        periodData: goalData.periodData,
+        specialists: goalData.specialists,
+        mappingTable: goalData.mappingTable
+      },
+      savedAt: new Date().toISOString()
+    };
+    Object.keys(ROLE_CONFIG).forEach(function(key) {
+      if (key !== 'admin') {
+        state.customRoles.push({
+          key: key,
+          text: ROLE_CONFIG[key].text,
+          menus: ROLE_CONFIG[key].menus,
+          features: ROLE_CONFIG[key].features || []
+        });
+      }
+    });
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+  } catch(e) {
+    console.warn('[持久化] 本地保存失败:', e);
   }
 }
 
