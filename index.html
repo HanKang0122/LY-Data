@@ -2856,17 +2856,22 @@ function getRoleMenus(roleKey) {
 // 从GitHub加载自定义角色
 var rolesReady = false;
 function loadCustomRolesFromGitHub() {
-  return fetch('roles.json?t=' + Date.now())
-    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+  // 使用GitHub API获取数据（绕过CDN缓存），而不是直接fetch raw文件
+  return fetchKbFileViaApi('roles.json')
     .then(function(data) {
-      // 清除旧的自定义角色（保留admin）
+      // 清除旧的自定义角色（保留admin和fixed角色）
       Object.keys(ROLE_CONFIG).forEach(function(key) {
-        if (key !== 'admin') delete ROLE_CONFIG[key];
+        if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
       });
       if (data && data.length > 0) {
         data.forEach(function(r) {
           if (r.key && r.key !== 'admin') {
-            ROLE_CONFIG[r.key] = { text: r.text, menus: r.menus || ['home'], fixed: false };
+            ROLE_CONFIG[r.key] = {
+              text: r.text,
+              menus: r.menus || ['home'],
+              features: r.features || [],
+              fixed: false
+            };
           }
         });
         console.log('[用户系统] roles.json 加载成功，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
@@ -2874,7 +2879,7 @@ function loadCustomRolesFromGitHub() {
       rolesReady = true;
     })
     .catch(function(err) {
-      console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）');
+      console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）:', err.message);
       rolesReady = true;
     });
 }
@@ -2884,7 +2889,7 @@ function saveCustomRolesToGitHub() {
   var customRoles = [];
   Object.keys(ROLE_CONFIG).forEach(function(key) {
     if (key !== 'admin') {
-      customRoles.push({ key: key, text: ROLE_CONFIG[key].text, menus: ROLE_CONFIG[key].menus });
+      customRoles.push({ key: key, text: ROLE_CONFIG[key].text, menus: ROLE_CONFIG[key].menus, features: ROLE_CONFIG[key].features || [] });
     }
   });
 
@@ -2943,11 +2948,11 @@ function utf8ToBase64(str) {
   return btoa(binary);
 }
 
-// 预加载用户数据（从GitHub托管的users.json读取，同时合并本地遗留账号）
+// 预加载用户数据（通过GitHub API读取users.json，绕过CDN缓存，同时合并本地遗留账号）
 function preloadUsers() {
-  fetch('users.json?t=' + Date.now())
-    .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+  fetchKbFileViaApi('users.json')
     .then(function(data) {
+      data = data || [];
       // 合并本地遗留账号（旧localStorage中创建但未同步的账号）
       var localUsers = [];
       try {
@@ -5260,6 +5265,7 @@ function generateMockBizReviewData() {
   var data = [];
   var followers = ['张三', '李四', '王五', '赵六', '陈七'];
   bizOpsData.followers = followers;
+  persistAppStateLocal();
   pushBizOpsToGitHub();
 
   var platforms = ['douyin', 'kuaishou', 'weixin'];
@@ -6131,19 +6137,28 @@ function fetchQcOptionsFromGitHub() {
 function applyRemoteState(remoteState) {
   if (!remoteState) return;
   try {
-    // 恢复自定义角色
-    if (remoteState.customRoles && remoteState.customRoles.length > 0) {
-      remoteState.customRoles.forEach(function(r) {
-        if (r.key && r.key !== 'admin') {
-          ROLE_CONFIG[r.key] = {
-            text: r.text,
-            menus: r.menus || ['home'],
-            features: r.features || [],
-            fixed: false
-          };
+    // 恢复自定义角色（先清除旧的自定义角色，再用远程数据完全替换，确保删除操作也能同步）
+    if (remoteState.customRoles) {
+      // 先清除所有非admin的自定义角色
+      Object.keys(ROLE_CONFIG).forEach(function(key) {
+        if (key !== 'admin' && !ROLE_CONFIG[key].fixed) {
+          delete ROLE_CONFIG[key];
         }
       });
-      console.log('[全局同步] 恢复 ' + remoteState.customRoles.length + ' 个自定义角色');
+      // 再从远程数据恢复
+      if (remoteState.customRoles.length > 0) {
+        remoteState.customRoles.forEach(function(r) {
+          if (r.key && r.key !== 'admin') {
+            ROLE_CONFIG[r.key] = {
+              text: r.text,
+              menus: r.menus || ['home'],
+              features: r.features || [],
+              fixed: false
+            };
+          }
+        });
+        console.log('[全局同步] 恢复 ' + remoteState.customRoles.length + ' 个自定义角色');
+      }
     }
     // 恢复用户列表
     if (remoteState.users && remoteState.users.length > 0) {
