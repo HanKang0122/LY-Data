@@ -10,7 +10,8 @@
       "commerce-data",
       "opinion-monitor",
       "knowledge-base"
-    ]
+    ],
+    "features": []
   },
   {
     "key": "role_1786415666806",
@@ -20,7 +21,8 @@
       "knowledge-base:product-materials",
       "knowledge-base:product-qc",
       "knowledge-base:product-edit"
-    ]
+    ],
+    "features": []
   },
   {
     "key": "role_1786691088953",
@@ -42,7 +44,8 @@
       "product-strategy:pricing",
       "product-strategy:promotion",
       "product-strategy:review"
-    ]
+    ],
+    "features": []
   },
   {
     "key": "role_1788156527001",
@@ -55,6 +58,12 @@
       "team-business:goal",
       "team-function:product-support",
       "team-function:qc-support"
+    ],
+    "features": [
+      "goal:confirm",
+      "goal:edit",
+      "goal:split",
+      "goal:submit"
     ]
   },
   {
@@ -66,6 +75,7 @@
       "team-business:review",
       "team-business:commission",
       "team-business:goal"
-    ]
+    ],
+    "features": []
   }
 ]
