@@ -254,7 +254,13 @@
           "position": "新发品",
           "target": "100000",
           "confirmed": true,
-          "splits": [],
+          "splits": [
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ],
           "splitConfirmed": false
         },
         {
