@@ -678,6 +678,167 @@ body {
 }
 .biz-ops-table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
+/* ==================== 商务复盘模块 ==================== */
+.biz-rv-screen-filters {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); padding: 16px 20px; margin-bottom: 16px;
+}
+.biz-rv-filter-row {
+  display: flex; align-items: center; gap: 16px; flex-wrap: nowrap;
+}
+.biz-rv-filter-item {
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+}
+.biz-rv-filter-item label {
+  font-size: 13px; font-weight: 500; color: var(--text-secondary);
+  white-space: nowrap;
+}
+.biz-rv-filter-item select, .biz-rv-filter-item input {
+  padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 4px;
+  font-size: 13px; outline: none; background: #fff; min-width: 100px;
+}
+.biz-rv-filter-item select:focus, .biz-rv-filter-item input:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+.biz-rv-date-picker {
+  display: flex; align-items: center; gap: 6px;
+}
+.biz-rv-date-picker input {
+  padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 4px;
+  font-size: 13px; outline: none;
+}
+.biz-rv-date-sep { font-size: 12px; color: var(--text-muted); }
+.biz-rv-filter-uid input { width: 120px; }
+.biz-rv-query-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
+  border: none; border-radius: 6px; padding: 8px 20px; font-size: 13px;
+  font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+}
+.biz-rv-query-btn:hover { opacity: 0.9; }
+
+/* KPI */
+.biz-rv-screen-kpi {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;
+}
+@media (max-width: 1100px) { .biz-rv-screen-kpi { grid-template-columns: repeat(2, 1fr); } }
+.biz-rv-kpi-card {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  padding: 20px; box-shadow: var(--shadow-sm);
+  border-left: 4px solid #2563eb;
+}
+.biz-rv-kpi-card.green { border-left-color: #059669; }
+.biz-rv-kpi-card.orange { border-left-color: #ea580c; }
+.biz-rv-kpi-card.purple { border-left-color: #6d28d9; }
+.biz-rv-kpi-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+.biz-rv-kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.biz-rv-kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* Section title */
+.biz-rv-section-title {
+  font-size: 14px; font-weight: 600; color: var(--text-primary);
+  padding: 12px 0 8px; display: flex; align-items: center; gap: 8px;
+}
+.biz-rv-section-title::before {
+  content: ''; display: inline-block; width: 3px; height: 14px;
+  background: #2563eb; border-radius: 2px;
+}
+
+/* Table wrap */
+.biz-rv-table-wrap {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); overflow: hidden; overflow-x: auto;
+}
+
+/* Sortable headers */
+.biz-rv-sort-th {
+  cursor: pointer; user-select: none; white-space: nowrap;
+  transition: color 0.15s;
+}
+.biz-rv-sort-th:hover { color: #2563eb; }
+.biz-rv-sort-icon { font-size: 11px; margin-left: 3px; opacity: 0.5; }
+.biz-rv-sort-th.sorted .biz-rv-sort-icon { opacity: 1; color: #2563eb; }
+
+/* Mini chart in table */
+.biz-rv-mini-chart {
+  width: 100px; height: 40px; cursor: pointer;
+  transition: transform 0.15s;
+}
+.biz-rv-mini-chart:hover { transform: scale(1.08); }
+
+/* Tag */
+.biz-rv-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 500;
+}
+.biz-rv-tag-new { background: #fef3c7; color: #92400e; }
+.biz-rv-tag-old { background: #dbeafe; color: #1e40af; }
+
+/* Products row */
+.biz-rv-screen-products {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+}
+@media (max-width: 1100px) { .biz-rv-screen-products { grid-template-columns: 1fr; } }
+.biz-rv-product-col, .biz-rv-sample-col { display: flex; flex-direction: column; }
+
+/* Sample detail button */
+.biz-rv-sample-btn {
+  background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;
+  border-radius: 4px; padding: 4px 12px; font-size: 12px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.biz-rv-sample-btn:hover { background: #dbeafe; }
+
+/* Analysis */
+.biz-rv-screen-analysis {
+  background: var(--bg-white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); padding: 20px;
+}
+.biz-rv-analysis-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.biz-rv-analysis-btn {
+  background: linear-gradient(135deg, #059669, #047857); color: #fff;
+  border: none; border-radius: 6px; padding: 8px 18px; font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: opacity 0.2s;
+}
+.biz-rv-analysis-btn:hover { opacity: 0.9; }
+.biz-rv-analysis-content { min-height: 120px; }
+.biz-rv-analysis-placeholder {
+  text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 13px;
+}
+.biz-rv-analysis-report {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.biz-rv-analysis-item {
+  padding: 12px 16px; background: #f8fafc; border-radius: 8px;
+  border-left: 3px solid #2563eb; font-size: 13px; line-height: 1.6;
+}
+.biz-rv-analysis-item .label { font-weight: 600; color: var(--text-primary); }
+.biz-rv-analysis-item .value { color: var(--text-secondary); margin-left: 8px; }
+
+/* Modal for chart preview and sample details */
+.biz-rv-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.biz-rv-modal-box {
+  background: #fff; border-radius: 12px; padding: 24px;
+  max-width: 700px; width: 90%; max-height: 80vh; overflow: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.biz-rv-modal-title {
+  font-size: 16px; font-weight: 600; margin-bottom: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.biz-rv-modal-close {
+  background: #f3f4f6; border: none; border-radius: 4px;
+  width: 30px; height: 30px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.biz-rv-modal-close:hover { background: #e5e7eb; }
+
 /* 提成方案模块 */
 .biz-ops-commission-wrap {
   background: var(--bg-white); border-radius: var(--radius-md);
@@ -2106,70 +2267,95 @@ body {
 
         <!-- ====== 模块2：商务复盘 ====== -->
         <div class="biz-ops-panel" id="biz-panel-review">
-          <div class="biz-ops-filter-bar">
-            <div class="biz-ops-filter-item">
-              <label>日期</label>
-              <div class="biz-ops-filter-date-range">
-                <input type="date" id="biz-review-start-date" value="">
-                <span class="biz-ops-filter-date-sep">至</span>
-                <input type="date" id="biz-review-end-date" value="">
+          <!-- 第一屏：筛选器 -->
+          <div class="biz-rv-screen-filters">
+            <div class="biz-rv-filter-row">
+              <div class="biz-rv-filter-item">
+                <label>日期</label>
+                <div class="biz-rv-date-picker">
+                  <input type="date" id="biz-review-start-date" value="">
+                  <span class="biz-rv-date-sep">至</span>
+                  <input type="date" id="biz-review-end-date" value="">
+                </div>
               </div>
-            </div>
-            <div class="biz-ops-filter-item">
-              <label>平台</label>
-              <select id="biz-review-platform" onchange="updateBizReviewShops()">
-                <option value="all">全部平台</option>
-                <option value="douyin">抖音平台</option>
-                <option value="kuaishou">快手平台</option>
-                <option value="weixin">微信平台</option>
-              </select>
-            </div>
-            <div class="biz-ops-filter-item">
-              <label>店铺</label>
-              <select id="biz-review-shop">
-                <option value="all">全部店铺</option>
-              </select>
-            </div>
-            <div class="biz-ops-filter-item">
-              <label>跟进人</label>
-              <select id="biz-review-follower">
-                <option value="all">全部跟进人</option>
-              </select>
-            </div>
-            <button class="biz-ops-filter-btn" onclick="queryBizReview()">🔍 查询</button>
-          </div>
-          <div class="biz-ops-kpi-grid">
-            <div class="biz-ops-kpi-card">
-              <div class="biz-ops-kpi-label">总GMV</div>
-              <div class="biz-ops-kpi-value" id="biz-rv-kpi-gmv">--</div>
-              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-gmv-sub">待查询数据</div>
-            </div>
-            <div class="biz-ops-kpi-card green">
-              <div class="biz-ops-kpi-label">完成订单</div>
-              <div class="biz-ops-kpi-value" id="biz-rv-kpi-orders">--</div>
-              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-orders-sub">待查询数据</div>
-            </div>
-            <div class="biz-ops-kpi-card orange">
-              <div class="biz-ops-kpi-label">退款率</div>
-              <div class="biz-ops-kpi-value" id="biz-rv-kpi-refund-rate">--</div>
-              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-refund-rate-sub">待查询数据</div>
-            </div>
-            <div class="biz-ops-kpi-card purple">
-              <div class="biz-ops-kpi-label">毛利</div>
-              <div class="biz-ops-kpi-value" id="biz-rv-kpi-profit">--</div>
-              <div class="biz-ops-kpi-sub" id="biz-rv-kpi-profit-sub">待查询数据</div>
+              <div class="biz-rv-filter-item">
+                <label>平台</label>
+                <select id="biz-review-platform" onchange="updateBizReviewShops()">
+                  <option value="all">全部</option>
+                  <option value="douyin">抖音</option>
+                  <option value="kuaishou">快手</option>
+                  <option value="weixin">微信</option>
+                </select>
+              </div>
+              <div class="biz-rv-filter-item">
+                <label>店铺</label>
+                <select id="biz-review-shop"></select>
+              </div>
+              <div class="biz-rv-filter-item">
+                <label>跟进人</label>
+                <select id="biz-review-follower">
+                  <option value="all">全部</option>
+                </select>
+              </div>
+              <div class="biz-rv-filter-item biz-rv-filter-uid">
+                <label>达人UID</label>
+                <input type="text" id="biz-review-uid" placeholder="输入达人UID">
+              </div>
+              <button class="biz-rv-query-btn" onclick="queryBizReview()">🔍 查询</button>
             </div>
           </div>
-          <div class="biz-ops-chart-grid">
-            <div class="chart-card"><div class="card-title">跟进人GMV排名</div><div id="biz-rv-follower-chart" style="width:100%;height:320px;"></div></div>
-            <div class="chart-card"><div class="card-title">各平台GMV对比</div><div id="biz-rv-platform-chart" style="width:100%;height:320px;"></div></div>
-          </div>
-          <div class="biz-ops-table">
-            <div class="biz-ops-table-header">
-              <span class="biz-ops-table-title">商务复盘明细</span>
-              <button class="btn" onclick="exportBizReviewTable()">导出</button>
+
+          <!-- 第二屏：核心KPI -->
+          <div class="biz-rv-screen-kpi">
+            <div class="biz-rv-kpi-card">
+              <div class="biz-rv-kpi-label">GMV</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-gmv">--</div>
+              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-gmv-sub">剔除取消订单后计佣金额</div>
             </div>
-            <div class="data-table-wrap" id="biz-rv-detail-table"></div>
+            <div class="biz-rv-kpi-card green">
+              <div class="biz-rv-kpi-label">实销金额</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-actual">--</div>
+              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-actual-sub">剔除取消+退款后计佣金额</div>
+            </div>
+            <div class="biz-rv-kpi-card orange">
+              <div class="biz-rv-kpi-label">出单达人数</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-sellers">--</div>
+              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-sellers-sub">按达人UID去重统计</div>
+            </div>
+            <div class="biz-rv-kpi-card purple">
+              <div class="biz-rv-kpi-label">新增达人数</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-new">--</div>
+              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-new-sub">按确认建联统计</div>
+            </div>
+          </div>
+
+          <!-- 第三屏：出单达人TOP20 -->
+          <div class="biz-rv-screen-top20">
+            <div class="biz-rv-section-title">出单达人TOP20</div>
+            <div class="biz-rv-table-wrap" id="biz-rv-talent-table"></div>
+          </div>
+
+          <!-- 第四屏：商品TOP5 + 寄样概况 -->
+          <div class="biz-rv-screen-products">
+            <div class="biz-rv-product-col">
+              <div class="biz-rv-section-title">销售商品TOP5</div>
+              <div class="biz-rv-table-wrap" id="biz-rv-product-top5"></div>
+            </div>
+            <div class="biz-rv-sample-col">
+              <div class="biz-rv-section-title">商品寄样概况</div>
+              <div class="biz-rv-table-wrap" id="biz-rv-sample-table"></div>
+            </div>
+          </div>
+
+          <!-- 第五屏：商务运营简析 -->
+          <div class="biz-rv-screen-analysis">
+            <div class="biz-rv-analysis-header">
+              <span class="biz-rv-section-title">商务运营简析</span>
+              <button class="biz-rv-analysis-btn" onclick="runBizAnalysis()">📊 开始分析</button>
+            </div>
+            <div class="biz-rv-analysis-content" id="biz-rv-analysis-content">
+              <div class="biz-rv-analysis-placeholder">选择数据维度后，点击"开始分析"生成运营简析报告</div>
+            </div>
           </div>
         </div>
 
@@ -4921,14 +5107,16 @@ function showToast(msg, type) {
 
 var bizOpsData = {
   overview: [],  // 运营总览数据
-  review: [],    // 商务复盘数据
+  review: [],    // 商务复盘数据（达人维度）
+  reviewProducts: [], // 商务复盘-商品维度
+  reviewSamples: [],  // 商务复盘-寄样数据
   shops: [],     // 店铺列表
   followers: []  // 跟进人列表
 };
 
 // 平台与店铺映射（默认值，上传数据后自动更新）
 var platformShopMap = {
-  'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-小轻担食品旗舰店'],
+  'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-研味食品专卖店', '抖音-小轻担食品旗舰店'],
   'kuaishou': ['快手-鲨鱼菲特方便食品旗舰店'],
   'weixin': ['微信-鲨鱼菲特甄选零食店']
 };
@@ -5201,40 +5389,44 @@ function exportBizOverviewTable() {
 
 // ---------- 商务复盘 ----------
 
+// 复盘排序状态
+var _bizRvTalentSort = { col: 'actualAmount', desc: true };
+var _bizRvProductSort = { col: 'actualAmount', desc: true };
+var _bizRvFilteredData = []; // 当前筛选后的数据缓存
+
 // 根据平台更新复盘模块店铺
 function updateBizReviewShops() {
   var platform = document.getElementById('biz-review-platform').value;
   var shopSelect = document.getElementById('biz-review-shop');
-  shopSelect.innerHTML = '<option value="all">全部店铺</option>';
-
+  shopSelect.innerHTML = '<option value="all">全部</option>';
   var shops = [];
   if (platform === 'all') {
-    Object.keys(platformShopMap).forEach(function(p) {
-      shops = shops.concat(platformShopMap[p]);
-    });
+    Object.keys(platformShopMap).forEach(function(p) { shops = shops.concat(platformShopMap[p]); });
   } else {
     shops = platformShopMap[platform] || [];
   }
-
   shops.forEach(function(shop) {
     var opt = document.createElement('option');
-    opt.value = shop;
-    opt.textContent = shop;
+    opt.value = shop; opt.textContent = shop;
     shopSelect.appendChild(opt);
   });
 }
 
-// 更新跟进人下拉
+// 更新跟进人下拉（根据上传数据自动填充）
 function updateBizReviewFollowers() {
   var followerSelect = document.getElementById('biz-review-follower');
   if (!followerSelect) return;
-  followerSelect.innerHTML = '<option value="all">全部跟进人</option>';
-  bizOpsData.followers.forEach(function(f) {
+  followerSelect.innerHTML = '<option value="all">全部</option>';
+  var followerSet = {};
+  bizOpsData.review.forEach(function(item) {
+    if (item.follower && !followerSet[item.follower]) followerSet[item.follower] = true;
+  });
+  Object.keys(followerSet).sort().forEach(function(f) {
     var opt = document.createElement('option');
-    opt.value = f;
-    opt.textContent = f;
+    opt.value = f; opt.textContent = f;
     followerSelect.appendChild(opt);
   });
+  bizOpsData.followers = Object.keys(followerSet);
 }
 
 // 查询商务复盘
@@ -5244,6 +5436,7 @@ function queryBizReview() {
   var platform = document.getElementById('biz-review-platform').value;
   var shop = document.getElementById('biz-review-shop').value;
   var follower = document.getElementById('biz-review-follower').value;
+  var uid = (document.getElementById('biz-review-uid').value || '').trim();
 
   if (bizOpsData.review.length === 0) {
     generateMockBizReviewData();
@@ -5254,189 +5447,525 @@ function queryBizReview() {
   if (follower && follower !== 'all') {
     filtered = filtered.filter(function(item) { return item.follower === follower; });
   }
+  if (uid) {
+    filtered = filtered.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
+  }
+  _bizRvFilteredData = filtered;
 
-  renderBizReviewKPIs(filtered);
-  renderBizReviewChart(filtered);
-  renderBizReviewTable(filtered);
+  renderBizReviewKPIs(filtered, follower);
+  renderBizReviewTalentTable(filtered);
+  renderBizReviewProductTop5(filtered);
+  renderBizReviewSampleTable();
 }
 
-// 生成模拟商务复盘数据
+// 生成模拟商务复盘数据（达人维度+商品维度+寄样维度）
 function generateMockBizReviewData() {
   var data = [];
   var followers = ['张三', '李四', '王五', '赵六', '陈七'];
-  bizOpsData.followers = followers;
-  persistAppStateLocal();
-  pushBizOpsToGitHub();
-
   var platforms = ['douyin', 'kuaishou', 'weixin'];
   var shopNames = {
-    'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-小轻担食品旗舰店'],
+    'douyin': ['抖音-鲨鱼菲特甄选食品专卖店', '抖音-研味食品专卖店', '抖音-小轻担食品旗舰店'],
     'kuaishou': ['快手-鲨鱼菲特方便食品旗舰店'],
     'weixin': ['微信-鲨鱼菲特甄选零食店']
   };
-
+  var productNames = ['鲨鱼菲特鸡胸肉', '鲨鱼菲特全麦面包', '鲨鱼菲特代餐奶昔', '鲨鱼菲特低脂肠', '小轻担拌饭', '研味速食意面', '鲨鱼菲特蛋白棒', '鲨鱼菲特魔芋蛋糕'];
+  var talentNames = ['吃货小王', '美食达人小李', '健身教练大刘', '种草博主小赵', '生活家小钱', '好物推荐官小孙', '美食探店周杰', '减脂餐达人小吴', '零食控小郑', '好物分享小冯', '美食品鉴家小褚', '健康饮食小蒋', '潮流好物沈哥', '好物严选小韩', '吃货日记小杨', '美味测评小朱', '好物种草秦姐', '生活好物小许', '美食日记小何', '好物体验吕哥', '健身美食小施', '轻食达人小张', '速食测评小孔', '零食分享小曹', '美食推荐严哥'];
   var today = new Date();
+
+  // 达人UID池
+  var uidPool = [];
+  for (var i = 100000; i < 100050; i++) uidPool.push(String(i));
+  // 随机分配新老达人
+  var talentIsNew = {};
+  uidPool.forEach(function(uid, idx) { talentIsNew[uid] = idx % 3 === 0; });
+  var talentNickname = {};
+  uidPool.forEach(function(uid, idx) { talentNickname[uid] = talentNames[idx % talentNames.length]; });
+
   for (var d = 29; d >= 0; d--) {
     var date = new Date(today.getTime() - d * 24 * 60 * 60 * 1000);
     var dateStr = date.toISOString().split('T')[0];
-
     platforms.forEach(function(pf) {
       shopNames[pf].forEach(function(shop) {
         followers.forEach(function(follower) {
-          if (Math.random() > 0.6) return; // 随机分布
-          var baseGmv = pf === 'douyin' ? 20000 : (pf === 'kuaishou' ? 12000 : 8000);
-          var gmv = Math.round(baseGmv * (0.5 + Math.random()));
-          var orders = Math.round(gmv / (50 + Math.random() * 30));
-          var refundRate = 0.05 + Math.random() * 0.1;
-          var refund = Math.round(gmv * refundRate);
-          var profit = Math.round(gmv * (0.2 + Math.random() * 0.15));
-
-          data.push({
-            date: dateStr,
-            platform: pf,
-            shop: shop,
-            follower: follower,
-            gmv: gmv,
-            orders: orders,
-            refund: refund,
-            refundRate: Math.round(refundRate * 10000) / 100,
-            profit: profit
-          });
+          if (Math.random() > 0.7) return;
+          // 每天每个跟进人产生1-3条达人记录
+          var count = 1 + Math.floor(Math.random() * 3);
+          for (var k = 0; k < count; k++) {
+            var uid = uidPool[Math.floor(Math.random() * uidPool.length)];
+            var baseGmv = pf === 'douyin' ? 15000 : (pf === 'kuaishou' ? 10000 : 6000);
+            var gmv = Math.round(baseGmv * (0.3 + Math.random() * 1.2));
+            var cancelAmt = Math.round(gmv * (0.02 + Math.random() * 0.08));
+            var refundAmt = Math.round(gmv * (0.03 + Math.random() * 0.07));
+            var actual = gmv - cancelAmt - refundAmt;
+            // 拆分实销金额到短视频/直播/其它
+            var sv = Math.round(actual * (0.3 + Math.random() * 0.4));
+            var lv = Math.round(actual * (0.2 + Math.random() * 0.4));
+            var ov = actual - sv - lv;
+            if (ov < 0) { ov = 0; }
+            data.push({
+              date: dateStr, platform: pf, shop: shop, follower: follower,
+              uid: uid, nickname: talentNickname[uid], isNew: talentIsNew[uid],
+              gmv: gmv, cancelAmount: cancelAmt, refundAmount: refundAmt,
+              actualAmount: actual, shortVideoSales: sv, liveSales: lv, otherSales: ov,
+              confirmed: Math.random() > 0.5
+            });
+          }
         });
       });
     });
   }
   bizOpsData.review = data;
+
+  // 商品维度数据
+  var prodData = [];
+  productNames.forEach(function(pn) {
+    var sv = Math.round(3000 + Math.random() * 20000);
+    var lv = Math.round(2000 + Math.random() * 18000);
+    var ov = Math.round(500 + Math.random() * 8000);
+    prodData.push({
+      name: pn, actualAmount: sv + lv + ov,
+      shortVideoSales: sv, liveSales: lv, otherSales: ov
+    });
+  });
+  bizOpsData.reviewProducts = prodData;
+
+  // 寄样数据
+  var sampleData = [];
+  productNames.forEach(function(pn) {
+    if (Math.random() > 0.4) return;
+    var sampleCount = 1 + Math.floor(Math.random() * 15);
+    var talents = [];
+    for (var t = 0; t < sampleCount; t++) {
+      talents.push({
+        name: talentNames[Math.floor(Math.random() * talentNames.length)],
+        follower: followers[Math.floor(Math.random() * followers.length)],
+        count: 1 + Math.floor(Math.random() * 3)
+      });
+    }
+    sampleData.push({ productName: pn, count: sampleCount, talents: talents });
+  });
+  bizOpsData.reviewSamples = sampleData.sort(function(a, b) { return b.count - a.count; });
+
   persistAppStateLocal();
   pushBizOpsToGitHub();
 }
 
 // 渲染商务复盘KPI
-function renderBizReviewKPIs(data) {
-  var totalGmv = 0, totalOrders = 0, totalRefund = 0, totalProfit = 0;
+function renderBizReviewKPIs(data, follower) {
+  var totalGmv = 0, totalActual = 0;
+  var sellerUids = {};
+  var newTalentUids = {};
+
   data.forEach(function(item) {
-    totalGmv += item.gmv;
-    totalOrders += item.orders;
-    totalRefund += item.refund;
-    totalProfit += item.profit;
+    totalGmv += item.gmv; // GMV = 计佣金额（已剔除取消）
+    totalActual += item.actualAmount;
+    if (item.actualAmount > 0) sellerUids[item.uid] = true;
+    if (item.confirmed) newTalentUids[item.uid] = true;
   });
-  var refundRate = totalGmv > 0 ? Math.round(totalRefund / totalGmv * 10000) / 100 : 0;
+
+  // 新增达人数：跟进人=全部时按达人UID去重
+  var newCount;
+  if (follower === 'all') {
+    newCount = Object.keys(newTalentUids).length;
+  } else {
+    newCount = data.filter(function(item) { return item.confirmed; }).length;
+  }
 
   document.getElementById('biz-rv-kpi-gmv').textContent = formatMoney(totalGmv);
-  document.getElementById('biz-rv-kpi-gmv-sub').textContent = '共 ' + data.length + ' 条记录';
-  document.getElementById('biz-rv-kpi-orders').textContent = totalOrders.toLocaleString();
-  document.getElementById('biz-rv-kpi-orders-sub').textContent = '完成订单数';
-  document.getElementById('biz-rv-kpi-refund-rate').textContent = refundRate.toFixed(2) + '%';
-  document.getElementById('biz-rv-kpi-refund-rate-sub').textContent = '整体退款率';
-  document.getElementById('biz-rv-kpi-profit').textContent = formatMoney(totalProfit);
-  document.getElementById('biz-rv-kpi-profit-sub').textContent = '总毛利';
+  document.getElementById('biz-rv-kpi-gmv-sub').textContent = '剔除取消订单后计佣金额';
+  document.getElementById('biz-rv-kpi-actual').textContent = formatMoney(totalActual);
+  document.getElementById('biz-rv-kpi-actual-sub').textContent = '剔除取消+退款后计佣金额';
+  document.getElementById('biz-rv-kpi-sellers').textContent = Object.keys(sellerUids).length.toString();
+  document.getElementById('biz-rv-kpi-sellers-sub').textContent = '按达人UID去重统计';
+  document.getElementById('biz-rv-kpi-new').textContent = newCount.toString();
+  document.getElementById('biz-rv-kpi-new-sub').textContent = follower === 'all' ? '按UID去重的确认建联数' : '当前跟进人确认建联数';
 }
 
-// 渲染商务复盘图表
-function renderBizReviewChart(data) {
-  // 跟进人GMV排名
-  var followerMap = {};
-  data.forEach(function(item) {
-    if (!followerMap[item.follower]) followerMap[item.follower] = 0;
-    followerMap[item.follower] += item.gmv;
-  });
-  var sorted = Object.keys(followerMap).sort(function(a, b) { return followerMap[b] - followerMap[a]; });
-  var followerNames = sorted;
-  var followerGmvs = sorted.map(function(f) { return followerMap[f]; });
-
-  var barChart = chartInstances['biz-rv-follower-chart'];
-  if (barChart) barChart.dispose();
-  barChart = echarts.init(document.getElementById('biz-rv-follower-chart'));
-  barChart.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
-      formatter: function(p) { return p[0].name + '<br/>GMV: ¥' + p[0].value.toLocaleString(); } },
-    grid: { left: 80, right: 20, top: 20, bottom: 30 },
-    xAxis: { type: 'value', axisLabel: { formatter: function(v) { return (v/10000).toFixed(1) + '万'; } } },
-    yAxis: { type: 'category', data: followerNames, axisLabel: { fontSize: 11 } },
-    series: [{
-      type: 'bar', data: followerGmvs, barWidth: '50%',
-      itemStyle: { color: function(params) {
-        var colors = ['#2563eb', '#059669', '#ea580c', '#6d28d9', '#db2777'];
-        return colors[params.dataIndex % colors.length];
-      }, borderRadius: [0, 4, 4, 0] }
-    }]
-  });
-  chartInstances['biz-rv-follower-chart'] = barChart;
-
-  // 各平台GMV对比
-  var platformMap = {};
-  data.forEach(function(item) {
-    if (!platformMap[item.platform]) platformMap[item.platform] = 0;
-    platformMap[item.platform] += item.gmv;
-  });
-  var platformLabels = { 'douyin': '抖音', 'kuaishou': '快手', 'weixin': '微信' };
-  var platData = Object.keys(platformMap).map(function(p) {
-    return { name: platformLabels[p] || p, value: platformMap[p] };
-  });
-
-  var pieChart = chartInstances['biz-rv-platform-chart'];
-  if (pieChart) pieChart.dispose();
-  pieChart = echarts.init(document.getElementById('biz-rv-platform-chart'));
-  pieChart.setOption({
-    tooltip: { trigger: 'item', formatter: '{b}<br/>GMV: ¥{c}<br/>占比: {d}%' },
-    legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
-    series: [{
-      type: 'pie', radius: ['45%', '70%'], center: ['35%', '50%'],
-      data: platData,
-      label: { show: false }
-    }]
-  });
-  chartInstances['biz-rv-platform-chart'] = pieChart;
-}
-
-// 渲染商务复盘表格
-function renderBizReviewTable(data) {
-  var tableEl = document.getElementById('biz-rv-detail-table');
+// 渲染出单达人TOP20表格
+function renderBizReviewTalentTable(data) {
+  var tableEl = document.getElementById('biz-rv-talent-table');
   if (!tableEl) return;
 
-  if (data.length === 0) {
-    tableEl.innerHTML = '<div class="table-placeholder">暂无数据</div>';
+  // 按达人UID聚合
+  var talentMap = {};
+  data.forEach(function(item) {
+    if (!talentMap[item.uid]) {
+      talentMap[item.uid] = {
+        uid: item.uid, nickname: item.nickname, isNew: item.isNew,
+        follower: item.follower, actualAmount: 0, shortVideoSales: 0,
+        liveSales: 0, otherSales: 0, dates: {}
+      };
+    }
+    talentMap[item.uid].actualAmount += item.actualAmount;
+    talentMap[item.uid].shortVideoSales += item.shortVideoSales;
+    talentMap[item.uid].liveSales += item.liveSales;
+    talentMap[item.uid].otherSales += item.otherSales;
+    // 按日期聚合
+    if (!talentMap[item.uid].dates[item.date]) talentMap[item.uid].dates[item.date] = { actualAmount: 0, shortVideoSales: 0, liveSales: 0, otherSales: 0 };
+    talentMap[item.uid].dates[item.date].actualAmount += item.actualAmount;
+    talentMap[item.uid].dates[item.date].shortVideoSales += item.shortVideoSales;
+    talentMap[item.uid].dates[item.date].liveSales += item.liveSales;
+    talentMap[item.uid].dates[item.date].otherSales += item.otherSales;
+  });
+
+  var talents = Object.values(talentMap);
+  // 排序
+  var sortCol = _bizRvTalentSort.col;
+  var isDesc = _bizRvTalentSort.desc;
+  talents.sort(function(a, b) {
+    var va = a[sortCol] || 0, vb = b[sortCol] || 0;
+    return isDesc ? vb - va : va - vb;
+  });
+  // 取TOP20
+  var top20 = talents.slice(0, 20);
+
+  if (top20.length === 0) {
+    tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无数据</div>';
     return;
   }
 
-  var rows = data.sort(function(a, b) { return b.date.localeCompare(a.date); });
+  // 排序图标
+  function sortIcon(col) {
+    if (col !== sortCol) return '<span class="biz-rv-sort-icon">⇅</span>';
+    return '<span class="biz-rv-sort-icon">' + (isDesc ? '↓' : '↑') + '</span>';
+  }
+  function thClass(col) { return col === sortCol ? 'sorted' : ''; }
 
-  var html = buildTable(
-    ['日期', '店铺', '跟进人', 'GMV', '订单数', '退款率', '毛利'],
-    rows.map(function(r) {
-      return [
-        { v: r.date },
-        { v: r.shop },
-        { v: r.follower },
-        { v: '¥' + r.gmv.toLocaleString() },
-        { v: r.orders.toLocaleString() },
-        { v: r.refundRate.toFixed(2) + '%' },
-        { v: '¥' + r.profit.toLocaleString() }
-      ];
-    })
-  );
+  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">';
+  html += '<thead><tr style="background:#f9fafb;">';
+  html += '<th style="padding:10px 12px;text-align:center;">排名</th>';
+  html += '<th style="padding:10px 12px;">达人昵称</th>';
+  html += '<th style="padding:10px 12px;text-align:center;">达人定位</th>';
+  html += '<th style="padding:10px 12px;">跟进人</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('actualAmount') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'actualAmount\')">实销金额' + sortIcon('actualAmount') + '</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('shortVideoSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'shortVideoSales\')">短视频实销' + sortIcon('shortVideoSales') + '</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('liveSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'liveSales\')">直播实销' + sortIcon('liveSales') + '</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('otherSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'otherSales\')">其它实销' + sortIcon('otherSales') + '</th>';
+  html += '<th style="padding:10px 12px;text-align:center;">近7日实销趋势</th>';
+  html += '</tr></thead><tbody>';
+
+  top20.forEach(function(t, idx) {
+    var rank = idx + 1;
+    var tag = t.isNew ? '<span class="biz-rv-tag biz-rv-tag-new">新达人</span>' : '<span class="biz-rv-tag biz-rv-tag-old">老达人</span>';
+    html += '<tr style="border-bottom:1px solid #f3f4f6;">';
+    html += '<td style="padding:10px 12px;text-align:center;font-weight:600;color:#2563eb;">' + rank + '</td>';
+    html += '<td style="padding:10px 12px;">' + (t.nickname || '--') + '</td>';
+    html += '<td style="padding:10px 12px;text-align:center;">' + tag + '</td>';
+    html += '<td style="padding:10px 12px;">' + (t.follower || '--') + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;font-weight:600;">¥' + (t.actualAmount || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">¥' + (t.shortVideoSales || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">¥' + (t.liveSales || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">¥' + (t.otherSales || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:center;"><div class="biz-rv-mini-chart" id="biz-rv-mini-' + idx + '" onclick="showTrendChartModal(' + idx + ')"></div></td>';
+    html += '</tr>';
+    // 保存数据供mini chart使用
+    t._datesData = t.dates;
+  });
+  html += '</tbody></table>';
   tableEl.innerHTML = html;
+
+  // 渲染mini charts
+  top20.forEach(function(t, idx) {
+    var el = document.getElementById('biz-rv-mini-' + idx);
+    if (!el) return;
+    renderMiniTrendChart(el, t._datesData);
+  });
+
+  // 缓存top20数据供弹窗使用
+  _bizRvTop20Data = top20;
+}
+
+// 排序达人表格
+function sortBizRvTalent(col) {
+  if (_bizRvTalentSort.col === col) {
+    _bizRvTalentSort.desc = !_bizRvTalentSort.desc;
+  } else {
+    _bizRvTalentSort.col = col;
+    _bizRvTalentSort.desc = true;
+  }
+  renderBizReviewTalentTable(_bizRvFilteredData);
+}
+
+// 渲染mini趋势图
+function renderMiniTrendChart(el, datesData) {
+  var endDate = document.getElementById('biz-review-end-date').value || new Date().toISOString().split('T')[0];
+  var end = new Date(endDate);
+  var dateKeys = [];
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(end.getTime() - i * 24 * 60 * 60 * 1000);
+    dateKeys.push(d.toISOString().split('T')[0]);
+  }
+  var actualVals = dateKeys.map(function(dk) { return (datesData[dk] && datesData[dk].actualAmount) || 0; });
+  var chart = echarts.init(el);
+  chart.setOption({
+    grid: { left: 2, right: 2, top: 2, bottom: 2 },
+    xAxis: { type: 'category', show: false, data: dateKeys.map(function(dk) { return dk.slice(5); }) },
+    yAxis: { type: 'value', show: false },
+    series: [{
+      type: 'line', data: actualVals, smooth: true,
+      symbol: 'none', lineStyle: { width: 1.5, color: '#2563eb' },
+      areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
+        { offset: 0, color: 'rgba(37,99,235,0.2)' }, { offset: 1, color: 'rgba(37,99,235,0)' }
+      ]}}
+    }]
+  });
+}
+
+// 弹窗预览7日趋势图
+var _bizRvTop20Data = [];
+function showTrendChartModal(idx) {
+  var t = _bizRvTop20Data[idx];
+  if (!t) return;
+  var endDate = document.getElementById('biz-review-end-date').value || new Date().toISOString().split('T')[0];
+  var end = new Date(endDate);
+  var dateKeys = [];
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(end.getTime() - i * 24 * 60 * 60 * 1000);
+    dateKeys.push(d.toISOString().split('T')[0]);
+  }
+  var actualVals = dateKeys.map(function(dk) { return (t._datesData[dk] && t._datesData[dk].actualAmount) || 0; });
+  var svVals = dateKeys.map(function(dk) { return (t._datesData[dk] && t._datesData[dk].shortVideoSales) || 0; });
+  var lvVals = dateKeys.map(function(dk) { return (t._datesData[dk] && t._datesData[dk].liveSales) || 0; });
+  var ovVals = dateKeys.map(function(dk) { return (t._datesData[dk] && t._datesData[dk].otherSales) || 0; });
+
+  var overlay = document.createElement('div');
+  overlay.className = 'biz-rv-modal-overlay';
+  overlay.onclick = function(e) { if (e.target === overlay) document.body.removeChild(overlay); };
+  var box = document.createElement('div');
+  box.className = 'biz-rv-modal-box';
+  box.innerHTML = '<div class="biz-rv-modal-title"><span>' + (t.nickname || '达人') + ' - 近7日实销趋势</span><button class="biz-rv-modal-close" onclick="this.closest(\'.biz-rv-modal-overlay\').remove()">✕</button></div><div id="biz-rv-modal-chart" style="width:100%;height:320px;"></div>';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  var chart = echarts.init(document.getElementById('biz-rv-modal-chart'));
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['实销金额', '短视频实销', '直播实销', '其它实销'], bottom: 0 },
+    grid: { left: 60, right: 20, top: 20, bottom: 40 },
+    xAxis: { type: 'category', data: dateKeys.map(function(dk) { return dk.slice(5); }), axisLabel: { fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { formatter: function(v) { return (v / 10000).toFixed(1) + '万'; } } },
+    series: [
+      { name: '实销金额', type: 'line', smooth: true, data: actualVals, itemStyle: { color: '#2563eb' } },
+      { name: '短视频实销', type: 'line', smooth: true, data: svVals, itemStyle: { color: '#059669' } },
+      { name: '直播实销', type: 'line', smooth: true, data: lvVals, itemStyle: { color: '#ea580c' } },
+      { name: '其它实销', type: 'line', smooth: true, data: ovVals, itemStyle: { color: '#6d28d9' } }
+    ]
+  });
+}
+
+// 渲染销售商品TOP5
+function renderBizReviewProductTop5(data) {
+  var tableEl = document.getElementById('biz-rv-product-top5');
+  if (!tableEl) return;
+
+  // 使用商品维度数据
+  var products = (bizOpsData.reviewProducts || []).map(function(p) { return Object.assign({}, p); });
+  var sortCol = _bizRvProductSort.col;
+  var isDesc = _bizRvProductSort.desc;
+  products.sort(function(a, b) {
+    var va = a[sortCol] || 0, vb = b[sortCol] || 0;
+    return isDesc ? vb - va : va - vb;
+  });
+  var top5 = products.slice(0, 5);
+
+  if (top5.length === 0) {
+    tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无数据</div>';
+    return;
+  }
+
+  function sortIcon(col) {
+    if (col !== sortCol) return '<span class="biz-rv-sort-icon">⇅</span>';
+    return '<span class="biz-rv-sort-icon">' + (isDesc ? '↓' : '↑') + '</span>';
+  }
+  function thClass(col) { return col === sortCol ? 'sorted' : ''; }
+
+  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">';
+  html += '<thead><tr style="background:#f9fafb;">';
+  html += '<th style="padding:10px 12px;text-align:center;">排名</th>';
+  html += '<th style="padding:10px 12px;">商品名称</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('actualAmount') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'actualAmount\')">实销金额' + sortIcon('actualAmount') + '</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('shortVideoSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'shortVideoSales\')">短视频实销' + sortIcon('shortVideoSales') + '</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('liveSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'liveSales\')">直播实销' + sortIcon('liveSales') + '</th>';
+  html += '<th class="biz-rv-sort-th ' + thClass('otherSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'otherSales\')">其它实销' + sortIcon('otherSales') + '</th>';
+  html += '</tr></thead><tbody>';
+  top5.forEach(function(p, idx) {
+    html += '<tr style="border-bottom:1px solid #f3f4f6;">';
+    html += '<td style="padding:10px 12px;text-align:center;font-weight:600;color:#2563eb;">' + (idx + 1) + '</td>';
+    html += '<td style="padding:10px 12px;">' + p.name + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;font-weight:600;">¥' + (p.actualAmount || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">¥' + (p.shortVideoSales || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">¥' + (p.liveSales || 0).toLocaleString() + '</td>';
+    html += '<td style="padding:10px 12px;text-align:right;">¥' + (p.otherSales || 0).toLocaleString() + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  tableEl.innerHTML = html;
+}
+
+// 排序商品表格
+function sortBizRvProduct(col) {
+  if (_bizRvProductSort.col === col) {
+    _bizRvProductSort.desc = !_bizRvProductSort.desc;
+  } else {
+    _bizRvProductSort.col = col;
+    _bizRvProductSort.desc = true;
+  }
+  renderBizReviewProductTop5(_bizRvFilteredData);
+}
+
+// 渲染商品寄样概况
+function renderBizReviewSampleTable() {
+  var tableEl = document.getElementById('biz-rv-sample-table');
+  if (!tableEl) return;
+  var samples = (bizOpsData.reviewSamples || []).slice().sort(function(a, b) { return b.count - a.count; });
+
+  if (samples.length === 0) {
+    tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无寄样数据</div>';
+    return;
+  }
+
+  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">';
+  html += '<thead><tr style="background:#f9fafb;">';
+  html += '<th style="padding:10px 12px;">商品名称</th>';
+  html += '<th style="padding:10px 12px;text-align:center;">寄样数量</th>';
+  html += '<th style="padding:10px 12px;text-align:center;">寄样达人</th>';
+  html += '</tr></thead><tbody>';
+  samples.forEach(function(s) {
+    html += '<tr style="border-bottom:1px solid #f3f4f6;">';
+    html += '<td style="padding:10px 12px;">' + s.productName + '</td>';
+    html += '<td style="padding:10px 12px;text-align:center;font-weight:600;">' + s.count + '</td>';
+    html += '<td style="padding:10px 12px;text-align:center;"><button class="biz-rv-sample-btn" onclick="showSampleDetailModal(\'' + s.productName.replace(/'/g, "\\'") + '\')">查看寄样达人</button></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  tableEl.innerHTML = html;
+}
+
+// 寄样达人明细弹窗
+function showSampleDetailModal(productName) {
+  var samples = bizOpsData.reviewSamples || [];
+  var sample = samples.find(function(s) { return s.productName === productName; });
+  if (!sample) return;
+
+  var overlay = document.createElement('div');
+  overlay.className = 'biz-rv-modal-overlay';
+  overlay.onclick = function(e) { if (e.target === overlay) document.body.removeChild(overlay); };
+  var box = document.createElement('div');
+  box.className = 'biz-rv-modal-box';
+
+  var talentRows = sample.talents.map(function(t, idx) {
+    return '<tr style="border-bottom:1px solid #f3f4f6;">' +
+      '<td style="padding:10px 12px;">' + (idx + 1) + '</td>' +
+      '<td style="padding:10px 12px;">' + t.name + '</td>' +
+      '<td style="padding:10px 12px;">' + t.follower + '</td>' +
+      '<td style="padding:10px 12px;text-align:center;">' + t.count + '</td>' +
+      '</tr>';
+  }).join('');
+
+  box.innerHTML = '<div class="biz-rv-modal-title"><span>' + productName + ' - 寄样达人明细</span><button class="biz-rv-modal-close" onclick="this.closest(\'.biz-rv-modal-overlay\').remove()">✕</button></div>' +
+    '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">' +
+    '<thead><tr style="background:#f9fafb;"><th style="padding:10px 12px;text-align:center;">序号</th><th style="padding:10px 12px;">达人名称</th><th style="padding:10px 12px;">寄样跟进人</th><th style="padding:10px 12px;text-align:center;">寄样数量</th></tr></thead>' +
+    '<tbody>' + talentRows + '</tbody></table>';
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+// 商务运营简析
+function runBizAnalysis() {
+  var data = _bizRvFilteredData;
+  if (!data || data.length === 0) {
+    document.getElementById('biz-rv-analysis-content').innerHTML = '<div class="biz-rv-analysis-placeholder">暂无数据可分析，请先查询数据</div>';
+    return;
+  }
+
+  var platform = document.getElementById('biz-review-platform').value;
+  var shop = document.getElementById('biz-review-shop').value;
+  var follower = document.getElementById('biz-review-follower').value;
+  var startDate = document.getElementById('biz-review-start-date').value;
+  var endDate = document.getElementById('biz-review-end-date').value;
+  var uid = (document.getElementById('biz-review-uid').value || '').trim();
+
+  // 聚合分析
+  var totalGmv = 0, totalActual = 0, totalSV = 0, totalLV = 0, totalOV = 0;
+  var sellerUids = {}, newUids = {}, oldUids = {};
+  var followerActual = {};
+  data.forEach(function(item) {
+    totalGmv += item.gmv;
+    totalActual += item.actualAmount;
+    totalSV += item.shortVideoSales;
+    totalLV += item.liveSales;
+    totalOV += item.otherSales;
+    if (item.actualAmount > 0) sellerUids[item.uid] = true;
+    if (item.isNew) newUids[item.uid] = true; else oldUids[item.uid] = true;
+    if (!followerActual[item.follower]) followerActual[item.follower] = 0;
+    followerActual[item.follower] += item.actualAmount;
+  });
+
+  var sellerCount = Object.keys(sellerUids).length;
+  var newCount = Object.keys(newUids).length;
+  var oldCount = Object.keys(oldUids).length;
+  var avgActual = sellerCount > 0 ? Math.round(totalActual / sellerCount) : 0;
+
+  // 跟进人排名
+  var followerRanking = Object.keys(followerActual).sort(function(a, b) { return followerActual[b] - followerActual[a]; });
+  var followerStr = followerRanking.map(function(f, idx) {
+    return (idx + 1) + '. ' + f + ' (¥' + followerActual[f].toLocaleString() + ')';
+  }).join('；');
+
+  // 内容渠道占比
+  var svPct = totalActual > 0 ? (totalSV / totalActual * 100).toFixed(1) : '0';
+  var lvPct = totalActual > 0 ? (totalLV / totalActual * 100).toFixed(1) : '0';
+  var ovPct = totalActual > 0 ? (totalOV / totalActual * 100).toFixed(1) : '0';
+
+  var dimensionStr = '';
+  if (startDate && endDate) dimensionStr += '日期：' + startDate + '至' + endDate + '；';
+  dimensionStr += '平台：' + (platform === 'all' ? '全部' : platform) + '；';
+  dimensionStr += '店铺：' + (shop === 'all' ? '全部' : shop) + '；';
+  dimensionStr += '跟进人：' + (follower === 'all' ? '全部' : follower);
+  if (uid) dimensionStr += '；达人UID：' + uid;
+
+  var html = '<div class="biz-rv-analysis-report">';
+  html += '<div class="biz-rv-analysis-item"><span class="label">分析维度：</span><span class="value">' + dimensionStr + '</span></div>';
+  html += '<div class="biz-rv-analysis-item"><span class="label">GMV与实销：</span><span class="value">GMV（剔除取消）¥' + totalGmv.toLocaleString() + '，实销金额¥' + totalActual.toLocaleString() + '，实销率' + (totalGmv > 0 ? (totalActual / totalGmv * 100).toFixed(1) : '0') + '%</span></div>';
+  html += '<div class="biz-rv-analysis-item"><span class="label">达人结构：</span><span class="value">出单达人' + sellerCount + '人，其中新达人' + newCount + '人、老达人' + oldCount + '人，新达人占比' + (sellerCount > 0 ? (newCount / sellerCount * 100).toFixed(1) : '0') + '%，人均实销¥' + avgActual.toLocaleString() + '</span></div>';
+  html += '<div class="biz-rv-analysis-item"><span class="label">内容渠道：</span><span class="value">短视频实销¥' + totalSV.toLocaleString() + '（占比' + svPct + '%），直播实销¥' + totalLV.toLocaleString() + '（占比' + lvPct + '%），其它实销¥' + totalOV.toLocaleString() + '（占比' + ovPct + '%）</span></div>';
+  html += '<div class="biz-rv-analysis-item"><span class="label">跟进人排名：</span><span class="value">' + followerStr + '</span></div>';
+  html += '<div class="biz-rv-analysis-item"><span class="label">策略建议：</span><span class="value">' + generateStrategySuggestion(svPct, lvPct, newCount, oldCount, sellerCount) + '</span></div>';
+  html += '</div>';
+
+  document.getElementById('biz-rv-analysis-content').innerHTML = html;
+}
+
+// 生成策略建议
+function generateStrategySuggestion(svPct, lvPct, newCount, oldCount, sellerCount) {
+  var suggestions = [];
+  if (parseFloat(lvPct) > parseFloat(svPct)) {
+    suggestions.push('直播渠道为主要产出，建议加大直播达人合作力度');
+  } else {
+    suggestions.push('短视频为主要产出渠道，建议持续强化短视频内容种草');
+  }
+  if (newCount > oldCount) {
+    suggestions.push('新达人占比较高，建议加强达人培育和深度合作');
+  } else {
+    suggestions.push('老达人为主力产出，建议维护好现有合作关系同时拓展新达人');
+  }
+  if (sellerCount < 10) {
+    suggestions.push('出单达人数量较少，建议扩大达人触达面');
+  } else {
+    suggestions.push('出单达人数量充足，建议关注头部达人深度运营');
+  }
+  return suggestions.join('；') + '。';
 }
 
 // 导出商务复盘表格
 function exportBizReviewTable() {
-  var startDate = document.getElementById('biz-review-start-date').value;
-  var endDate = document.getElementById('biz-review-end-date').value;
-  var platform = document.getElementById('biz-review-platform').value;
-  var shop = document.getElementById('biz-review-shop').value;
-  var follower = document.getElementById('biz-review-follower').value;
-
-  var filtered = filterBizData(bizOpsData.review, startDate, endDate, platform, shop);
-  if (follower && follower !== 'all') {
-    filtered = filtered.filter(function(item) { return item.follower === follower; });
-  }
-
-  if (filtered.length === 0) { showToast('暂无数据可导出', 'warning'); return; }
-
-  var csv = '日期,店铺,平台,跟进人,GMV,订单数,退款金额,退款率,毛利\n';
-  filtered.forEach(function(item) {
-    csv += [item.date, item.shop, item.platform, item.follower,
-      item.gmv, item.orders, item.refund, item.refundRate + '%', item.profit].join(',') + '\n';
+  var data = _bizRvFilteredData;
+  if (!data || data.length === 0) { showToast('暂无数据可导出', 'warning'); return; }
+  var csv = '日期,平台,店铺,跟进人,达人UID,达人昵称,达人定位,GMV,实销金额,短视频实销,直播实销,其它实销,确认建联\n';
+  data.forEach(function(item) {
+    csv += [item.date, item.platform, item.shop, item.follower, item.uid, item.nickname,
+      item.isNew ? '新达人' : '老达人', item.gmv, item.actualAmount, item.shortVideoSales,
+      item.liveSales, item.otherSales, item.confirmed ? '是' : '否'].join(',') + '\n';
   });
   downloadCSV(csv, '商务复盘数据.csv');
 }
@@ -5575,9 +6104,11 @@ function loadAppState() {
     if (state.bizOpsData) {
       bizOpsData.overview = state.bizOpsData.overview || [];
       bizOpsData.review = state.bizOpsData.review || [];
+      bizOpsData.reviewProducts = state.bizOpsData.reviewProducts || [];
+      bizOpsData.reviewSamples = state.bizOpsData.reviewSamples || [];
       bizOpsData.shops = state.bizOpsData.shops || [];
       bizOpsData.followers = state.bizOpsData.followers || [];
-      console.log('[持久化] 恢复商务运营数据 (' + bizOpsData.overview.length + '条总览, ' + bizOpsData.review.length + '条复盘)');
+      console.log('[持久化] 恢复商务运营数据 (' + bizOpsData.overview.length + '条总览, ' + bizOpsData.review.length + '条复盘, ' + bizOpsData.reviewProducts.length + '条商品, ' + bizOpsData.reviewSamples.length + '条寄样)');
     }
     if (state.bizOpsActiveTab) bizOpsActiveTab = state.bizOpsActiveTab;
     if (state.platformShopMap) {
@@ -5760,6 +6291,12 @@ setInterval(function() {
         }
         if (Array.isArray(bizData.review) && JSON.stringify(bizOpsData.review) !== JSON.stringify(bizData.review)) {
           bizOpsData.review = bizData.review; changed = true;
+        }
+        if (Array.isArray(bizData.reviewProducts) && JSON.stringify(bizOpsData.reviewProducts) !== JSON.stringify(bizData.reviewProducts)) {
+          bizOpsData.reviewProducts = bizData.reviewProducts; changed = true;
+        }
+        if (Array.isArray(bizData.reviewSamples) && JSON.stringify(bizOpsData.reviewSamples) !== JSON.stringify(bizData.reviewSamples)) {
+          bizOpsData.reviewSamples = bizData.reviewSamples; changed = true;
         }
         if (Array.isArray(bizData.shops) && JSON.stringify(bizOpsData.shops) !== JSON.stringify(bizData.shops)) {
           bizOpsData.shops = bizData.shops; changed = true;
@@ -6065,6 +6602,8 @@ function pushBizOpsToGitHub() {
   var dataToSave = {
     overview: bizOpsData.overview,
     review: bizOpsData.review,
+    reviewProducts: bizOpsData.reviewProducts,
+    reviewSamples: bizOpsData.reviewSamples,
     shops: bizOpsData.shops,
     followers: bizOpsData.followers,
     platformShopMap: platformShopMap
@@ -6171,6 +6710,10 @@ function applyRemoteState(remoteState) {
         bizOpsData.overview = remoteState.bizOpsData.overview;
       if (Array.isArray(remoteState.bizOpsData.review))
         bizOpsData.review = remoteState.bizOpsData.review;
+      if (Array.isArray(remoteState.bizOpsData.reviewProducts))
+        bizOpsData.reviewProducts = remoteState.bizOpsData.reviewProducts;
+      if (Array.isArray(remoteState.bizOpsData.reviewSamples))
+        bizOpsData.reviewSamples = remoteState.bizOpsData.reviewSamples;
       if (Array.isArray(remoteState.bizOpsData.shops))
         bizOpsData.shops = remoteState.bizOpsData.shops;
       if (Array.isArray(remoteState.bizOpsData.followers))
@@ -6283,6 +6826,8 @@ function loadAllDataFromGitHub() {
       if (bizData) {
         if (Array.isArray(bizData.overview)) bizOpsData.overview = bizData.overview;
         if (Array.isArray(bizData.review)) bizOpsData.review = bizData.review;
+        if (Array.isArray(bizData.reviewProducts)) bizOpsData.reviewProducts = bizData.reviewProducts;
+        if (Array.isArray(bizData.reviewSamples)) bizOpsData.reviewSamples = bizData.reviewSamples;
         if (Array.isArray(bizData.shops)) bizOpsData.shops = bizData.shops;
         if (Array.isArray(bizData.followers)) bizOpsData.followers = bizData.followers;
         if (bizData.platformShopMap) {
