@@ -178,7 +178,13 @@
           "position": "常规品",
           "target": "300000",
           "confirmed": true,
-          "splits": [],
+          "splits": [
+            {
+              "specialist": "姜梦萍",
+              "target": "",
+              "position": ""
+            }
+          ],
           "splitConfirmed": false
         },
         {
