@@ -254,18 +254,7 @@
           "position": "新发品",
           "target": "100000",
           "confirmed": true,
-          "splits": [
-            {
-              "specialist": "唐红伟",
-              "target": "",
-              "position": ""
-            },
-            {
-              "specialist": "",
-              "target": "",
-              "position": ""
-            }
-          ],
+          "splits": [],
           "splitConfirmed": false
         },
         {
