@@ -281,7 +281,7 @@
           "splits": [
             {
               "specialist": "章子康",
-              "target": "30000",
+              "target": "",
               "position": "常规品"
             },
             {
@@ -291,7 +291,7 @@
             },
             {
               "specialist": "唐红伟",
-              "target": "",
+              "target": "10000",
               "position": "常规品"
             },
             {
