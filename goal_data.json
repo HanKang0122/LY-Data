@@ -305,10 +305,10 @@
               "position": "常规品"
             }
           ],
-          "splitConfirmed": false
+          "splitConfirmed": true
         }
       ],
-      "locked": false
+      "locked": true
     },
     "2026-7": {
       "rows": [],
