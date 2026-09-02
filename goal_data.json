@@ -259,6 +259,11 @@
               "specialist": "唐红伟",
               "target": "30000",
               "position": "新发品"
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
             }
           ],
           "splitConfirmed": true
