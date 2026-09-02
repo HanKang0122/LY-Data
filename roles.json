@@ -60,8 +60,11 @@
       "team-function:qc-support"
     ],
     "features": [
+      "goal:mapping",
+      "goal:add",
       "goal:confirm",
       "goal:edit",
+      "goal:delete",
       "goal:split",
       "goal:submit"
     ]
