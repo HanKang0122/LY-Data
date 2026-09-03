@@ -718,20 +718,20 @@ body {
 
 /* KPI */
 .biz-rv-screen-kpi {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 16px;
 }
-@media (max-width: 1100px) { .biz-rv-screen-kpi { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1400px) { .biz-rv-screen-kpi { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .biz-rv-screen-kpi { grid-template-columns: repeat(2, 1fr); } }
 .biz-rv-kpi-card {
   background: var(--bg-white); border-radius: var(--radius-md);
-  padding: 20px; box-shadow: var(--shadow-sm);
+  padding: 18px 16px; box-shadow: var(--shadow-sm);
   border-left: 4px solid #2563eb;
 }
 .biz-rv-kpi-card.green { border-left-color: #059669; }
 .biz-rv-kpi-card.orange { border-left-color: #ea580c; }
 .biz-rv-kpi-card.purple { border-left-color: #6d28d9; }
-.biz-rv-kpi-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
-.biz-rv-kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
-.biz-rv-kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+.biz-rv-kpi-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.biz-rv-kpi-value { font-size: 24px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
 
 /* Section title */
 .biz-rv-section-title {
@@ -2308,24 +2308,28 @@ body {
           <!-- 第二屏：核心KPI -->
           <div class="biz-rv-screen-kpi">
             <div class="biz-rv-kpi-card">
-              <div class="biz-rv-kpi-label">GMV</div>
-              <div class="biz-rv-kpi-value" id="biz-rv-kpi-gmv">--</div>
-              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-gmv-sub">剔除取消订单后计佣金额</div>
+              <div class="biz-rv-kpi-label">实销总金额</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-actual">--</div>
             </div>
             <div class="biz-rv-kpi-card green">
-              <div class="biz-rv-kpi-label">实销金额</div>
-              <div class="biz-rv-kpi-value" id="biz-rv-kpi-actual">--</div>
-              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-actual-sub">剔除取消+退款后计佣金额</div>
+              <div class="biz-rv-kpi-label">短视频实销总金额</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-sv">--</div>
+            </div>
+            <div class="biz-rv-kpi-card orange">
+              <div class="biz-rv-kpi-label">直播实销总金额</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-lv">--</div>
+            </div>
+            <div class="biz-rv-kpi-card purple">
+              <div class="biz-rv-kpi-label">其它实销总金额</div>
+              <div class="biz-rv-kpi-value" id="biz-rv-kpi-ov">--</div>
             </div>
             <div class="biz-rv-kpi-card orange">
               <div class="biz-rv-kpi-label">出单达人数</div>
               <div class="biz-rv-kpi-value" id="biz-rv-kpi-sellers">--</div>
-              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-sellers-sub">按达人UID去重统计</div>
             </div>
             <div class="biz-rv-kpi-card purple">
               <div class="biz-rv-kpi-label">新增达人数</div>
               <div class="biz-rv-kpi-value" id="biz-rv-kpi-new">--</div>
-              <div class="biz-rv-kpi-sub" id="biz-rv-kpi-new-sub">按确认建联统计</div>
             </div>
           </div>
 
@@ -5552,13 +5556,15 @@ function generateMockBizReviewData() {
 
 // 渲染商务复盘KPI
 function renderBizReviewKPIs(data, follower) {
-  var totalGmv = 0, totalActual = 0;
+  var totalActual = 0, totalSV = 0, totalLV = 0, totalOV = 0;
   var sellerUids = {};
   var newTalentUids = {};
 
   data.forEach(function(item) {
-    totalGmv += item.gmv; // GMV = 计佣金额（已剔除取消）
     totalActual += item.actualAmount;
+    totalSV += item.shortVideoSales;
+    totalLV += item.liveSales;
+    totalOV += item.otherSales;
     if (item.actualAmount > 0) sellerUids[item.uid] = true;
     if (item.confirmed) newTalentUids[item.uid] = true;
   });
@@ -5571,14 +5577,12 @@ function renderBizReviewKPIs(data, follower) {
     newCount = data.filter(function(item) { return item.confirmed; }).length;
   }
 
-  document.getElementById('biz-rv-kpi-gmv').textContent = formatMoney(totalGmv);
-  document.getElementById('biz-rv-kpi-gmv-sub').textContent = '剔除取消订单后计佣金额';
   document.getElementById('biz-rv-kpi-actual').textContent = formatMoney(totalActual);
-  document.getElementById('biz-rv-kpi-actual-sub').textContent = '剔除取消+退款后计佣金额';
+  document.getElementById('biz-rv-kpi-sv').textContent = formatMoney(totalSV);
+  document.getElementById('biz-rv-kpi-lv').textContent = formatMoney(totalLV);
+  document.getElementById('biz-rv-kpi-ov').textContent = formatMoney(totalOV);
   document.getElementById('biz-rv-kpi-sellers').textContent = Object.keys(sellerUids).length.toString();
-  document.getElementById('biz-rv-kpi-sellers-sub').textContent = '按达人UID去重统计';
   document.getElementById('biz-rv-kpi-new').textContent = newCount.toString();
-  document.getElementById('biz-rv-kpi-new-sub').textContent = follower === 'all' ? '按UID去重的确认建联数' : '当前跟进人确认建联数';
 }
 
 // 渲染出单达人TOP20表格
@@ -5631,32 +5635,33 @@ function renderBizReviewTalentTable(data) {
   }
   function thClass(col) { return col === sortCol ? 'sorted' : ''; }
 
-  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">';
+  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
+  html += '<colgroup><col style="width:50px;"><col style="width:140px;"><col style="width:80px;"><col style="width:90px;"><col style="width:110px;"><col style="width:110px;"><col style="width:110px;"><col style="width:110px;"><col style="width:130px;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
-  html += '<th style="padding:10px 12px;text-align:center;">排名</th>';
-  html += '<th style="padding:10px 12px;">达人昵称</th>';
-  html += '<th style="padding:10px 12px;text-align:center;">达人定位</th>';
-  html += '<th style="padding:10px 12px;">跟进人</th>';
+  html += '<th style="padding:10px 8px;text-align:center;">排名</th>';
+  html += '<th style="padding:10px 12px;text-align:left;">达人昵称</th>';
+  html += '<th style="padding:10px 8px;text-align:center;">达人定位</th>';
+  html += '<th style="padding:10px 12px;text-align:left;">跟进人</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('actualAmount') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'actualAmount\')">实销金额' + sortIcon('actualAmount') + '</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('shortVideoSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'shortVideoSales\')">短视频实销' + sortIcon('shortVideoSales') + '</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('liveSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'liveSales\')">直播实销' + sortIcon('liveSales') + '</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('otherSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvTalent(\'otherSales\')">其它实销' + sortIcon('otherSales') + '</th>';
-  html += '<th style="padding:10px 12px;text-align:center;">近7日实销趋势</th>';
+  html += '<th style="padding:10px 8px;text-align:center;">近7日实销趋势</th>';
   html += '</tr></thead><tbody>';
 
   top20.forEach(function(t, idx) {
     var rank = idx + 1;
     var tag = t.isNew ? '<span class="biz-rv-tag biz-rv-tag-new">新达人</span>' : '<span class="biz-rv-tag biz-rv-tag-old">老达人</span>';
     html += '<tr style="border-bottom:1px solid #f3f4f6;">';
-    html += '<td style="padding:10px 12px;text-align:center;font-weight:600;color:#2563eb;">' + rank + '</td>';
-    html += '<td style="padding:10px 12px;">' + (t.nickname || '--') + '</td>';
-    html += '<td style="padding:10px 12px;text-align:center;">' + tag + '</td>';
-    html += '<td style="padding:10px 12px;">' + (t.follower || '--') + '</td>';
+    html += '<td style="padding:10px 8px;text-align:center;font-weight:600;color:#2563eb;">' + rank + '</td>';
+    html += '<td style="padding:10px 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (t.nickname || '--') + '</td>';
+    html += '<td style="padding:10px 8px;text-align:center;">' + tag + '</td>';
+    html += '<td style="padding:10px 12px;text-align:left;">' + (t.follower || '--') + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;font-weight:600;">¥' + (t.actualAmount || 0).toLocaleString() + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;">¥' + (t.shortVideoSales || 0).toLocaleString() + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;">¥' + (t.liveSales || 0).toLocaleString() + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;">¥' + (t.otherSales || 0).toLocaleString() + '</td>';
-    html += '<td style="padding:10px 12px;text-align:center;"><div class="biz-rv-mini-chart" id="biz-rv-mini-' + idx + '" onclick="showTrendChartModal(' + idx + ')"></div></td>';
+    html += '<td style="padding:10px 8px;text-align:center;"><div class="biz-rv-mini-chart" id="biz-rv-mini-' + idx + '" onclick="showTrendChartModal(' + idx + ')"></div></td>';
     html += '</tr>';
     // 保存数据供mini chart使用
     t._datesData = t.dates;
@@ -5779,10 +5784,11 @@ function renderBizReviewProductTop5(data) {
   }
   function thClass(col) { return col === sortCol ? 'sorted' : ''; }
 
-  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">';
+  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
+  html += '<colgroup><col style="width:50px;"><col style="width:auto;"><col style="width:120px;"><col style="width:110px;"><col style="width:110px;"><col style="width:110px;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
-  html += '<th style="padding:10px 12px;text-align:center;">排名</th>';
-  html += '<th style="padding:10px 12px;">商品名称</th>';
+  html += '<th style="padding:10px 8px;text-align:center;">排名</th>';
+  html += '<th style="padding:10px 12px;text-align:left;">商品名称</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('actualAmount') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'actualAmount\')">实销金额' + sortIcon('actualAmount') + '</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('shortVideoSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'shortVideoSales\')">短视频实销' + sortIcon('shortVideoSales') + '</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('liveSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'liveSales\')">直播实销' + sortIcon('liveSales') + '</th>';
@@ -5790,8 +5796,8 @@ function renderBizReviewProductTop5(data) {
   html += '</tr></thead><tbody>';
   top5.forEach(function(p, idx) {
     html += '<tr style="border-bottom:1px solid #f3f4f6;">';
-    html += '<td style="padding:10px 12px;text-align:center;font-weight:600;color:#2563eb;">' + (idx + 1) + '</td>';
-    html += '<td style="padding:10px 12px;">' + p.name + '</td>';
+    html += '<td style="padding:10px 8px;text-align:center;font-weight:600;color:#2563eb;">' + (idx + 1) + '</td>';
+    html += '<td style="padding:10px 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.name + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;font-weight:600;">¥' + (p.actualAmount || 0).toLocaleString() + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;">¥' + (p.shortVideoSales || 0).toLocaleString() + '</td>';
     html += '<td style="padding:10px 12px;text-align:right;">¥' + (p.liveSales || 0).toLocaleString() + '</td>';
@@ -5824,17 +5830,18 @@ function renderBizReviewSampleTable() {
     return;
   }
 
-  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">';
+  var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
+  html += '<colgroup><col style="width:auto;"><col style="width:100px;"><col style="width:130px;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
-  html += '<th style="padding:10px 12px;">商品名称</th>';
-  html += '<th style="padding:10px 12px;text-align:center;">寄样数量</th>';
-  html += '<th style="padding:10px 12px;text-align:center;">寄样达人</th>';
+  html += '<th style="padding:10px 12px;text-align:left;">商品名称</th>';
+  html += '<th style="padding:10px 8px;text-align:center;">寄样数量</th>';
+  html += '<th style="padding:10px 8px;text-align:center;">寄样达人</th>';
   html += '</tr></thead><tbody>';
   samples.forEach(function(s) {
     html += '<tr style="border-bottom:1px solid #f3f4f6;">';
-    html += '<td style="padding:10px 12px;">' + s.productName + '</td>';
-    html += '<td style="padding:10px 12px;text-align:center;font-weight:600;">' + s.count + '</td>';
-    html += '<td style="padding:10px 12px;text-align:center;"><button class="biz-rv-sample-btn" onclick="showSampleDetailModal(\'' + s.productName.replace(/'/g, "\\'") + '\')">查看寄样达人</button></td>';
+    html += '<td style="padding:10px 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + s.productName + '</td>';
+    html += '<td style="padding:10px 8px;text-align:center;font-weight:600;">' + s.count + '</td>';
+    html += '<td style="padding:10px 8px;text-align:center;"><button class="biz-rv-sample-btn" onclick="showSampleDetailModal(\'' + s.productName.replace(/'/g, "\\'") + '\')">查看寄样达人</button></td>';
     html += '</tr>';
   });
   html += '</tbody></table>';
