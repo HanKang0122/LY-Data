@@ -5396,6 +5396,7 @@ var _bizRvProductSort = { col: 'actualAmount', desc: true };
 var _bizRvFilteredData = []; // 当前筛选后的数据缓存
 var _bizRvFilteredProducts = []; // 筛选后的商品维度数据
 var _bizRvFilteredSamples = []; // 筛选后的寄样数据
+var _bizRvQueryDone = false; // 是否已执行过查询
 
 // 根据平台更新复盘模块店铺
 function updateBizReviewShops() {
@@ -5462,6 +5463,7 @@ function queryBizReview() {
     filtered = filtered.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
   }
   _bizRvFilteredData = filtered;
+  _bizRvQueryDone = true;
 
   // 同步筛选商品维度和寄样数据（含跟进人筛选）
   _bizRvFilteredProducts = filterBizData(bizOpsData.reviewProducts || [], startDate, endDate, platform, shop);
@@ -5794,7 +5796,8 @@ function renderBizReviewProductTop5(data) {
 
   // 使用筛选后的商品维度数据，按商品名称聚合合并相同商品（使用映射表标准化名称）
   var productMap = {};
-  (_bizRvFilteredProducts.length ? _bizRvFilteredProducts : (bizOpsData.reviewProducts || [])).forEach(function(p) {
+  var productSource = _bizRvQueryDone ? _bizRvFilteredProducts : (bizOpsData.reviewProducts || []);
+  productSource.forEach(function(p) {
     var name = normalizeProductName(p.name);
     if (!name) return;
     if (!productMap[name]) {
@@ -5873,7 +5876,8 @@ function renderBizReviewSampleTable(data) {
 
   // 按商品名称聚合筛选后的寄样数据，合并相同商品（使用映射表标准化名称）
   var sampleMap = {};
-  (_bizRvFilteredSamples.length ? _bizRvFilteredSamples : (bizOpsData.reviewSamples || [])).forEach(function(s) {
+  var sampleSource = _bizRvQueryDone ? _bizRvFilteredSamples : (bizOpsData.reviewSamples || []);
+  sampleSource.forEach(function(s) {
     var name = normalizeProductName(s.productName);
     if (!name) return;
     if (!sampleMap[name]) {
@@ -5913,7 +5917,7 @@ function renderBizReviewSampleTable(data) {
 function showSampleDetailModal(productName) {
   // 按商品名称（标准化后）从筛选后的寄样数据中聚合所有匹配的记录
   var normalized = normalizeProductName(productName);
-  var sampleSource = _bizRvFilteredSamples.length ? _bizRvFilteredSamples : (bizOpsData.reviewSamples || []);
+  var sampleSource = _bizRvQueryDone ? _bizRvFilteredSamples : (bizOpsData.reviewSamples || []);
   var allSamples = sampleSource.filter(function(s) {
     return normalizeProductName(s.productName) === normalized;
   });
