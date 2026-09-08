@@ -5764,8 +5764,20 @@ function renderBizReviewProductTop5(data) {
     return;
   }
 
-  // 使用商品维度数据
-  var products = (bizOpsData.reviewProducts || []).map(function(p) { return Object.assign({}, p); });
+  // 使用商品维度数据，按商品名称聚合合并相同商品（使用映射表标准化名称）
+  var productMap = {};
+  (bizOpsData.reviewProducts || []).forEach(function(p) {
+    var name = normalizeProductName(p.name);
+    if (!name) return;
+    if (!productMap[name]) {
+      productMap[name] = { name: name, actualAmount: 0, shortVideoSales: 0, liveSales: 0, otherSales: 0 };
+    }
+    productMap[name].actualAmount += (p.actualAmount || 0);
+    productMap[name].shortVideoSales += (p.shortVideoSales || 0);
+    productMap[name].liveSales += (p.liveSales || 0);
+    productMap[name].otherSales += (p.otherSales || 0);
+  });
+  var products = Object.values(productMap);
   var sortCol = _bizRvProductSort.col;
   var isDesc = _bizRvProductSort.desc;
   products.sort(function(a, b) {
@@ -5831,7 +5843,20 @@ function renderBizReviewSampleTable(data) {
     return;
   }
 
-  var samples = (bizOpsData.reviewSamples || []).slice().sort(function(a, b) { return b.count - a.count; });
+  // 按商品名称聚合寄样数据，合并相同商品（使用映射表标准化名称）
+  var sampleMap = {};
+  (bizOpsData.reviewSamples || []).forEach(function(s) {
+    var name = normalizeProductName(s.productName);
+    if (!name) return;
+    if (!sampleMap[name]) {
+      sampleMap[name] = { productName: name, count: 0, talents: [] };
+    }
+    sampleMap[name].count += (s.count || 0);
+    if (s.talents && s.talents.length > 0) {
+      sampleMap[name].talents = sampleMap[name].talents.concat(s.talents);
+    }
+  });
+  var samples = Object.values(sampleMap).sort(function(a, b) { return b.count - a.count; });
 
   if (samples.length === 0) {
     tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无寄样数据</div>';
@@ -5858,9 +5883,20 @@ function renderBizReviewSampleTable(data) {
 
 // 寄样达人明细弹窗
 function showSampleDetailModal(productName) {
-  var samples = bizOpsData.reviewSamples || [];
-  var sample = samples.find(function(s) { return s.productName === productName; });
-  if (!sample) return;
+  // 按商品名称（标准化后）聚合所有匹配的寄样记录
+  var normalized = normalizeProductName(productName);
+  var allSamples = (bizOpsData.reviewSamples || []).filter(function(s) {
+    return normalizeProductName(s.productName) === normalized;
+  });
+  if (allSamples.length === 0) return;
+
+  // 合并所有寄样达人
+  var allTalents = [];
+  allSamples.forEach(function(s) {
+    if (s.talents && s.talents.length > 0) {
+      allTalents = allTalents.concat(s.talents);
+    }
+  });
 
   var overlay = document.createElement('div');
   overlay.className = 'biz-rv-modal-overlay';
@@ -5868,7 +5904,7 @@ function showSampleDetailModal(productName) {
   var box = document.createElement('div');
   box.className = 'biz-rv-modal-box';
 
-  var talentRows = sample.talents.map(function(t, idx) {
+  var talentRows = allTalents.map(function(t, idx) {
     return '<tr style="border-bottom:1px solid #f3f4f6;">' +
       '<td style="padding:10px 12px;">' + (idx + 1) + '</td>' +
       '<td style="padding:10px 12px;">' + t.name + '</td>' +
@@ -7455,16 +7491,55 @@ function renderGoalResults() {
   tableEl.innerHTML = html;
 }
 
+// 商品名称映射表（标准化商品名称）
+var productNameMapping = {}; // { 原始名称: 标准名称 }
+
+// 根据映射表标准化商品名称
+function normalizeProductName(name) {
+  if (!name) return '';
+  var trimmed = String(name).trim();
+  // 如果映射表中有对应的标准名称，使用标准名称
+  if (productNameMapping[trimmed]) return productNameMapping[trimmed];
+  return trimmed;
+}
+
 // 处理商品名称映射表上传
 function handleGoalMappingUpload(input) {
   if (!input.files || !input.files[0]) return;
   var file = input.files[0];
   showToast('映射表「' + file.name + '」已上传，正在解析...', 'info');
-  setTimeout(function() {
-    goalData.mappingTable = { fileName: file.name, uploadedAt: new Date().toISOString() };
-    showToast('商品名称映射表更新成功', 'success');
-    saveGoalToStorage();
-  }, 1000);
+  parseUploadedFile(file, function(result, err) {
+    if (err || !result || !result.headers || result.headers.length === 0) {
+      showToast('映射表解析失败，请检查文件格式', 'error');
+      return;
+    }
+    // 解析映射表：查找"原始名称"和"标准名称"列（支持常见列名）
+    var headers = result.headers.map(function(h) { return h.toLowerCase().trim(); });
+    var origIdx = -1, stdIdx = -1;
+    headers.forEach(function(h, i) {
+      if (h.indexOf('原始') !== -1 || h.indexOf('原名称') !== -1 || h.indexOf('别名') !== -1 || h.indexOf('旧名') !== -1 || h === 'original' || h === 'name') origIdx = i;
+      if (h.indexOf('标准') !== -1 || h.indexOf('统一') !== -1 || h.indexOf('映射') !== -1 || h.indexOf('规范') !== -1 || h === 'standard' || h === 'mapped') stdIdx = i;
+    });
+    // 如果没找到明确列名，默认前两列
+    if (origIdx === -1) origIdx = 0;
+    if (stdIdx === -1) stdIdx = 1;
+    if (result.rows.length > 0 && result.rows[0].length >= 2) {
+      productNameMapping = {};
+      result.rows.forEach(function(row) {
+        var orig = (row[origIdx] || '').trim();
+        var std = (row[stdIdx] || '').trim();
+        if (orig && std) productNameMapping[orig] = std;
+      });
+      goalData.mappingTable = { fileName: file.name, uploadedAt: new Date().toISOString(), mappingCount: Object.keys(productNameMapping).length };
+      showToast('商品名称映射表解析成功，共 ' + Object.keys(productNameMapping).length + ' 条映射', 'success');
+      saveGoalToStorage();
+      persistAppState();
+    } else {
+      goalData.mappingTable = { fileName: file.name, uploadedAt: new Date().toISOString() };
+      showToast('映射表已上传但未识别到数据行', 'warning');
+      saveGoalToStorage();
+    }
+  });
   input.value = '';
 }
 
@@ -7474,7 +7549,8 @@ function viewGoalMapping() {
     showToast('暂未上传商品名称映射表', 'info');
     return;
   }
-  alert('商品名称映射表\n\n文件名：' + goalData.mappingTable.fileName + '\n上传时间：' + new Date(goalData.mappingTable.uploadedAt).toLocaleString('zh-CN'));
+  var count = goalData.mappingTable.mappingCount || Object.keys(productNameMapping).length;
+  alert('商品名称映射表\n\n文件名：' + goalData.mappingTable.fileName + '\n上传时间：' + new Date(goalData.mappingTable.uploadedAt).toLocaleString('zh-CN') + '\n映射条目：' + count + ' 条');
 }
 
 // HTML转义
