@@ -6182,13 +6182,16 @@ function loadAppState() {
     }
     // 恢复商务运营模块数据
     if (state.bizOpsData) {
-      bizOpsData.overview = state.bizOpsData.overview || [];
-      bizOpsData.review = state.bizOpsData.review || [];
-      bizOpsData.reviewProducts = state.bizOpsData.reviewProducts || [];
-      bizOpsData.reviewSamples = state.bizOpsData.reviewSamples || [];
-      bizOpsData.shops = state.bizOpsData.shops || [];
-      bizOpsData.followers = state.bizOpsData.followers || [];
-      console.log('[持久化] 恢复商务运营数据 (' + bizOpsData.overview.length + '条总览, ' + bizOpsData.review.length + '条复盘, ' + bizOpsData.reviewProducts.length + '条商品, ' + bizOpsData.reviewSamples.length + '条寄样)');
+      // 只在内嵌数据为空时才从localStorage恢复（防止旧数据覆盖内嵌的新数据）
+      if (bizOpsData.review.length === 0) {
+        bizOpsData.overview = state.bizOpsData.overview || [];
+        bizOpsData.review = state.bizOpsData.review || [];
+        bizOpsData.reviewProducts = state.bizOpsData.reviewProducts || [];
+        bizOpsData.reviewSamples = state.bizOpsData.reviewSamples || [];
+        bizOpsData.shops = state.bizOpsData.shops || [];
+        bizOpsData.followers = state.bizOpsData.followers || [];
+      }
+      console.log('[持久化] 商务运营数据 (' + bizOpsData.overview.length + '条总览, ' + bizOpsData.review.length + '条复盘, ' + bizOpsData.reviewProducts.length + '条商品, ' + bizOpsData.reviewSamples.length + '条寄样)');
     }
     if (state.bizOpsActiveTab) bizOpsActiveTab = state.bizOpsActiveTab;
     if (state.platformShopMap) {
