@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -5394,8 +5394,6 @@ function exportBizOverviewTable() {
 var _bizRvTalentSort = { col: 'actualAmount', desc: true };
 var _bizRvProductSort = { col: 'actualAmount', desc: true };
 var _bizRvFilteredData = []; // 当前筛选后的数据缓存
-var _bizRvFilteredProducts = []; // 筛选后的商品维度数据
-var _bizRvFilteredSamples = []; // 筛选后的寄样数据
 
 // 根据平台更新复盘模块店铺
 function updateBizReviewShops() {
@@ -5452,22 +5450,6 @@ function queryBizReview() {
     filtered = filtered.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
   }
   _bizRvFilteredData = filtered;
-
-  // 同步筛选商品维度和寄样数据（含跟进人筛选）
-  _bizRvFilteredProducts = filterBizData(bizOpsData.reviewProducts || [], startDate, endDate, platform, shop);
-  if (follower && follower !== 'all') {
-    _bizRvFilteredProducts = _bizRvFilteredProducts.filter(function(item) { return item.follower === follower; });
-  }
-  if (uid) {
-    _bizRvFilteredProducts = _bizRvFilteredProducts.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
-  }
-  _bizRvFilteredSamples = filterBizData(bizOpsData.reviewSamples || [], startDate, endDate, platform, shop);
-  if (follower && follower !== 'all') {
-    _bizRvFilteredSamples = _bizRvFilteredSamples.filter(function(item) { return item.follower === follower; });
-  }
-  if (uid) {
-    _bizRvFilteredSamples = _bizRvFilteredSamples.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
-  }
 
   renderBizReviewKPIs(filtered, follower);
   renderBizReviewTalentTable(filtered);
@@ -5782,9 +5764,9 @@ function renderBizReviewProductTop5(data) {
     return;
   }
 
-  // 使用筛选后的商品维度数据，按商品名称聚合合并相同商品（使用映射表标准化名称）
+  // 使用商品维度数据，按商品名称聚合合并相同商品（使用映射表标准化名称）
   var productMap = {};
-  (_bizRvFilteredProducts.length ? _bizRvFilteredProducts : (bizOpsData.reviewProducts || [])).forEach(function(p) {
+  (bizOpsData.reviewProducts || []).forEach(function(p) {
     var name = normalizeProductName(p.name);
     if (!name) return;
     if (!productMap[name]) {
@@ -5861,9 +5843,9 @@ function renderBizReviewSampleTable(data) {
     return;
   }
 
-  // 按商品名称聚合筛选后的寄样数据，合并相同商品（使用映射表标准化名称）
+  // 按商品名称聚合寄样数据，合并相同商品（使用映射表标准化名称）
   var sampleMap = {};
-  (_bizRvFilteredSamples.length ? _bizRvFilteredSamples : (bizOpsData.reviewSamples || [])).forEach(function(s) {
+  (bizOpsData.reviewSamples || []).forEach(function(s) {
     var name = normalizeProductName(s.productName);
     if (!name) return;
     if (!sampleMap[name]) {
@@ -5901,10 +5883,9 @@ function renderBizReviewSampleTable(data) {
 
 // 寄样达人明细弹窗
 function showSampleDetailModal(productName) {
-  // 按商品名称（标准化后）从筛选后的寄样数据中聚合所有匹配的记录
+  // 按商品名称（标准化后）聚合所有匹配的寄样记录
   var normalized = normalizeProductName(productName);
-  var sampleSource = _bizRvFilteredSamples.length ? _bizRvFilteredSamples : (bizOpsData.reviewSamples || []);
-  var allSamples = sampleSource.filter(function(s) {
+  var allSamples = (bizOpsData.reviewSamples || []).filter(function(s) {
     return normalizeProductName(s.productName) === normalized;
   });
   if (allSamples.length === 0) return;
@@ -5925,16 +5906,16 @@ function showSampleDetailModal(productName) {
 
   var talentRows = allTalents.map(function(t, idx) {
     return '<tr style="border-bottom:1px solid #f3f4f6;">' +
-      '<td style="padding:10px 12px;">' + (idx + 1) + '</td>' +
-      '<td style="padding:10px 12px;">' + t.name + '</td>' +
-      '<td style="padding:10px 12px;">' + t.follower + '</td>' +
+      '<td style="padding:10px 12px;text-align:center;">' + (idx + 1) + '</td>' +
+      '<td style="padding:10px 12px;text-align:left;">' + t.name + '</td>' +
+      '<td style="padding:10px 12px;text-align:left;">' + t.follower + '</td>' +
       '<td style="padding:10px 12px;text-align:center;">' + t.count + '</td>' +
       '</tr>';
   }).join('');
 
   box.innerHTML = '<div class="biz-rv-modal-title"><span>' + productName + ' - 寄样达人明细</span><button class="biz-rv-modal-close" onclick="this.closest(\'.biz-rv-modal-overlay\').remove()">✕</button></div>' +
     '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">' +
-    '<thead><tr style="background:#f9fafb;"><th style="padding:10px 12px;text-align:center;">序号</th><th style="padding:10px 12px;">达人名称</th><th style="padding:10px 12px;">寄样跟进人</th><th style="padding:10px 12px;text-align:center;">寄样数量</th></tr></thead>' +
+    '<thead><tr style="background:#f9fafb;"><th style="padding:10px 12px;text-align:center;">序号</th><th style="padding:10px 12px;text-align:left;">达人名称</th><th style="padding:10px 12px;text-align:left;">寄样跟进人</th><th style="padding:10px 12px;text-align:center;">寄样数量</th></tr></thead>' +
     '<tbody>' + talentRows + '</tbody></table>';
   overlay.appendChild(box);
   document.body.appendChild(overlay);
@@ -10642,4 +10623,3 @@ window.addEventListener('resize', function(){
 </script>
 </body>
 </html>
-
