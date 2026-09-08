@@ -5453,9 +5453,15 @@ function queryBizReview() {
   }
   _bizRvFilteredData = filtered;
 
-  // 同步筛选商品维度和寄样数据
+  // 同步筛选商品维度和寄样数据（含跟进人筛选）
   _bizRvFilteredProducts = filterBizData(bizOpsData.reviewProducts || [], startDate, endDate, platform, shop);
+  if (follower && follower !== 'all') {
+    _bizRvFilteredProducts = _bizRvFilteredProducts.filter(function(item) { return item.follower === follower; });
+  }
   _bizRvFilteredSamples = filterBizData(bizOpsData.reviewSamples || [], startDate, endDate, platform, shop);
+  if (follower && follower !== 'all') {
+    _bizRvFilteredSamples = _bizRvFilteredSamples.filter(function(item) { return item.follower === follower; });
+  }
 
   renderBizReviewKPIs(filtered, follower);
   renderBizReviewTalentTable(filtered);
