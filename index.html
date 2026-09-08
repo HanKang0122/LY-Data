@@ -6919,6 +6919,13 @@ function loadAllDataFromGitHub() {
         }
         saveLocalOnly();
         console.log('[商务运营] 远程数据已恢复');
+        // 重新渲染当前页面（确保用最新数据）
+        try {
+          if (typeof renderPageByRoute === 'function' && appState.currentRoute) {
+            renderPageByRoute(appState.currentRoute);
+            console.log('[商务运营] 数据更新后已重新渲染');
+          }
+        } catch(e) { console.log('[商务运营] 重新渲染失败:', e.message); }
       }
     });
     fetchStrategyFromGitHub().then(function(stratData) {
