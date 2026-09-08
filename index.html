@@ -6788,8 +6788,8 @@ function applyRemoteState(remoteState) {
       usersCache = remoteState.users;
       console.log('[全局同步] 恢复 ' + remoteState.users.length + ' 个用户账号');
     }
-    // 恢复商务运营数据（直接覆盖，确保看到其他人的增删改）
-    if (remoteState.bizOpsData) {
+    // 恢复商务运营数据（仅在内嵌数据为空时才从远程恢复，防止旧数据覆盖内嵌的新数据）
+    if (remoteState.bizOpsData && bizOpsData.review.length === 0) {
       if (Array.isArray(remoteState.bizOpsData.overview))
         bizOpsData.overview = remoteState.bizOpsData.overview;
       if (Array.isArray(remoteState.bizOpsData.review))
