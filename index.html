@@ -746,7 +746,8 @@ body {
 /* Table wrap */
 .biz-rv-table-wrap {
   background: var(--bg-white); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm); overflow: hidden; overflow-x: auto;
+  box-shadow: var(--shadow-sm); overflow: auto;
+  max-height: 400px; overflow-x: auto; overflow-y: auto;
 }
 
 /* Sortable headers */
@@ -2339,10 +2340,10 @@ body {
             <div class="biz-rv-table-wrap" id="biz-rv-talent-table"></div>
           </div>
 
-          <!-- 第四屏：商品TOP5 + 寄样概况 -->
+          <!-- 第四屏：商品TOP10 + 寄样概况 -->
           <div class="biz-rv-screen-products">
             <div class="biz-rv-product-col">
-              <div class="biz-rv-section-title">销售商品TOP5</div>
+              <div class="biz-rv-section-title">销售商品TOP10</div>
               <div class="biz-rv-table-wrap" id="biz-rv-product-top5"></div>
             </div>
             <div class="biz-rv-sample-col">
@@ -5211,10 +5212,6 @@ function queryBizOverview() {
   var platform = document.getElementById('biz-overview-platform').value;
   var shop = document.getElementById('biz-overview-shop').value;
 
-  if (bizOpsData.overview.length === 0) {
-    generateMockBizOverviewData();
-  }
-
   var filtered = filterBizData(bizOpsData.overview, startDate, endDate, platform, shop);
   renderBizOverviewKPIs(filtered);
   renderBizOverviewChart(filtered);
@@ -5442,10 +5439,8 @@ function queryBizReview() {
   var follower = document.getElementById('biz-review-follower').value;
   var uid = (document.getElementById('biz-review-uid').value || '').trim();
 
-  if (bizOpsData.review.length === 0) {
-    generateMockBizReviewData();
-    updateBizReviewFollowers();
-  }
+  // 从已上传的数据中更新跟进人下拉选项
+  updateBizReviewFollowers();
 
   var filtered = filterBizData(bizOpsData.review, startDate, endDate, platform, shop);
   if (follower && follower !== 'all') {
@@ -5459,7 +5454,7 @@ function queryBizReview() {
   renderBizReviewKPIs(filtered, follower);
   renderBizReviewTalentTable(filtered);
   renderBizReviewProductTop5(filtered);
-  renderBizReviewSampleTable();
+  renderBizReviewSampleTable(filtered);
 }
 
 // 生成模拟商务复盘数据（达人维度+商品维度+寄样维度）
@@ -5758,10 +5753,16 @@ function showTrendChartModal(idx) {
   });
 }
 
-// 渲染销售商品TOP5
+// 渲染销售商品TOP10
 function renderBizReviewProductTop5(data) {
   var tableEl = document.getElementById('biz-rv-product-top5');
   if (!tableEl) return;
+
+  // 如果筛选后的复盘数据为空，说明所选日期范围内没有数据
+  if (!data || data.length === 0) {
+    tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无数据</div>';
+    return;
+  }
 
   // 使用商品维度数据
   var products = (bizOpsData.reviewProducts || []).map(function(p) { return Object.assign({}, p); });
@@ -5771,9 +5772,9 @@ function renderBizReviewProductTop5(data) {
     var va = a[sortCol] || 0, vb = b[sortCol] || 0;
     return isDesc ? vb - va : va - vb;
   });
-  var top5 = products.slice(0, 5);
+  var top10 = products.slice(0, 10);
 
-  if (top5.length === 0) {
+  if (top10.length === 0) {
     tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无数据</div>';
     return;
   }
@@ -5794,7 +5795,7 @@ function renderBizReviewProductTop5(data) {
   html += '<th class="biz-rv-sort-th ' + thClass('liveSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'liveSales\')">直播实销' + sortIcon('liveSales') + '</th>';
   html += '<th class="biz-rv-sort-th ' + thClass('otherSales') + '" style="padding:10px 12px;text-align:right;" onclick="sortBizRvProduct(\'otherSales\')">其它实销' + sortIcon('otherSales') + '</th>';
   html += '</tr></thead><tbody>';
-  top5.forEach(function(p, idx) {
+  top10.forEach(function(p, idx) {
     html += '<tr style="border-bottom:1px solid #f3f4f6;">';
     html += '<td style="padding:10px 8px;text-align:center;font-weight:600;color:#2563eb;">' + (idx + 1) + '</td>';
     html += '<td style="padding:10px 12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.name + '</td>';
@@ -5820,9 +5821,16 @@ function sortBizRvProduct(col) {
 }
 
 // 渲染商品寄样概况
-function renderBizReviewSampleTable() {
+function renderBizReviewSampleTable(data) {
   var tableEl = document.getElementById('biz-rv-sample-table');
   if (!tableEl) return;
+
+  // 如果筛选后的复盘数据为空，说明所选日期范围内没有数据
+  if (!data || data.length === 0) {
+    tableEl.innerHTML = '<div style="padding:24px;text-align:center;color:#9ca3af;">暂无寄样数据</div>';
+    return;
+  }
+
   var samples = (bizOpsData.reviewSamples || []).slice().sort(function(a, b) { return b.count - a.count; });
 
   if (samples.length === 0) {
