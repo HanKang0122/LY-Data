@@ -5458,9 +5458,15 @@ function queryBizReview() {
   if (follower && follower !== 'all') {
     _bizRvFilteredProducts = _bizRvFilteredProducts.filter(function(item) { return item.follower === follower; });
   }
+  if (uid) {
+    _bizRvFilteredProducts = _bizRvFilteredProducts.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
+  }
   _bizRvFilteredSamples = filterBizData(bizOpsData.reviewSamples || [], startDate, endDate, platform, shop);
   if (follower && follower !== 'all') {
     _bizRvFilteredSamples = _bizRvFilteredSamples.filter(function(item) { return item.follower === follower; });
+  }
+  if (uid) {
+    _bizRvFilteredSamples = _bizRvFilteredSamples.filter(function(item) { return String(item.uid || '').indexOf(uid) >= 0; });
   }
 
   renderBizReviewKPIs(filtered, follower);
