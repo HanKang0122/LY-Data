@@ -8857,15 +8857,20 @@ function fetchKbFileViaApi(filename) {
         // 处理UTF-8编码
         return decodeURIComponent(escape(decoded));
       }
-      // 大文件（>1MB）GitHub API不返回content，使用download_url获取
-      if (data.download_url || data.git_url) {
-        var rawUrl = data.download_url || ('https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/git/blobs/' + data.sha);
-        // 添加时间戳防缓存，并使用no-store
-        var sep = rawUrl.indexOf('?') >= 0 ? '&' : '?';
-        return fetch(rawUrl + sep + 't=' + Date.now(), { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' }, cache: 'no-store' })
-          .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.text(); });
+      // 大文件（>1MB）GitHub API不返回content，使用git blobs API获取
+      if (data.sha) {
+        var blobUrl = 'https://api.github.com/repos/' + GITHUB_USERS_CONFIG.repo + '/git/blobs/' + data.sha + '?t=' + Date.now();
+        return fetch(blobUrl, { headers: { 'Authorization': 'token ' + GITHUB_USERS_CONFIG.token, 'Accept': 'application/vnd.github+json' }, cache: 'no-store' })
+          .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
+          .then(function(blob) {
+            if (blob.content && blob.encoding === 'base64') {
+              var decoded = atob(blob.content.replace(/\n/g, ''));
+              return decodeURIComponent(escape(decoded));
+            }
+            throw new Error('Blob has no content');
+          });
       }
-      throw new Error('No content and no download URL');
+      throw new Error('No content and no sha');
     })
     .then(function(text) { return JSON.parse(text); });
 }
