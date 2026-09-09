@@ -684,10 +684,11 @@ body {
   box-shadow: var(--shadow-sm); padding: 16px 20px; margin-bottom: 16px;
 }
 .biz-rv-filter-row {
-  display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+  justify-content: space-between;
 }
 .biz-rv-filter-item {
-  display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  display: flex; align-items: center; gap: 6px; white-space: nowrap; flex: 0 1 auto;
 }
 .biz-rv-filter-item label {
   font-size: 13px; font-weight: 500; color: var(--text-secondary);
@@ -705,15 +706,15 @@ body {
 }
 .biz-rv-date-picker input {
   padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 4px;
-  font-size: 13px; outline: none; width: 130px;
+  font-size: 13px; outline: none; width: 124px;
 }
 .biz-rv-date-sep { font-size: 12px; color: var(--text-muted); }
-.biz-rv-filter-uid input { width: 130px; }
+.biz-rv-filter-uid input { width: 124px; }
 .biz-rv-query-btn {
   background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
   border: none; border-radius: 6px; padding: 7px 18px; font-size: 13px;
   font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
-  margin-left: auto;
+  flex: 0 0 auto;
 }
 .biz-rv-query-btn:hover { opacity: 0.9; }
 
@@ -762,7 +763,7 @@ body {
 
 /* Mini chart in table */
 .biz-rv-mini-chart {
-  width: 80px; height: 36px; cursor: pointer;
+  width: 120px; height: 40px; cursor: pointer;
   transition: transform 0.15s;
 }
 .biz-rv-mini-chart:hover { transform: scale(1.08); }
@@ -781,6 +782,9 @@ body {
 }
 @media (max-width: 1100px) { .biz-rv-screen-products { grid-template-columns: 1fr; } }
 .biz-rv-product-col, .biz-rv-sample-col { display: flex; flex-direction: column; }
+.biz-rv-product-col .biz-rv-table-wrap, .biz-rv-sample-col .biz-rv-table-wrap {
+  max-height: 460px; min-height: 460px;
+}
 
 /* Sample detail button */
 .biz-rv-sample-btn {
@@ -5671,7 +5675,7 @@ function renderBizReviewTalentTable(data) {
   function thClass(col) { return col === sortCol ? 'sorted' : ''; }
 
   var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
-  html += '<colgroup><col style="width:45px;"><col style="width:auto;"><col style="width:65px;"><col style="width:65px;"><col style="width:70px;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"><col style="width:100px;"></colgroup>';
+  html += '<colgroup><col style="width:45px;"><col style="width:auto;"><col style="width:80px;"><col style="width:80px;"><col style="width:80px;"><col style="width:105px;"><col style="width:105px;"><col style="width:105px;"><col style="width:105px;"><col style="width:140px;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
   html += '<th style="padding:10px 8px;text-align:center;">排名</th>';
   html += '<th style="padding:10px 12px;text-align:left;">达人/团长昵称</th>';
@@ -5958,16 +5962,17 @@ function showSampleDetailModal(productName) {
 
   var talentRows = allTalents.map(function(t, idx) {
     return '<tr style="border-bottom:1px solid #f3f4f6;">' +
-      '<td style="padding:10px 12px;">' + (idx + 1) + '</td>' +
-      '<td style="padding:10px 12px;">' + t.name + '</td>' +
-      '<td style="padding:10px 12px;">' + t.follower + '</td>' +
+      '<td style="padding:10px 12px;text-align:center;">' + (idx + 1) + '</td>' +
+      '<td style="padding:10px 12px;text-align:left;">' + t.name + '</td>' +
+      '<td style="padding:10px 12px;text-align:left;">' + t.follower + '</td>' +
       '<td style="padding:10px 12px;text-align:center;">' + t.count + '</td>' +
       '</tr>';
   }).join('');
 
   box.innerHTML = '<div class="biz-rv-modal-title"><span>' + productName + ' - 寄样达人明细</span><button class="biz-rv-modal-close" onclick="this.closest(\'.biz-rv-modal-overlay\').remove()">✕</button></div>' +
-    '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;">' +
-    '<thead><tr style="background:#f9fafb;"><th style="padding:10px 12px;text-align:center;">序号</th><th style="padding:10px 12px;">达人名称</th><th style="padding:10px 12px;">寄样跟进人</th><th style="padding:10px 12px;text-align:center;">寄样数量</th></tr></thead>' +
+    '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">' +
+    '<colgroup><col style="width:60px;"><col style="width:auto;"><col style="width:120px;"><col style="width:80px;"></colgroup>' +
+    '<thead><tr style="background:#f9fafb;"><th style="padding:10px 12px;text-align:center;">序号</th><th style="padding:10px 12px;text-align:left;">达人名称</th><th style="padding:10px 12px;text-align:left;">寄样跟进人</th><th style="padding:10px 12px;text-align:center;">寄样数量</th></tr></thead>' +
     '<tbody>' + talentRows + '</tbody></table>';
   overlay.appendChild(box);
   document.body.appendChild(overlay);
