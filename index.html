@@ -684,35 +684,36 @@ body {
   box-shadow: var(--shadow-sm); padding: 16px 20px; margin-bottom: 16px;
 }
 .biz-rv-filter-row {
-  display: flex; align-items: center; gap: 16px; flex-wrap: nowrap;
+  display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap;
 }
 .biz-rv-filter-item {
-  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  display: flex; align-items: center; gap: 6px; white-space: nowrap;
 }
 .biz-rv-filter-item label {
   font-size: 13px; font-weight: 500; color: var(--text-secondary);
   white-space: nowrap;
 }
 .biz-rv-filter-item select, .biz-rv-filter-item input {
-  padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 4px;
-  font-size: 13px; outline: none; background: #fff; min-width: 100px;
+  padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 4px;
+  font-size: 13px; outline: none; background: #fff; min-width: 80px;
 }
 .biz-rv-filter-item select:focus, .biz-rv-filter-item input:focus {
   border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
 }
 .biz-rv-date-picker {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 4px;
 }
 .biz-rv-date-picker input {
-  padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 4px;
-  font-size: 13px; outline: none;
+  padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 4px;
+  font-size: 13px; outline: none; width: 130px;
 }
 .biz-rv-date-sep { font-size: 12px; color: var(--text-muted); }
-.biz-rv-filter-uid input { width: 120px; }
+.biz-rv-filter-uid input { width: 130px; }
 .biz-rv-query-btn {
   background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
-  border: none; border-radius: 6px; padding: 8px 20px; font-size: 13px;
+  border: none; border-radius: 6px; padding: 7px 18px; font-size: 13px;
   font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+  margin-left: auto;
 }
 .biz-rv-query-btn:hover { opacity: 0.9; }
 
@@ -747,7 +748,7 @@ body {
 .biz-rv-table-wrap {
   background: var(--bg-white); border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm); overflow: auto;
-  max-height: 400px; overflow-x: auto; overflow-y: auto;
+  max-height: 520px; overflow-x: auto; overflow-y: auto;
 }
 
 /* Sortable headers */
@@ -761,7 +762,7 @@ body {
 
 /* Mini chart in table */
 .biz-rv-mini-chart {
-  width: 100px; height: 40px; cursor: pointer;
+  width: 80px; height: 36px; cursor: pointer;
   transition: transform 0.15s;
 }
 .biz-rv-mini-chart:hover { transform: scale(1.08); }
@@ -776,7 +777,7 @@ body {
 
 /* Products row */
 .biz-rv-screen-products {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 16px;
 }
 @media (max-width: 1100px) { .biz-rv-screen-products { grid-template-columns: 1fr; } }
 .biz-rv-product-col, .biz-rv-sample-col { display: flex; flex-direction: column; }
@@ -5670,7 +5671,7 @@ function renderBizReviewTalentTable(data) {
   function thClass(col) { return col === sortCol ? 'sorted' : ''; }
 
   var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
-  html += '<colgroup><col style="width:50px;"><col style="width:130px;"><col style="width:70px;"><col style="width:70px;"><col style="width:80px;"><col style="width:90px;"><col style="width:100px;"><col style="width:100px;"><col style="width:100px;"><col style="width:100px;"><col style="width:120px;"></colgroup>';
+  html += '<colgroup><col style="width:45px;"><col style="width:auto;"><col style="width:65px;"><col style="width:65px;"><col style="width:70px;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"><col style="width:100px;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
   html += '<th style="padding:10px 8px;text-align:center;">排名</th>';
   html += '<th style="padding:10px 12px;text-align:left;">达人/团长昵称</th>';
@@ -5847,7 +5848,7 @@ function renderBizReviewProductTop5(data) {
   function thClass(col) { return col === sortCol ? 'sorted' : ''; }
 
   var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
-  html += '<colgroup><col style="width:50px;"><col style="width:auto;"><col style="width:120px;"><col style="width:110px;"><col style="width:110px;"><col style="width:110px;"></colgroup>';
+  html += '<colgroup><col style="width:45px;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"><col style="width:auto;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
   html += '<th style="padding:10px 8px;text-align:center;">排名</th>';
   html += '<th style="padding:10px 12px;text-align:left;">商品名称</th>';
@@ -5914,7 +5915,7 @@ function renderBizReviewSampleTable(data) {
   }
 
   var html = '<table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">';
-  html += '<colgroup><col style="width:auto;"><col style="width:100px;"><col style="width:130px;"></colgroup>';
+  html += '<colgroup><col style="width:auto;"><col style="width:80px;"><col style="width:110px;"></colgroup>';
   html += '<thead><tr style="background:#f9fafb;">';
   html += '<th style="padding:10px 12px;text-align:left;">商品名称</th>';
   html += '<th style="padding:10px 8px;text-align:center;">寄样数量</th>';
