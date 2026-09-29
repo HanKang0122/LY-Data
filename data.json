@@ -1,6 +1,6 @@
 {
   "meta": {
-    "lastUpdate": "2026-09-28 14:17",
+    "lastUpdate": "2026-09-29 10:10",
     "periods": [
       "2026-01",
       "2026-02",
@@ -136,18 +136,18 @@
     },
     {
       "月份": "2026-09",
-      "GMV": 8476515.55,
-      "退款": 607309.04,
-      "销售额": 7869206.51,
-      "产品成本": 5378454.06,
-      "仓储成本": 826305.89,
-      "千川消耗": 437481.85,
-      "佣金": 363874.76,
-      "人工成本": 161930.48,
-      "运营成本": 472152.41,
-      "总成本": 7640199.45,
-      "毛利润": 229007.06,
-      "利润率": 2.91
+      "GMV": 8682554.47,
+      "退款": 621765.31,
+      "销售额": 8060789.16,
+      "产品成本": 5509177.58,
+      "仓储成本": 846454.71,
+      "千川消耗": 448006.94,
+      "佣金": 374258.65,
+      "人工成本": 166729.47,
+      "运营成本": 483647.38,
+      "总成本": 7828274.73,
+      "毛利润": 232514.43,
+      "利润率": 2.88
     }
   ],
   "daily_data": {
@@ -23680,6 +23680,105 @@
           "totalCost": 177804.65,
           "profit": 3683.81,
           "profitRate": 2.03
+        }
+      },
+      "2026-09-28": {
+        "date": "2026-09-28",
+        "shops": [
+          {
+            "name": "抖音-鲨鱼菲特甄选食品专卖店",
+            "platform": "douyin",
+            "GMV": 195719.82,
+            "refund": 13829.57,
+            "sales": 181890.25,
+            "productCost": 124786.35,
+            "storageCost": 19095.8,
+            "qianchuan": 10160.49,
+            "commission": 8958.7,
+            "labor": 4556.2,
+            "operating": 10913.42,
+            "totalCost": 178470.96,
+            "profit": 3419.29,
+            "profitRate": 1.88
+          },
+          {
+            "name": "抖音-鲨鱼菲特研味食品专卖店",
+            "platform": "douyin",
+            "GMV": 4425.7,
+            "refund": 340.1,
+            "sales": 4085.6,
+            "productCost": 2524.38,
+            "storageCost": 391.25,
+            "qianchuan": 299.19,
+            "commission": 905.6,
+            "labor": 102.34,
+            "operating": 245.14,
+            "totalCost": 4467.9,
+            "profit": -382.3,
+            "profitRate": -9.36
+          },
+          {
+            "name": "抖音-小轻担食品旗舰店",
+            "platform": "douyin",
+            "GMV": 3038.8,
+            "refund": 192.0,
+            "sales": 2846.8,
+            "productCost": 1551.35,
+            "storageCost": 386.49,
+            "qianchuan": 65.41,
+            "commission": 429.96,
+            "labor": 71.31,
+            "operating": 170.81,
+            "totalCost": 2675.33,
+            "profit": 171.47,
+            "profitRate": 6.02
+          },
+          {
+            "name": "快手-鲨鱼菲特方便食品旗舰店",
+            "platform": "kuaishou",
+            "GMV": 2479.6,
+            "refund": 26.9,
+            "sales": 2452.7,
+            "productCost": 1679.18,
+            "storageCost": 250.23,
+            "qianchuan": 0,
+            "commission": 18.65,
+            "labor": 61.44,
+            "operating": 147.16,
+            "totalCost": 2156.66,
+            "profit": 296.04,
+            "profitRate": 12.07
+          },
+          {
+            "name": "微信-鲨鱼菲特甄选零食店",
+            "platform": "weixin",
+            "GMV": 375.0,
+            "refund": 67.7,
+            "sales": 307.3,
+            "productCost": 182.26,
+            "storageCost": 25.05,
+            "qianchuan": 0,
+            "commission": 70.98,
+            "labor": 7.7,
+            "operating": 18.44,
+            "totalCost": 304.43,
+            "profit": 2.87,
+            "profitRate": 0.93
+          }
+        ],
+        "total": {
+          "GMV": 206038.92,
+          "refund": 14456.27,
+          "sales": 191582.65,
+          "productCost": 130723.52,
+          "storageCost": 20148.82,
+          "qianchuan": 10525.09,
+          "commission": 10383.89,
+          "labor": 4798.99,
+          "operating": 11494.97,
+          "totalCost": 188075.28,
+          "profit": 3507.37,
+          "profitRate": 1.83
         }
       }
     }
