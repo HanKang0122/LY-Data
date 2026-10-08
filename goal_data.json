@@ -41,7 +41,18 @@
           "position": "常规品",
           "target": "500000",
           "confirmed": true,
-          "splits": []
+          "splits": [
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ]
         },
         {
           "name": "每日杂粮包700g",
