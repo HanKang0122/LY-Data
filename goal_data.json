@@ -10,7 +10,7 @@
           "splits": [
             {
               "specialist": "章子康",
-              "target": "",
+              "target": "1200000",
               "position": "爆款品"
             },
             {
@@ -31,7 +31,7 @@
             {
               "specialist": "贾晶晶",
               "target": "",
-              "position": ""
+              "position": "爆款品"
             }
           ],
           "splitConfirmed": false
