@@ -6,35 +6,9 @@
           "name": "鲨鱼菲特去皮鸭腿110g",
           "position": "爆款品",
           "target": "8000000",
-          "confirmed": true,
-          "splits": [
-            {
-              "specialist": "章子康",
-              "target": "2000000",
-              "position": "爆款品"
-            },
-            {
-              "specialist": "姜梦萍",
-              "target": "2000000",
-              "position": "爆款品"
-            },
-            {
-              "specialist": "唐红伟",
-              "target": "1500000",
-              "position": "爆款品"
-            },
-            {
-              "specialist": "陶慧",
-              "target": "1500000",
-              "position": "爆款品"
-            },
-            {
-              "specialist": "贾晶晶",
-              "target": "1000000",
-              "position": "爆款品"
-            }
-          ],
-          "splitConfirmed": true
+          "confirmed": false,
+          "splits": [],
+          "splitConfirmed": false
         },
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
