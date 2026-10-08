@@ -57,14 +57,21 @@
               "target": "200000",
               "position": "新发品"
             }
-          ]
+          ],
+          "splitConfirmed": true
         },
         {
           "name": "每日杂粮包700g",
           "position": "常规品",
           "target": "100000",
           "confirmed": true,
-          "splits": []
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "",
+              "position": ""
+            }
+          ]
         },
         {
           "name": "鲨鱼菲特芝士玉米午餐肉50g",
