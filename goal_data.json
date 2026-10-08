@@ -41,7 +41,18 @@
           "position": "常规品",
           "target": "400000",
           "confirmed": true,
-          "splits": [],
+          "splits": [
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ],
           "splitConfirmed": false
         },
         {
