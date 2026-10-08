@@ -13,21 +13,21 @@
           "name": "鲨鱼菲特燕麦肉包蛋60g",
           "position": "常规品",
           "target": "500000",
-          "confirmed": false,
+          "confirmed": true,
           "splits": []
         },
         {
           "name": "每日杂粮包700g",
           "position": "常规品",
           "target": "100000",
-          "confirmed": false,
+          "confirmed": true,
           "splits": []
         },
         {
           "name": "鲨鱼菲特芝士玉米午餐肉50g",
           "position": "常规品",
           "target": "100000",
-          "confirmed": false,
+          "confirmed": true,
           "splits": []
         }
       ],
