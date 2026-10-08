@@ -30,10 +30,11 @@
             },
             {
               "specialist": "贾晶晶",
-              "target": "",
+              "target": "1000000",
               "position": "爆款品"
             }
-          ]
+          ],
+          "splitConfirmed": true
         },
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
