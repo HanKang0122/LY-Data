@@ -58,14 +58,25 @@
               "position": "常规品"
             }
           ],
-          "splitConfirmed": false
+          "splitConfirmed": true
         },
         {
           "name": "每日杂粮包700g",
           "position": "常规品",
           "target": "100000",
           "confirmed": true,
-          "splits": [],
+          "splits": [
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ],
           "splitConfirmed": false
         },
         {
