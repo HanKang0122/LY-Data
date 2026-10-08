@@ -83,22 +83,49 @@
             },
             {
               "specialist": "陶慧",
-              "target": "",
+              "target": "10000",
               "position": "常规品"
             },
             {
               "specialist": "贾晶晶",
-              "target": "",
+              "target": "10000",
               "position": "常规品"
             }
-          ]
+          ],
+          "splitConfirmed": true
         },
         {
           "name": "鲨鱼菲特芝士玉米午餐肉50g",
           "position": "常规品",
           "target": "100000",
           "confirmed": true,
-          "splits": []
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ]
         }
       ],
       "locked": false
