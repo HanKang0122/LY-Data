@@ -7,7 +7,13 @@
           "position": "爆款品",
           "target": "8000000",
           "confirmed": true,
-          "splits": []
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "",
+              "position": ""
+            }
+          ]
         },
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
