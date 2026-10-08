@@ -74,7 +74,7 @@
             {
               "specialist": "姜梦萍",
               "target": "10000",
-              "position": "新发品"
+              "position": "常规品"
             },
             {
               "specialist": "唐红伟",
@@ -122,10 +122,11 @@
             },
             {
               "specialist": "贾晶晶",
-              "target": "",
+              "target": "10000",
               "position": "常规品"
             }
-          ]
+          ],
+          "splitConfirmed": true
         }
       ],
       "locked": false
