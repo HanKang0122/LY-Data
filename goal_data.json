@@ -1,5 +1,17 @@
 {
   "periodData": {
+    "2026-10": {
+      "rows": [
+        {
+          "name": "",
+          "position": "",
+          "target": "",
+          "confirmed": false,
+          "splits": []
+        }
+      ],
+      "locked": false
+    },
     "2026-8": {
       "rows": [
         {
