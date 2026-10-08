@@ -102,28 +102,28 @@
           "splits": [
             {
               "specialist": "章子康",
-              "target": "",
-              "position": ""
+              "target": "30000",
+              "position": "常规品"
             },
             {
-              "specialist": "",
-              "target": "",
-              "position": ""
+              "specialist": "姜梦萍",
+              "target": "40000",
+              "position": "新发品"
             },
             {
-              "specialist": "",
-              "target": "",
-              "position": ""
+              "specialist": "唐红伟",
+              "target": "10000",
+              "position": "常规品"
             },
             {
-              "specialist": "",
+              "specialist": "陶慧",
               "target": "",
-              "position": ""
+              "position": "常规品"
             },
             {
-              "specialist": "",
+              "specialist": "贾晶晶",
               "target": "",
-              "position": ""
+              "position": "常规品"
             }
           ]
         }
