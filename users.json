@@ -82,5 +82,12 @@
     "password": "jjj123456",
     "role": "role_1788231341385",
     "status": 1
+  },
+  {
+    "id": 13,
+    "name": "严兰乔",
+    "password": "ylq123456",
+    "role": "admin",
+    "status": 1
   }
 ]
