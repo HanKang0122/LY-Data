@@ -457,7 +457,7 @@
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
           "position": "常规品",
-          "target": "",
+          "target": "600000",
           "confirmed": false,
           "splits": []
         },
