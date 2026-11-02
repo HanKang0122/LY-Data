@@ -453,6 +453,13 @@
           "target": "",
           "confirmed": false,
           "splits": []
+        },
+        {
+          "name": "",
+          "position": "",
+          "target": "",
+          "confirmed": false,
+          "splits": []
         }
       ],
       "locked": false
