@@ -1,5 +1,32 @@
 {
   "periodData": {
+    "2026-11": {
+      "rows": [
+        {
+          "name": "鲨鱼菲特去皮鸭腿110g",
+          "position": "爆款品",
+          "target": "7000000",
+          "confirmed": true,
+          "splits": []
+        },
+        {
+          "name": "鲨鱼菲特燕麦肉包蛋60g",
+          "position": "常规品",
+          "target": "800000",
+          "confirmed": true,
+          "splits": [],
+          "splitConfirmed": false
+        },
+        {
+          "name": "鲨鱼菲特芝士玉米午餐肉50g",
+          "position": "常规品",
+          "target": "100000",
+          "confirmed": true,
+          "splits": []
+        }
+      ],
+      "locked": false
+    },
     "2026-10": {
       "rows": [
         {
@@ -445,31 +472,8 @@
       "rows": [],
       "locked": false
     },
-    "2026-11": {
-      "rows": [
-        {
-          "name": "鲨鱼菲特去皮鸭腿110g",
-          "position": "爆款品",
-          "target": "7000000",
-          "confirmed": true,
-          "splits": []
-        },
-        {
-          "name": "鲨鱼菲特燕麦肉包蛋60g",
-          "position": "常规品",
-          "target": "800000",
-          "confirmed": true,
-          "splits": [],
-          "splitConfirmed": false
-        },
-        {
-          "name": "鲨鱼菲特芝士玉米午餐肉50g",
-          "position": "常规品",
-          "target": "100000",
-          "confirmed": true,
-          "splits": []
-        }
-      ],
+    "2026-1": {
+      "rows": [],
       "locked": false
     }
   },
