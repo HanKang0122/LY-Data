@@ -3434,32 +3434,57 @@ function getRoleMenus(roleKey) {
 
 // 从GitHub加载自定义角色
 var rolesReady = false;
+function _applyRolesCache(cached) {
+  Object.keys(ROLE_CONFIG).forEach(function(key) {
+    if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
+  });
+  Object.keys(cached).forEach(function(key) {
+    ROLE_CONFIG[key] = {
+      text: cached[key].text,
+      menus: cached[key].menus || ['home'],
+      features: cached[key].features || [],
+      fixed: false
+    };
+  });
+}
+
 function loadCustomRolesFromGitHub() {
-  // 使用GitHub API获取数据（绕过CDN缓存），而不是直接fetch raw文件
-  return fetchKbFileViaApi('roles.json')
+  // 1) 先用本地缓存或内联角色填充，立即放行登录（不依赖网络）
+  var cached = null;
+  try { cached = JSON.parse(localStorage.getItem('systemRoles') || 'null'); } catch(e) {}
+  var initial = cached && Object.keys(cached).length > 0 ? cached : null;
+  if (!initial) {
+    initial = {};
+    getEmbeddedRoles().forEach(function(r) {
+      initial[r.key] = { text: r.text, menus: r.menus, features: r.features };
+    });
+  }
+  _applyRolesCache(initial);
+  rolesReady = true;
+  // 2) 后台静默刷新服务器最新角色（失败不影响登录）
+  return fetchKbFileViaApi('roles.json', 8)
     .then(function(data) {
-      // 清除旧的自定义角色（保留admin和fixed角色）
+      if (!data || data.length === 0) return;
+      var nc = {};
       Object.keys(ROLE_CONFIG).forEach(function(key) {
         if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
       });
-      if (data && data.length > 0) {
-        data.forEach(function(r) {
-          if (r.key && r.key !== 'admin') {
-            ROLE_CONFIG[r.key] = {
-              text: r.text,
-              menus: r.menus || ['home'],
-              features: r.features || [],
-              fixed: false
-            };
-          }
-        });
-        console.log('[用户系统] roles.json 加载成功，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
-      }
-      rolesReady = true;
+      data.forEach(function(r) {
+        if (r.key && r.key !== 'admin') {
+          ROLE_CONFIG[r.key] = {
+            text: r.text,
+            menus: r.menus || ['home'],
+            features: r.features || [],
+            fixed: false
+          };
+          nc[r.key] = { text: r.text, menus: r.menus || ['home'], features: r.features || [] };
+        }
+      });
+      try { localStorage.setItem('systemRoles', JSON.stringify(nc)); } catch(e) {}
+      console.log('[用户系统] roles.json 已刷新，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
     })
     .catch(function(err) {
-      console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）:', err.message);
-      rolesReady = true;
+      console.warn('[用户系统] roles.json 刷新失败，继续使用本地数据:', err.message);
     });
 }
 
@@ -3557,52 +3582,30 @@ function utf8ToBase64(str) {
 
 // 预加载用户数据（通过GitHub API读取users.json，绕过CDN缓存，同时合并本地遗留账号）
 function preloadUsers() {
-  fetchKbFileViaApi('users.json')
+  // 1) 先用本地缓存或内联用户表，立即放行登录（不依赖网络）
+  var localUsers = null;
+  try { localUsers = JSON.parse(localStorage.getItem('systemUsers') || 'null'); } catch(e) {}
+  usersCache = (localUsers && localUsers.length > 0) ? localUsers : getDefaultUsers();
+  usersReady = true;
+  // 2) 后台静默刷新服务器最新用户（失败不影响登录）
+  fetchKbFileViaApi('users.json', 8)
     .then(function(data) {
       data = data || [];
-      // 合并本地遗留账号（旧localStorage中创建但未同步的账号）
-      var localUsers = [];
+      var existingNames = data.map(function(u) { return u.name; });
       try {
         var stored = JSON.parse(localStorage.getItem('systemUsers') || '[]');
-        if (stored && stored.length > 0) localUsers = stored;
-      } catch(e) {}
-
-      if (localUsers.length > 0) {
-        // 本地有遗留账号，合并到全局列表（全局已有的不覆盖）
-        var existingNames = data.map(function(u) { return u.name; });
-        var merged = false;
-        localUsers.forEach(function(lu) {
-          if (existingNames.indexOf(lu.name) === -1) {
-            data.push(lu);
-            merged = true;
-            console.log('[用户系统] 发现本地遗留账号已自动合并: ' + lu.name);
-          }
+        (stored || []).forEach(function(lu) {
+          if (existingNames.indexOf(lu.name) === -1) data.push(lu);
         });
-        if (merged) {
-          usersCache = data;
-          // 自动将合并后的数据同步到服务器
-          pushUsersToGitHub(data);
-        }
+      } catch(e) {}
+      if (data.length > 0) {
+        usersCache = data;
+        try { localStorage.setItem('systemUsers', JSON.stringify(data)); } catch(e) {}
+        console.log('[用户系统] users.json 已刷新，共 ' + data.length + ' 个用户');
       }
-
-      usersCache = data;
-      usersReady = true;
-      console.log('[用户系统] users.json 加载成功，共 ' + data.length + ' 个用户');
     })
     .catch(function(err) {
-      console.error('[用户系统] users.json 加载失败，使用默认用户:', err);
-      // 回退：尝试读取本地存储
-      try {
-        var stored = JSON.parse(localStorage.getItem('systemUsers') || 'null');
-        if (stored && stored.length > 0) {
-          usersCache = stored;
-        } else {
-          usersCache = getDefaultUsers();
-        }
-      } catch(e) {
-        usersCache = getDefaultUsers();
-      }
-      usersReady = true;
+      console.warn('[用户系统] users.json 刷新失败，继续使用本地数据:', err.message);
     });
 }
 
@@ -3663,22 +3666,20 @@ function doLogin() {
   var pass = document.getElementById('loginPass').value;
   if (!user || !pass) { alert('请输入账号和密码'); return; }
 
-  // 用户数据可能还在从服务器加载，等待就绪
+  // 用户数据已优先使用本地缓存立即放行，此处等待仅作兜底
   if (!usersReady || !rolesReady) {
     var btn = document.getElementById('loginBtn');
     var origText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = '加载中...'; btn.disabled = true; }
-    var waitCount = 0;
+    var waited = 0;
     var checkInterval = setInterval(function() {
-      waitCount++;
-      if (usersReady && rolesReady) {
+      waited += 200;
+      if ((usersReady && rolesReady) || waited > 3000) {
         clearInterval(checkInterval);
+        if (!usersReady) { usersCache = usersCache || getDefaultUsers(); usersReady = true; }
+        if (!rolesReady) { rolesReady = true; }
         if (btn) { btn.textContent = origText; btn.disabled = false; }
-        doLogin(); // 数据就绪后重新执行登录
-      } else if (waitCount > 50) { // 10秒超时
-        clearInterval(checkInterval);
-        if (btn) { btn.textContent = origText; btn.disabled = false; }
-        alert('用户数据加载超时，请刷新页面重试');
+        doLogin(); // 数据就绪（或兜底放行）后重新执行登录
       }
     }, 200);
     return;
@@ -9284,8 +9285,7 @@ function fetchKbFileViaApi(filename, timeoutSec) {
     .then(function(resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
     .then(function(data) {
       if (data.content && data.encoding === 'base64') {
-        var decoded = atob(data.content.replace(/
-/g, ''));
+        var decoded = atob(data.content.replace(/\n/g, ''));
         return decodeURIComponent(escape(decoded));
       }
       if (data.download_url || data.git_url) {
