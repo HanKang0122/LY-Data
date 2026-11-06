@@ -98,13 +98,14 @@
             },
             {
               "specialist": "贾晶晶",
-              "target": "",
+              "target": "20000",
               "position": "常规品"
             }
-          ]
+          ],
+          "splitConfirmed": true
         }
       ],
-      "locked": false
+      "locked": true
     },
     "2026-10": {
       "rows": [
