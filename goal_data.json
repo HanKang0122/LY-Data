@@ -10,7 +10,7 @@
           "splits": [
             {
               "specialist": "章子康",
-              "target": "",
+              "target": "1200000",
               "position": "爆款品"
             },
             {
@@ -21,17 +21,17 @@
             {
               "specialist": "唐红伟",
               "target": "",
-              "position": ""
+              "position": "爆款品"
             },
             {
               "specialist": "陶慧",
               "target": "",
-              "position": ""
+              "position": "爆款品"
             },
             {
               "specialist": "贾晶晶",
               "target": "",
-              "position": ""
+              "position": "爆款品"
             }
           ]
         },
