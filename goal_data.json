@@ -7,7 +7,18 @@
           "position": "爆款品",
           "target": "7000000",
           "confirmed": true,
-          "splits": []
+          "splits": [
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ]
         },
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
