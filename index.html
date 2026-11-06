@@ -2384,6 +2384,7 @@ body {
               <div class="comm-filter-item">
                 <label>方案版本</label>
                 <select id="biz-commission-version-filter" onchange="renderBizCommissionPlan()">
+                  <option value="v4">第四版 · 打品期+单品阶梯加成（2026年11月起）</option>
                   <option value="v3">第三版 · 打品驱动型（2026年8月起）</option>
                   <option value="v2">第二版 · 双轨提成（2026年5-7月）</option>
                   <option value="v1">第一版 · 奖金激励（2026年1-4月）</option>
@@ -3077,32 +3078,57 @@ function getRoleMenus(roleKey) {
 
 // 从GitHub加载自定义角色
 var rolesReady = false;
+function _applyRolesCache(cached) {
+  Object.keys(ROLE_CONFIG).forEach(function(key) {
+    if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
+  });
+  Object.keys(cached).forEach(function(key) {
+    ROLE_CONFIG[key] = {
+      text: cached[key].text,
+      menus: cached[key].menus || ['home'],
+      features: cached[key].features || [],
+      fixed: false
+    };
+  });
+}
+
 function loadCustomRolesFromGitHub() {
-  // 使用GitHub API获取数据（绕过CDN缓存），而不是直接fetch raw文件
-  return fetchKbFileViaApi('roles.json')
+  // 1) 先用本地缓存或内联角色填充，立即放行登录（不依赖网络）
+  var cached = null;
+  try { cached = JSON.parse(localStorage.getItem('systemRoles') || 'null'); } catch(e) {}
+  var initial = cached && Object.keys(cached).length > 0 ? cached : null;
+  if (!initial) {
+    initial = {};
+    getEmbeddedRoles().forEach(function(r) {
+      initial[r.key] = { text: r.text, menus: r.menus, features: r.features };
+    });
+  }
+  _applyRolesCache(initial);
+  rolesReady = true;
+  // 2) 后台静默刷新服务器最新角色（失败不影响登录）
+  return fetchKbFileViaApi('roles.json', 8)
     .then(function(data) {
-      // 清除旧的自定义角色（保留admin和fixed角色）
+      if (!data || data.length === 0) return;
+      var nc = {};
       Object.keys(ROLE_CONFIG).forEach(function(key) {
         if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
       });
-      if (data && data.length > 0) {
-        data.forEach(function(r) {
-          if (r.key && r.key !== 'admin') {
-            ROLE_CONFIG[r.key] = {
-              text: r.text,
-              menus: r.menus || ['home'],
-              features: r.features || [],
-              fixed: false
-            };
-          }
-        });
-        console.log('[用户系统] roles.json 加载成功，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
-      }
-      rolesReady = true;
+      data.forEach(function(r) {
+        if (r.key && r.key !== 'admin') {
+          ROLE_CONFIG[r.key] = {
+            text: r.text,
+            menus: r.menus || ['home'],
+            features: r.features || [],
+            fixed: false
+          };
+          nc[r.key] = { text: r.text, menus: r.menus || ['home'], features: r.features || [] };
+        }
+      });
+      try { localStorage.setItem('systemRoles', JSON.stringify(nc)); } catch(e) {}
+      console.log('[用户系统] roles.json 已刷新，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
     })
     .catch(function(err) {
-      console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）:', err.message);
-      rolesReady = true;
+      console.warn('[用户系统] roles.json 刷新失败，继续使用本地数据:', err.message);
     });
 }
 
@@ -3172,52 +3198,30 @@ function utf8ToBase64(str) {
 
 // 预加载用户数据（通过GitHub API读取users.json，绕过CDN缓存，同时合并本地遗留账号）
 function preloadUsers() {
-  fetchKbFileViaApi('users.json')
+  // 1) 先用本地缓存或内联用户表，立即放行登录（不依赖网络）
+  var localUsers = null;
+  try { localUsers = JSON.parse(localStorage.getItem('systemUsers') || 'null'); } catch(e) {}
+  usersCache = (localUsers && localUsers.length > 0) ? localUsers : getDefaultUsers();
+  usersReady = true;
+  // 2) 后台静默刷新服务器最新用户（失败不影响登录）
+  fetchKbFileViaApi('users.json', 8)
     .then(function(data) {
       data = data || [];
-      // 合并本地遗留账号（旧localStorage中创建但未同步的账号）
-      var localUsers = [];
+      var existingNames = data.map(function(u) { return u.name; });
       try {
         var stored = JSON.parse(localStorage.getItem('systemUsers') || '[]');
-        if (stored && stored.length > 0) localUsers = stored;
-      } catch(e) {}
-
-      if (localUsers.length > 0) {
-        // 本地有遗留账号，合并到全局列表（全局已有的不覆盖）
-        var existingNames = data.map(function(u) { return u.name; });
-        var merged = false;
-        localUsers.forEach(function(lu) {
-          if (existingNames.indexOf(lu.name) === -1) {
-            data.push(lu);
-            merged = true;
-            console.log('[用户系统] 发现本地遗留账号已自动合并: ' + lu.name);
-          }
+        (stored || []).forEach(function(lu) {
+          if (existingNames.indexOf(lu.name) === -1) data.push(lu);
         });
-        if (merged) {
-          usersCache = data;
-          // 自动将合并后的数据同步到服务器
-          pushUsersToGitHub(data);
-        }
+      } catch(e) {}
+      if (data.length > 0) {
+        usersCache = data;
+        try { localStorage.setItem('systemUsers', JSON.stringify(data)); } catch(e) {}
+        console.log('[用户系统] users.json 已刷新，共 ' + data.length + ' 个用户');
       }
-
-      usersCache = data;
-      usersReady = true;
-      console.log('[用户系统] users.json 加载成功，共 ' + data.length + ' 个用户');
     })
     .catch(function(err) {
-      console.error('[用户系统] users.json 加载失败，使用默认用户:', err);
-      // 回退：尝试读取本地存储
-      try {
-        var stored = JSON.parse(localStorage.getItem('systemUsers') || 'null');
-        if (stored && stored.length > 0) {
-          usersCache = stored;
-        } else {
-          usersCache = getDefaultUsers();
-        }
-      } catch(e) {
-        usersCache = getDefaultUsers();
-      }
-      usersReady = true;
+      console.warn('[用户系统] users.json 刷新失败，继续使用本地数据:', err.message);
     });
 }
 
@@ -3278,22 +3282,20 @@ function doLogin() {
   var pass = document.getElementById('loginPass').value;
   if (!user || !pass) { alert('请输入账号和密码'); return; }
 
-  // 用户数据可能还在从服务器加载，等待就绪
+  // 用户数据已优先使用本地缓存立即放行，此处等待仅作兜底
   if (!usersReady || !rolesReady) {
     var btn = document.getElementById('loginBtn');
     var origText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = '加载中...'; btn.disabled = true; }
-    var waitCount = 0;
+    var waited = 0;
     var checkInterval = setInterval(function() {
-      waitCount++;
-      if (usersReady && rolesReady) {
+      waited += 200;
+      if ((usersReady && rolesReady) || waited > 3000) {
         clearInterval(checkInterval);
+        if (!usersReady) { usersCache = usersCache || getDefaultUsers(); usersReady = true; }
+        if (!rolesReady) { rolesReady = true; }
         if (btn) { btn.textContent = origText; btn.disabled = false; }
-        doLogin(); // 数据就绪后重新执行登录
-      } else if (waitCount > 50) { // 10秒超时
-        clearInterval(checkInterval);
-        if (btn) { btn.textContent = origText; btn.disabled = false; }
-        alert('用户数据加载超时，请刷新页面重试');
+        doLogin(); // 数据就绪（或兜底放行）后重新执行登录
       }
     }, 200);
     return;
@@ -6104,6 +6106,7 @@ function renderBizCommissionPlan() {
   if (!el) return;
   var version = (document.getElementById('biz-commission-version-filter') || {}).value || 'v3';
   var html = '';
+  if (version === 'v4') html = commPlanV4HTML();
   if (version === 'v3') html = commPlanV3HTML();
   else if (version === 'v2') html = commPlanV2HTML();
   else if (version === 'v1') html = commPlanV1HTML();
@@ -7713,6 +7716,744 @@ function platformLabel(p) { return PLATFORM_LABELS[p] || p || '未知'; }
 function statusLabel(s) { return s === 'active' ? '合作中' : '已停止'; }
 
 
+
+function commPlanV4HTML() {
+  var h = '';
+  h += '<style>';
+  h += '.comm-v4-wrap {';
+  h += '  --ink: #1e1e2e;';
+  h += '  --ink2: #3d3d5c;';
+  h += '  --muted: #6c7293;';
+  h += '  --muted2: #9499b3;';
+  h += '  --rule: #e8eaf0;';
+  h += '  --rule2: #f0f1f5;';
+  h += '  --bg: #f4f5f9;';
+  h += '  --bg2: #ffffff;';
+  h += '  --purple: #6d28d9;';
+  h += '  --purple-l: #ede9fe;';
+  h += '  --blue: #2563eb;';
+  h += '  --blue-l: #dbeafe;';
+  h += '  --green: #059669;';
+  h += '  --green-l: #d1fae5;';
+  h += '  --orange: #ea580c;';
+  h += '  --orange-l: #ffedd5;';
+  h += '  --red: #dc2626;';
+  h += '  --red-l: #fee2e2;';
+  h += '  --shadow: 0 1px 3px rgba(30,30,46,0.06), 0 1px 2px rgba(30,30,46,0.04);';
+  h += '  --shadow-md: 0 4px 12px rgba(30,30,46,0.08);';
+  h += '  --shadow-lg: 0 8px 24px rgba(30,30,46,0.10);';
+  h += '  --radius: 10px;';
+  h += '  --radius-sm: 6px;';
+  h += '}';
+  h += '.comm-v4-wrap * {';
+  h += '}';
+  h += '.comm-v4-wrap {';
+  h += '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;';
+  h += '  background: var(--bg);';
+  h += '  color: var(--ink);';
+  h += '  line-height: 1.7;';
+  h += '  font-size: 14px;';
+  h += '  -webkit-font-smoothing: antialiased;';
+  h += '}';
+  h += '.comm-v4-wrap .header {';
+  h += '  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 40%, #2563eb 100%);';
+  h += '  color: #fff;';
+  h += '  padding: 0;';
+  h += '  position: sticky; top: 0; z-index: 100;';
+  h += '  box-shadow: 0 4px 20px rgba(109,40,217,0.18);';
+  h += '}';
+  h += '.comm-v4-wrap .header-inner {';
+  h += '}';
+  h += '.comm-v4-wrap .header-top {';
+  h += '}';
+  h += '.comm-v4-wrap .header h1 {';
+  h += '}';
+  h += '.comm-v4-wrap .header .subtitle {';
+  h += '}';
+  h += '.comm-v4-wrap .toolbar {';
+  h += '}';
+  h += '.comm-v4-wrap .tool-btn {';
+  h += '  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);';
+  h += '  color: #fff; padding: 5px 12px; border-radius: 8px; cursor: pointer;';
+  h += '  font-size: 12px; transition: all 0.2s; backdrop-filter: blur(4px);';
+  h += '}';
+  h += '.comm-v4-wrap .tool-btn:hover {';
+  h += '}';
+  h += '.comm-v4-wrap .tool-btn.primary {';
+  h += '}';
+  h += '.comm-v4-wrap .timeline-nav {';
+  h += '  display: flex; align-items: center; gap: 0;';
+  h += '  margin-top: 12px; padding-top: 12px;';
+  h += '  border-top: 1px solid rgba(255,255,255,0.15);';
+  h += '  overflow-x: auto;';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-item {';
+  h += '  display: flex; align-items: center; gap: 8px; cursor: pointer;';
+  h += '  padding: 4px 10px; border-radius: 8px; transition: all 0.2s;';
+  h += '  white-space: nowrap; flex-shrink: 0;';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-item:hover {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-dot {';
+  h += '  width: 10px; height: 10px; border-radius: 50%;';
+  h += '  border: 2px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.15);';
+  h += '  flex-shrink: 0;';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-item.active .tl-nav-dot {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-label {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-item.active .tl-nav-label {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-date {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-line {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-bar {';
+  h += '  display: flex; gap: 2px; background: #fff; padding: 4px;';
+  h += '  border-radius: var(--radius); margin-bottom: 14px; box-shadow: var(--shadow);';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn {';
+  h += '  flex: 1; padding: 9px 10px; border: none; background: transparent;';
+  h += '  border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 600;';
+  h += '  color: var(--muted); transition: all 0.25s; text-align: center;';
+  h += '  position: relative;';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn .tb-badge {';
+  h += '  display: inline-block; font-size: 10px; padding: 1px 6px;';
+  h += '  border-radius: 10px; margin-left: 4px; background: var(--bg); color: var(--muted);';
+  h += '  font-weight: 600;';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn.active {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn.active .tb-badge {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn:hover:not(.active) {';
+  h += '}';
+  h += '.comm-v4-wrap .container {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-panel {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-panel.active {';
+  h += '}';
+  h += '.comm-v4-wrap .overview-card {';
+  h += '  background: linear-gradient(135deg, #faf8ff 0%, #f0f4ff 100%);';
+  h += '  border: 1px solid var(--rule); border-radius: var(--radius);';
+  h += '  padding: 16px 20px; margin-bottom: 14px;';
+  h += '  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;';
+  h += '}';
+  h += '.comm-v4-wrap .overview-icon {';
+  h += '  width: 48px; height: 48px; border-radius: 12px;';
+  h += '  background: linear-gradient(135deg, var(--purple), var(--blue));';
+  h += '  display: flex; align-items: center; justify-content: center;';
+  h += '  font-size: 22px; color: #fff; flex-shrink: 0;';
+  h += '}';
+  h += '.comm-v4-wrap .overview-info h3 {';
+  h += '}';
+  h += '.comm-v4-wrap .overview-info p {';
+  h += '}';
+  h += '.comm-v4-wrap .overview-stats {';
+  h += '}';
+  h += '.comm-v4-wrap .ov-stat {';
+  h += '}';
+  h += '.comm-v4-wrap .ov-stat .ov-dot {';
+  h += '}';
+  h += '.comm-v4-wrap .card {';
+  h += '  background: var(--bg2); border-radius: var(--radius); box-shadow: var(--shadow);';
+  h += '  margin-bottom: 14px; overflow: hidden; transition: box-shadow 0.2s;';
+  h += '}';
+  h += '.comm-v4-wrap .card:hover {';
+  h += '}';
+  h += '.comm-v4-wrap .card-header {';
+  h += '  padding: 12px 18px; border-bottom: 1px solid var(--rule);';
+  h += '  display: flex; align-items: center; gap: 10px;';
+  h += '  background: linear-gradient(180deg, #fafbff 0%, #fff 100%);';
+  h += '}';
+  h += '.comm-v4-wrap .card-header .num {';
+  h += '  width: 26px; height: 26px; border-radius: 8px;';
+  h += '  display: flex; align-items: center; justify-content: center;';
+  h += '  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;';
+  h += '}';
+  h += '.comm-v4-wrap .card-header h2 {';
+  h += '}';
+  h += '.comm-v4-wrap .card-header .tag {';
+  h += '  font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 600;';
+  h += '}';
+  h += '.comm-v4-wrap .card-body {';
+  h += '}';
+  h += '.comm-v4-wrap [contenteditable] {';
+  h += '}';
+  h += '.comm-v4-wrap [contenteditable]:hover {';
+  h += '}';
+  h += '.comm-v4-wrap [contenteditable]:focus {';
+  h += '}';
+  h += '.comm-v4-wrap .stitle {';
+  h += '  font-size: 13px; font-weight: 700; margin: 16px 0 8px;';
+  h += '  padding-left: 12px; border-left: 3px solid var(--purple);';
+  h += '  color: var(--ink);';
+  h += '}';
+  h += '.comm-v4-wrap .stitle:first-child {';
+  h += '}';
+  h += '.comm-v4-wrap .stitle.green {';
+  h += '}';
+  h += '.comm-v4-wrap .stitle.blue {';
+  h += '}';
+  h += '.comm-v4-wrap .stitle.orange {';
+  h += '}';
+  h += '.comm-v4-wrap .twrap {';
+  h += '}';
+  h += '.comm-v4-wrap table {';
+  h += '}';
+  h += '.comm-v4-wrap th {';
+  h += '  background: #f8f7fc; padding: 9px 12px; text-align: left;';
+  h += '  font-weight: 700; border-bottom: 2px solid var(--purple); white-space: nowrap; font-size: 12.5px;';
+  h += '  color: var(--ink2);';
+  h += '}';
+  h += '.comm-v4-wrap td {';
+  h += '}';
+  h += '.comm-v4-wrap tr:last-child td {';
+  h += '}';
+  h += '.comm-v4-wrap tr:hover td {';
+  h += '}';
+  h += '.comm-v4-wrap td[contenteditable]:focus, .comm-v4-wrap th[contenteditable]:focus {';
+  h += '}';
+  h += '.comm-v4-wrap .tc {';
+  h += '}';
+  h += '.comm-v4-wrap .tc b {';
+  h += '}';
+  h += '.comm-v4-wrap .num-pos {';
+  h += '}';
+  h += '.comm-v4-wrap .num-neg {';
+  h += '}';
+  h += '.comm-v4-wrap .num-base {';
+  h += '}';
+  h += '.comm-v4-wrap .tnote {';
+  h += '  font-size: 11.5px; color: var(--muted); line-height: 1.75;';
+  h += '  padding: 8px 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--rule); margin: 8px 0;';
+  h += '  background: var(--bg);';
+  h += '}';
+  h += '.comm-v4-wrap .tnote b {';
+  h += '}';
+  h += '.comm-v4-wrap .tnote.pos {';
+  h += '}';
+  h += '.comm-v4-wrap .tnote.warn {';
+  h += '}';
+  h += '.comm-v4-wrap .tnote.info {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-row {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box {';
+  h += '  flex: 1; min-width: 120px; padding: 12px; border-radius: var(--radius-sm);';
+  h += '  text-align: center; position: relative; margin-right: 8px; margin-bottom: 6px;';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box .fb-label {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box .fb-value {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box::after {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box:last-child::after {';
+  h += '}';
+  h += '.comm-v4-wrap .fb-green {';
+  h += '}';
+  h += '.comm-v4-wrap .fb-green .fb-label, .comm-v4-wrap .fb-green .fb-value {';
+  h += '}';
+  h += '.comm-v4-wrap .fb-orange {';
+  h += '}';
+  h += '.comm-v4-wrap .fb-orange .fb-label, .comm-v4-wrap .fb-orange .fb-value {';
+  h += '}';
+  h += '.comm-v4-wrap .fb-red {';
+  h += '}';
+  h += '.comm-v4-wrap .fb-red .fb-label, .comm-v4-wrap .fb-red .fb-value {';
+  h += '}';
+  h += '.comm-v4-wrap .type-row {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box:hover {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box.new {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box.hot {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box.norm {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box .tb-name {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box .tb-rate {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box.new .tb-rate {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box.hot .tb-rate {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box.norm .tb-rate {';
+  h += '}';
+  h += '.comm-v4-wrap .type-box .tb-desc {';
+  h += '}';
+  h += '.comm-v4-wrap .tl {';
+  h += '}';
+  h += '.comm-v4-wrap .tl::before {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-bar {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item.s1 .tl-bar {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item.s2 .tl-bar {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item.s3 .tl-bar {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-content {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-head {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-badge {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item.s1 .tl-badge {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item.s2 .tl-badge {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-item.s3 .tl-badge {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-title {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-text {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-text ul {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-text li {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-rate {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-rate.pos {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-rate.neg {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-row {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box:hover {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box .lb-level {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box .lb-name {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box .lb-salary {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box .lb-salary small {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box .lb-req {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box.l1 {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box.l1 .lb-level {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box.l2 {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box.l2 .lb-level {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box.l3 {';
+  h += '}';
+  h += '.comm-v4-wrap .leader-box.l3 .lb-level {';
+  h += '}';
+  h += '.comm-v4-wrap .info-row {';
+  h += '}';
+  h += '.comm-v4-wrap .info-box {';
+  h += '}';
+  h += '.comm-v4-wrap .info-box .ib-label {';
+  h += '}';
+  h += '.comm-v4-wrap .info-box .ib-value {';
+  h += '}';
+  h += '.comm-v4-wrap .badge {';
+  h += '}';
+  h += '.comm-v4-wrap .b-green {';
+  h += '}';
+  h += '.comm-v4-wrap .b-red {';
+  h += '}';
+  h += '.comm-v4-wrap .b-blue {';
+  h += '}';
+  h += '.comm-v4-wrap .b-purple {';
+  h += '}';
+  h += '.comm-v4-wrap .b-orange {';
+  h += '}';
+  h += '.comm-v4-wrap .b-gray {';
+  h += '}';
+  h += '.comm-v4-wrap .rlist {';
+  h += '}';
+  h += '.comm-v4-wrap .rlist li {';
+  h += '}';
+  h += '.comm-v4-wrap .rlist li:last-child {';
+  h += '}';
+  h += '.comm-v4-wrap .rlist li::before {';
+  h += '  content:counter(rc); counter-increment:rc; position:absolute; left:0; top:6px;';
+  h += '  width:20px; height:20px; background:var(--purple); color:#fff; border-radius:50%;';
+  h += '  font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;';
+  h += '}';
+  h += '.comm-v4-wrap .rate-cell {';
+  h += '}';
+  h += '.comm-v4-wrap .rate-cell.empty {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-grid {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col h4 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v4 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v4 h4 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v3 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v3 h4 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v2 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v2 h4 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v1 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col.v1 h4 {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col ul {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col li {';
+  h += '}';
+  h += '.comm-v4-wrap .cmp-col li::before {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-row {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card .evo-phase {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card .evo-name {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card .evo-date {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card .evo-features {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e1 {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e1 .evo-phase {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e2 {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e2 .evo-phase {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e3 {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e3 .evo-phase {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e4 {';
+  h += '}';
+  h += '.comm-v4-wrap .evo-card.e4 .evo-phase {';
+  h += '}';
+  h += '.comm-v4-wrap .edit-hint {';
+  h += '  position:fixed; bottom:20px; right:20px; background:#fff; border:1px solid var(--rule);';
+  h += '  border-radius:20px; padding:7px 16px; font-size:11px; color:var(--muted);';
+  h += '  box-shadow:var(--shadow-md); z-index:50; display:flex; align-items:center; gap:6px;';
+  h += '}';
+  h += '.comm-v4-wrap .edit-hint .dot {';
+  h += '}';
+  h += '@media (max-width: 768px) {';
+  h += '.comm-v4-wrap .type-row, .comm-v4-wrap .leader-row, .comm-v4-wrap .cmp-grid, .comm-v4-wrap .evo-row {';
+  h += '}';
+  h += '.comm-v4-wrap .overview-card {';
+  h += '}';
+  h += '.comm-v4-wrap .overview-icon {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box {';
+  h += '}';
+  h += '.comm-v4-wrap .flow-box::after {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-btn .tb-badge {';
+  h += '}';
+  h += '.comm-v4-wrap .header h1 {';
+  h += '}';
+  h += '.comm-v4-wrap .header-top {';
+  h += '}';
+  h += '.comm-v4-wrap .container {';
+  h += '}';
+  h += '.comm-v4-wrap .card-body {';
+  h += '}';
+  h += '.comm-v4-wrap .timeline-nav {';
+  h += '}';
+  h += '.comm-v4-wrap .tl-nav-item {';
+  h += '}';
+  h += '}';
+  h += '@media print {';
+  h += '.comm-v4-wrap .header, .comm-v4-wrap .toolbar, .comm-v4-wrap .tab-bar, .comm-v4-wrap .edit-hint {';
+  h += '}';
+  h += '.comm-v4-wrap .card {';
+  h += '}';
+  h += '.comm-v4-wrap .tab-panel {';
+  h += '}';
+  h += '.comm-v4-wrap {';
+  h += '}';
+  h += '}';
+  h += '</style>';
+  h += '<div class="comm-v4-wrap">';
+  h += '  <!-- 概览卡片 -->';
+  h += '  <div class="overview-card">';
+  h += '    <div class="overview-icon">🎯</div>';
+  h += '    <div class="overview-info">';
+  h += '      <h3>第四版商务提成方案 · 打品期 + 单品阶梯加成</h3>';
+  h += '      <p>以"打品期"承接新发品推广，以"单品实销达标加成"驱动爆款与常规品深耕。取消推广权竞争与授权机制，改为打品期实销第一延长 2 个月提成；取消统一加持，改为按单个商品的实销规模逐品加提点。</p>';
+  h += '      <div class="overview-stats">';
+  h += '        <div class="ov-stat"><div class="ov-dot" style="background:var(--green);"></div><span>新发品三档比例 1%/1.5%/2%</span></div>';
+  h += '        <div class="ov-stat"><div class="ov-dot" style="background:var(--red);"></div><span>单品实销达标加成</span></div>';
+  h += '        <div class="ov-stat"><div class="ov-dot" style="background:var(--purple);"></div><span>销冠延长 2 个月</span></div>';
+  h += '        <div class="ov-stat"><div class="ov-dot" style="background:var(--blue);"></div><span>专员 / 组长双线</span></div>';
+  h += '      </div>';
+  h += '    </div>';
+  h += '  </div>';
+  h += '  <!-- V4-1: 商务专员提成 -->';
+  h += '  <div class="card">';
+  h += '    <div class="card-header">';
+  h += '      <div class="num" style="background:var(--purple);">1</div>';
+  h += '      <h2>商务专员提成</h2>';
+  h += '      <span class="badge b-purple">生效日期：2026年11月1日</span>';
+  h += '    </div>';
+  h += '    <div class="card-body">';
+  h += '      <div class="info-row">';
+  h += '        <div class="info-box"><div class="ib-label">计算基数</div><div class="ib-value">个人归属商品实销金额</div></div>';
+  h += '        <div class="info-box"><div class="ib-label">区分维度</div><div class="ib-value">按商品定位 + 单品实销规模</div></div>';
+  h += '        <div class="info-box"><div class="ib-label">计算周期</div><div class="ib-value">月度</div></div>';
+  h += '        <div class="info-box"><div class="ib-label">数据来源</div><div class="ib-value">飞瓜执行订单</div></div>';
+  h += '      </div>';
+  h += '      <div class="stitle">三类商品定位总览</div>';
+  h += '      <div class="type-row">';
+  h += '        <div class="type-box new">';
+  h += '          <div class="tb-name">新发品</div>';
+  h += '          <div class="tb-rate">1% / 1.5% / 2%</div>';
+  h += '          <div class="tb-desc">团队确认重点推广商品，新品/老品均可。逐品按战略权重指定档位，特殊产品审批后可调整。</div>';
+  h += '        </div>';
+  h += '        <div class="type-box hot">';
+  h += '          <div class="tb-name">爆款品</div>';
+  h += '          <div class="tb-rate">0.6%</div>';
+  h += '          <div class="tb-desc">自然月全渠道实销 ≥200 万元。个人该单品 ≥200 万 → 0.8%。</div>';
+  h += '        </div>';
+  h += '        <div class="type-box norm">';
+  h += '          <div class="tb-name">常规品</div>';
+  h += '          <div class="tb-rate">0.3%</div>';
+  h += '          <div class="tb-desc">不满足新发品与爆款品的其余商品。个人该单品 ≥50 万 → 0.4%，≥100 万 → 0.5%。</div>';
+  h += '        </div>';
+  h += '      </div>';
+  h += '      <div class="tnote warn">';
+  h += '        <b>优先级：</b><span>新发品 ＞ 爆款品 ＞ 常规品，同一商品同一自然月只适用一档。</span>';
+  h += '      </div>';
+  h += '      <div class="stitle green">1-1 新发品 · 打品期规则</div>';
+  h += '      <div class="twrap">';
+  h += '        <table>';
+  h += '          <thead><tr><th>环节</th><th>规则</th></tr></thead>';
+  h += '          <tbody>';
+  h += '            <tr><td>认定方式</td><td>团队确认为重点推广的单个商品或商品组合，<b>新品、老品均可</b></td></tr>';
+  h += '            <tr><td>参与方式</td><td>常规：专员<b>自主选择</b>；特殊：由<b>团队指定</b></td></tr>';
+  h += '            <tr><td>打品期</td><td>新品：链接上线日；老品：团队立项日。统一至<b>次月月底</b>结束，保证 1-2 个月</td></tr>';
+  h += '            <tr><td>提成比例</td><td><b>1%、1.5%、2%</b> 三档，按商品战略权重逐品指定；特殊产品审批后可调整</td></tr>';
+  h += '          </tbody>';
+  h += '        </table>';
+  h += '      </div>';
+  h += '      <div class="stitle blue">打品期内 vs 打品期后</div>';
+  h += '      <div class="tl">';
+  h += '        <div class="tl-item s1">';
+  h += '          <div class="tl-bar"></div>';
+  h += '          <div class="tl-content">';
+  h += '            <div class="tl-head">';
+  h += '              <span class="tl-title">打品期内（链接上线 / 立项日 → 次月月底）</span>';
+  h += '              <span class="tl-badge">按新发品比例提成</span>';
+  h += '            </div>';
+  h += '            <div class="tl-text">';
+  h += '              <p>所有参与推广的专员，按该品<b>既定比例</b>对个人实销提成。同期该品已达爆款标准，仍按新发品比例执行（优先级隔离）。</p>';
+  h += '              <p><span class="tl-rate pos">专员提成 = 个人该品实销 × 1% / 1.5% / 2%</span></p>';
+  h += '            </div>';
+  h += '          </div>';
+  h += '        </div>';
+  h += '        <div class="tl-item s2">';
+  h += '          <div class="tl-bar"></div>';
+  h += '          <div class="tl-content">';
+  h += '            <div class="tl-head">';
+  h += '              <span class="tl-title">打品期结束后（第 3 个月起）</span>';
+  h += '              <span class="tl-badge">销冠延长 2 个月 · 其余转商品定位</span>';
+  h += '            </div>';
+  h += '            <div class="tl-text">';
+  h += '              <ul>';
+  h += '                <li><b>销冠：</b>打品期内该品<b>全渠道商务推广实销排名第一</b>，<b>延长 2 个月</b>继续按新发品比例提成（<b>不叠加</b>单品加成）</li>';
+  h += '                <li><b>并列：</b>实销并列时<b>全部获得延长资格</b></li>';
+  h += '                <li><b>其他专员：</b>按爆款品 0.6% 或常规品 0.3%（含单品加成）</li>';
+  h += '                <li><b>未参与者：</b>打品期后可正常推广，按爆款 / 常规品规则提成</li>';
+  h += '              </ul>';
+  h += '              <p style="font-size:13px;color:var(--muted);">延长结束后，该品对所有专员统一按爆款 / 常规品规则执行，不再有新发品特殊比例。</p>';
+  h += '            </div>';
+  h += '          </div>';
+  h += '        </div>';
+  h += '      </div>';
+  h += '      <div class="stitle green">1-2 爆款品 & 常规品 · 单品加成</div>';
+  h += '      <div class="twrap">';
+  h += '        <table>';
+  h += '          <thead><tr><th>商品定位</th><th class="tc">基础提成</th><th>个人单品实销达标（自然月）</th><th class="tc">加成后</th></tr></thead>';
+  h += '          <tbody>';
+  h += '            <tr><td>爆款品</td><td class="tc"><span class="num-base">0.6%</span></td><td>≥200 万元</td><td class="tc"><span class="num-pos">0.8%</span></td></tr>';
+  h += '            <tr><td>常规品</td><td class="tc"><span class="num-base">0.3%</span></td><td>≥50 万元</td><td class="tc"><span class="num-pos">0.4%</span></td></tr>';
+  h += '            <tr><td>常规品</td><td class="tc"><span class="num-base">0.3%</span></td><td>≥100 万元</td><td class="tc"><span class="num-pos">0.5%</span></td></tr>';
+  h += '          </tbody>';
+  h += '        </table>';
+  h += '      </div>';
+  h += '      <div class="tnote">';
+  h += '        <b>加成规则：</b><span>按<b>单个商品</b>分别计算、<b>取最高档、不叠加</b>（常规品 ≥100 万取 +0.2%，非 +0.1%+0.2%），多个达标单品各自加成、不封顶。</span>';
+  h += '      </div>';
+  h += '      <div class="stitle">专员提成速查表</div>';
+  h += '      <div class="twrap">';
+  h += '        <table>';
+  h += '          <thead><tr><th>商品定位</th><th class="tc">基础提成</th><th>个人加成触发条件</th><th class="tc">加成后</th></tr></thead>';
+  h += '          <tbody>';
+  h += '            <tr><td>新发品（打品期内 / 销冠延长期）</td><td class="tc"><span class="num-base">1% / 1.5% / 2%</span></td><td>不适用加成</td><td class="tc">—</td></tr>';
+  h += '            <tr><td>爆款品</td><td class="tc"><span class="num-base">0.6%</span></td><td>个人该单品 ≥200 万</td><td class="tc"><span class="num-pos">0.8%</span></td></tr>';
+  h += '            <tr><td>常规品</td><td class="tc"><span class="num-base">0.3%</span></td><td>个人该单品 ≥50 万 / ≥100 万</td><td class="tc"><span class="num-pos">0.4% / 0.5%</span></td></tr>';
+  h += '          </tbody>';
+  h += '        </table>';
+  h += '      </div>';
+  h += '    </div>';
+  h += '  </div>';
+  h += '  <!-- V4-2: 商务组长提成 -->';
+  h += '  <div class="card">';
+  h += '    <div class="card-header">';
+  h += '      <div class="num" style="background:var(--blue);">2</div>';
+  h += '      <h2>商务组长提成</h2>';
+  h += '    </div>';
+  h += '    <div class="card-body">';
+  h += '      <div class="info-row">';
+  h += '        <div class="info-box"><div class="ib-label">计算基数</div><div class="ib-value">团队管辖小组商品实销金额</div></div>';
+  h += '        <div class="info-box"><div class="ib-label">区分维度</div><div class="ib-value">按商品定位</div></div>';
+  h += '        <div class="info-box"><div class="ib-label">计算周期</div><div class="ib-value">月度</div></div>';
+  h += '        <div class="info-box"><div class="ib-label">个人加成</div><div class="ib-value">不享受</div></div>';
+  h += '      </div>';
+  h += '      <div class="stitle blue">组长提成速查表</div>';
+  h += '      <div class="twrap">';
+  h += '        <table>';
+  h += '          <thead><tr><th>商品定位</th><th>计算基数</th><th class="tc">提成比例</th><th>适用周期</th></tr></thead>';
+  h += '          <tbody>';
+  h += '            <tr><td>新发品</td><td>团队该品全部实销</td><td class="tc"><span class="num-base">0.3%</span></td><td>打品期内</td></tr>';
+  h += '            <tr><td>新发品（打品期后）</td><td>销冠部分 × 0.3% + 其余专员 × 该品类型</td><td class="tc">分拆</td><td>销冠延长期（2 个月）</td></tr>';
+  h += '            <tr><td>爆款品</td><td>团队所有爆款品总实销</td><td class="tc"><span class="num-base">0.2%</span></td><td>全周期</td></tr>';
+  h += '            <tr><td>常规品</td><td>团队所有常规品总实销</td><td class="tc"><span class="num-base">0.1%</span></td><td>全周期</td></tr>';
+  h += '          </tbody>';
+  h += '        </table>';
+  h += '      </div>';
+  h += '      <div class="stitle blue">新发品 · 组长口径</div>';
+  h += '      <div class="tl">';
+  h += '        <div class="tl-item s1">';
+  h += '          <div class="tl-bar"></div>';
+  h += '          <div class="tl-content">';
+  h += '            <div class="tl-head">';
+  h += '              <span class="tl-title">打品期内</span>';
+  h += '              <span class="tl-badge">团队该品总实销 × 0.3%</span>';
+  h += '            </div>';
+  h += '            <div class="tl-text">';
+  h += '              <p>按团队该新发品全部实销金额之和 × 0.3% 计提。</p>';
+  h += '            </div>';
+  h += '          </div>';
+  h += '        </div>';
+  h += '        <div class="tl-item s2">';
+  h += '          <div class="tl-bar"></div>';
+  h += '          <div class="tl-content">';
+  h += '            <div class="tl-head">';
+  h += '              <span class="tl-title">打品期后（销冠延长期）</span>';
+  h += '              <span class="tl-badge">按专员结构分拆</span>';
+  h += '            </div>';
+  h += '            <div class="tl-text">';
+  h += '              <ul>';
+  h += '                <li><b>销冠专员实销</b> × <span class="tl-rate pos">0.3%</span></li>';
+  h += '                <li><b>其余专员实销</b> × <span class="tl-rate pos">0.2%</span>（爆款品）/ <span class="tl-rate pos">0.1%</span>（常规品）</li>';
+  h += '              </ul>';
+  h += '            </div>';
+  h += '          </div>';
+  h += '        </div>';
+  h += '        <div class="tl-item s3">';
+  h += '          <div class="tl-bar"></div>';
+  h += '          <div class="tl-content">';
+  h += '            <div class="tl-head">';
+  h += '              <span class="tl-title">销冠延长期结束后</span>';
+  h += '              <span class="tl-badge">全员按爆款 / 常规品</span>';
+  h += '            </div>';
+  h += '            <div class="tl-text">';
+  h += '              <p>该商品全员按爆款品 / 常规品规则执行，组长同步按爆款 0.2% / 常规 0.1% 计提。</p>';
+  h += '            </div>';
+  h += '          </div>';
+  h += '        </div>';
+  h += '      </div>';
+  h += '      <div class="tnote warn">';
+  h += '        <b>组长本人业绩：</b><span>组长业绩<b>不参与销冠排名</b>，自己达人业绩按<b>非销冠口径</b>（0.2% / 0.1%）计入组长提成基数。</span>';
+  h += '      </div>';
+  h += '      <div class="tnote">';
+  h += '        <b>基数不重复：</b><span>打品期（含延长期）的新发品实销，只计入新发品口径，<b>不再重复计入</b>爆款 / 常规品团队基数。组长不享受专员个人单品加成。</span>';
+  h += '      </div>';
+  h += '    </div>';
+  h += '  </div>';
+  h += '  <!-- V4-3: 组织裂变（沿用第三版） -->';
+  h += '  <div class="card">';
+  h += '    <div class="card-header">';
+  h += '      <div class="num" style="background:var(--green);">3</div>';
+  h += '      <h2>组织裂变方案</h2>';
+  h += '      <span class="badge b-gray">沿用第三版</span>';
+  h += '    </div>';
+  h += '    <div class="card-body">';
+  h += '      <div class="stitle green">商务组长分级与待遇</div>';
+  h += '      <div class="leader-row">';
+  h += '        <div class="leader-box l1">';
+  h += '          <div class="lb-level">LEVEL 1</div>';
+  h += '          <div class="lb-name">初级商务组长</div>';
+  h += '          <div class="lb-salary">5,000<small> + 1,000</small></div>';
+  h += '          <div class="lb-req">至少打造 <b>1款爆款</b> 的完整项目经理经验</div>';
+  h += '        </div>';
+  h += '        <div class="leader-box l2">';
+  h += '          <div class="lb-level">LEVEL 2</div>';
+  h += '          <div class="lb-name">高级商务组长</div>';
+  h += '          <div class="lb-salary">6,000<small> + 1,500</small></div>';
+  h += '          <div class="lb-req">至少打造 <b>2款爆款</b> 的完整项目经理经验</div>';
+  h += '        </div>';
+  h += '        <div class="leader-box l3">';
+  h += '          <div class="lb-level">LEVEL 3</div>';
+  h += '          <div class="lb-name">资深商务组长</div>';
+  h += '          <div class="lb-salary">7,000<small> + 2,000</small></div>';
+  h += '          <div class="lb-req">至少打造 <b>3款爆款</b> 的完整项目经理经验</div>';
+  h += '        </div>';
+  h += '      </div>';
+  h += '      <div class="stitle green">晋升规则</div>';
+  h += '      <div class="twrap">';
+  h += '        <table>';
+  h += '          <thead><tr><th>晋升维度</th><th>要求</th><th>说明</th></tr></thead>';
+  h += '          <tbody>';
+  h += '            <tr><td>打爆款经验</td><td>满足对应级别爆款项目数量</td><td>初级≥1款 / 高级≥2款 / 资深≥3款</td></tr>';
+  h += '            <tr><td>团队组织规划</td><td>结合团队实际编制需求</td><td>非自动晋升，需有对应编制空缺</td></tr>';
+  h += '            <tr><td>管理能力评估</td><td>通过管理能力综合评估</td><td>评估维度待细化</td></tr>';
+  h += '            <tr><td>晋升周期</td><td>半年度一次（7月 / 1月）</td><td>最小晋升周期为半年度</td></tr>';
+  h += '          </tbody>';
+  h += '        </table>';
+  h += '      </div>';
+  h += '      <div class="tnote info">';
+  h += '        <b>晋升路径：</b><span>商务专员 → 初级商务组长（≥1爆）→ 高级商务组长（≥2爆）→ 资深商务组长（≥3爆）。每次晋升需同时满足爆款经验 + 团队规划 + 管理评估三个维度，最小周期为半年度。</span>';
+  h += '      </div>';
+  h += '      <div class="stitle orange">通用规则</div>';
+  h += '      <ol class="rlist">';
+  h += '        <li><b>数据采集：</b>订单与销售数据以<b>飞瓜执行订单数据</b>为准，达人归属以订单明细归属达人运营为准。</li>';
+  h += '        <li><b>商品定位判定：</b>以商品 ID 为采集筛选项。爆款品门槛为单商品自然月全渠道实销 ≥200 万元；常规品为不满足新发品与爆款品的其余商品。</li>';
+  h += '        <li><b>新发品认定：</b>由团队确认并逐品指定提成档位（1% / 1.5% / 2%），记录于打品立项表；特殊产品调整比例需经审批。</li>';
+  h += '        <li><b>销冠并列处理：</b>打品期结束实销排名并列时，<b>并列全部获得延长 2 个月资格</b>，不做进一步区分。</li>';
+  h += '        <li><b>优先级规则：</b>新发品 ＞ 爆款品 ＞ 常规品，同一商品同一自然月只适用一档，不重复计提。</li>';
+  h += '        <li><b>处罚规则：</b>如遇工作失误造成运营损失，依据严重程度进行业绩扣除等处罚，包括但不限于佣金设置错误、机制错误等。</li>';
+  h += '      </ol>';
+  h += '    </div>';
+  h += '  </div>';
+  h += '</div>';
+  h += '</div>';
+  return h;
+}
 
 function commPlanV3HTML() {
   var h = '';
