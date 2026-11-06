@@ -33,14 +33,41 @@
               "target": "1200000",
               "position": "爆款品"
             }
-          ]
+          ],
+          "splitConfirmed": true
         },
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
           "position": "常规品",
           "target": "800000",
           "confirmed": true,
-          "splits": [],
+          "splits": [
+            {
+              "specialist": "章子康",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            },
+            {
+              "specialist": "",
+              "target": "",
+              "position": ""
+            }
+          ],
           "splitConfirmed": false
         },
         {
