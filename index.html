@@ -1835,7 +1835,363 @@ body {
   .kpi-grid { grid-template-columns: 1fr; }
   .chart-grid.cols-2, .chart-grid.cols-3, .chart-grid.cols-2-1 { grid-template-columns: 1fr; }
 }
-</style>
+
+<!-- V4 Commission Plan Styles -->
+<style>
+:root {
+  --ink: #1e1e2e;
+  --ink2: #3d3d5c;
+  --muted: #6c7293;
+  --muted2: #9499b3;
+  --rule: #e8eaf0;
+  --rule2: #f0f1f5;
+  --bg: #f4f5f9;
+  --bg2: #ffffff;
+  --purple: #6d28d9;
+  --purple-l: #ede9fe;
+  --blue: #2563eb;
+  --blue-l: #dbeafe;
+  --green: #059669;
+  --green-l: #d1fae5;
+  --orange: #ea580c;
+  --orange-l: #ffedd5;
+  --red: #dc2626;
+  --red-l: #fee2e2;
+  --shadow: 0 1px 3px rgba(30,30,46,0.06), 0 1px 2px rgba(30,30,46,0.04);
+  --shadow-md: 0 4px 12px rgba(30,30,46,0.08);
+  --shadow-lg: 0 8px 24px rgba(30,30,46,0.10);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Header ===== */
+.header {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 40%, #2563eb 100%);
+  color: #fff;
+  padding: 0;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 20px rgba(109,40,217,0.18);
+}
+.header-inner { max-width: 1120px; margin: 0 auto; padding: 18px 24px 12px; }
+.header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.header h1 { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+.header .subtitle { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+.toolbar { display: flex; gap: 8px; }
+.tool-btn {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; padding: 5px 12px; border-radius: 8px; cursor: pointer;
+  font-size: 12px; transition: all 0.2s; backdrop-filter: blur(4px);
+}
+.tool-btn:hover { background: rgba(255,255,255,0.22); transform: translateY(-1px); }
+.tool-btn.primary { background: #fff; color: var(--purple); font-weight: 700; border-color: #fff; }
+
+/* ===== Timeline Nav ===== */
+.timeline-nav {
+  display: flex; align-items: center; gap: 0;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  overflow-x: auto;
+}
+.tl-nav-item {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 4px 10px; border-radius: 8px; transition: all 0.2s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.tl-nav-item:hover { background: rgba(255,255,255,0.1); }
+.tl-nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+.tl-nav-item.active .tl-nav-dot { background: #fff; border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.2); }
+.tl-nav-label { font-size: 12.5px; font-weight: 600; opacity: 0.8; }
+.tl-nav-item.active .tl-nav-label { opacity: 1; }
+.tl-nav-date { font-size: 10.5px; opacity: 0.6; }
+.tl-nav-line { flex: 1; height: 2px; background: rgba(255,255,255,0.15); min-width: 20px; }
+
+/* ===== Tabs ===== */
+.tab-bar {
+  display: flex; gap: 2px; background: #fff; padding: 4px;
+  border-radius: var(--radius); margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.tab-btn {
+  flex: 1; padding: 9px 10px; border: none; background: transparent;
+  border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 600;
+  color: var(--muted); transition: all 0.25s; text-align: center;
+  position: relative;
+}
+.tab-btn .tb-badge {
+  display: inline-block; font-size: 10px; padding: 1px 6px;
+  border-radius: 10px; margin-left: 4px; background: var(--bg); color: var(--muted);
+  font-weight: 600;
+}
+.tab-btn.active { background: var(--purple); color: #fff; box-shadow: 0 2px 8px rgba(109,40,217,0.25); }
+.tab-btn.active .tb-badge { background: rgba(255,255,255,0.22); color: #fff; }
+.tab-btn:hover:not(.active) { background: var(--bg); color: var(--ink2); }
+
+/* ===== Container ===== */
+.container { max-width: 1120px; margin: 0 auto; padding: 14px 24px 60px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+
+/* ===== Overview Card ===== */
+.overview-card {
+  background: linear-gradient(135deg, #faf8ff 0%, #f0f4ff 100%);
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  padding: 16px 20px; margin-bottom: 14px;
+  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;
+}
+.overview-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff; flex-shrink: 0;
+}
+.overview-info h3 { font-size: 16px; font-weight: 800; margin-bottom: 3px; color: var(--ink); }
+.overview-info p { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.overview-stats { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+.ov-stat { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--ink2); }
+.ov-stat .ov-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ===== Card ===== */
+.card {
+  background: var(--bg2); border-radius: var(--radius); box-shadow: var(--shadow);
+  margin-bottom: 14px; overflow: hidden; transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.card-header {
+  padding: 12px 18px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(180deg, #fafbff 0%, #fff 100%);
+}
+.card-header .num {
+  width: 26px; height: 26px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.card-header h2 { font-size: 15px; font-weight: 700; flex: 1; }
+.card-header .tag {
+  font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 600;
+}
+.card-body { padding: 16px 18px; }
+
+/* ===== Editable ===== */
+[contenteditable] { border-radius: 3px; padding: 1px 3px; margin: -1px -3px; transition: background 0.15s; }
+[contenteditable]:hover { background: rgba(109,40,217,0.05); }
+[contenteditable]:focus { outline: 2px solid var(--purple); outline-offset: 1px; background: rgba(109,40,217,0.06); }
+
+/* ===== Section Title ===== */
+.stitle {
+  font-size: 13px; font-weight: 700; margin: 16px 0 8px;
+  padding-left: 12px; border-left: 3px solid var(--purple);
+  color: var(--ink);
+}
+.stitle:first-child { margin-top: 0; }
+.stitle.green { border-left-color: var(--green); }
+.stitle.blue { border-left-color: var(--blue); }
+.stitle.orange { border-left-color: var(--orange); }
+
+/* ===== Table ===== */
+.twrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: var(--radius-sm); margin: 8px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: #f8f7fc; padding: 9px 12px; text-align: left;
+  font-weight: 700; border-bottom: 2px solid var(--purple); white-space: nowrap; font-size: 12.5px;
+  color: var(--ink2);
+}
+td { padding: 8px 12px; border-bottom: 1px solid var(--rule2); font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(109,40,217,0.02); }
+td[contenteditable]:focus, th[contenteditable]:focus { outline: 2px solid var(--purple); outline-offset: -2px; background: rgba(109,40,217,0.08); }
+.tc { text-align: center; }
+.tc b { color: var(--purple); }
+.num-pos { color: var(--green); font-weight: 700; }
+.num-neg { color: var(--red); font-weight: 700; }
+.num-base { color: var(--purple); font-weight: 700; }
+
+/* ===== Table Note ===== */
+.tnote {
+  font-size: 11.5px; color: var(--muted); line-height: 1.75;
+  padding: 8px 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--rule); margin: 8px 0;
+  background: var(--bg);
+}
+.tnote b { color: var(--ink); }
+.tnote.pos { border-left-color: var(--green); background: #f0fdf4; }
+.tnote.warn { border-left-color: var(--orange); background: #fff7ed; }
+.tnote.info { border-left-color: var(--blue); background: #eff6ff; }
+
+/* ===== Flow ===== */
+.flow-row { display: flex; gap: 0; margin: 12px 0; flex-wrap: wrap; }
+.flow-box {
+  flex: 1; min-width: 120px; padding: 12px; border-radius: var(--radius-sm);
+  text-align: center; position: relative; margin-right: 8px; margin-bottom: 6px;
+}
+.flow-box .fb-label { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
+.flow-box .fb-value { font-size: 18px; font-weight: 800; }
+.flow-box::after { content:'→'; position:absolute; right:-7px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--muted2); }
+.flow-box:last-child::after { display: none; }
+.fb-green { background:#f0fdf4; border:1px solid #bbf7d0; }
+.fb-green .fb-label,.fb-green .fb-value { color:var(--green); }
+.fb-orange { background:#fff7ed; border:1px solid #fed7aa; }
+.fb-orange .fb-label,.fb-orange .fb-value { color:var(--orange); }
+.fb-red { background:#fef2f2; border:1px solid #fecaca; }
+.fb-red .fb-label,.fb-red .fb-value { color:var(--red); }
+
+/* ===== Type Card ===== */
+.type-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:10px 0; }
+.type-box { border-radius:var(--radius-sm); padding:14px; border:1px solid var(--rule); border-top:3px solid; background: #fff; transition: transform 0.15s; }
+.type-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.type-box.new { border-top-color:var(--green); background: linear-gradient(180deg, #f0fdf4 0%, #fff 60%); }
+.type-box.hot { border-top-color:var(--red); background: linear-gradient(180deg, #fef2f2 0%, #fff 60%); }
+.type-box.norm { border-top-color:var(--muted); background: linear-gradient(180deg, #f9fafb 0%, #fff 60%); }
+.type-box .tb-name { font-size:13px; font-weight:700; margin-bottom:5px; }
+.type-box .tb-rate { font-size:18px; font-weight:800; margin-bottom:5px; }
+.type-box.new .tb-rate { color:var(--green); }
+.type-box.hot .tb-rate { color:var(--red); }
+.type-box.norm .tb-rate { color:var(--muted); }
+.type-box .tb-desc { font-size:11.5px; color:var(--muted); line-height:1.6; }
+
+/* ===== Timeline ===== */
+.tl { margin: 12px 0; position: relative; }
+.tl::before { content:''; position:absolute; left:1.5px; top:0; bottom:0; width:2px; background:var(--rule); }
+.tl-item { display:flex; gap:14px; margin-bottom:0; position: relative; }
+.tl-bar { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:17px; position: relative; z-index: 1; box-shadow: 0 0 0 4px var(--bg); }
+.tl-item.s1 .tl-bar { background:var(--green); box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--green-l); }
+.tl-item.s2 .tl-bar { background:var(--orange); box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--orange-l); }
+.tl-item.s3 .tl-bar { background:var(--muted); box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px #e5e7eb; }
+.tl-content { flex:1; padding-bottom:16px; }
+.tl-head { display:flex; align-items:center; gap:8px; margin-bottom:5px; flex-wrap:wrap; }
+.tl-badge { font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; }
+.tl-item.s1 .tl-badge { background:var(--green-l); color:var(--green); }
+.tl-item.s2 .tl-badge { background:var(--orange-l); color:var(--orange); }
+.tl-item.s3 .tl-badge { background:#e5e7eb; color:var(--muted); }
+.tl-title { font-size:13px; font-weight:700; }
+.tl-text { font-size:12.5px; color:var(--ink2); line-height:1.75; }
+.tl-text ul { padding-left:18px; margin:3px 0; }
+.tl-text li { margin-bottom:2px; }
+.tl-rate { font-weight:700; }
+.tl-rate.pos { color:var(--green); }
+.tl-rate.neg { color:var(--red); }
+
+/* ===== Leader ===== */
+.leader-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:10px 0; }
+.leader-box { border-radius:var(--radius-sm); padding:14px; border:1px solid var(--rule); text-align:center; transition: transform 0.15s; background: #fff; }
+.leader-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.leader-box .lb-level { font-size:11px; font-weight:700; margin-bottom:3px; letter-spacing: 1px; }
+.leader-box .lb-name { font-size:15px; font-weight:700; margin-bottom:6px; }
+.leader-box .lb-salary { font-size:20px; font-weight:800; }
+.leader-box .lb-salary small { font-size:12.5px; font-weight:500; color:var(--muted); }
+.leader-box .lb-req { font-size:11.5px; color:var(--muted); margin-top:8px; padding-top:8px; border-top:1px solid var(--rule); }
+.leader-box.l1 { border-top:3px solid var(--green); background: linear-gradient(180deg, #f0fdf4 0%, #fff 60%); }
+.leader-box.l1 .lb-level { color:var(--green); }
+.leader-box.l2 { border-top:3px solid var(--blue); background: linear-gradient(180deg, #eff6ff 0%, #fff 60%); }
+.leader-box.l2 .lb-level { color:var(--blue); }
+.leader-box.l3 { border-top:3px solid var(--purple); background: linear-gradient(180deg, #f5f3ff 0%, #fff 60%); }
+.leader-box.l3 .lb-level { color:var(--purple); }
+
+/* ===== Info ===== */
+.info-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin:10px 0; }
+.info-box { background:var(--bg); border-radius:var(--radius-sm); padding:10px 12px; border: 1px solid var(--rule2); }
+.info-box .ib-label { font-size:11px; color:var(--muted); margin-bottom:2px; font-weight:600; }
+.info-box .ib-value { font-size:13px; font-weight:600; color: var(--ink); }
+
+/* ===== Badge ===== */
+.badge { display:inline-block; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:600; }
+.b-green { background:var(--green-l); color:var(--green); }
+.b-red { background:var(--red-l); color:var(--red); }
+.b-blue { background:var(--blue-l); color:var(--blue); }
+.b-purple { background:var(--purple-l); color:var(--purple); }
+.b-orange { background:var(--orange-l); color:var(--orange); }
+.b-gray { background:#e5e7eb; color:var(--muted); }
+
+/* ===== Rule List ===== */
+.rlist { list-style:none; padding:0; counter-reset:rc; }
+.rlist li { padding:6px 0 6px 28px; position:relative; font-size:13px; border-bottom:1px solid var(--rule2); }
+.rlist li:last-child { border-bottom:none; }
+.rlist li::before {
+  content:counter(rc); counter-increment:rc; position:absolute; left:0; top:6px;
+  width:20px; height:20px; background:var(--purple); color:#fff; border-radius:50%;
+  font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;
+}
+
+/* ===== Rate cell ===== */
+.rate-cell { font-weight:700; color:var(--purple); text-align:center; }
+.rate-cell.empty { color:var(--muted2); font-weight:400; }
+
+/* ===== Compare ===== */
+.cmp-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(232px,1fr)); gap:10px; margin:10px 0; }
+.cmp-col { background:var(--bg); border-radius:var(--radius-sm); padding:14px; border: 1px solid var(--rule2); }
+.cmp-col h4 { font-size:13px; font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:2px solid; }
+.cmp-col.v4 { border-top: 3px solid var(--green); }
+.cmp-col.v4 h4 { border-bottom-color:var(--green); color:var(--green); }
+.cmp-col.v3 { border-top: 3px solid var(--purple); }
+.cmp-col.v3 h4 { border-bottom-color:var(--purple); color:var(--purple); }
+.cmp-col.v2 { border-top: 3px solid var(--blue); }
+.cmp-col.v2 h4 { border-bottom-color:var(--blue); color:var(--blue); }
+.cmp-col.v1 { border-top: 3px solid var(--orange); }
+.cmp-col.v1 h4 { border-bottom-color:var(--orange); color:var(--orange); }
+.cmp-col ul { list-style:none; padding:0; }
+.cmp-col li { font-size:12px; padding:3px 0; padding-left:14px; position:relative; color:var(--ink2); line-height: 1.6; }
+.cmp-col li::before { content:'•'; position:absolute; left:0; color:var(--muted2); }
+
+/* ===== Evolution Bar ===== */
+.evo-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:12px 0; }
+.evo-card { border-radius: var(--radius-sm); padding: 14px; text-align: center; border: 1px solid var(--rule); position: relative; }
+.evo-card .evo-phase { font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }
+.evo-card .evo-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.evo-card .evo-date { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+.evo-card .evo-features { font-size: 11.5px; color: var(--ink2); line-height: 1.65; text-align: left; padding-left: 6px; }
+.evo-card.e1 { background: linear-gradient(180deg, #fff7ed 0%, #fff 70%); border-top: 3px solid var(--orange); }
+.evo-card.e1 .evo-phase { color: var(--orange); }
+.evo-card.e2 { background: linear-gradient(180deg, #eff6ff 0%, #fff 70%); border-top: 3px solid var(--blue); }
+.evo-card.e2 .evo-phase { color: var(--blue); }
+.evo-card.e3 { background: linear-gradient(180deg, #f5f3ff 0%, #fff 70%); border-top: 3px solid var(--purple); }
+.evo-card.e3 .evo-phase { color: var(--purple); }
+.evo-card.e4 { background: linear-gradient(180deg, #f0fdf4 0%, #fff 70%); border-top: 3px solid var(--green); }
+.evo-card.e4 .evo-phase { color: var(--green); }
+
+/* ===== Edit Hint ===== */
+.edit-hint {
+  position:fixed; bottom:20px; right:20px; background:#fff; border:1px solid var(--rule);
+  border-radius:20px; padding:7px 16px; font-size:11px; color:var(--muted);
+  box-shadow:var(--shadow-md); z-index:50; display:flex; align-items:center; gap:6px;
+}
+.edit-hint .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .type-row, .leader-row, .cmp-grid, .evo-row { grid-template-columns:1fr; }
+  .overview-card { grid-template-columns: 1fr; text-align: center; }
+  .overview-icon { margin: 0 auto; }
+  .flow-box { min-width:100%; margin-right:0; }
+  .flow-box::after { display:none; }
+  .tab-btn { font-size:11px; padding:7px 4px; }
+  .tab-btn .tb-badge { display:none; }
+  .header h1 { font-size:16px; }
+  .header-top { flex-direction: column; align-items: flex-start; }
+  .container { padding:10px 12px 60px; }
+  .card-body { padding:14px; }
+  .timeline-nav { gap: 4px; }
+  .tl-nav-item { padding: 4px 8px; }
+}
+@media print {
+  .header, .toolbar, .tab-bar, .edit-hint { display:none !important; }
+  .card { box-shadow:none; border:1px solid #ddd; page-break-inside:avoid; }
+  .tab-panel { display:block !important; }
+  body { background:#fff; }
+}
+</style></style>
 </head>
 <body>
 
@@ -2384,6 +2740,7 @@ body {
               <div class="comm-filter-item">
                 <label>方案版本</label>
                 <select id="biz-commission-version-filter" onchange="renderBizCommissionPlan()">
+                  <option value="v4">第四版 · 打品期+单品阶梯加成（2026年11月起）</option>
                   <option value="v3">第三版 · 打品驱动型（2026年8月起）</option>
                   <option value="v2">第二版 · 双轨提成（2026年5-7月）</option>
                   <option value="v1">第一版 · 奖金激励（2026年1-4月）</option>
@@ -3076,33 +3433,63 @@ function getRoleMenus(roleKey) {
 }
 
 // 从GitHub加载自定义角色
+// 内联默认角色（在网络不可用时作为兜底）
+function getEmbeddedRoles() {
+  return [];
+}
+
 var rolesReady = false;
+function _applyRolesCache(cached) {
+  Object.keys(ROLE_CONFIG).forEach(function(key) {
+    if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
+  });
+  Object.keys(cached).forEach(function(key) {
+    ROLE_CONFIG[key] = {
+      text: cached[key].text,
+      menus: cached[key].menus || ['home'],
+      features: cached[key].features || [],
+      fixed: false
+    };
+  });
+}
+
 function loadCustomRolesFromGitHub() {
-  // 使用GitHub API获取数据（绕过CDN缓存），而不是直接fetch raw文件
-  return fetchKbFileViaApi('roles.json')
+  // 1) 先用本地缓存或内联角色填充，立即放行登录（不依赖网络）
+  var cached = null;
+  try { cached = JSON.parse(localStorage.getItem('systemRoles') || 'null'); } catch(e) {}
+  var initial = cached && Object.keys(cached).length > 0 ? cached : null;
+  if (!initial) {
+    initial = {};
+    getEmbeddedRoles().forEach(function(r) {
+      initial[r.key] = { text: r.text, menus: r.menus, features: r.features };
+    });
+  }
+  _applyRolesCache(initial);
+  rolesReady = true;
+  // 2) 后台静默刷新服务器最新角色（失败不影响登录）
+  return fetchKbFileViaApi('roles.json', 8)
     .then(function(data) {
-      // 清除旧的自定义角色（保留admin和fixed角色）
+      if (!data || data.length === 0) return;
+      var nc = {};
       Object.keys(ROLE_CONFIG).forEach(function(key) {
         if (key !== 'admin' && !ROLE_CONFIG[key].fixed) delete ROLE_CONFIG[key];
       });
-      if (data && data.length > 0) {
-        data.forEach(function(r) {
-          if (r.key && r.key !== 'admin') {
-            ROLE_CONFIG[r.key] = {
-              text: r.text,
-              menus: r.menus || ['home'],
-              features: r.features || [],
-              fixed: false
-            };
-          }
-        });
-        console.log('[用户系统] roles.json 加载成功，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
-      }
-      rolesReady = true;
+      data.forEach(function(r) {
+        if (r.key && r.key !== 'admin') {
+          ROLE_CONFIG[r.key] = {
+            text: r.text,
+            menus: r.menus || ['home'],
+            features: r.features || [],
+            fixed: false
+          };
+          nc[r.key] = { text: r.text, menus: r.menus || ['home'], features: r.features || [] };
+        }
+      });
+      try { localStorage.setItem('systemRoles', JSON.stringify(nc)); } catch(e) {}
+      console.log('[用户系统] roles.json 已刷新，共 ' + (Object.keys(ROLE_CONFIG).length - 1) + ' 个自定义角色');
     })
     .catch(function(err) {
-      console.log('[用户系统] roles.json 不存在或加载失败（首次使用正常）:', err.message);
-      rolesReady = true;
+      console.warn('[用户系统] roles.json 刷新失败，继续使用本地数据:', err.message);
     });
 }
 
@@ -3172,52 +3559,30 @@ function utf8ToBase64(str) {
 
 // 预加载用户数据（通过GitHub API读取users.json，绕过CDN缓存，同时合并本地遗留账号）
 function preloadUsers() {
-  fetchKbFileViaApi('users.json')
+  // 1) 先用本地缓存或内联用户表，立即放行登录（不依赖网络）
+  var localUsers = null;
+  try { localUsers = JSON.parse(localStorage.getItem('systemUsers') || 'null'); } catch(e) {}
+  usersCache = (localUsers && localUsers.length > 0) ? localUsers : getDefaultUsers();
+  usersReady = true;
+  // 2) 后台静默刷新服务器最新用户（失败不影响登录）
+  fetchKbFileViaApi('users.json', 8)
     .then(function(data) {
       data = data || [];
-      // 合并本地遗留账号（旧localStorage中创建但未同步的账号）
-      var localUsers = [];
+      var existingNames = data.map(function(u) { return u.name; });
       try {
         var stored = JSON.parse(localStorage.getItem('systemUsers') || '[]');
-        if (stored && stored.length > 0) localUsers = stored;
-      } catch(e) {}
-
-      if (localUsers.length > 0) {
-        // 本地有遗留账号，合并到全局列表（全局已有的不覆盖）
-        var existingNames = data.map(function(u) { return u.name; });
-        var merged = false;
-        localUsers.forEach(function(lu) {
-          if (existingNames.indexOf(lu.name) === -1) {
-            data.push(lu);
-            merged = true;
-            console.log('[用户系统] 发现本地遗留账号已自动合并: ' + lu.name);
-          }
+        (stored || []).forEach(function(lu) {
+          if (existingNames.indexOf(lu.name) === -1) data.push(lu);
         });
-        if (merged) {
-          usersCache = data;
-          // 自动将合并后的数据同步到服务器
-          pushUsersToGitHub(data);
-        }
+      } catch(e) {}
+      if (data.length > 0) {
+        usersCache = data;
+        try { localStorage.setItem('systemUsers', JSON.stringify(data)); } catch(e) {}
+        console.log('[用户系统] users.json 已刷新，共 ' + data.length + ' 个用户');
       }
-
-      usersCache = data;
-      usersReady = true;
-      console.log('[用户系统] users.json 加载成功，共 ' + data.length + ' 个用户');
     })
     .catch(function(err) {
-      console.error('[用户系统] users.json 加载失败，使用默认用户:', err);
-      // 回退：尝试读取本地存储
-      try {
-        var stored = JSON.parse(localStorage.getItem('systemUsers') || 'null');
-        if (stored && stored.length > 0) {
-          usersCache = stored;
-        } else {
-          usersCache = getDefaultUsers();
-        }
-      } catch(e) {
-        usersCache = getDefaultUsers();
-      }
-      usersReady = true;
+      console.warn('[用户系统] users.json 刷新失败，继续使用本地数据:', err.message);
     });
 }
 
@@ -3278,22 +3643,20 @@ function doLogin() {
   var pass = document.getElementById('loginPass').value;
   if (!user || !pass) { alert('请输入账号和密码'); return; }
 
-  // 用户数据可能还在从服务器加载，等待就绪
+  // 用户数据已优先使用本地缓存立即放行，此处等待仅作兜底
   if (!usersReady || !rolesReady) {
     var btn = document.getElementById('loginBtn');
     var origText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = '加载中...'; btn.disabled = true; }
-    var waitCount = 0;
+    var waited = 0;
     var checkInterval = setInterval(function() {
-      waitCount++;
-      if (usersReady && rolesReady) {
+      waited += 200;
+      if ((usersReady && rolesReady) || waited > 3000) {
         clearInterval(checkInterval);
+        if (!usersReady) { usersCache = usersCache || getDefaultUsers(); usersReady = true; }
+        if (!rolesReady) { rolesReady = true; }
         if (btn) { btn.textContent = origText; btn.disabled = false; }
-        doLogin(); // 数据就绪后重新执行登录
-      } else if (waitCount > 50) { // 10秒超时
-        clearInterval(checkInterval);
-        if (btn) { btn.textContent = origText; btn.disabled = false; }
-        alert('用户数据加载超时，请刷新页面重试');
+        doLogin(); // 数据就绪（或兜底放行）后重新执行登录
       }
     }, 200);
     return;
@@ -6104,7 +6467,8 @@ function renderBizCommissionPlan() {
   if (!el) return;
   var version = (document.getElementById('biz-commission-version-filter') || {}).value || 'v3';
   var html = '';
-  if (version === 'v3') html = commPlanV3HTML();
+  if (version === 'v4') html = commPlanV4HTML();
+  else if (version === 'v3') html = commPlanV3HTML();
   else if (version === 'v2') html = commPlanV2HTML();
   else if (version === 'v1') html = commPlanV1HTML();
   else html = commPlanCompareHTML();
@@ -7713,6 +8077,286 @@ function platformLabel(p) { return PLATFORM_LABELS[p] || p || '未知'; }
 function statusLabel(s) { return s === 'active' ? '合作中' : '已停止'; }
 
 
+
+function commPlanV4HTML() {
+  var h = `<div class="tab-panel active" id="panel-v4">
+
+  <!-- 概览卡片 -->
+  <div class="overview-card">
+    <div class="overview-icon">🎯</div>
+    <div class="overview-info">
+      <h3 >第四版商务提成方案 · 打品期 + 单品阶梯加成</h3>
+      <p >以"打品期"承接新发品推广，以"单品实销达标加成"驱动爆款与常规品深耕。取消推广权竞争与授权机制，改为打品期实销第一延长 2 个月提成；取消统一加持，改为按单个商品的实销规模逐品加提点。</p>
+      <div class="overview-stats">
+        <div class="ov-stat"><div class="ov-dot" style="background:var(--green);"></div><span >新发品三档比例 1%/1.5%/2%</span></div>
+        <div class="ov-stat"><div class="ov-dot" style="background:var(--red);"></div><span >单品实销达标加成</span></div>
+        <div class="ov-stat"><div class="ov-dot" style="background:var(--purple);"></div><span >销冠延长 2 个月</span></div>
+        <div class="ov-stat"><div class="ov-dot" style="background:var(--blue);"></div><span >专员 / 组长双线</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- V4-1: 商务专员提成 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="num" style="background:var(--purple);">1</div>
+      <h2 >商务专员提成</h2>
+      <span class="badge b-purple" >生效日期：2026年11月1日</span>
+    </div>
+    <div class="card-body">
+
+      <div class="info-row">
+        <div class="info-box"><div class="ib-label">计算基数</div><div class="ib-value" >个人归属商品实销金额</div></div>
+        <div class="info-box"><div class="ib-label">区分维度</div><div class="ib-value" >按商品定位 + 单品实销规模</div></div>
+        <div class="info-box"><div class="ib-label">计算周期</div><div class="ib-value" >月度</div></div>
+        <div class="info-box"><div class="ib-label">数据来源</div><div class="ib-value" >飞瓜执行订单</div></div>
+      </div>
+
+      <div class="stitle" >三类商品定位总览</div>
+      <div class="type-row">
+        <div class="type-box new">
+          <div class="tb-name" >新发品</div>
+          <div class="tb-rate" >1% / 1.5% / 2%</div>
+          <div class="tb-desc" >团队确认重点推广商品，新品/老品均可。逐品按战略权重指定档位，特殊产品审批后可调整。</div>
+        </div>
+        <div class="type-box hot">
+          <div class="tb-name" >爆款品</div>
+          <div class="tb-rate" >0.6%</div>
+          <div class="tb-desc" >自然月全渠道实销 ≥200 万元。个人该单品 ≥200 万 → 0.8%。</div>
+        </div>
+        <div class="type-box norm">
+          <div class="tb-name" >常规品</div>
+          <div class="tb-rate" >0.3%</div>
+          <div class="tb-desc" >不满足新发品与爆款品的其余商品。个人该单品 ≥50 万 → 0.4%，≥100 万 → 0.5%。</div>
+        </div>
+      </div>
+      <div class="tnote warn">
+        <b>优先级：</b><span >新发品 ＞ 爆款品 ＞ 常规品，同一商品同一自然月只适用一档。</span>
+      </div>
+
+      <div class="stitle green" >1-1 新发品 · 打品期规则</div>
+      <div class="twrap">
+        <table>
+          <thead><tr><th >环节</th><th >规则</th></tr></thead>
+          <tbody>
+            <tr><td >认定方式</td><td >团队确认为重点推广的单个商品或商品组合，<b>新品、老品均可</b></td></tr>
+            <tr><td >参与方式</td><td >常规：专员<b>自主选择</b>；特殊：由<b>团队指定</b></td></tr>
+            <tr><td >打品期</td><td >新品：链接上线日；老品：团队立项日。统一至<b>次月月底</b>结束，保证 1-2 个月</td></tr>
+            <tr><td >提成比例</td><td ><b>1%、1.5%、2%</b> 三档，按商品战略权重逐品指定；特殊产品审批后可调整</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="stitle blue" >打品期内 vs 打品期后</div>
+      <div class="tl">
+        <div class="tl-item s1">
+          <div class="tl-bar"></div>
+          <div class="tl-content">
+            <div class="tl-head">
+              <span class="tl-title" >打品期内（链接上线 / 立项日 → 次月月底）</span>
+              <span class="tl-badge">按新发品比例提成</span>
+            </div>
+            <div class="tl-text">
+              <p >所有参与推广的专员，按该品<b>既定比例</b>对个人实销提成。同期该品已达爆款标准，仍按新发品比例执行（优先级隔离）。</p>
+              <p><span class="tl-rate pos">专员提成 = 个人该品实销 × 1% / 1.5% / 2%</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item s2">
+          <div class="tl-bar"></div>
+          <div class="tl-content">
+            <div class="tl-head">
+              <span class="tl-title" >打品期结束后（第 3 个月起）</span>
+              <span class="tl-badge">销冠延长 2 个月 · 其余转商品定位</span>
+            </div>
+            <div class="tl-text">
+              <ul>
+                <li ><b>销冠：</b>打品期内该品<b>全渠道商务推广实销排名第一</b>，<b>延长 2 个月</b>继续按新发品比例提成（<b>不叠加</b>单品加成）</li>
+                <li ><b>并列：</b>实销并列时<b>全部获得延长资格</b></li>
+                <li ><b>其他专员：</b>按爆款品 0.6% 或常规品 0.3%（含单品加成）</li>
+                <li ><b>未参与者：</b>打品期后可正常推广，按爆款 / 常规品规则提成</li>
+              </ul>
+              <p style="font-size:13px;color:var(--muted);" >延长结束后，该品对所有专员统一按爆款 / 常规品规则执行，不再有新发品特殊比例。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stitle green" >1-2 爆款品 & 常规品 · 单品加成</div>
+      <div class="twrap">
+        <table>
+          <thead><tr><th >商品定位</th><th  class="tc">基础提成</th><th >个人单品实销达标（自然月）</th><th  class="tc">加成后</th></tr></thead>
+          <tbody>
+            <tr><td >爆款品</td><td class="tc"><span class="num-base">0.6%</span></td><td >≥200 万元</td><td class="tc"><span class="num-pos">0.8%</span></td></tr>
+            <tr><td >常规品</td><td class="tc"><span class="num-base">0.3%</span></td><td >≥50 万元</td><td class="tc"><span class="num-pos">0.4%</span></td></tr>
+            <tr><td >常规品</td><td class="tc"><span class="num-base">0.3%</span></td><td >≥100 万元</td><td class="tc"><span class="num-pos">0.5%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tnote">
+        <b>加成规则：</b><span >按<b>单个商品</b>分别计算、<b>取最高档、不叠加</b>（常规品 ≥100 万取 +0.2%，非 +0.1%+0.2%），多个达标单品各自加成、不封顶。</span>
+      </div>
+
+      <div class="stitle" >专员提成速查表</div>
+      <div class="twrap">
+        <table>
+          <thead><tr><th >商品定位</th><th  class="tc">基础提成</th><th >个人加成触发条件</th><th  class="tc">加成后</th></tr></thead>
+          <tbody>
+            <tr><td >新发品（打品期内 / 销冠延长期）</td><td class="tc"><span class="num-base">1% / 1.5% / 2%</span></td><td >不适用加成</td><td class="tc">—</td></tr>
+            <tr><td >爆款品</td><td class="tc"><span class="num-base">0.6%</span></td><td >个人该单品 ≥200 万</td><td class="tc"><span class="num-pos">0.8%</span></td></tr>
+            <tr><td >常规品</td><td class="tc"><span class="num-base">0.3%</span></td><td >个人该单品 ≥50 万 / ≥100 万</td><td class="tc"><span class="num-pos">0.4% / 0.5%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- V4-2: 商务组长提成 -->
+  <div class="card">
+    <div class="card-header">
+      <div class="num" style="background:var(--blue);">2</div>
+      <h2 >商务组长提成</h2>
+    </div>
+    <div class="card-body">
+
+      <div class="info-row">
+        <div class="info-box"><div class="ib-label">计算基数</div><div class="ib-value" >团队管辖小组商品实销金额</div></div>
+        <div class="info-box"><div class="ib-label">区分维度</div><div class="ib-value" >按商品定位</div></div>
+        <div class="info-box"><div class="ib-label">计算周期</div><div class="ib-value" >月度</div></div>
+        <div class="info-box"><div class="ib-label">个人加成</div><div class="ib-value" >不享受</div></div>
+      </div>
+
+      <div class="stitle blue" >组长提成速查表</div>
+      <div class="twrap">
+        <table>
+          <thead><tr><th >商品定位</th><th >计算基数</th><th  class="tc">提成比例</th><th >适用周期</th></tr></thead>
+          <tbody>
+            <tr><td >新发品</td><td >团队该品全部实销</td><td class="tc"><span class="num-base">0.3%</span></td><td >打品期内</td></tr>
+            <tr><td >新发品（打品期后）</td><td >销冠部分 × 0.3% + 其余专员 × 该品类型</td><td class="tc">分拆</td><td >销冠延长期（2 个月）</td></tr>
+            <tr><td >爆款品</td><td >团队所有爆款品总实销</td><td class="tc"><span class="num-base">0.2%</span></td><td >全周期</td></tr>
+            <tr><td >常规品</td><td >团队所有常规品总实销</td><td class="tc"><span class="num-base">0.1%</span></td><td >全周期</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="stitle blue" >新发品 · 组长口径</div>
+      <div class="tl">
+        <div class="tl-item s1">
+          <div class="tl-bar"></div>
+          <div class="tl-content">
+            <div class="tl-head">
+              <span class="tl-title" >打品期内</span>
+              <span class="tl-badge">团队该品总实销 × 0.3%</span>
+            </div>
+            <div class="tl-text">
+              <p >按团队该新发品全部实销金额之和 × 0.3% 计提。</p>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item s2">
+          <div class="tl-bar"></div>
+          <div class="tl-content">
+            <div class="tl-head">
+              <span class="tl-title" >打品期后（销冠延长期）</span>
+              <span class="tl-badge">按专员结构分拆</span>
+            </div>
+            <div class="tl-text">
+              <ul>
+                <li ><b>销冠专员实销</b> × <span class="tl-rate pos">0.3%</span></li>
+                <li ><b>其余专员实销</b> × <span class="tl-rate pos">0.2%</span>（爆款品）/ <span class="tl-rate pos">0.1%</span>（常规品）</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item s3">
+          <div class="tl-bar"></div>
+          <div class="tl-content">
+            <div class="tl-head">
+              <span class="tl-title" >销冠延长期结束后</span>
+              <span class="tl-badge">全员按爆款 / 常规品</span>
+            </div>
+            <div class="tl-text">
+              <p >该商品全员按爆款品 / 常规品规则执行，组长同步按爆款 0.2% / 常规 0.1% 计提。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tnote warn">
+        <b>组长本人业绩：</b><span >组长业绩<b>不参与销冠排名</b>，自己达人业绩按<b>非销冠口径</b>（0.2% / 0.1%）计入组长提成基数。</span>
+      </div>
+      <div class="tnote">
+        <b>基数不重复：</b><span >打品期（含延长期）的新发品实销，只计入新发品口径，<b>不再重复计入</b>爆款 / 常规品团队基数。组长不享受专员个人单品加成。</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- V4-3: 组织裂变（沿用第三版） -->
+  <div class="card">
+    <div class="card-header">
+      <div class="num" style="background:var(--green);">3</div>
+      <h2 >组织裂变方案</h2>
+      <span class="badge b-gray" >沿用第三版</span>
+    </div>
+    <div class="card-body">
+      <div class="stitle green" >商务组长分级与待遇</div>
+      <div class="leader-row">
+        <div class="leader-box l1">
+          <div class="lb-level" >LEVEL 1</div>
+          <div class="lb-name" >初级商务组长</div>
+          <div class="lb-salary" >5,000<small> + 1,000</small></div>
+          <div class="lb-req" >至少打造 <b>1款爆款</b> 的完整项目经理经验</div>
+        </div>
+        <div class="leader-box l2">
+          <div class="lb-level" >LEVEL 2</div>
+          <div class="lb-name" >高级商务组长</div>
+          <div class="lb-salary" >6,000<small> + 1,500</small></div>
+          <div class="lb-req" >至少打造 <b>2款爆款</b> 的完整项目经理经验</div>
+        </div>
+        <div class="leader-box l3">
+          <div class="lb-level" >LEVEL 3</div>
+          <div class="lb-name" >资深商务组长</div>
+          <div class="lb-salary" >7,000<small> + 2,000</small></div>
+          <div class="lb-req" >至少打造 <b>3款爆款</b> 的完整项目经理经验</div>
+        </div>
+      </div>
+      <div class="stitle green" >晋升规则</div>
+      <div class="twrap">
+        <table>
+          <thead><tr><th >晋升维度</th><th >要求</th><th >说明</th></tr></thead>
+          <tbody>
+            <tr><td >打爆款经验</td><td >满足对应级别爆款项目数量</td><td >初级≥1款 / 高级≥2款 / 资深≥3款</td></tr>
+            <tr><td >团队组织规划</td><td >结合团队实际编制需求</td><td >非自动晋升，需有对应编制空缺</td></tr>
+            <tr><td >管理能力评估</td><td >通过管理能力综合评估</td><td >评估维度待细化</td></tr>
+            <tr><td >晋升周期</td><td >半年度一次（7月 / 1月）</td><td >最小晋升周期为半年度</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tnote info">
+        <b>晋升路径：</b><span >商务专员 → 初级商务组长（≥1爆）→ 高级商务组长（≥2爆）→ 资深商务组长（≥3爆）。每次晋升需同时满足爆款经验 + 团队规划 + 管理评估三个维度，最小周期为半年度。</span>
+      </div>
+
+      <div class="stitle orange" >通用规则</div>
+      <ol class="rlist">
+        <li ><b>数据采集：</b>订单与销售数据以<b>飞瓜执行订单数据</b>为准，达人归属以订单明细归属达人运营为准。</li>
+        <li ><b>商品定位判定：</b>以商品 ID 为采集筛选项。爆款品门槛为单商品自然月全渠道实销 ≥200 万元；常规品为不满足新发品与爆款品的其余商品。</li>
+        <li ><b>新发品认定：</b>由团队确认并逐品指定提成档位（1% / 1.5% / 2%），记录于打品立项表；特殊产品调整比例需经审批。</li>
+        <li ><b>销冠并列处理：</b>打品期结束实销排名并列时，<b>并列全部获得延长 2 个月资格</b>，不做进一步区分。</li>
+        <li ><b>优先级规则：</b>新发品 ＞ 爆款品 ＞ 常规品，同一商品同一自然月只适用一档，不重复计提。</li>
+        <li ><b>处罚规则：</b>如遇工作失误造成运营损失，依据严重程度进行业绩扣除等处罚，包括但不限于佣金设置错误、机制错误等。</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- ==================== Tab: V3（第三版） ========================== -->
+<!-- ================================================================ -->
+<div class="tab-panel"`;
+  return h;
+}
 
 function commPlanV3HTML() {
   var h = '';
