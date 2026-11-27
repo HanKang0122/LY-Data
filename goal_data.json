@@ -576,7 +576,7 @@
           "name": "鲨鱼菲特全麦恰巴塔350g",
           "position": "新发品",
           "target": "100000",
-          "confirmed": false,
+          "confirmed": true,
           "splits": []
         }
       ],
