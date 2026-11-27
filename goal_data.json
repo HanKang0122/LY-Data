@@ -555,6 +555,18 @@
     "2026-1": {
       "rows": [],
       "locked": false
+    },
+    "2026-12": {
+      "rows": [
+        {
+          "name": "",
+          "position": "",
+          "target": "",
+          "confirmed": false,
+          "splits": []
+        }
+      ],
+      "locked": false
     }
   },
   "specialists": [
