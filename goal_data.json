@@ -562,13 +562,13 @@
           "name": "鲨鱼菲特去皮鸭腿110g",
           "position": "爆款品",
           "target": "7000000",
-          "confirmed": false,
+          "confirmed": true,
           "splits": []
         },
         {
           "name": "鲨鱼菲特燕麦肉包蛋60g",
           "position": "常规品",
-          "target": "",
+          "target": "500000",
           "confirmed": false,
           "splits": []
         },
